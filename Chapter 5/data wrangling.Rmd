@@ -1,0 +1,52 @@
+---
+title: "Chapter 06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+```{r, echo = FALSE, message = FALSE}
+
+library(tidyverse)
+
+```
+
+```{r echo = FALSE}
+AH_corpus <- as_tibble(read.csv("a_corpus_audited.csv")) 
+AH_nuc <- filter(AH_corpus, cur_foot == 2) %>% 
+  select(code:fin_phon) %>%
+  select(-metre_ID, -gender, -stim_metre, -init_phon, -phr_phon, -ana_syls) %>% 
+  unite(nuc_contour, acc_phon, fin_phon, sep = " ", remove = FALSE)
+
+
+A_nuc <- AH_nuc %>% filter(
+  stim %in% c("A1211", "A1231", "A1241", "A1111", "A0221", "A0321", "A0423")
+  )
+A_nuc_pre <- AH_nuc %>% filter(stim %in% c("A1111", "A0221", "A0321", "A0423"))
+A_nuc_foot <- AH_nuc %>% filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
+A_nuc_contour_inventory <- AH_nuc %>%  group_by(nuc_contour) %>% count()
+
+
+```
+
+### Inventory of nuclear contours in A and H Corpora
+
+```{r}
+print(A_nuc_contour_inventory)
+```
+
+
+
+### Complete list of L*H L% nuclear accents in A and H Corpora
+```{r echo = FALSE}
+AH_nuc %>% 
+  filter(nuc_contour %in% "L*H L%") %>% 
+  select(-rep, -(tot_syls:wrd_end_syl), -acc_phon, -fin_phon) %>% 
+  print(width = Inf, n = Inf)
+```
+ 
+

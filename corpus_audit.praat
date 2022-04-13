@@ -1,5 +1,6 @@
 form
-    sentence data_file
+    sentence data_file Chapter 5/a_corpus.csv
+    natural target_feet 2
 endform
 # GET DATA
 data = Read Table from comma-separated file: data_file$
@@ -34,13 +35,14 @@ endfor
 
 # REMOVE INVALID UTTERANCES
 writeFileLine: "'file_root$'_invalid.csv", "code,problem"
+
 # Check foot count
 num_rows = Get number of rows
 for i to num_rows
     cur_row = num_rows - i + 1
     # check number of feet
     cur_tot_feet = Get value: cur_row, "tot_feet"
-    if cur_tot_feet > 2
+    if cur_tot_feet != target_feet
         cur_code$ = Get value: cur_row, "code"
         appendFileLine: "'file_root$'_invalid.csv", "'cur_code$',foot count"
         Remove row: cur_row
