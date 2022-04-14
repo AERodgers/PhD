@@ -8,7 +8,6 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-
 ```{r, echo = FALSE, message = FALSE}
 
 library(tidyverse)
@@ -16,27 +15,109 @@ library(tidyverse)
 ```
 
 ```{r echo = FALSE}
-AH_corpus <- as_tibble(read.csv("a_corpus_audited.csv")) 
+# Load AH corpus. 
+AH_corpus <- as_tibble(read.csv("a_corpus_audited.csv"))
+```
+
+
+```{r echo = FALSE}
+# get PN data.
+AH_PN <- filter(AH_corpus, cur_foot == 1) %>% 
+  select(code:stim, tot_syls:acc_phon, init_phon) %>% 
+  select(speaker:stim, ana_syls, foot_syls, acc_phon, init_phon, acc_phon) %>% 
+  mutate(acc_phon = str_replace(acc_phon, "!", "")) %>% # ignore downstep
+  mutate(acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H"))) %>% 
+  unite(init_contour, init_phon, acc_phon, sep = " ", remove = FALSE)
+
+A_PN_ana <- AH_PN %>%
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422"))
+A_PN_foot <- AH_PN %>%
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423"))
+H_PN_lex <- AH_PN %>%
+  filter(stim %in% c("A0321", "H0322", "H0433", "A0423", "H1321", "H1322"))
+
+```
+
+
+### Distribution of PAs by speaker across footsize conditions
+```{r}
+# Get number of reps per speaker per target
+A_PN_foot_reps <- A_PN_foot %>%
+  group_by(speaker, foot_syls) %>%
+  summarise(acc_count = n()) %>%
+  print(width = Inf, n = Inf)
+
+# Get number of PA tokens per speaker per target
+A_PN_foot_summary <- A_PN_foot %>%
+  group_by(speaker, foot_syls, acc_phon) %>%
+  summarise(acc_count = n()) %>%
+  spread(acc_phon, acc_count, is.na <-(0))
+
+# combine the two tables
+left_join(A_PN_foot_summary, A_PN_foot_reps)%>% 
+  mutate() %>% ##### STOPHERE
+  print(width = Inf, n = Inf)
+
+# diveide the PAs by the accCount
+```
+
+### Distribution of PAs by speaker across ancrusis conditions
+```{r ignore = TRUE}
+A_PN_ana_summary <- A_PN_ana %>%
+  group_by(speaker, ana_syls, acc_phon) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0)) %>% 
+  print(width = Inf, n = Inf)
+```
+
+
+
+
+```{r}
+## Phonological Inventory of PN data
+### Distribution of PAs across footsize conditions
+A_PN_foot_summary <- A_PN_foot %>%
+  group_by(acc_phon, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0))
+```
+
+
+```{r}
+### Distribution of PAs across ancrusis conditions
+A_PN_ana_summary <- A_PN_ana %>%
+  group_by(acc_phon, ana_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0))
+```
+
+
+
+```{r echo = FALSE}
+# Get NUC data
 AH_nuc <- filter(AH_corpus, cur_foot == 2) %>% 
-  select(code:fin_phon) %>%
-  select(-metre_ID, -gender, -stim_metre, -init_phon, -phr_phon, -ana_syls) %>% 
+  select(code:stim, tot_syls:acc_phon, fin_phon) %>% 
   unite(nuc_contour, acc_phon, fin_phon, sep = " ", remove = FALSE)
-
-
-A_nuc <- AH_nuc %>% filter(
-  stim %in% c("A1211", "A1231", "A1241", "A1111", "A0221", "A0321", "A0423")
-  )
 A_nuc_pre <- AH_nuc %>% filter(stim %in% c("A1111", "A0221", "A0321", "A0423"))
 A_nuc_foot <- AH_nuc %>% filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
-A_nuc_contour_inventory <- AH_nuc %>%  group_by(nuc_contour) %>% count()
 
 
 ```
 
+
 ### Inventory of nuclear contours in A and H Corpora
 
 ```{r}
-print(A_nuc_contour_inventory)
+#AH_nuc %>%  group_by(speaker, stim) %>% count() %>% 
+#print(width = Inf, n = Inf)
+
+A_nuc_pre %>%  group_by(stim, nuc_contour) %>% 
+  count(stim) %>% 
+  print(width = Inf, n = Inf)
+
+A_nuc_foot %>%  group_by(foot_syls, nuc_contour) %>% 
+  count(stim) %>% 
+  print(width = Inf, n = Inf)
 ```
 
 
@@ -45,7 +126,7 @@ print(A_nuc_contour_inventory)
 ```{r echo = FALSE}
 AH_nuc %>% 
   filter(nuc_contour %in% "L*H L%") %>% 
-  select(-rep, -(tot_syls:wrd_end_syl), -acc_phon, -fin_phon) %>% 
+  select(-(tot_syls:wrd_end_syl), -acc_phon, -fin_phon) %>% 
   print(width = Inf, n = Inf)
 ```
  
