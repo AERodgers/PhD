@@ -1,133 +1,167 @@
 ---
-title: "Chapter 06"
+title: "Chapter 06: Phonological Analysis"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 ```
 
 
 ```{r, echo = FALSE, message = FALSE}
-
 library(tidyverse)
-
 ```
 
 ```{r echo = FALSE}
-# Load AH corpus. 
-AH_corpus <- as_tibble(read.csv("a_corpus_audited.csv"))
+corpus <- as_tibble(                            # Read in AH corpus. 
+  read.csv("a_corpus_audited.csv")
+  ) %>%
+  select(                                   
+    speaker:stim,                               # Retain reference columns and                 
+    tot_syls:acc_phon,                          # phonological data.
+    ana_syls,
+    cur_foot:acc_phon,
+    init_phon:fin_phon,
+    -tot_syls, -tot_feet
+    ) %>%
+  mutate(                                       # Ignore downstep.
+    acc_phon = str_replace(acc_phon, "!", "") 
+    ) %>% 
+  mutate(                                       # Arrange PA levels according to
+    acc_phon = factor(                          # hypothesized hierarchy.
+      acc_phon, levels = c(
+        "(*)", "L*", "H*", ">H*", "L*H"
+        )
+      )
+    )
+
+pn <- filter(corpus, cur_foot == 1)             # Extract PN data.
+
+pn_ana <- pn %>%                                # Extract PN anacrusis data.
+  filter(stim %in% c(
+    "A0423", "A1422", "A2422", "A3422"
+    ))
+
+pn_foot <- pn %>% filter(stim %in% c(           # Extract PN foot-size data.
+  "A0131", "A0221", "A0321", "A0423"
+  ))
+
+pn_lex <- pn %>% filter(stim %in% c(            # Extract PN word-boundary data.
+  "A0321", "H0322",
+  "H0433", "A0423",
+  "H1321", "H1322"
+  ))
+
+nuc <- filter(corpus, cur_foot == 2) %>%       # Extract nuclear PA data.
+  select(-init_phon, -ana_syls) %>%            # Remove irrelevant columns.
+  unite(                                       # Create nuclear contour column.
+    nuc_contour, acc_phon, fin_phon,
+    sep = " ", remove = FALSE
+    )
+
+nuc_pre <- nuc %>%                             # Extract nuclear PN foot-size
+  filter(stim %in% c(                          # data.
+    "A1111", "A0221", "A0321", "A0423"
+    ))
+
+nuc_foot <- nuc %>%                            # Get nuclear PA preceding 
+  filter(stim %in% c(                          # syllable data.
+    "A1211", "A0221", "A1231", "A1241"
+    ))
+
+
+rm(corpus, nuc, pn)                            # Remove redundant variables
+                                               # from R Environment.
+
 ```
 
-
-```{r echo = FALSE}
-# get PN data.
-AH_PN <- filter(AH_corpus, cur_foot == 1) %>% 
-  select(code:stim, tot_syls:acc_phon, init_phon) %>% 
-  select(speaker:stim, ana_syls, foot_syls, acc_phon, init_phon, acc_phon) %>% 
-  mutate(acc_phon = str_replace(acc_phon, "!", "")) %>% # ignore downstep
-  mutate(acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H"))) %>% 
-  unite(init_contour, init_phon, acc_phon, sep = " ", remove = FALSE)
-
-A_PN_ana <- AH_PN %>%
-  filter(stim %in% c("A0423", "A1422", "A2422", "A3422"))
-A_PN_foot <- AH_PN %>%
-  filter(stim %in% c("A0131", "A0221", "A0321", "A0423"))
-H_PN_lex <- AH_PN %>%
-  filter(stim %in% c("A0321", "H0322", "H0433", "A0423", "H1321", "H1322"))
-
-```
 
 
 ### Distribution of PAs by speaker across footsize conditions
 ```{r}
 # Get number of reps per speaker per target
-A_PN_foot_reps <- A_PN_foot %>%
+pn_foot_reps <- pn_foot %>%
   group_by(speaker, foot_syls) %>%
-  summarise(acc_count = n()) %>%
-  print(width = Inf, n = Inf)
+  summarise(acc_count = n())
+
 
 # Get number of PA tokens per speaker per target
-A_PN_foot_summary <- A_PN_foot %>%
+pn_foot_summary <- pn_foot %>%
   group_by(speaker, foot_syls, acc_phon) %>%
   summarise(acc_count = n()) %>%
   spread(acc_phon, acc_count, is.na <-(0))
 
+
 # combine the two tables
-left_join(A_PN_foot_summary, A_PN_foot_reps)%>% 
-  mutate() %>% ##### STOPHERE
+test <- left_join(pn_foot_summary, pn_foot_reps)%>% 
+# Convert tokens to ratios of tokens per speaker per target
+  mutate(`(*)` = `(*)` / acc_count*5) %>%
+  mutate(`L*` = `L*` / acc_count*5) %>% 
+  mutate(`H*` = `H*` / acc_count*5) %>% 
+  mutate(`>H*` = `>H*` / acc_count*5) %>%
+  mutate(`L*H` = `L*H` / acc_count*5) %>% 
+  group_by(foot_syls) %>% 
+  select(-speaker, -acc_count) %>% 
+  gather(acc_phon, mod_count, 2:6)  %>%
+  mutate(acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H"))) %>% 
+  group_by(foot_syls, acc_phon) %>% 
+  summarise(mod_sum = sum(mod_count)) %>%
+  spread(acc_phon, mod_sum) %>% 
   print(width = Inf, n = Inf)
 
-# diveide the PAs by the accCount
+
+# divide the PAs by the acc_count
 ```
 
+
+```{r echo = FALSE, eval = FALSE}
 ### Distribution of PAs by speaker across ancrusis conditions
-```{r ignore = TRUE}
-A_PN_ana_summary <- A_PN_ana %>%
+pn_ana_summary <- pn_ana %>%
   group_by(speaker, ana_syls, acc_phon) %>%
-  summarise(accCount = n()) %>%
-  spread(acc_phon, accCount, is.na <-(0)) %>% 
-  print(width = Inf, n = Inf)
-```
-
-
-
-
-```{r}
-## Phonological Inventory of PN data
-### Distribution of PAs across footsize conditions
-A_PN_foot_summary <- A_PN_foot %>%
-  group_by(acc_phon, foot_syls) %>%
   summarise(accCount = n()) %>%
   spread(acc_phon, accCount, is.na <-(0))
 ```
 
 
-```{r}
-### Distribution of PAs across ancrusis conditions
-A_PN_ana_summary <- A_PN_ana %>%
+```{r echo = FALSE}
+## Phonological Inventory of pn data
+### Distribution of PAs across footsize conditions
+pn_foot_summary <- pn_foot %>%
+  group_by(acc_phon, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0)) %>% 
+  write_csv("unbalanced.csv")
+```
+
+
+```{r echo = FALSE}
+### Distribution of PAs across anacrusis conditions
+pn_ana_summary <- pn_ana %>%
   group_by(acc_phon, ana_syls) %>%
   summarise(accCount = n()) %>%
   spread(acc_phon, accCount, is.na <-(0))
 ```
 
 
-
 ```{r echo = FALSE}
-# Get NUC data
-AH_nuc <- filter(AH_corpus, cur_foot == 2) %>% 
-  select(code:stim, tot_syls:acc_phon, fin_phon) %>% 
-  unite(nuc_contour, acc_phon, fin_phon, sep = " ", remove = FALSE)
-A_nuc_pre <- AH_nuc %>% filter(stim %in% c("A1111", "A0221", "A0321", "A0423"))
-A_nuc_foot <- AH_nuc %>% filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
-
-
-```
-
-
 ### Inventory of nuclear contours in A and H Corpora
-
-```{r}
-#AH_nuc %>%  group_by(speaker, stim) %>% count() %>% 
+#nuc %>%  group_by(speaker, stim) %>% count() %>% 
 #print(width = Inf, n = Inf)
 
-A_nuc_pre %>%  group_by(stim, nuc_contour) %>% 
-  count(stim) %>% 
-  print(width = Inf, n = Inf)
+nuc_pre %>%  group_by(stim, nuc_contour) %>% 
+  count(stim) 
 
-A_nuc_foot %>%  group_by(foot_syls, nuc_contour) %>% 
-  count(stim) %>% 
-  print(width = Inf, n = Inf)
+nuc_foot %>%  group_by(foot_syls, nuc_contour) %>% 
+  count(stim)
 ```
 
 
 
 ### Complete list of L*H L% nuclear accents in A and H Corpora
 ```{r echo = FALSE}
-AH_nuc %>% 
+nuc %>% 
   filter(nuc_contour %in% "L*H L%") %>% 
-  select(-(tot_syls:wrd_end_syl), -acc_phon, -fin_phon) %>% 
-  print(width = Inf, n = Inf)
+  select(-(tot_syls:wrd_end_syl), -acc_phon, -fin_phon)
 ```
  
 
