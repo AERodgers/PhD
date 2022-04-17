@@ -1,0 +1,322 @@
+---
+title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
+  and Phonetics of DCE Intonation'
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+
+```{r}
+require(tidyverse)
+require(knitr)
+require(stringr)
+```
+
+```{r}
+corpus <- as_tibble(                                                # Read in AH corpus. 
+  read.csv("data/a_corpus_audited.csv")) %>%
+  select(speaker:stim, tot_syls:acc_phon,                           # Retain reference columns and phonological data.
+         ana_syls, cur_foot:acc_phon, 
+         init_phon:fin_phon,
+         -tot_syls, -tot_feet                                       # Remove unnecessary columns.
+    ) %>%
+  mutate(acc_phon = str_replace(acc_phon, "!", "")) %>%             # Ignore downstep.
+  mutate(acc_phon = factor(acc_phon, levels = c(                    # Arrange PA levels according to hypothesized hierarchy.
+    "(*)", "L*", "H*", ">H*", "L*H"
+    )))
+
+pn <- filter(corpus, cur_foot == 1)                                 # Extract PN data.
+
+pn_ana <- pn %>%                                                    # Extract PN anacrusis data.
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>% 
+  select(-(cur_foot:wrd_end_syl), -fin_phon)
+
+pn_foot <- pn %>%                                                   # Extract PN foot-size data.
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
+  select(-(ana_syls:cur_foot),-wrd_end_syl, -fin_phon)
+
+
+pn_lex <- pn %>% filter(stim %in% c(                                # Extract PN word-boundary data. 
+  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
+  ))
+
+nuc <- filter(corpus, cur_foot == 2) %>%                            # Extract nuclear PA data.
+  select(-init_phon, -ana_syls) %>%
+  unite(nuc_contour, acc_phon, fin_phon, sep = " ", remove = FALSE) # Create nuclear contour column.
+
+nuc_pre <- nuc %>%                                                  # Extract nuclear PN foot-size data.
+  filter(stim %in% c("A1111", "A0221", "A0321", "A0423")) %>% 
+  mutate(pre_syls = str_sub(stim, 3,3))                             # Get number of preceding syllables from stim code
+
+nuc_foot <- nuc %>%                            
+  filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))           # Get dataset for syllables preceding nuclear PA.
+
+rm(corpus, nuc, pn)                                                 # Remove unneeded variables from R Environment.
+
+
+```
+
+# **1. Summary of Pitch Accent distributions**
+The raw data is unbalanced since there is not an equal number of tokens per speaker per condition. In some cases there are no tokens from one speaker, effectively reducing the number of participants for that condition by one. To make the presentation of these data both honest and representative, summaries are provided based on both the raw unbalanced, and adjusted balanced data are presented.
+
+
+## **__1.1 Raw Data__**
+These table summarize the number of PA tokens per condition regardless of any imbalance in the number of utterances per speaker per condition or the number of speakers per condition.
+
+## 1.1.1 Pre-nuclear Pitch Accents
+Foot size data presented first followed by anacrusis data, since the anacrusis targets reflect the number of syllables of anacrusis under maximum foot-size conditions.
+
+#### PN Foot-size conditions
+```{r}
+# Calculate the number of tokens of each PN PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+pn_foot_summary_raw <- pn_foot %>%
+  group_by(acc_phon, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0)) %>% 
+  write_csv("output/pn_foot_unbalanced.csv")
+  kable(pn_foot_summary_raw)
+```
+
+#### PN Anacrusis conditions
+```{r}
+# Calculate the number of tokens of each PN PA as a function of anacrusis.
+# These are the raw, unadjusted values.
+
+pn_ana_summary_raw <- pn_ana %>%
+  group_by(acc_phon, ana_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <-(0)) %>% 
+  write_csv("output/pn_ana_unbalanced.csv")          # Save the results in a csv file
+  kable(pn_ana_summary_raw)                          # output the results in a nice table.
+```
+
+## 1.1.2 Nuclear Pitch Accents
+
+#### NUC Foot size
+```{r}
+# Calculate the number of tokens of each NUC PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+nuc_foot_summary_raw <- nuc_foot %>%
+  group_by(nuc_contour, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <-(0)) %>% 
+  write_csv("output/nuc_foot_unbalanced.csv")
+  kable(nuc_foot_summary_raw)
+```
+
+#### NUC Preceding syllable count
+```{r}
+# Calculate the number of tokens of each NUC PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+nuc_pre_summary_raw <- nuc_pre %>%
+  group_by(nuc_contour, pre_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <-(0)) %>% 
+  write_csv("output/nuc_foot_unbalanced.csv")
+  kable(nuc_pre_summary_raw)
+```
+
+## **__1.2 Adjusted Data__**
+These Tables summarize the number of PA tokens per condition once adjusted to take into account in the number of utterances per speaker per condition and the number of speakers per condition.
+
+This is the distribution of PAs across conditions adjusted for number of speakers per target and number of repetitions per speaker. It is a better representation of the distribution of the PAs per foot-size condition, although it is not the set of actual values.
+
+## 1.2.1 Pre-nuclear Pitch Accents
+
+#### PN Foot Size
+
+```{r}
+# Calculate the adjusted number of tokens of each PN PA as a function of foot 
+# size (the target variable). This takes into consideration the number of
+# utterances per speaker per target variable and the number of speaker per
+# target variable.
+
+speakers_per_target = pn_foot %>%                     # Get number of speakers per target.   
+  select(speaker, foot_syls) %>% 
+  group_by(foot_syls) %>%
+  summarise(speakers = n_distinct(speaker))
+
+pn_foot_reps <- pn_foot %>%                           # Get number of reps per speaker per target.
+  group_by(speaker, foot_syls) %>%           
+  summarise(acc_count = n())
+
+pn_foot_summary <- pn_foot %>%                        # Get number of PA tokens per speaker per target
+  group_by(speaker, foot_syls, acc_phon) %>%
+  summarise(acc_count = n()) %>%
+  spread(acc_phon, acc_count, is.na <-(0))
+
+
+pn_foot_summary_balanced <- left_join(                
+  pn_foot_summary, pn_foot_reps
+  )%>%                                                # Convert tokens to ratios of tokens per speaker per target.
+  mutate(`(*)` = `(*)` / acc_count * 5) %>%           # (Is there a more efficient way to do this?)
+  mutate(`L*` = `L*` / acc_count * 5) %>%    
+  mutate(`H*` = `H*` / acc_count * 5) %>% 
+  mutate(`>H*` = `>H*` / acc_count * 5) %>%
+  mutate(`L*H` = `L*H` / acc_count * 5) %>% 
+  group_by(foot_syls) %>% 
+  select(-speaker, -acc_count) %>% 
+  gather(acc_phon, mod_count, 2:6)  %>%
+  mutate(acc_phon = factor(acc_phon, levels = c(      # Arrange PA levels according to hypothesized hierarchy.
+    "(*)", "L*", "H*", ">H*", "L*H"
+    ))) %>% 
+  group_by(foot_syls, acc_phon) %>% 
+  summarise(mod_sum = sum(mod_count)) %>%
+  spread(acc_phon, mod_sum) %>% 
+  left_join(speakers_per_target) %>%                  # Adjust token count re number of speakers per target condition.
+  mutate(`(*)` = round(`(*)` / speakers * 11)) %>%    # (Is there a more efficient way to do this?)
+  mutate(`L*` = round(`L*` / speakers * 11)) %>%    
+  mutate(`H*` = round(`H*` / speakers * 11)) %>%
+  mutate(`>H*` = round(`>H*` / speakers * 11)) %>%  
+  mutate(`L*H` = round(`L*H` / speakers * 11)) %>%
+  select(-speakers) %>%  
+  write_csv("output/pn_foot_balanced.csv")
+kable(pn_foot_summary_balanced)
+```
+
+#### PN Anacrusis
+```{r}
+# Calculate the adjusted number of tokens of each PN PA as a function of
+# anacrusis (the target variable). This takes into consideration the number of
+# utterances per speaker per target variable and the number of speaker per
+# target variable.
+
+speakers_per_target = pn_ana %>%                     # Get number of speakers per target.   
+  select(speaker, ana_syls) %>% 
+  group_by(ana_syls) %>%
+  summarise(speakers = n_distinct(speaker))
+
+pn_ana_reps <- pn_ana %>%                           # Get number of reps per speaker per target.
+  group_by(speaker, ana_syls) %>%           
+  summarise(acc_count = n())
+
+pn_ana_summary <- pn_ana %>%                        # Get number of PA tokens per speaker per target
+  group_by(speaker, ana_syls, acc_phon) %>%
+  summarise(acc_count = n()) %>%
+  spread(acc_phon, acc_count, is.na <-(0))
+
+
+pn_ana_summary_balanced <- left_join(                
+  pn_ana_summary, pn_ana_reps
+  )%>%                                                # Convert tokens to ratios of tokens per speaker per target.
+  mutate(`H*` = `H*` / acc_count * 5) %>%           # (Is there a more efficient way to do this?)
+  mutate(`>H*` = `>H*` / acc_count * 5) %>%
+  mutate(`L*H` = `L*H` / acc_count * 5) %>% 
+  group_by(ana_syls) %>% 
+  select(-speaker, -acc_count) %>% 
+  gather(acc_phon, mod_count, 2:4)  %>%
+  mutate(acc_phon = factor(acc_phon, levels = c(      # Arrange PA levels according to hypothesized hierarchy.
+    "H*", ">H*", "L*H"
+    ))) %>% 
+  group_by(ana_syls, acc_phon) %>% 
+  summarise(mod_sum = sum(mod_count)) %>%
+  spread(acc_phon, mod_sum) %>% 
+  left_join(speakers_per_target) %>%                  # Adjust token count re number of speakers per target condition.
+  mutate(`H*` = round(`H*` / speakers * 11)) %>%      # (Is there a more efficient way to do this?)
+  mutate(`>H*` = round(`>H*` / speakers * 11)) %>%  
+  mutate(`L*H` = round(`L*H` / speakers * 11)) %>%
+  select(-speakers) %>%  
+  write_csv("output/pn_ana_balanced.csv")                    # save the results to a csv file..
+
+kable(pn_ana_summary_balanced)                        # Output the results in a nice table.
+```
+
+## 1.2.1 Nuclear Pitch Accents
+
+#### NUC Foot size
+```{r}
+# Calculate the adjusted number of tokens of each NUC PA as a function of foot 
+# size (the target variable). This takes into consideration the number of
+# utterances per speaker per target variable and the number of speaker per
+# target variable.
+
+speakers_per_target = nuc_foot %>%                     # Get number of speakers per target.   
+  select(speaker, foot_syls) %>% 
+  group_by(foot_syls) %>%
+  summarise(speakers = n_distinct(speaker))
+
+nuc_foot_reps <- nuc_foot %>%                           # Get number of reps per speaker per target.
+  group_by(speaker, foot_syls) %>%           
+  summarise(contour_count = n())
+
+nuc_foot_summary <- nuc_foot %>%                        # Get number of PA tokens per speaker per target
+  group_by(speaker, foot_syls, nuc_contour) %>%
+  summarise(contour_count = n()) %>%
+  spread(nuc_contour, contour_count, is.na <-(0))
+
+
+nuc_foot_summary_balanced <- left_join(                
+  nuc_foot_summary, nuc_foot_reps
+  )%>%                                                # Convert tokens to ratios of tokens per speaker per target.
+  mutate(`L*H %` = `L*H %` / contour_count * 5) %>%           # (Is there a more efficient way to do this?)
+  mutate(`L*H L%` = `L*H L%` / contour_count * 5) %>%    
+  group_by(foot_syls) %>% 
+  select(-speaker, -contour_count) %>% 
+  gather(nuc_contour, mod_count, 2:3)  %>%
+  mutate(nuc_contour = factor(nuc_contour, levels = c(      # Arrange PA levels according to hypothesized hierarchy.
+    "L*H %", "L*H L%"
+    ))) %>% 
+  group_by(foot_syls, nuc_contour) %>% 
+  summarise(mod_sum = sum(mod_count)) %>%
+  spread(nuc_contour, mod_sum) %>% 
+  left_join(speakers_per_target) %>%                  # Adjust token count re number of speakers per target condition.
+  mutate(`L*H %` = round(`L*H %` / speakers * 11)) %>%    # (Is there a more efficient way to do this?)
+  mutate(`L*H L%` = round(`L*H L%` / speakers * 11)) %>%    
+
+  select(-speakers) %>%  
+  write_csv("output/nuc_foot_balanced.csv")
+kable(nuc_foot_summary_balanced)
+```
+#### NUC Preceding syllable count
+```{r}
+# Calculate the adjusted number of tokens of each NUC PA as a function of number
+# of syllables preceding the stressed syllable. This takes into consideration 
+# the number of utterances per speaker per target variable and the number of
+#  speaker per target variable.
+
+speakers_per_target = nuc_pre %>%                      # Get number of speakers per target.   
+  select(speaker, pre_syls) %>% 
+  group_by(pre_syls) %>%
+  summarise(speakers = n_distinct(speaker))
+
+nuc_pre_reps <- nuc_pre %>%                           # Get number of reps per speaker per target.
+  group_by(speaker, pre_syls) %>%           
+  summarise(contour_count = n())
+
+nuc_pre_summary <- nuc_pre %>%                        # Get number of PA tokens per speaker per target
+  group_by(speaker, pre_syls, nuc_contour) %>%
+  summarise(contour_count = n()) %>%
+  spread(nuc_contour, contour_count, is.na <-(0))
+
+
+nuc_pre_summary_balanced <- left_join(                
+  nuc_pre_summary, nuc_pre_reps
+  )%>%                                                # Convert tokens to ratios of tokens per speaker per target.
+  mutate(`L*H %` = `L*H %` / contour_count * 5) %>%           # (Is there a more efficient way to do this?)
+  mutate(`L*H L%` = `L*H L%` / contour_count * 5) %>%    
+  group_by(pre_syls) %>% 
+  select(-speaker, -contour_count) %>% 
+  gather(nuc_contour, mod_count, 2:3)  %>%
+  mutate(nuc_contour = factor(nuc_contour, levels = c(      # Arrange PA levels according to hypothesized hierarchy.
+    "L*H %", "L*H L%"
+    ))) %>% 
+  group_by(pre_syls, nuc_contour) %>% 
+  summarise(mod_sum = sum(mod_count)) %>%
+  spread(nuc_contour, mod_sum) %>% 
+  left_join(speakers_per_target) %>%                  # Adjust token count re number of speakers per target condition.
+  mutate(`L*H %` = round(`L*H %` / speakers * 11)) %>%    # (Is there a more efficient way to do this?)
+  mutate(`L*H L%` = round(`L*H L%` / speakers * 11)) %>%    
+
+  select(-speakers) %>%  
+  write_csv("output/nuc_pre_balanced.csv")
+kable(nuc_pre_summary_balanced)
+```
