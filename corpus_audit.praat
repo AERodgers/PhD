@@ -1,5 +1,5 @@
 form
-    sentence data_file Chapter 5/a_corpus.csv
+    sentence data_file Chapter 6/a_corpus.csv
     natural target_feet 2
 endform
 # GET DATA
