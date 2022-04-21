@@ -1,0 +1,195 @@
+---
+title: "LMM Analysis of PNs"
+author: "Antoin Rodgers"
+date: "1/19/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+Get packages from library.
+```{r message=FALSE, warning=FALSE, include=FALSE}
+source('../functions/drawResiduals.R', echo=TRUE)
+
+require("tidyverse")
+require("broom")
+require("styler")
+require("lmerTest")
+require("optimx")
+require("sjPlot")
+require("sjmisc")
+require("ggplot2")
+require("hablar")
+require("ggpubr")
+require("MuMIn")
+require("mefa4")
+
+library(tidyverse)
+library(broom)
+library(styler)
+library(lmerTest)
+library(optimx)
+library(sjPlot)
+library(sjmisc)
+library(ggplot2)
+library(hablar)
+library(ggpubr)
+library(MuMIn)
+require(mefa4)
+options(ggplot2.palette="Set2")
+
+theme_set(
+    theme_minimal(base_size = 18)
+)
+```
+
+
+Create data tbls
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+# Get PN ANAC data
+pn_anac <- read_csv("../data/a_corpus.csv") %>%
+    filter(
+           code %notin% c("F15_A1422_1", "M10_A2422_1", "F5_H0422_2"),
+           stim %in% c("H0422", "A1422", "A2422", "A3422"),
+           cur_foot == 1,
+           substr(stim, 2, 4) == metre_ID
+           )%>%
+    select(
+           speaker, gender, stim,
+           init_phon, ana_syls, ana_syls, tot_syls,
+           acc_phon, wrd_end_syl,
+           ana_end_t, phr_end_t,
+           wrd_fin_syl_strt_t, wrd_end_t, ana_end_t,
+           foot_strt_t, foot_end_t,
+           v_onset_t, l_t, h_t,
+           v_sylNormT, l_sylNormT, h_sylNormT,
+           l_f0, h_f0, mean_st, slope_st
+           ) %>%
+    mutate(
+           d_f0 = h_f0 - l_f0,
+           d_t = h_t - l_t,
+           l_t = l_t - v_onset_t,
+           h_t = h_t - v_onset_t,
+           l_tNorm = l_sylNormT - v_sylNormT,
+           h_tNorm = h_sylNormT - v_sylNormT,
+           foot_dur_t = foot_end_t - foot_strt_t,
+           SR = 1000 * tot_syls / phr_end_t,
+           isLH = acc_phon %in% "L*H",#
+           isDHorLH = acc_phon %in% c("L*H", ">H*"),
+           stim = factor(stim,levels = unique(stim)),
+           acc_phon = factor(acc_phon,
+                             levels = c("(*)", "L*", "H*", ">H*", "L*H")
+                             ),
+           stim = factor(stim, levels = unique(stim))
+           ) %>%
+    rename(ana_dur = ana_end_t) %>%
+    select(-c("phr_end_t", "tot_syls", "v_onset_t")) %>%
+    convert(fct(speaker:wrd_end_syl))
+```
+
+
+### Testing HT as a function of anacrusis etc. for L*H only 
+```{r fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+ht_anac <- lmer(h_t ~ ana_syls + gender + SR + (1 + ana_syls + SR | speaker),
+                data = filter(pn_anac, acc_phon == "L*H"),
+                control = lmerControl(
+                                      optimizer = "optimx",
+                                      calc.derivs = FALSE,
+                                      optCtrl = list(
+                                                     method = "nlminb",
+                                                     starttests = FALSE,
+                                                     kkt = FALSE
+                                                     )
+                                      )
+                )
+```
+```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + SR + (1 + PN + SR | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```
+
+
+lmertest::step() was run to see what the most efficient model might be.
+This suggesest the same model but without the random slope.
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+
+step(ht_anac)
+```
+Re-running model without random slopes increased r^2 of fixed slightly but reduced the r^2 of the whole model (slightly).
+This was not pursued further.
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+ht_anac <- lmer(h_t ~ ana_syls + gender + SR +
+  (1 | speaker),
+data = filter(pn_anac, acc_phon == "L*H"),
+control = lmerControl(
+  optimizer = "optimx",
+  calc.derivs = FALSE,
+  optCtrl = list(
+    method = "nlminb",
+    starttests = FALSE,
+    kkt = FALSE
+  )
+)
+)
+```
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + SR + (1 + PN + SR | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```
+
+
+### Testing HT as a function of anacrusis, pitchaccent, and gender * speechrate
+```{r fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+ht_anac <- lmer(h_t ~ ana_syls + acc_phon + gender + SR +
+  (1 + ana_syls + SR | speaker),
+# data = filter(pn_anac, acc_phon == "L*H"),
+data = pn_anac,
+control = lmerControl(
+  optimizer = "optimx",
+  calc.derivs = FALSE,
+  optCtrl = list(
+    method = "nlminb",
+    starttests = FALSE,
+    kkt = FALSE
+  )
+)
+)
+```
+```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + SR + (1 + SR | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```

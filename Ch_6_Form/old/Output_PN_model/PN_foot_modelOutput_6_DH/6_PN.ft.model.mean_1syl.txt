@@ -1,0 +1,58 @@
+Linear mixed model fit by REML. t-tests use
+  Satterthwaite's method [lmerModLmerTest]
+Formula: 
+mean ~ ft_syls + gender + (1 + ft_syls | speaker) + (1 | pn_Rhy)
+   Data: PN_foot
+Control: 
+lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",  
+    starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 180.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.2762 -0.4064 -0.0202  0.5121  2.0722 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr          
+ speaker  (Intercept) 3.8912   1.9726                 
+          ft_syls2    0.4675   0.6837   0.77          
+          ft_syls3    2.0508   1.4320   0.55 0.96     
+          ft_syls4    0.6195   0.7871   0.68 0.99 0.99
+ pn_Rhy   (Intercept) 4.1691   2.0418                 
+ Residual             0.5115   0.7152                 
+Number of obs: 64, groups:  speaker, 10; pn_Rhy, 2
+
+Fixed effects:
+            Estimate Std. Error      df t value
+(Intercept)  88.8985     1.6910  1.7680  52.571
+ft_syls2      0.1358     0.3596  8.0856   0.378
+ft_syls3      0.6222     0.6230  5.5861   0.999
+ft_syls4      4.9656     0.7283 19.1232   6.818
+genderM      -7.9808     1.3364  8.7117  -5.972
+            Pr(>|t|)    
+(Intercept) 0.000787 ***
+ft_syls2    0.715343    
+ft_syls3    0.359266    
+ft_syls4     1.6e-06 ***
+genderM     0.000239 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+         (Intr) ft_sy2 ft_sy3 ft_sy4
+ft_syls2  0.103                     
+ft_syls3  0.069  0.709              
+ft_syls4 -0.040  0.434  0.421       
+genderM  -0.310 -0.019  0.018 -0.052
+Type III Analysis of Variance Table with Satterthwaite's method
+        Sum Sq Mean Sq NumDF   DenDF F value    Pr(>F)
+ft_syls 28.017  9.3389     3 13.8503  18.259 4.362e-05
+gender  18.239 18.2394     1  8.7117  35.661 0.0002387
+           
+ft_syls ***
+gender  ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

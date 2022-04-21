@@ -1,0 +1,63 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: H_t ~ hasAnac + acc * gender + (1 + hasAnac | speaker)
+   Data: PN_anac
+Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",      starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 1998.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.7971 -0.6956 -0.0212  0.4941  3.2841 
+
+Random effects:
+ Groups   Name         Variance Std.Dev. Corr 
+ speaker  (Intercept)  518.6    22.77         
+          hasAnacFALSE 898.5    29.98    -0.51
+ Residual              950.5    30.83         
+Number of obs: 206, groups:  speaker, 11
+
+Fixed effects:
+               Estimate Std. Error      df t value Pr(>|t|)    
+(Intercept)     220.263     14.845  52.552  14.838  < 2e-16 ***
+hasAnacFALSE     37.008     10.754   9.159   3.441  0.00719 ** 
+accL*H           61.607     12.530 150.572   4.917 2.28e-06 ***
+genderM         -56.785     17.815  28.655  -3.187  0.00346 ** 
+accL*H:genderM   -2.681     15.834 177.797  -0.169  0.86576    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) hAFALS accL*H gendrM
+hasAncFALSE -0.312                     
+accL*H      -0.777  0.071              
+genderM     -0.777  0.081  0.635       
+accL*H:gndM  0.611 -0.044 -0.790 -0.664
+Type III Analysis of Variance Table with Satterthwaite's method
+           Sum Sq Mean Sq NumDF   DenDF F value    Pr(>F)    
+hasAnac     11257   11257     1   9.159 11.8428  0.007186 ** 
+acc         54930   54930     1 177.315 57.7896 1.632e-12 ***
+gender      16656   16656     1  11.998 17.5233  0.001263 ** 
+acc:gender     27      27     1 177.797  0.0287  0.865758    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Backward reduced random-effect table:
+
+                                   Eliminated npar   logLik    AIC    LRT Df Pr(>Chisq)    
+<none>                                           9  -999.16 2016.3                         
+hasAnac in (1 + hasAnac | speaker)          0    7 -1006.44 2026.9 14.558  2  0.0006899 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Backward reduced fixed-effect table:
+Degrees of freedom method: Satterthwaite 
+
+           Eliminated Sum Sq Mean Sq NumDF   DenDF F value    Pr(>F)    
+acc:gender          1     27      27     1 177.797  0.0287  0.865758    
+hasAnac             0  11421   11421     1   9.423 12.0634  0.006543 ** 
+acc                 0  57991   57991     1 183.170 61.2522 3.884e-13 ***
+gender              0  18680   18680     1  10.164 19.7305  0.001202 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Model found:
+H_t ~ hasAnac + acc + gender + (1 + hasAnac | speaker)

@@ -1,0 +1,61 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: L_t ~ ana_syls + gender + (1 + ana_syls | speaker)
+   Data: PN_anac
+Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",      starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 1296
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.0380 -0.5527 -0.0248  0.5787  3.5961 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr             
+ speaker  (Intercept) 392.4    19.81                     
+          ana_syls2   104.7    10.23    -0.45            
+          ana_syls3   216.3    14.71    -0.86  0.42      
+          ana_syls0   468.9    21.65    -0.93  0.74  0.86
+ Residual             250.5    15.83                     
+Number of obs: 154, groups:  speaker, 10
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(>|t|)    
+(Intercept)  105.919      7.670   5.969  13.809 9.35e-06 ***
+ana_syls2     -6.750      5.412   7.933  -1.247    0.248    
+ana_syls3      5.158      6.417   6.493   0.804    0.450    
+ana_syls0     -3.924      8.588   5.559  -0.457    0.665    
+genderM      -66.734      6.500   9.494 -10.267 1.89e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+          (Intr) an_sy2 an_sy3 an_sy0
+ana_syls2 -0.533                     
+ana_syls3 -0.789  0.561              
+ana_syls0 -0.858  0.680  0.777       
+genderM   -0.286 -0.045 -0.005  0.036
+Type III Analysis of Variance Table with Satterthwaite's method
+          Sum Sq Mean Sq NumDF  DenDF  F value    Pr(>F)    
+ana_syls  1399.2   466.4     3 8.0584   1.8619    0.2139    
+gender   26403.0 26403.0     1 9.4945 105.4012 1.891e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Backward reduced random-effect table:
+
+                                     Eliminated npar  logLik    AIC    LRT Df Pr(>Chisq)  
+<none>                                            16 -647.98 1328.0                       
+ana_syls in (1 + ana_syls | speaker)          0    7 -657.63 1329.3 19.313  9    0.02266 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Backward reduced fixed-effect table:
+Degrees of freedom method: Satterthwaite 
+
+         Eliminated  Sum Sq Mean Sq NumDF  DenDF  F value    Pr(>F)    
+ana_syls          1  1399.2   466.4     3 8.0584   1.8619    0.2139    
+gender            0 26328.9 26328.9     1 9.2805 104.9614 2.304e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Model found:
+L_t ~ gender + (1 + ana_syls | speaker)

@@ -1,0 +1,244 @@
+---
+title: "Analysis of PNs - Overview of *Foot* Effects on Alignment"
+author: "Antoin Rodgers"
+date: "11/02/2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Get packages from library.
+source("0_Initialise_libs.R")
+source("0_Get_tbls.R")
+```
+
+
+Create data tbls
+```{r message=FALSE, warning=TRUE, include=FALSE}
+# Get A_corpus data
+
+
+A_corpus <- as_tibble(                                                # Read in AH corpus. 
+  read.csv("../data/a_corpus_audited.csv")) %>%
+  select(speaker:stim, tot_syls:acc_phon,                           # Retain reference columns and phonological data.
+         ana_syls, cur_foot:acc_phon, 
+         init_phon:fin_phon,
+         -tot_syls, -tot_feet                                       # Remove unnecessary columns.
+    ) %>%
+  mutate(acc_phon = str_replace(acc_phon, "!", "")) %>%             # Ignore downstep.
+  mutate(acc_phon = factor(acc_phon, levels = c(                    # Arrange PA levels according to hypothesized hierarchy.
+    "(*)", "L*", "H*", ">H*", "L*H"
+    ))) %>% 
+  mutate(speaker = factor(speaker, levels = c(                    # Arrange PA levels according to hypothesized hierarchy.
+    "F5", "F6", "F12", "F15", "F16", "F17",
+    "M4", "M5", "M8", "M9", "M10"
+    ))) %>% 
+  filter(cur_foot == 1) 
+
+# Get FOOT subset
+pn_foot <- A_corpus %>% 
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
+  select(-(ana_syls:cur_foot),-wrd_end_syl, -fin_phon)
+
+
+```
+
+# Looking at PN distribution by speaker, gender, and ana_syls 
+```{r}
+pn_foot_summary <- pn_foot %>% group_by(acc_phon, foot_syls) %>%
+    summarise(accCount = n()) %>%
+    spread(acc_phon, accCount, is.na <-(0))
+    
+write_tsv(pn_foot_summary, "../output/pn_foot_count_actual.txt")
+print(pn_foot_summary)
+
+```
+
+```{r}
+
+plot1 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = gender, fill = acc_phon), colour = "black",  
+           position = "fill")+
+  ggtitle("PNs by gender (foot size conditions)") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "distibution by gender",
+         y = "proportion of tokens"
+         ) +
+    scale_y_continuous(labels = scales::percent)
+plot1
+ggsave("../figures/PN_foot_dist_gender.png", plot1, height = 4, width = 6)
+
+plot2 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
+           colour = "black",
+            show.legend = FALSE,
+    position = position_dodge2(preserve = "single")) + 
+    facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
+    ggtitle("PNs by gender and foot syls") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size and gender",
+         y = "tokens (n)"
+         ) +
+    theme(panel.border = element_rect(fill = NA))
+plot2
+ggsave("../figures/PN_foot_dist_gender_foot.png", plot2, height = 5.5, width = 12)
+
+plot3 <- ggplot(pn_foot) +
+    geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
+             show.legend = FALSE,
+             colour = "black",
+             position = position_dodge2(preserve = "single")) +
+    facet_grid(cols = vars(acc_phon)) +
+    theme(panel.border = element_rect(fill = NA)) +
+    ggtitle("PNs across foot size conditions (syllables)") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    theme(panel.border = element_rect(fill = NA))
+plot3
+ggsave("../figures/PN_foot_distribution.png", plot3, height = 4, width = 12)
+```
+
+### Rejigging >H* by gender
+I reran the distibution using the gendered >H\* hypothesis.
+
+```{r echo=FALSE, fig.height=4, fig.width=12}
+pn_foot <- 
+    mutate(pn_foot,
+           genderedDh = factor(
+                               ifelse(acc_phon == ">H*" & gender == "F",
+                                      "H*",
+                                      ifelse(acc_phon == ">H*" & gender == "M",
+                                             "L*H",
+                                             as.character(acc_phon)
+                                             )
+                                      ),
+                               levels = c("(*)", "L*", "H*", "L*H")
+                               )
+           )
+
+pn_foot_GDH_summary <- pn_foot %>% group_by(genderedDh, foot_syls) %>%
+    summarise(accCount = n()) %>%
+    spread(genderedDh, accCount, is.na <-(0))
+    
+```
+
+Output and Figures
+```{r}
+write_tsv(pn_foot_GDH_summary, "../output/pn_foot_count_GDH.txt")
+print(pn_foot_GDH_summary)
+
+
+plot1 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = gender, fill = genderedDh), colour = "black",  
+           position = "fill")+
+  ggtitle("PNs by gender re gendered >H*") +
+    labs(x = "distibution by gender",
+         y = "proportion of tokens"
+         ) +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    scale_y_continuous(labels = scales::percent)
+
+plot1
+
+ggsave("../figures/PN_foot_GDH_dist_gender.png", plot1, height = 4, width = 6)
+
+
+plot2 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = foot_syls, fill = genderedDh),
+           colour = "black",
+           show.legend = FALSE,
+           position = position_dodge2(preserve = "single")
+           ) +
+    facet_grid(rows = vars(gender), cols = vars(genderedDh)) +
+    ggtitle("PNs by gender and foot size using Gendered >H* Hypothesis") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables) and gender",
+         y = "tokens (n)"
+         ) +
+    theme(panel.border = element_rect(fill = NA))
+
+plot2
+
+ggsave("../figures/PN_foot_GDH_dist_gender_foot.png", plot2, height = 5.5, width = 12)
+
+
+plot3 <- ggplot(pn_foot) +
+    geom_bar(mapping = aes(x = foot_syls, fill = genderedDh),
+             show.legend = FALSE,
+             colour = "black",
+             position = position_dodge2(preserve = "single")) +
+    facet_grid(cols = vars(genderedDh)) +
+    theme(panel.border = element_rect(fill = NA)) +
+    ggtitle("PNs across foot size conditions (syllables) using Gendered >H* Hypothesis") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    theme(panel.border = element_rect(fill = NA))
+
+plot3
+
+ggsave("../figures/PN_foot_GDH_distribution.png", plot3, height = 4, width = 12)
+```
+
+### Rejigging >H* by gender AND L\*H / non-L\*H
+
+```{r eval=FALSE, fig.height=4, fig.width=12, include=FALSE}
+pn_foot <- 
+    mutate(pn_foot,
+           isGenderedLH = factor(
+               ifelse(genderedDh == "L*H", "L*H", "other"),
+               levels = c("other", "L*H")
+               )
+           )
+
+pn_foot_isGLH_summary <- pn_foot %>% group_by(isGenderedLH, foot_syls) %>%
+    summarise(accCount = n()) %>%
+    spread(isGenderedLH, accCount, is.na <-(0))
+    
+write_tsv(pn_foot_isGLH_summary, "../output/pn_foot_count_isGLH.txt")
+print(pn_foot_isGLH_summary)
+
+
+
+
+plot1 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = foot_syls, fill = isGenderedLH),
+           colour = "black",
+           ) +
+    facet_grid(rows = vars(gender)) +
+    ggtitle("PNs by gender and foot size using Gendered >H* Hypothesis") +
+    labs(x = "foot size (syllables) and gender",
+         y = "tokens (n)"
+         ) +
+    scale_fill_grey(name = "Pitch Accent", start = 0.8, end = 0.2) +
+    theme(panel.border = element_rect(fill = NA)) 
+plot1
+
+ggsave("../figures/PN_foot_isLH_dist_gender_foot.png", plot1, height = 5.5, width = 12)
+
+
+plot2 <- ggplot(pn_foot) +
+    geom_bar(mapping = aes(x = foot_syls, fill = isGenderedLH),
+             colour = "black"
+             ) +
+    ggtitle("PNs across foot size conditions (syllables) using Gendered >H* Hypothesis") +
+    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    scale_fill_grey(name = "Pitch Accent", start = 0.8, end = 0.2) +
+    theme(panel.border = element_rect(fill = NA)) 
+
+plot2
+
+ggsave("../figures/PN_foot_isLH_distribution.png", plot2, height = 4, width = 12)
+
+
+```

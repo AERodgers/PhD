@@ -1,0 +1,62 @@
+Linear mixed model fit by REML. t-tests use
+  Satterthwaite's method [lmerModLmerTest]
+Formula: 
+H_t ~ ft_syls + gender + (1 + ft_syls | speaker) + (1 | pn_Rhy)
+   Data: PN_foot
+Control: 
+lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",  
+    starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 610.8
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.96038 -0.69796 -0.01562  0.41773  2.84897 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr       
+ speaker  (Intercept)   65.56   8.097              
+          ft_syls2     569.48  23.864   -0.65      
+          ft_syls3    2636.22  51.344   -0.45  0.97
+          ft_syls4      58.58   7.654   -0.94  0.35
+ pn_Rhy   (Intercept)    0.00   0.000              
+ Residual             1234.81  35.140              
+      
+      
+      
+      
+  0.11
+      
+      
+Number of obs: 64, groups:  speaker, 10; pn_Rhy, 2
+
+Fixed effects:
+            Estimate Std. Error      df t value
+(Intercept)  217.632     10.478   3.240  20.770
+ft_syls2      39.509     15.033   5.876   2.628
+ft_syls3      54.639     23.909   4.557   2.285
+ft_syls4      72.795     15.183  10.478   4.795
+genderM      -75.867     12.041   4.755  -6.301
+            Pr(>|t|)    
+(Intercept) 0.000147 ***
+ft_syls2    0.039928 *  
+ft_syls3    0.076191 .  
+ft_syls4    0.000640 ***
+genderM     0.001777 ** 
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+         (Intr) ft_sy2 ft_sy3 ft_sy4
+ft_syls2 -0.588                     
+ft_syls3 -0.432  0.651              
+ft_syls4 -0.544  0.416  0.275       
+genderM  -0.418 -0.091  0.016 -0.057
+Type III Analysis of Variance Table with Satterthwaite's method
+        Sum Sq Mean Sq NumDF  DenDF F value   Pr(>F)   
+ft_syls  29642    9881     3 6.2360  8.0018 0.014848 * 
+gender   49024   49024     1 4.7551 39.7016 0.001777 **
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

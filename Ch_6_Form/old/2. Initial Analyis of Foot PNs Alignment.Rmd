@@ -1,0 +1,709 @@
+---
+title: "Analysis of PNs - Overview of *Foot* Effects on Alignment"
+author: "Antoin Rodgers"
+date: "1/19/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Get packages from library.
+require("tidyverse")
+require("broom")
+require("styler")
+require("lmerTest")
+require("optimx")
+require("sjPlot")
+require("sjmisc")
+require("ggplot2")
+require("hablar")
+require("ggpubr")
+require("MuMIn")
+require("RColorBrewer")
+require("mefa4")
+
+
+library(tidyverse)
+library(broom)
+library(styler)
+library(lmerTest)
+library(optimx)
+library(sjPlot)
+library(sjmisc)
+library(ggplot2)
+library(hablar)
+library(ggpubr)
+library(MuMIn)
+library(RColorBrewer)
+library(mefa4)
+
+## set up graphic defaults
+options(ggplot2.palette="Set2")
+
+theme_set(
+    theme_minimal(base_size = 18)
+)
+```
+
+
+Create data tbls
+```{r message=FALSE, warning=TRUE, include=FALSE}
+# Get A_corpus data
+A_corpus <- read_csv("../data/a_corpus.csv") %>%
+    filter(code %notin% c("F15_A1422_1", "M10_A2422_1", "F5_H0422_2")) %>% # remove surplus reps for balance
+    filter(
+        cur_foot == 1,
+        substr(stim, 2, 4) == metre_ID
+        ) %>%
+    select(
+        speaker, gender, stim,
+        init_phon, ana_syls, foot_syls, tot_syls,
+        acc_phon, wrd_end_syl,
+        ana_end_t, phr_end_t,
+        wrd_fin_syl_strt_t, wrd_end_t, ana_end_t,
+        foot_strt_t, foot_end_t,
+        v_onset_t, l_t, h_t,
+        v_sylNormT, l_sylNormT, h_sylNormT,
+        l_f0, h_f0, mean_st, slope_st
+        ) %>%
+    mutate(
+        d_f0 = h_f0 - l_f0,
+        d_t = h_t - l_t,
+        l_t = l_t - v_onset_t,
+        h_t = h_t - v_onset_t,
+        l_tNorm = l_sylNormT - v_sylNormT,
+        h_tNorm = h_sylNormT - v_sylNormT,
+        foot_dur_t = foot_end_t - foot_strt_t,
+        SR = 1000 * tot_syls / phr_end_t,
+        isLH = acc_phon %in% "L*H",
+        stim = factor(stim,levels = unique(stim))
+        ) %>%
+    rename(ana_dur = ana_end_t) %>%
+    select(-c("phr_end_t", "tot_syls", "v_onset_t")) %>%
+    convert(fct(speaker:wrd_end_syl))
+
+
+# Get FOOT subset
+pn_foot <- filter(A_corpus, stim %in% c("A0131", "A0221", "A0321", "H0422")) %>%
+    mutate(acc_phon = factor(acc_phon,
+                              levels = c("(*)", "L*", "H*", ">H*", "L*H")
+                              )
+           ) %>% 
+    mutate(stim = factor(stim, levels = unique(stim)))
+
+# Get mean alignment of L and H targets by speaker, PN, and foot size
+pn_foot_aves <- select(pn_foot,
+                  speaker,
+                  gender,
+                  foot_syls,
+                  acc_phon,
+                  isLH,
+                  h_t,
+                  l_t,
+                  l_tNorm,
+                  h_tNorm,
+                  ) %>%
+    group_by(speaker, gender, foot_syls, acc_phon, isLH) %>%
+    summarise(h_t= round(mean(h_t),0),
+              l_t = round(mean(l_t),0),
+              h_tNorm= round(mean(h_tNorm),0),
+              l_tNorm = round(mean(l_tNorm),0)) %>% 
+    ungroup() %>% 
+    mutate(acc_phon = factor(acc_phon,
+                             levels = c("(*)", "L*", "H*", ">H*", "L*H")
+                             )
+           )
+
+# get speech rate (SR) data.
+SR_meansData <- full_join(
+    select(a_frag <- A_corpus %>%
+               filter(acc_phon %in% c("(*)", "L*", "H*", ">H*", "L*H")) %>%
+               mutate(isLH = acc_phon %in% "L*H") %>%
+               select(speaker,
+                      gender,
+                      acc_phon,
+                      ana_syls,
+                      foot_syls,
+                      ana_dur,
+                      SR,
+                      isLH
+                      ) %>%
+               group_by(speaker, gender),
+           speaker, gender, acc_phon, foot_syls, ana_dur, SR,isLH
+           ) %>%
+        group_by(speaker, acc_phon) %>%
+        summarise(accCount = n()) %>%
+        spread(acc_phon, accCount) %>%
+        replace(., is.na(.), 0) %>%
+        rename(
+            "LH" = "L*H", "dH" = ">H*", "H" = "H*", "L" = "L*", "none" = "(*)"
+            ) %>% 
+        mutate(
+            totalAccs = sum(LH, dH, H, L, none),
+            LH_pc = LH / totalAccs,
+            H_pc = (dH + H) / totalAccs
+            ),
+    select(a_frag, speaker, SR) %>%
+        group_by(speaker, gender) %>%
+        summarise(meanSpRate = mean(SR)),
+    by = "speaker")
+    rm(a_frag)
+
+SR_spkr_means <- select(A_corpus, speaker, gender, SR) %>%
+    group_by(speaker, gender) %>%
+    summarise(meanSpRate = mean(SR))
+
+
+```
+
+
+
+# A. Looking at PN distribution by speaker, gender, and ana_syls 
+```{r}
+pn_foot_summary <- pn_foot %>% group_by(acc_phon, foot_syls) %>%
+    summarise(accCount = n()) %>%
+    spread(acc_phon, accCount, is.na <-(0))
+    
+write_tsv(pn_foot_summary, "../output/pn_foot_count_actual.txt")
+print(pn_foot_summary)
+
+```
+
+```{r}
+
+plot1 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = gender, fill = acc_phon), colour = "black",  
+           position = "fill")+
+  ggtitle("PNs by gender (foot size conditions)") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "distibution by gender",
+         y = "proportion of tokens"
+         ) +
+    scale_y_continuous(labels = scales::percent)
+plot1
+ggsave("../figures/PN_foot_dist_gender.png", plot1, height = 4, width = 6)
+
+plot2 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
+           colour = "black",
+            show.legend = FALSE,
+    position = position_dodge2(preserve = "single")) + 
+    facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
+    ggtitle("PNs by gender and foot syls") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size and gender",
+         y = "tokens (n)"
+         ) +
+    theme(panel.border = element_rect(fill = NA))
+plot2
+ggsave("../figures/PN_foot_dist_gender_foot.png", plot2, height = 5.5, width = 12)
+
+plot3 <- ggplot(pn_foot) +
+    geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
+             show.legend = FALSE,
+             colour = "black",
+             position = position_dodge2(preserve = "single")) +
+    facet_grid(cols = vars(acc_phon)) +
+    theme(panel.border = element_rect(fill = NA)) +
+    ggtitle("PNs across foot size conditions (syllables)") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    theme(panel.border = element_rect(fill = NA))
+plot3
+ggsave("../figures/PN_foot_distribution.png", plot3, height = 4, width = 12)
+```
+
+*figure 1. Ratios of PN occurrences (based on adjusted token counts)*
+
+A. Overall PN~foot_syls
+
+1. As with the ana_syls data, the pattern in the distribution of PNs by foot_syl conditions is very clear.
+2. As foot_syls increases, so too does the occurrence of L\*H
+3. Occurrences of >H\* and H\* (considered together) decrease as foot_syls increases, with no occurrences of H* in foot_syls = 4.
+4. However, considered in isolation, the rate of >H* is steady across all conditions.
+5. Note also that the rate of deaccentuation, i.e., (\*), decreases as foot_syls increases. This is a clear indication of how foot size conditions influence PN accent realisation.
+6. This suggests a preference for PA realisation in the following hierarchies: 
+    * L\*H > >H\* > H\* > \* | L\*H > L\*  > \*
+
+B. PN~foot_syls by gender
+
+1. L\* was produced by only two speakers (female, with one producing 7/8). However, unlike the general trend, this looked right-sided truncation of the trailing H from L\*H
+and so as such may be categorised as a "kind" of L*H.
+2. In a manner similar to the ana_syls data, the women appear to produce L* or L\*H (remembering that only one speaker produced L\*) where the man produce L\*H or H\*
+3. This implies a gendered split, wherein >H\* for the female speakers is potentially a variant of L\*H but is a variant of H\* for the male speakers.
+4. However, unlike with ana_syls. When the distibution of PNs by foot_syls is categorised by gender, we still see an overall trend, where:
+    a. L\* and L\*H occurrences increase across female speakers as foot size increases.
+    b. H\* and >H\* occurrences increases for male spekers as foot size increases.
+5. This suggests that the "gendered >H*" effect may be clearer in foot_syls
+6. However, since the sample size is quite small, any reanalysis of >H* based on gender must be approached with caution.
+
+Note also:
+    * Breaking the visualisation down to by-speaker and by-foot size obscures the pattern as it is too fine-grained.
+    * Leaves the question: is the overall gendered pattern truly representative?
+    * Mixed model statistical analysis is likely the best means of identifying any overall by-gender trend, once random by-speaker variance has been taken into account.
+
+### Rejigging >H* by gender (NB: (\*) has been excluded here)
+I reran the distibution using the gendered >H\* hypothesis.
+
+```{r echo=FALSE, fig.height=4, fig.width=12}
+pn_foot <- 
+    mutate(pn_foot,
+           genderedDh = factor(
+                               ifelse(acc_phon == ">H*" & gender == "F",
+                                      "H*",
+                                      ifelse(acc_phon == ">H*" & gender == "M",
+                                             "L*H",
+                                             as.character(acc_phon)
+                                             )
+                                      ),
+                               levels = c("(*)", "L*", "H*", "L*H")
+                               )
+           )
+
+pn_foot_GDH_summary <- pn_foot %>% group_by(genderedDh, foot_syls) %>%
+    summarise(accCount = n()) %>%
+    spread(genderedDh, accCount, is.na <-(0))
+    
+write_tsv(pn_foot_GDH_summary, "../output/pn_foot_count_GDH.txt")
+print(pn_foot_GDH_summary)
+
+
+plot1 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = gender, fill = genderedDh), colour = "black",  
+           position = "fill")+
+  ggtitle("PNs by gender and foot size using gendered >H* hypothesis") +
+    labs(x = "distibution by gender",
+         y = "proportion of tokens"
+         ) +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    scale_y_continuous(labels = scales::percent)
+
+plot1
+
+ggsave("../figures/PN_foot_GDH_dist_gender.png", plot1, height = 4, width = 6)
+
+
+plot2 <- ggplot(pn_foot) +
+  geom_bar(mapping = aes(x = foot_syls, fill = genderedDh),
+           colour = "black",
+           show.legend = FALSE,
+           position = position_dodge2(preserve = "single")
+           ) +
+    facet_grid(rows = vars(gender), cols = vars(genderedDh)) +
+    ggtitle("PNs by gender and foot size using Gendered >H* Hypothesis") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables) and gender",
+         y = "tokens (n)"
+         ) +
+    theme(panel.border = element_rect(fill = NA))
+
+plot2
+
+ggsave("../figures/PN_foot_GDH_dist_gender_foot.png", plot2, height = 5.5, width = 12)
+
+
+plot3 <- ggplot(pn_foot) +
+    geom_bar(mapping = aes(x = foot_syls, fill = genderedDh),
+             show.legend = FALSE,
+             colour = "black",
+             position = position_dodge2(preserve = "single")) +
+    facet_grid(cols = vars(genderedDh)) +
+    theme(panel.border = element_rect(fill = NA)) +
+    ggtitle("PNs across foot size conditions (syllables) using Gendered >H* Hypothesis") +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
+    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    theme(panel.border = element_rect(fill = NA))
+
+plot3
+
+ggsave("../figures/PN_foot_GDH_distribution.png", plot3, height = 4, width = 12)
+
+
+```
+
+*figure 2. Distribution of pitch accents using gendered >H\* using mean occurrences per stimulus per speaker*
+
+
+```{r eval=FALSE, fig.height=4, fig.width=12, include=FALSE}
+scaleFill <- scale_fill_brewer(palette = "Spectral",
+                               name = "gendered PA",
+                               labels = c("H*", "L*H"))
+ggplot(pn_foot_norm_count) +
+  geom_bar(mapping = aes(x = speaker, fill = isLH), position = "fill") +
+    labs(x = "foot size (syllables)", y = NULL) +
+    ggtitle("PN ratios by speaker (gendered >H*)") +
+    scaleFill
+
+ggplot(pn_foot_norm_count) +
+  geom_bar(mapping = aes(x = foot_syls, fill = isLH), position = "fill") +
+    labs(x = "foot size (syllables)", y = NULL) +
+    facet_wrap(~speaker) +
+    ggtitle("PN ratios by speaker and foot size (gendered >H*)") +
+    scaleFill
+ 
+```
+
+1. The first pair of charts suggests that the gendered >H* hypothesis is fairly valid, since:
+    a. There is a fairly even split between F and M distributions of gendered L\*H.
+    b. There is a clear trend, both in general, and by gender, for odd L\*H to increase as foot size increases
+2. Unfortunately, the true genderedness of these by-gender grand totals is questionable when it comes to looking at the ratios per speaker.
+    a. the actual distribution of odd L\*H and H\* is quite varied across speakers.
+    b. F16 and F17 appear to have almost exclusively H*
+    c. There is no foot_syls = 4 for two of the males!
+3. While there is a clear trend, the overall observations by gender need a larger sample size or more sophisticated analysis in order to assess them more fully.
+
+
+# B. Visual analysis of L and H tonal alignment
+### Looking at average timing of H by PA and gender in pn_foot
+This only included PNs with an H in them! Based on the results of the ana syls tests, I also produced figures for gendered >H*
+
+#### Timing by speaker means
+
+```{r fig.height=4, fig.width=9}
+foot_H_only_SpM <- filter(pn_foot_aves, acc_phon %in% c("L*H", ">H*", "H*")) %>%
+    mutate(acc_phon = factor(acc_phon, levels = c("H*", ">H*", "L*H")))
+
+bplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = acc_phon, y = h_t, fill = acc_phon)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1, fill = "White") +
+  ggtitle("H time by PN accent (all)") + 
+  labs(x = "Pitch Accent", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent")
+
+dplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = foot_syls, y = h_t, fill = acc_phon)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1, fill = "White") +
+  ggtitle("H time by PN accent and foot size (syls)") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+  ylim(0, 400) +
+     facet_grid(~acc_phon) +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent")
+
+
+plotRealTime <- ggarrange(bplot, dplot, ncol = 2, common.legend = TRUE, legend = "bottom", widths = 1:4)
+plotRealTime
+```
+
+*figure 3. Distribution of pitch accents using gendered >H\* using mean number of occurrences per speaker per stimulus*
+
+1. By using speaker mean times, the data points are reduced, causes inthe by PN and foot-size plots to be very distorted!
+2. H time in H\* appears to get slightly later with additonal feet, but there is quite a large degree of variation.
+3. H time in >H\* does not appear to show any meaningful change as a function of foot size.
+4. H time in L\*H appears to jump forward as soon as a single unstressed syllable is added and then to remain steady.
+5. It should, however, be noted that in the 3-syllable foot condition, H time is quite varied.
+6. The issue of variance and stability of tonal targets will be returned to in the discussion of the secondary tone hypothesis (STH).
+
+```{r fig.height=4, fig.width=12}
+allBox <- foot_H_only_SpM %>% 
+  ggplot() +
+  geom_boxplot(mapping = aes(x = acc_phon, y = h_t, fill = foot_syls)) +
+  ggtitle("H time per foot size (syls), all speakers") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral", name = "Foot size (syllables)")
+
+fBox <- foot_H_only_SpM %>% 
+  filter(gender == "F") %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = acc_phon, y = h_t, fill = foot_syls)) +
+  ggtitle("H time per foot size (syls), Female") + 
+  labs(x = "Foot size by PN", y = NULL) +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral", name = "Foot size (syllables)")
+
+
+mBox <- foot_H_only_SpM %>% 
+  filter(gender == "M") %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = acc_phon, y = h_t, fill = foot_syls)) + 
+  ggtitle("H time per foot size (syls), Male") + 
+  labs(x = "Foot size by PN", y = NULL) +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral", name = "Foot size (syllables)")
+
+ggarrange(allBox, fBox, mBox, ncol = 3, common.legend = TRUE, legend = "bottom")
+```
+
+*figure 4. Timing of H targets by pitch accent (overall, female, and male), using mean timing per speaker*
+
+1. The pattern for the effect of foot size is not as clear as that for anacrusis. In H\*, it is clear that more feet in anacrusis leads to later peak alignment
+2. In >H*, there is a similar pattern but with a large range and amount of overlap.
+3. In L*H it looks like there is quite a range of alignment but that, as with anacrusis, mere act of adding any feet to the syllable allows H to be realised later.
+4. This phenomenon (in 3.) is evident in >H\* for the female speakers, and to a lesser extent for L\*H, although in feet which are more than on syllable long, thereis a lot of variation in H time.
+5. For the male speakers, aside from a general latening of H, the pattern is somewhat erratic. There is a very large increase in the timing of foot = 1 in >H*, which is hard to explain, and then the timing of foot = 3 shows a lot of variance.
+
+### H time in gendered >H*
+
+```{r fig.height=4, fig.width=9}
+mypalette<-brewer.pal(3, "Spectral")
+scaleFill <- scale_fill_brewer(palette = "Spectral",name = "gendered PA", labels = c("H*", "L*H"))
+
+bplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = isLH, y = h_t, fill = isLH)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1, fill = mypalette[1:2]) +
+  ggtitle("Mean H time (all PNs)") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+  ylim(0, 400) +
+    scaleFill + 
+    scale_x_discrete(labels =  c("H*", "L*H"))
+
+dplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = h_t, fill = isLH, alpha = 0.5)) +
+  geom_density() +
+  ggtitle("Mean H time (all PNs) by foot size ") + 
+  labs(x = "Time (ms)", y = "density") + facet_grid(~foot_syls) +
+    scaleFill
+
+ggarrange(bplot, dplot, ncol = 2, common.legend = TRUE, legend = "right", widths = 1:4)
+
+```
+
+*figure 5. Timing of H targets by pitch accent (overall, female, and male), using all tokens*
+
+1. With gendered >H\*, there is some overlap between the timing of peaks  H\* and L\*H.
+
+```{r fig.height=4, fig.width=12}
+### for gendered >H* (reusing plot variable names for now)
+
+allBox <- foot_H_only_SpM %>% 
+  ggplot(aes(x = isLH, y = h_t, fill = foot_syls)) +
+    geom_boxplot() +
+    ggtitle("H time per foot size (syls), gendered PNs") +
+    labs(x = "Foot size by gendered PN", y = "Time (ms)") +
+    ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral") + 
+    scale_x_discrete(labels =  c("H*", "L*H"))
+
+fBox <- foot_H_only_SpM %>% 
+  filter(gender == "F") %>%
+  ggplot(aes(x = isLH, y = h_t, fill = foot_syls)) +
+    geom_boxplot() +
+  ggtitle("H time per foot size (syls), gend. PNs (F)") + 
+  labs(x = "Foot size by gendered PN", y = NULL) +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral") + 
+    scale_x_discrete(labels =  c("H*", "L*H"))
+
+mBox <- foot_H_only_SpM %>% 
+  filter(gender == "M") %>%
+  ggplot(mapping = aes(x = isLH, y = h_t, fill = foot_syls)) +
+    geom_boxplot(draw_quantiles = c(0.25, 0.5, 0.75)) +
+  ggtitle("H time per foot size (syls), gend. PNs (F)") + 
+  labs(x = "Foot size by gendered PN", y = NULL) +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral") + 
+    scale_x_discrete(labels =  c("H*", "L*H"))
+
+ggarrange(allBox, fBox, mBox, ncol = 3, common.legend = TRUE, legend = "bottom")
+
+
+
+```
+
+*figure 6. Timing of H targets by gendered >H* pitch accent and foot size (overall, female, and male), using speaker means*
+
+1. Splitting >H* into L\*H and H\* along gender lines here does not seem to be very enlightening.
+2. There is more overlap of H timing, rather than separation across foot conditions in H* as well as in L*H.
+3. This mitigates *against* the hypothesis suggested by the ana syls data, i.e.:
+    a. female speakers are more likely to delay peaks of H\* --> >H*
+    a. male speakers are more likely to delete the L of L\*H --> >H*
+4. potentially by collapsing all pitch accents into one, and just observing the timing of H in general as a function of ana_syls, an even more general pattern might emerge. The advantage of this is that it will not contain any artefacts of PA labelling errors!
+
+### H time independent of PN type
+
+```{r fig.height=5, fig.width=12}
+plot1 <- ggplot(foot_H_only_SpM, aes(x = foot_syls, y = h_tNorm, fill = foot_syls)) +
+    geom_violin(fill = "white") + geom_boxplot(width = 0.1) +
+    ggtitle("H alignment by Foot") + 
+    labs(x = "Foot size", y = "Real time Time (ms)") +
+    scale_fill_brewer(palette = "Spectral") + 
+    ylim(0, 400)
+
+plot2 <- ggplot(foot_H_only_SpM, aes(x = foot_syls, y = h_tNorm, fill = foot_syls)) +
+    geom_violin(fill = "white") + geom_boxplot(width = 0.1) +
+    ggtitle("H alignment by foot size and gender") + 
+    labs(x = "Foot size and gender", y = "Real time Time (ms)") +
+    scale_fill_brewer(palette = "Spectral") + 
+    facet_wrap(~gender) +
+    ylim(0, 400)
+
+plot3 = ggplot(foot_H_only_SpM, aes(x = h_t, fill = foot_syls)) +
+    geom_density() +
+    ggtitle("H alignment by Foot") +
+    scale_fill_brewer(palette = "Spectral") + 
+    labs(x = "Time (ms)", y = "") + 
+        facet_wrap(~foot_syls, nrow = 2) +
+    xlim(-100, 600)
+
+
+ggarrange(plot1, plot3, plot2, ncol = 3,
+          legend = "right",
+          common.legend = TRUE,
+          widths = 4:2:8)
+
+
+```
+
+*figure 7. Overall Timing of H targets (speaker means per PA type)*
+
+* This simply reflects the overall the same general trend...
+
+1. Note that the overall size of the IQRs in under different 2-syl and 3-syll foot conditions is much larger than those under different anacrusis conditions, and the 1-syl foot condition. Obviously, the timing of H is more constrained in the one-syllable condition, but this is not the case for four syllables. This may reflect the somewhat hard-to-pin-down distinction between L\*H and H\* (and >H\*) in cases where there is still some tension between the *desire* to realise an L\*H and time constraints, leading to more a more varied spread of H timings, whether in L\*H, >H\*, or H\*.
+2. Note also, that there is a binomial disribution in foot-2, and possibly also in foot-3, which is not visible in foot-1 or foot-2. This suggests that there is a split in realisations of L\*H whare are more H\*-like in foot-1, more L\*H-like in foot-4, and somewhat divided in foot-2 and foot-3
+3. This could imply that underlying all the realisations are L\*H. However, more reasonably, it probably suggest that...
+4. There is a tendency for for left-side deletion of L target in L\*H, which leads to their realisation perceptually as either H\* or >H\*. This is likely speaker---and potentially gender---dependent. When there is insufficient material in the foot, the realisation is much more likely to be realised as an H\*, while in the cases of foot-4, the utterance is much more likely to be realised as an L\*H. There will still however be cases where the L is not deleted and the realisation may still be L\*H. (Thus the apparent binomial distibutions on foot-size conditions one and two.)
+5. The difficulty is that there may still be instances where the underlying phonology is H\*. This means that due to syllabic constraints, there may well be perceptual overlap between the L\*H and H\*
+6. The difficulty this raises is as follow. If L\*H and H\* are underlyingly different but perceptually very similar or identical:
+    a. How can we reasonably distinguish between the two?
+    b. If purportedly underlying H* and L*H are indistinguishable at the level of perception, can we say that there is actually any underlying difference?
+    c. If some L\*H ___sound like___ H\*, is there any sense in which they can be said to provide any distinctive function?
+
+```{r, fig.height=5, fig.width=12}
+plot1 = filter(foot_H_only_SpM, acc_phon != ">H*") %>% 
+  ggplot(aes(x = acc_phon, y = h_t, fill = foot_syls)) +
+  geom_boxplot(position = position_dodge2(preserve = "single")) +
+  ggtitle("H time by foot size (syls) for H* and L*H") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+    scale_fill_brewer(palette = "Spectral") + 
+    theme(legend.position = "bottom") +
+    ylim(0, 400)
+
+plot2 = filter(foot_H_only_SpM, acc_phon == ">H*") %>% 
+  ggplot(aes(x = gender, y = h_t, fill = foot_syls)) +
+  geom_boxplot(position = position_dodge2(preserve = "single")) +
+  ggtitle("H time of >H* by foot size (syls) and gender") + 
+  labs(x = "Gender", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral")
+
+ggarrange(plot1, plot2, ncol = 2, legend = "bottom", common.legend = TRUE)
+
+```
+
+*figure 8. Overall Timing of H targets (speaker means per PA type)*
+
+2. Note, if we simply treat >H* as ambiguous and ignore all instances, we end up with a more satisfying *look* to the data.
+3. This suggests that in H\*, H time drifts forwards with as foot size increases, but that...
+4. ...in L\*H, while H timing is obviously constrained in the foot_syls = 1 conditions, that it is _relatively_ fixed in all conditions where the foot has unstressed trailing syllables.
+5. This intrepation *only* works if we ignore all the >H\* data!!!!!!!
+6. It should also be noted that by using mean timing per PN per speaker, the actual data set is limited, thus the appearance, for example, of outliers in H*
+6. However, if we follow this logic, and look at >H\*, an interesting converse pattern appears.
+7. Under this view, >H\* of the female speakers follows the pattern of L\*H mentioned in point 4 (as per expectations based on the gendered >H\* hypothesis)
+8. The >H\* of the male speakers is _somewhat_ like that of the H*, in that the timing of H gets later with each additional syllable in the foot;
+9. However, for the males, there is clearly a lot of variance in the three-syllable foot condition, and >H\* (male) is still later overall than the mean H\*
+10. This adds credence to the gendered >H* hypothesis.
+
+# Comments on syllable-normalised time
+Time normalisation may appear to be a good idea in order to standardise the values. This was experimented with using syllable-normalised time.
+Syllable normalised time was calculated as follows. For each stimulus/metre pattern:
+    a. Get grand-mean syllable durations.
+    b. Calculate the grand-mean onset time of each syllable 
+    c. Identify syllable number of each vowel onset target, L target and H target.
+    d. Calculate target as ratio of the syllable
+    e. Calculate standarised target time as grand-mean onset time of target syllable plus the target ratio multiplied by the grand-mean duration of the target syllable.
+The data in Figure 3 (H time by pitch accent and foot size) were recalculated using syllable-normalised time. The Figure below shows these data using the time-normalised data, with the original below for contrast.
+
+
+```{r fig.height=9, fig.width=12}
+foot_H_only_SpM <- filter(pn_foot_aves, acc_phon %in% c("L*H", ">H*", "H*")) %>%
+    mutate(acc_phon = factor(acc_phon, levels = c("H*", ">H*", "L*H")))
+
+bplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = acc_phon, y = h_tNorm, fill = acc_phon)) +
+  geom_violin(show.legend = FALSE) +
+  geom_boxplot(width = 0.1, fill = "White") +
+  ggtitle("H time (normalised) by PN") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral")
+
+
+dplot <- foot_H_only_SpM %>% 
+  ggplot(aes(x = foot_syls, y = h_tNorm, fill = acc_phon)) +
+  geom_violin(show.legend = FALSE) +
+  geom_boxplot(width = 0.1, fill = "White") +
+  ggtitle("H time (normalised) by PN and foot size (syls)") + 
+  labs(x = "Foot size by PN", y = "Time (ms)") +
+  ylim(0, 400) +
+     facet_grid(~acc_phon) +
+    scale_fill_brewer(palette = "Spectral", name = "Pitch Accent")
+
+plotNormTime <- ggarrange(bplot, dplot, ncol = 2, legend = NULL, widths = 1:4)
+
+ggarrange(plotNormTime, plotRealTime, nrow = 2, common.legend = TRUE, legend = "bottom", widths = 1:4)
+
+```
+
+_figure 10. Distribution of pitch accents using gendered >H\* for mean number of occurrences per speaker per stimulus. The upper panel shows syllable-based grand-mean time normalisation, while the lower panel shows the data using real time._
+
+1. Time normalisation actually considerable increases the variance when gender is not considered as a factor.
+2. There are several reasons why this is likely the case, all of which suggest that time normalisation may not be a good idea.
+    a. Syllable-times normalisation (or normalisation of any sort) requires an underlying assumption that speakers time their tonal targes as a proportion of the syllable.
+    b. It also implies that pitch accents and tonal targets are interpreted as a proportion of the syllable. In other words, this suggests that listeners intrinsically time-normalise the pitch contour by syllable as they listen.
+    c. It essentially normalises speech rate (every time normalised phrase will have the exact same syllable rate as all others), which itself may be a factor in the timing of tonal targets. This will lead to the introduction of apparent random variation which can otherwise be accounted for.
+    d. It has been shown that there are physiological constraints which limit the time within which speakers can change pitch. Time standardisation does not account for this. In fact, it will warp the effects of physiological constraints.
+3. An alternative to time normalisation will be used in implicitly in the LMM approach adopted for the statistical analysis.
+
+
+
+
+
+# observations on gender
+```{r, fig.height=5, fig.width=12}
+plot1 = foot_H_only_SpM %>% 
+  ggplot(aes(x = gender, y = h_t, fill = gender)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1) +    
+  ggtitle("") + 
+  labs(x = "Gender", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral")
+
+plot2 = foot_H_only_SpM %>% 
+  ggplot(aes(x = acc_phon, y = h_t, fill = acc_phon)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1) +  
+  ggtitle("PN H time by Gender (foot data)") + 
+
+  labs(x = "Gender and PN", y = "Time (ms)") +
+  ylim(0, 400) +
+    scale_fill_brewer(palette = "Spectral") +
+    facet_wrap(~gender)
+
+ggarrange(plot2, plot1, ncol = 2, common.legend = TRUE, legend = "right", widths= 2:1)
+```
+
+*figure 10. H time as a function of gender (speaker means per PA)*
+
+1. On average, male H time is earlier than female H time.
+2. This is true for >H* and L\*H;  howewever, it looks like this is not te case for H\*.
+3. It looks like H time for F is slightly earlier than for mean; however, not that there are few instances of this.
+
+# C. Looking at average timing of L by PA and gender in pn_foot
+
+
+# D. Looking at Speech Rate (SR = syls / sec) effects ?????
+#### Recap: Analysis of Speech Rate, Gender, and PAs
+#### Testing average timing of H by PA and speaker SR category in pn_foot
+
+
+# E. Conclusion
+1. Syllable-normalised time is not a good idea!
+2. Issues around normalisation will most likely not be an issue when using LMMs since (one hopes) that by speaker time variation will help account for some of the durational differences.
+3. There appear to be general gender trends, but as with the ana data, it is difficult to draw anything more than the broadest of conclusions given the size of the speaker sample when divided by gender.
+

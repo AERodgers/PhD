@@ -1,0 +1,85 @@
+---
+title: "Generalsed Linear Mixed Model Analysis of PN Phonology"
+author: "AERodgers"
+date: "2/18/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+source("0_Initialise_libs.R")
+source("0_Get_tbls.R")
+
+theme_set(
+    theme_minimal(base_size = 14)
+)
+
+# trim pn_ tbls
+pn_all <- select(pn_all,
+                  speaker, gender, stim, ana_syls,foot_syls, acc_phon, SR, genderedDh)
+
+```
+
+## **PNs** as fn of **foot size** + gender \* SR
+```{r echo=FALSE, warning=FALSE}
+# GLMER
+
+# gen number of levels in pn_anac$syls
+curLevelsF <- levels(pn_all$foot_syls)
+numLevelsF <- length(curLevelsF)
+x = tibble()
+curLevelsA <- levels(pn_all$ana_syls)
+numLevelsA <- length(curLevelsA)
+
+for(i in 1:4){ 
+  for(j in 0:3){
+    test <- glmer(acc_phon ~ foot_syls + ana_syls + gender*SR + (1 | speaker),
+                  data = pn_all,
+                  family = binomial(link = "logit"),
+                  control = glmerControl(optimizer = "optimx",
+                                         calc.derivs = FALSE,
+                                         optCtrl = list(method = "nlminb",
+                                                        starttests = FALSE,
+                                                        kkt = FALSE
+                                                        )
+                                         ),
+                  nAGQ = 25)
+    visual <- plot_model(test,
+                         show.intercept = TRUE,
+                         show.values = TRUE,
+                         show.p = FALSE,
+                         title = "PN ~ ft size + anac. + gender * SR + (1 | spker)",
+                         vline.color = "red",
+                         colors = "Black") +
+      font_size(title = 12)
+    
+    print(tidy(test) %>% 
+            filter(term != "sd_(Intercept).speaker") %>% 
+            select(-group) %>% 
+            mutate(
+              estimate = round(estimate, 3),
+              std.error = round(std.error, 3),
+              statistic = round(statistic, 3),
+              p.value = round(p.value, 3)
+              )
+    )
+    curLevelsF <- c(curLevelsF[2:numLevelsF], curLevelsF[1])
+    pn_all$foot_syls <- factor(pn_all$foot_syls, levels = curLevelsF)
+  }
+    curLevelsA <- c(curLevelsA[2:numLevelsA], curLevelsA[1])
+    pn_all$ana_syls <- factor(pn_all$ana_syls, levels = curLevelsA)
+
+  }
+
+
+
+```
+

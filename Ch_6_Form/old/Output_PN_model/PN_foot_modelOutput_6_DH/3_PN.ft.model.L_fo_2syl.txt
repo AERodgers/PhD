@@ -1,0 +1,65 @@
+Linear mixed model fit by REML. t-tests use
+  Satterthwaite's method [lmerModLmerTest]
+Formula: 
+L_fo ~ ft_syls + gender + (1 + ft_syls | speaker) + (1 | pn_Rhy)
+   Data: PN_foot
+Control: 
+lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",  
+    starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 187.1
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.10341 -0.41909 -0.05215  0.41245  2.20931 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr       
+ speaker  (Intercept) 5.44104  2.3326              
+          ft_syls1    0.39327  0.6271   -0.68      
+          ft_syls3    0.57579  0.7588    0.68 -1.00
+          ft_syls4    0.01643  0.1282   -0.60 -0.18
+ pn_Rhy   (Intercept) 3.38521  1.8399              
+ Residual             0.60383  0.7771              
+      
+      
+      
+      
+  0.18
+      
+      
+Number of obs: 64, groups:  speaker, 10; pn_Rhy, 2
+
+Fixed effects:
+            Estimate Std. Error      df t value
+(Intercept)  88.2992     1.6321  2.2458  54.103
+ft_syls1      0.2224     0.3818  7.1462   0.582
+ft_syls3      0.4085     0.4408  6.8140   0.927
+ft_syls4      3.6770     0.6997 34.7129   5.255
+genderM      -8.3331     1.3530  8.8225  -6.159
+            Pr(>|t|)    
+(Intercept) 0.000152 ***
+ft_syls1    0.578145    
+ft_syls3    0.385749    
+ft_syls4    7.57e-06 ***
+genderM     0.000181 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+         (Intr) ft_sy1 ft_sy3 ft_sy4
+ft_syls1 -0.256                     
+ft_syls3  0.051 -0.156              
+ft_syls4 -0.149  0.088  0.146       
+genderM  -0.340  0.075  0.130 -0.066
+Type III Analysis of Variance Table with Satterthwaite's method
+        Sum Sq Mean Sq NumDF   DenDF F value    Pr(>F)
+ft_syls 16.706  5.5687     3 10.6981  9.2222 0.0026319
+gender  22.905 22.9053     1  8.8225 37.9333 0.0001813
+           
+ft_syls ** 
+gender  ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

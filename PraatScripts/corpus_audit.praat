@@ -1,11 +1,24 @@
-form
-    sentence data_file Chapter 6/a_corpus.csv
+# CORPUS AUDIT
+# ============
+# Checks for and removes invalid utterances in PhD Derry City English Corpora.
+#
+# Written for Praat 6.0.36
+#
+# Antoin Eoin Rodgers
+# rodgeran@tcd.ie
+# Phonetics and speech Laboratory, Trinity College Dublin
+#
+# latest update: 20/04/2022
+
+# UI Form
+form Choose Corpus File to Audit
+    sentence data_file ..\Ch_6_Form\data\a_corpus.csv
     natural target_feet 2
 endform
+
 # GET DATA
 data = Read Table from comma-separated file: data_file$
-file_root$ = left$(data_file$, index(data_file$, ".") - 1)
-
+file_root$ = left$(data_file$, rindex(data_file$, ".") - 1)
 
 # create speaker_stimulus field
 Insert column: 1, "speaker_stim"
@@ -63,7 +76,6 @@ for i to num_rows
         Remove row: cur_row
     endif
 endfor
-
 
 # AUDIT DATA
 # Get arrays of speakers and stimuli
@@ -124,16 +136,20 @@ writeFile: "'file_root$'_audit_summary.csv", "speaker,"
 for cur_stim to stim_count - 1
     appendFile: "'file_root$'_audit_summary.csv", stim$[cur_stim], ","
 endfor
-appendFile: "'file_root$'_audit_summary.csv", stim$[stim_count], ",TOTAL", newline$
+appendFile: "'file_root$'_audit_summary.csv",
+    ... stim$[stim_count], ",TOTAL", newline$
 
 # add rows
 for cur_speaker to speaker_count
     appendFile: "'file_root$'_audit_summary.csv", speaker$[cur_speaker], ","
     for cur_stim to stim_count - 1
-        appendFile: "'file_root$'_audit_summary.csv", speaker_stim[cur_speaker, cur_stim], ","
+        appendFile: "'file_root$'_audit_summary.csv",
+            ... speaker_stim[cur_speaker, cur_stim], ","
     endfor
-    appendFile: "'file_root$'_audit_summary.csv", speaker_stim[cur_speaker, stim_count], ","
-    appendFile: "'file_root$'_audit_summary.csv", speaker_tot[cur_speaker], newline$
+    appendFile: "'file_root$'_audit_summary.csv",
+        ... speaker_stim[cur_speaker, stim_count], ","
+    appendFile: "'file_root$'_audit_summary.csv",
+        ... speaker_tot[cur_speaker], newline$
 endfor
 
 # add summation row

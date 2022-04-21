@@ -1,0 +1,55 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: med ~ hasAnac + gender + (1 + hasAnac | speaker)
+   Data: PN_anac
+Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",      starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 500.9
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.1820 -0.5840 -0.1421  0.5809  3.4054 
+
+Random effects:
+ Groups   Name         Variance Std.Dev. Corr 
+ speaker  (Intercept)  7.244    2.692         
+          hasAnacFALSE 1.192    1.092    -0.13
+ Residual              1.110    1.053         
+Number of obs: 154, groups:  speaker, 10
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(>|t|)    
+(Intercept)   90.2286     1.1019  7.7546  81.888 1.13e-12 ***
+hasAnacFALSE   0.2402     0.4468  7.2682   0.538   0.6070    
+genderM       -7.8312     1.7522  7.9717  -4.469   0.0021 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) hAFALS
+hasAncFALSE -0.105       
+genderM     -0.623  0.014
+Type III Analysis of Variance Table with Satterthwaite's method
+         Sum Sq Mean Sq NumDF  DenDF F value   Pr(>F)   
+hasAnac  0.3207  0.3207     1 7.2682  0.2889 0.606954   
+gender  22.1673 22.1673     1 7.9717 19.9752 0.002103 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Backward reduced random-effect table:
+
+                                   Eliminated npar  logLik    AIC    LRT Df Pr(>Chisq)   
+<none>                                           7 -250.45 514.90                        
+hasAnac in (1 + hasAnac | speaker)          0    5 -257.22 524.45 13.552  2   0.001141 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Backward reduced fixed-effect table:
+Degrees of freedom method: Satterthwaite 
+
+        Eliminated  Sum Sq Mean Sq NumDF  DenDF F value   Pr(>F)   
+hasAnac          1  0.3207  0.3207     1 7.2682  0.2889 0.606954   
+gender           0 22.4841 22.4841     1 7.9763 20.2701 0.002011 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Model found:
+med ~ gender + (1 + hasAnac | speaker)

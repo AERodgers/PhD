@@ -1,0 +1,44 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: D_t ~ ft_syls + gender + (1 + ft_syls | speaker) + (1 | pn_Rhy)
+   Data: PN_foot
+Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",  
+    starttests = FALSE, kkt = FALSE))
+
+REML criterion at convergence: 798.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9469 -0.5660 -0.0056  0.5976  1.9479 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr          
+ speaker  (Intercept)  953.2   30.87                  
+          ft_syls1     641.6   25.33    0.06          
+          ft_syls3     209.7   14.48    0.63 0.81     
+          ft_syls4     631.9   25.14    0.08 1.00 0.83
+ pn_Rhy   (Intercept)    0.0    0.00                  
+ Residual             1668.3   40.84                  
+Number of obs: 80, groups:  speaker, 9; pn_Rhy, 2
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(>|t|)   
+(Intercept)  214.033     17.224   2.915  12.427  0.00129 **
+ft_syls1     -89.667     24.300   3.363  -3.690  0.02842 * 
+ft_syls3       9.951     15.337   6.567   0.649  0.53848   
+ft_syls4      22.666     17.938   4.307   1.264  0.27045   
+genderM      -34.179     32.729   6.387  -1.044  0.33424   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+         (Intr) ft_sy1 ft_sy3 ft_sy4
+ft_syls1 -0.289                     
+ft_syls3 -0.337  0.515              
+ft_syls4 -0.391  0.581  0.676       
+genderM  -0.339 -0.150 -0.240 -0.226
+Type III Analysis of Variance Table with Satterthwaite's method
+        Sum Sq Mean Sq NumDF  DenDF F value   Pr(>F)   
+ft_syls  53134 17711.4     3 6.0008 10.6167 0.008175 **
+gender    1819  1819.5     1 6.3869  1.0906 0.334237   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
