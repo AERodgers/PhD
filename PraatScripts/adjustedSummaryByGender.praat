@@ -3,11 +3,11 @@
 # UI
 form
     word treatment foot_syls
-    word response acc_phon
+    word response init_contour
     word count value
-    sentence table_m ..\Ch_6_Form\output\pn_foot_adj_M.csv
-    sentence table_f ..\Ch_6_Form\output\pn_foot_adj_F.csv
-    sentence table_g ..\Ch_6_Form\output\pn_foot_adj_all_gender.csv
+    sentence table_m C:/Users/antoi/Documents/GitHub/PhD/Ch_6_Form/output/M.csv
+    sentence table_f C:/Users/antoi/Documents/GitHub/PhD/Ch_6_Form/output/F.csv
+    sentence table_g C:/Users/antoi/Documents/GitHub/PhD/Ch_6_Form/output/G.csv
 endform
 
 table_m = Read Table from comma-separated file: table_m$
@@ -28,8 +28,8 @@ procedure count2rows(.table, .treatment$, .response$, .count$)
     .name$ = selected$("Table")
     .num_rows = Get number of rows
     .mean = Get mean: .count$
-    .total = .mean * .num_rows
- 
+    .total = round(.mean * .num_rows)
+
     .new_table = Create Table with column names: .name$  + "_adj", .total, { .treatment$, .response$ }
 
     .item = 0

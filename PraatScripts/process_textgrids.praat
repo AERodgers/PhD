@@ -25,7 +25,7 @@
 #     2. Unused columns no longer included in table, but still calculated in
 #        script; e.g., rhythm normalised times no longer saved to table.
 #     3. All actual times output re utterance start (i.e. from 0)
-#     4. V.2.0.1: Epdated syl_normT estimations - each of these is now
+#     4. V.2.0.1: Updated syl_normT estimations - each of these is now
 #                 normalised to a grand mean syllable time in ms for each
 #                 stim_metre pairing.
 #                 Added v/l/h_syl_ratio column to show target as a proportion

@@ -26,7 +26,7 @@ my_packages <- c("datawizard",
 already_installed <- my_packages %in% rownames(installed.packages())
 
 if (any(already_installed == FALSE)) {
-    install.packages(packages[!already_installed])
+    install.packages(my_packages[!already_installed])
 }
 
 invisible(lapply(my_packages, library, character.only = TRUE))
