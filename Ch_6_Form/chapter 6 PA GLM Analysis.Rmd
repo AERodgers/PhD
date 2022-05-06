@@ -1,0 +1,426 @@
+---
+title: "Generalsed Linear Mixed Model Analysis of DCE Phonology"
+author: "AERodgers"
+date: "2/18/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Load functions and packages
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    "tidyverse",
+    "knitr",
+    "speakr",
+    "codingMatrices",
+    "broom",
+    "styler",
+    "lmerTest",
+    "optimx",
+    "sjPlot",
+    "sjmisc",
+    "ggplot2",
+    "hablar",
+    "ggpubr",
+    "MuMIn",
+    "mefa4",
+    "formattable",
+    "codingMatrices",
+    "hablar",
+    "lme4",
+    "sjPlot",
+    "speakr"
+  ))
+
+
+
+# PRAAT DIRECTORY
+# Change this as required
+options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
+
+# Set themes
+p_color <- x ~ style(color = if_else(
+  x < 0.001, "green",if_else(
+    x < 0.01, "green", if_else(
+      x < 0.05, "green", if_else(
+        x < 0.1, "orange", "red"
+        )
+      )
+    )
+  )
+  )
+
+```
+
+* Script creates subset for analysis
+```{r}
+# LOAD CORPUS
+# Read in AH corpus.
+corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
+  # Retain reference columns and phonological data.
+  # include speech_rate
+  mutate(speech_rate = round(phr_end_t / tot_syls) / 1000) %>% 
+  # treat foot_syls and ana_syls as factor
+  mutate(ana_syls = factor(ana_syls, levels = unique(ana_syls))) %>% 
+  mutate(foot_syls = factor(foot_syls, levels = unique(foot_syls))) %>% 
+  # Ignore downstep.
+  mutate(acc_phon = str_replace(acc_phon, "!", "")) %>%
+  # Arrange PA levels according to hypothesized hierarchy.
+  mutate(
+    acc_phon = factor(acc_phon,levels = c("(*)", "L*", "H*", ">H*", "L*H"))
+    ) %>%
+  # Arrange PA levels according to hypothesized hierarchy.
+  mutate(speaker = factor(
+    speaker,
+    levels = c(
+      "F5",
+      "F6",
+      "F12",
+      "F15",
+      "F16",
+      "F17",
+      "M4",
+      "M5",
+      "M8",
+      "M9",
+      "M10"
+    )
+  ))
+
+
+# CREATE PN SUBSETS
+# Extract PN data.
+pn <- filter(corpus, cur_foot == 1) %>%
+  unite(init_contour,
+        init_phon,
+        acc_phon,
+        sep = " ",
+        remove = FALSE)
+# Get subset of all data for PN analysis
+
+
+# Extract PN anacrusis data.
+pn_ana <- pn %>%
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
+  select(-(cur_foot:wrd_end_syl),-fin_phon)
+
+# Extract PN foot-size data.
+pn_foot <- pn %>%
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
+  select(-(ana_syls:cur_foot), -wrd_end_syl,-fin_phon)
+
+# Extract PN word-boundary data.
+pn_lex <- pn %>% filter(stim %in% c(
+  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
+  ))
+
+
+# CREATE NUCLEAR PA SUBSETS
+# Extract nuclear PA data.
+nuc <- filter(corpus, cur_foot == 2) %>%
+  select(-init_phon,-ana_syls) %>%
+  # Create nuclear contour column.
+  unite(nuc_contour,
+        acc_phon,
+        fin_phon,
+        sep = " ",
+        remove = FALSE)
+
+# Extract nuclear PN foot-size data.
+nuc_pre <- nuc %>%
+  filter(stim %in% c("A1111", "A0221", "A0321", "A0423")) %>%
+  # Get number of preceding syllables from stim code
+  mutate(pre_syls = str_sub(stim, 3, 3))  %>%
+  mutate(pre_syls = as.integer(pre_syls))
+
+nuc_foot <- nuc %>%
+  # Get dataset for syllables preceding nuclear PA.
+  filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
+
+# Remove unneeded variables from R Environment.
+rm(corpus, nuc, pn)
+
+
+```
+
+
+
+## **PNs** as fn of **foot size** + gender \* speech_rate
+```{r echo=FALSE, warning=FALSE}
+
+requireNamespace("codingMatrices")
+library(codingMatrices)
+test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
+              
+              data = pn_foot,
+              family = binomial(link = "logit"),
+              control = glmerControl(optimizer = "optimx",
+                                     calc.derivs = FALSE,
+                                     optCtrl = list(method = "nlminb",
+                                                    starttests = FALSE,
+                                                    kkt = FALSE
+                                                    )
+                                     ),
+              nAGQ = 25
+              )
+
+#y <- tidy(test) %>%
+#  filter(term != "sd_(Intercept).speaker") %>% 
+#  pAdjustBF(
+#    c("(Intercept)",
+#      "genderM",
+#      "speech_rate",
+#      "genderM:speech_rate"),
+#    3) %>%
+#  mutate(
+#    estimate = round(estimate, 3),
+#    std.error = round(std.error, 3),
+#    statistic = round(statistic, 3),
+#    p.value = round(p.value, 4),
+#    p.adjusted = round(p.adjusted, 4)
+#    ) %>% 
+#  select(-group) %>% 
+#  rename(z.value = statistic) %>% 
+#  sigCodesTidy()
+
+plot_model(test,
+           show.intercept = TRUE,
+           show.values = TRUE,
+           show.p = FALSE,
+           title = "PN ~ foot size + gender * speech_rate + (1 | speaker)",
+           vline.color = "red",
+           colors = "Black") +
+  font_size(title = 12)
+
+#formattable(y,
+#            align = c("l", rep("r", ncol(y)-1, "l")),
+#            list(p.adjusted = formatter("span",
+#                                     style = p_color
+#                                     )
+#                 )
+#            )
+
+summary(test)
+```
+
+## **PNs** as fn of **foot size** + gender \* speech_rate
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# GLMER
+
+# gen number of levels in pn_anac$syls
+curLevels <- levels(pn_foot$foot_syls)
+numLevels <- length(curLevels)
+x = tibble()
+for (i in 1:(numLevels)) {
+  test <-
+    glmer(
+      acc_phon ~ foot_syls + gender * speech_rate + (1 | speaker),
+      data = pn_foot,
+      family = binomial(link = "logit"),
+      control = glmerControl(
+        optimizer = "optimx",
+        calc.derivs = FALSE,
+        optCtrl = list(
+          method = "nlminb",
+          starttests = FALSE,
+          kkt = FALSE
+        )
+      ),
+      nAGQ = 25
+    )
+  
+  if (i == 1) {
+    visual <- plot_model(
+      test,
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = "PN ~ foot size + gender * speech_rate + (1 | speaker)",
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+    first_test <- test
+  }
+  
+  
+  
+  y <- tidy(test) %>%
+    pAdjustBF(
+      c(
+        "(Intercept)",
+        "genderM",
+        "speech_rate",
+        "genderM:speech_rate",
+        "sd_(Intercept).speaker"
+      ),
+      6
+    )
+  
+  y <- y %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 4),
+      p.adjusted = round(p.adjusted, 4),
+      pairwise =
+        if_else(
+          term == "(Intercept)",
+          "intercept",
+          if_else(
+            term %in% c("genderM", "speech_rate", "genderM:speech_rate"),
+            "N/A",
+            paste("foot_syls", i, sep = "")
+          )
+        ),
+      term =
+        if_else(term == "(Intercept)",
+                paste("foot_syls", i, sep = ""),
+                term)
+    ) %>%
+    filter(term != "sd_(Intercept).speaker") %>%
+    select(-group) %>%
+    rename(z.value = statistic) %>%
+    sigCodesTidy()
+  
+  ifelse(i > 1,
+         y <-
+           filter(
+             y,
+             term %notin% c("genderM", "speech_rate", "genderM:speech_rate")
+           ),
+         y <- y)
+  
+  keep = c("genderM", "speech_rate", "genderM:speech_rate")
+  for (j in i:4) {
+    keep <- c(keep, paste("foot_syls", j, sep = ""))
+  }
+  y <- filter(y, term %in% keep)
+  
+  
+  x <- bind_rows(x, y)
+  curLevels <- c(curLevels[2:numLevels], curLevels[1])
+  pn_foot$foot_syls <-
+    factor(pn_foot$foot_syls, levels = curLevels)
+  
+  
+}
+
+x   <- arrange(x, pairwise)
+b0_footSize  <- filter(x, pairwise == "intercept") %>%
+  select(-pairwise) %>%
+  rename(intercept = term)
+
+b0_GenderSR  <-
+  filter(x, term %in% c("genderM", "speech_rate", "genderM:speech_rate")) %>%
+  select(-pairwise)
+
+
+b1_footSize  <-
+  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
+  select(pairwise,
+         term,
+         estimate,
+         std.error,
+         z.value,
+         p.value,
+         p.adjusted,
+         "signif. (adj.)") %>%
+  rename(intercept = pairwise, slope = term)
+
+
+
+```
+
+
+#### Effects of Foot size, gender, and speech rate (speech_rate) on PN
+```{r echo=FALSE, fig.height=3.5, fig.width=6.258}
+print(visual)
+
+```
+
+
+#### Gender and Speech Rate (speech_rate) ($\beta$~1~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b0_GenderSR,
+            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+
+```
+
+
+#### Foot size as intercept ($\beta$~0~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b0_footSize,
+            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+
+```
+
+
+#### Pairwise comparisons ($\beta$~1~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b1_footSize,
+            align = c("l", "l", rep("c", ncol(b0_GenderSR)-2, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+```
+
+
+
+#### Gender and Speech Rate (speech_rate) ($\beta$~1~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b0_GenderSR,
+            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+
+```
+
+#### Foot size as intercept ($\beta$~0~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b0_footSize,
+            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+```
+
+#### Pairwise comparisons ($\beta$~1~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b1_footSize,
+            align = c("l", "l", rep("c", ncol(b0_GenderSR)-2, "l")),
+            list(p.adjusted = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+```
+
+

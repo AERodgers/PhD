@@ -11,21 +11,16 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r}
-# Load packages and functions
-source("../functions/install_packages.R")
-source("../functions/balancedData.R")
+# Load functions and packages
+source("../functions/myFunctions.R") 
+installMissingPackages(c("tidyverse", "knitr", "speakr"))
 
+# PRAAT DIRECTORY
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 ```
 
 ```{r}
-
-source("../functions/balancedData.R")
-```
-
-```{r}
-
 # LOAD CORPUS
 # Read in AH corpus.
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
@@ -36,13 +31,14 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     ana_syls,
     cur_foot:acc_phon,
     init_phon:fin_phon,
-    # Remove unnecessary columns.-tot_syls,
     -tot_feet
   ) %>%
   # Ignore downstep.
   mutate(acc_phon = str_replace(acc_phon, "!", "")) %>%
   # Arrange PA levels according to hypothesized hierarchy.
-  mutate(acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H"))) %>%
+  mutate(
+    acc_phon = factor(acc_phon,levels = c("(*)", "L*", "H*", ">H*", "L*H"))
+    ) %>%
   # Arrange PA levels according to hypothesized hierarchy.
   mutate(speaker = factor(
     speaker,
