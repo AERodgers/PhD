@@ -29,13 +29,22 @@ balancedData <- function(data_set,
                          num_speakers,
                          num_reps,
                          use_pa_hierarchy = TRUE)
-  # Returns an adjusted data matrix of the phonological data.
-  #     data_set = target corpus data set
-  #     treatment_col = treatment column / independent variable)
-  #     response_col = response column / dependent variable (phonology)
-  #     gender_filter = "F" for female only, "M" for male only, "" for all
-  #     num_speakers = number of speakers in ideal corpus
-  #     num_reps = numer of repetitions per speaker in ideal corpus
+  # Returns an data matrix of phonological data of a projected balanced dataset.
+  #     This function takes a subset of the data, calculates each token count
+  #     per speaker per condition as a ratio of the total tokens for that
+  #     condition and multiplies it by a constant reflecting the target token
+  #     for that utterance. It then calculates the total number of tokens per 
+  #     condition as a ratio of the total number of speakers represented for 
+  #     that condition. Again, this is multiplied by a constant to reflect the 
+  #     intended number of speakers. The values are then rounded to an integer
+  #     to approximate the ideal total tokens for the dataset.
+  #     
+  #     data_set ....... target corpus data set
+  #     treatment_col .. treatment column / independent variable)
+  #     response_col ... response column / dependent variable (phonology)
+  #     gender_filter .. "F" for female only, "M" for male only, "" for all
+  #     num_speakers ... number of speakers in ideal corpus
+  #     num_reps ....... number of repetitions per speaker in ideal corpus.
 {
   if (gender_filter == "M") {
     data_set <- data_set %>% filter(gender == "M")
