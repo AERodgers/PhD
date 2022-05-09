@@ -130,6 +130,7 @@ numLevels <- length(curLevels)
 x = tibble()
 
 for (i in 1:(numLevels)) {
+  print(curLevels)
   test <- glmer(
     acc_phon ~ foot_syls + (1 | speaker),
     data = pn_foot,
@@ -214,12 +215,20 @@ for (i in 1:(numLevels)) {
   
   x <- bind_rows(x, y)
   formattable(x)
-  
-    curLevels <- c(curLevels[2:numLevels], curLevels[1])
-  pn_foot$foot_syls <-
-    factor(pn_foot$foot_syls, levels = curLevels)
-  
-  ###FIX THIS
+  print(x)
+  curLevels <- c(curLevels[2:numLevels], curLevels[1])
+   
+   
+   pn_foot <- pn_foot %>% 
+      mutate(foot_syls = factor(
+        foot_syls,
+        levels = curLevels
+        )
+        )
+   
+   #### FOR SOME REASON THIS ISN'T LOOPING TO MAKE EACH CONDITION THE INTERCEPT IN TURN FOR PAIRWISE COMPARISON
+
+
 }
 
 x   <- arrange(x, pairwise)
