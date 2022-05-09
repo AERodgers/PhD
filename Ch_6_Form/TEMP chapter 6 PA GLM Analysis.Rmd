@@ -15,39 +15,41 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-source("0_Initialise_libs.R")
-source("0_Get_tbls.R")
-sigCodesTidy <- function(myTibble){
-    myTibble <- mutate(
-        myTibble,
-        "signif. (adj.)" =
-            if_else(
-                p.adjusted < 0.001,'p<0.001',
-                if_else(
-                    p.adjusted < 0.01,
-                    'p<0.01',
-                    if_else(
-                        p.adjusted < 0.05,
-                        'p<0.05',
-                        if_else(
-                            p.adjusted < 0.1,
-                            '(p<0.1)',
-                            ''
-                            )
-                        )
-                    )
-                )
-        )
-    return(myTibble)
-}
 
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    "tidyverse",
+    "knitr",
+    "speakr",
+    "codingMatrices",
+    "broomExtra",
+    "styler",
+    "lmerTest",
+    "optimx",
+    "sjPlot",
+    "sjmisc",
+    "ggplot2",
+    "hablar",
+    "ggpubr",
+    "MuMIn",
+    "mefa4",
+    "formattable",
+    "codingMatrices",
+    "hablar",
+    "lme4",
+    "sjPlot",
+    "speakr"
+  ))
 theme_set(
     theme_minimal(base_size = 14)
 )
 
+source("scripts/get_AH_corpora.R")
 # trim pn_ tbls
 pn_foot <- select(pn_foot,
-                  speaker, gender, stim, foot_syls, acc_phon, SR, genderedDh)
+                  speaker, gender, stim, foot_syls, acc_phon)
 
 p_color <- x ~ style(color = if_else(
   x < 0.001, "green",if_else(
@@ -63,12 +65,10 @@ p_color <- x ~ style(color = if_else(
 ```
 
 
-## **PNs** as fn of **foot size** + gender \* SR [forward helmert contrasts]
+## **PNs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 
-requireNamespace("codingMatrices")
-library(codingMatrices)
-test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
+test <- glmer(acc_phon ~ foot_syls +(1 | speaker),
               
               data = pn_foot,
               family = binomial(link = "logit"),
@@ -79,11 +79,17 @@ test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
                                                     kkt = FALSE
                                                     )
                                      ),
-              nAGQ = 25,
-              contrasts = list(foot_syls = code_helmert_forward(4))
+              nAGQ = 25
               )
 
 y <- tidy(test) %>%
+  filter(term != "sd_(Intercept).speaker") %>% 
+  pAdjustBF(
+    c("(Intercept)",
+      "foot_syls2",
+      "foot_syls3",
+      "foot_syls4"),
+    3) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -91,7 +97,7 @@ y <- tidy(test) %>%
     p.value = round(p.value, 4),
     p.adjusted = round(p.adjusted, 4)
     ) %>% 
-  select(-group) %>% 
+  select(-c(group, effect)) %>% 
   rename(z.value = statistic) %>% 
   sigCodesTidy()
 
@@ -99,7 +105,7 @@ plot_model(test,
            show.intercept = TRUE,
            show.values = TRUE,
            show.p = FALSE,
-           title = "PN ~ foot size + gender * SR + (1 | speaker) \n with helmert forward coding",
+           title = "PN ~ foot size + (1 | speaker)",
            vline.color = "red",
            colors = "Black") +
   font_size(title = 12)
@@ -122,118 +128,127 @@ formattable(y,
 curLevels <- levels(pn_foot$foot_syls)
 numLevels <- length(curLevels)
 x = tibble()
-for(i in 1:(numLevels)){
-    test <- glmer(acc_phon ~ foot_syls + gender*SR + (1 | speaker),
-                  data = pn_foot,
-                  family = binomial(link = "logit"),
-                  control = glmerControl(optimizer = "optimx",
-                                         calc.derivs = FALSE,
-                                         optCtrl = list(method = "nlminb",
-                                                        starttests = FALSE,
-                                                        kkt = FALSE
-                                                        )
-                                         ),
-                  nAGQ = 25
-                  )
-    
-      if (i == 1){
-      visual <- plot_model(test,
-                           show.intercept = TRUE,
-                           show.values = TRUE,
-                           show.p = FALSE,
-                           title = "PN ~ foot size + gender * SR + (1 | speaker)",
-                           vline.color = "red",
-                           colors = "Black") +
-        font_size(title = 12)
-      first_test <- test
-      }
-    
 
+for (i in 1:(numLevels)) {
+  test <- glmer(
+    acc_phon ~ foot_syls + (1 | speaker),
+    data = pn_foot,
+    family = binomial(link = "logit"),
+    control = glmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    ),
+    nAGQ = 25
+  )
   
-    y <- tidy(test) %>%
-    pAdjustBF(
-        c("(Intercept)",
-          "genderM",
-          "SR",
-          "genderM:SR",
-          "sd_(Intercept).speaker"),
-        6)
-    
-    y <- y %>% 
-      mutate(
-        estimate = round(estimate, 3),
-        std.error = round(std.error, 3),
-        statistic = round(statistic, 3),
-        p.value = round(p.value, 4),
-        p.adjusted = round(p.adjusted, 4),
-        pairwise = 
+  if (i == 1) {
+    visual <- plot_model(
+      test,
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = "PN ~ foot size + (1 | speaker)",
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+    first_test <- test
+  }
+  
+  
+  
+  y <- tidy(test) %>%
+    pAdjustBF(c("(Intercept)",
+                "foot_syls2",
+                "foot_syls3",
+                "foot_syls4"),
+              3)
+  
+  y <- y %>%
+    mutate(
+      # round values for readability
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 4),
+      p.adjusted = round(p.adjusted, 4),
+      
+      pairwise =
+        if_else(
+          term == "(Intercept)",
+          "intercept",
           if_else(
-            term == "(Intercept)",
-            "intercept",
-            if_else(
-              term %in% c("genderM", "SR", "genderM:SR"),
-              "N/A",
-              paste("foot_syls", i, sep = "")
-              )
-            ),
-        term =
-          if_else(
-            term == "(Intercept)",
-            paste("foot_syls", i, sep = ""),
-            term
-            )
-        ) %>% 
-      filter(term != "sd_(Intercept).speaker") %>% 
-      select(-group) %>% 
-      rename(z.value = statistic) %>%
-      sigCodesTidy()
-    
-    ifelse(
-      i > 1,
-      y <- filter(y, term %notin% c("genderM", "SR", "genderM:SR")),
-      y <- y)
-    
-    keep = c("genderM", "SR", "genderM:SR")
-    for(j in i:4){keep <- c(keep, paste("foot_syls", j, sep = ""))}
-    y <- filter(y, term %in% keep)
-
-        
-    x <- bind_rows(x, y)
+            term %in% c("foot_syls2", "foot_syls3", "foot_syls4"),
+            "N/A",
+            paste("foot_syls", i, sep = "")
+          )
+        ),
+      term =
+        if_else(term == "(Intercept)",
+                paste("foot_syls", i, sep = ""),
+                term)
+    ) %>%
+    filter(term != "sd__(Intercept)") %>%
+    select(-group) %>%
+    rename(z.value = statistic) %>%
+    sigCodesTidy()
+  
+  ifelse(i > 1,
+         y <-
+           filter(y, term %notin% c(
+             "foot_syls2", "foot_syls3", "foot_syls4"
+           )),
+         y <- y)
+  
+  keep = c("foot_syls2", "foot_syls3", "foot_syls4")
+  for (j in i:4) {
+    keep <- c(keep, paste("foot_syls", j, sep = ""))
+  }
+  y <- filter(y, term %in% keep)
+  
+  
+  x <- bind_rows(x, y)
+  formattable(x)
+  
     curLevels <- c(curLevels[2:numLevels], curLevels[1])
-    pn_foot$foot_syls <- factor(pn_foot$foot_syls, levels = curLevels) 
-
-
+  pn_foot$foot_syls <-
+    factor(pn_foot$foot_syls, levels = curLevels)
+  
+  ###FIX THIS
 }
 
 x   <- arrange(x, pairwise)
-b0_footSize  <- filter(x, pairwise == "intercept") %>% 
-  select(-pairwise) %>% 
-    rename(intercept = term)
+b0_footSize  <- filter(x, pairwise == "intercept") %>%
+  select(-pairwise) %>%
+  rename(intercept = term)
 
-b0_GenderSR  <- filter(x, term %in% c("genderM", "SR", "genderM:SR")) %>% 
+b0_GenderSR  <-
+  filter(x, term %in% c("foot_syls2", "foot_syls3", "foot_syls4")) %>%
   select(-pairwise)
 
 
-b1_footSize  <- filter(x, pairwise %notin% c("intercept", "N/A")) %>% 
-  select(
-    pairwise,
-    term,
-    estimate,
-    std.error,
-    z.value,
-    p.value,
-    p.adjusted,
-    "signif. (adj.)"
-    ) %>% 
+b1_footSize  <-
+  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
+  select(pairwise,
+         term,
+         estimate,
+         std.error,
+         z.value,
+         p.value,
+         p.adjusted,
+         "signif. (adj.)") %>%
   rename(intercept = pairwise, slope = term)
-
-
 
 ```
 
 
 #### Effects of Foot size, gender, and speech rate (SR) on PN
-```{r echo=FALSE, fig.height=3.5, fig.width=6.258}
+```{r echo=FALSE, fig.height=3.5, fig.width=6.258, warnings=FALS}
 print(visual)
 
 ```

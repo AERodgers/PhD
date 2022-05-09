@@ -5,7 +5,7 @@ if (!"datawizard" %in% rownames(installed.packages())){
 
 my_packages <- c("datawizard",
                  "tidyverse",
-                 "broom",
+                 "broomExtra",
                  "styler",
                  "lmerTest",
                  "optimx",

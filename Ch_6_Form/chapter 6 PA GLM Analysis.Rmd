@@ -116,7 +116,9 @@ pn_ana <- pn %>%
 # Extract PN foot-size data.
 pn_foot <- pn %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
-  select(-(ana_syls:cur_foot), -wrd_end_syl,-fin_phon)
+  select(-(ana_syls:cur_foot), -wrd_end_syl,-fin_phon) %>% 
+  mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)))
+
 
 # Extract PN word-boundary data.
 pn_lex <- pn %>% filter(stim %in% c(
@@ -154,7 +156,7 @@ rm(corpus, nuc, pn)
 
 
 
-## **PNs** as fn of **foot size** + gender \* speech_rate
+## **PNs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 
 requireNamespace("codingMatrices")
@@ -196,7 +198,7 @@ plot_model(test,
            show.intercept = TRUE,
            show.values = TRUE,
            show.p = FALSE,
-           title = "PN ~ foot size + gender * speech_rate + (1 | speaker)",
+           title = "PN ~ foot size + (1 | speaker)",
            vline.color = "red",
            colors = "Black") +
   font_size(title = 12)
@@ -217,14 +219,14 @@ summary(test)
 # GLMER
 
 # gen number of levels in pn_anac$syls
-curLevels <- levels(pn_foot$foot_syls)
-numLevels <- length(curLevels)
+cur_levels <- levels(pn_foot$foot_syls)
+num_levels <- length(cur_levels)
 x = tibble()
-for (i in 1:(numLevels)) {
+for (i in 1:(num_levels)) {
   test <-
     glmer(
-      acc_phon ~ foot_syls + gender * speech_rate + (1 | speaker),
-      data = pn_foot,
+      acc_phon ~ foot_syls + gender + (1 | speaker),
+      data = pn_foot %>%  mutate(foot_syls = factor(foot_syls, levels = cur_levels)),
       family = binomial(link = "logit"),
       control = glmerControl(
         optimizer = "optimx",
@@ -252,175 +254,15 @@ for (i in 1:(numLevels)) {
     first_test <- test
   }
   
+  print(cur_levels)
+  print(summary(test))
   
-  
-  y <- tidy(test) %>%
-    pAdjustBF(
-      c(
-        "(Intercept)",
-        "genderM",
-        "speech_rate",
-        "genderM:speech_rate",
-        "sd_(Intercept).speaker"
-      ),
-      6
-    )
-  
-  y <- y %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4),
-      pairwise =
-        if_else(
-          term == "(Intercept)",
-          "intercept",
-          if_else(
-            term %in% c("genderM", "speech_rate", "genderM:speech_rate"),
-            "N/A",
-            paste("foot_syls", i, sep = "")
-          )
-        ),
-      term =
-        if_else(term == "(Intercept)",
-                paste("foot_syls", i, sep = ""),
-                term)
-    ) %>%
-    filter(term != "sd_(Intercept).speaker") %>%
-    select(-group) %>%
-    rename(z.value = statistic) %>%
-    sigCodesTidy()
-  
-  ifelse(i > 1,
-         y <-
-           filter(
-             y,
-             term %notin% c("genderM", "speech_rate", "genderM:speech_rate")
-           ),
-         y <- y)
-  
-  keep = c("genderM", "speech_rate", "genderM:speech_rate")
-  for (j in i:4) {
-    keep <- c(keep, paste("foot_syls", j, sep = ""))
-  }
-  y <- filter(y, term %in% keep)
-  
-  
-  x <- bind_rows(x, y)
-  curLevels <- c(curLevels[2:numLevels], curLevels[1])
-  pn_foot$foot_syls <-
-    factor(pn_foot$foot_syls, levels = curLevels)
-  
-  
+  cur_levels = c(cur_levels[2:num_levels], cur_levels[1])
+  mutate(pn_foot, foot_syls = factor(foot_syls, levels = cur_levels))
+
 }
 
-x   <- arrange(x, pairwise)
-b0_footSize  <- filter(x, pairwise == "intercept") %>%
-  select(-pairwise) %>%
-  rename(intercept = term)
-
-b0_GenderSR  <-
-  filter(x, term %in% c("genderM", "speech_rate", "genderM:speech_rate")) %>%
-  select(-pairwise)
-
-
-b1_footSize  <-
-  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
-  select(pairwise,
-         term,
-         estimate,
-         std.error,
-         z.value,
-         p.value,
-         p.adjusted,
-         "signif. (adj.)") %>%
-  rename(intercept = pairwise, slope = term)
-
 
 
 ```
-
-
-#### Effects of Foot size, gender, and speech rate (speech_rate) on PN
-```{r echo=FALSE, fig.height=3.5, fig.width=6.258}
-print(visual)
-
-```
-
-
-#### Gender and Speech Rate (speech_rate) ($\beta$~1~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b0_GenderSR,
-            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-
-```
-
-
-#### Foot size as intercept ($\beta$~0~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b0_footSize,
-            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-
-```
-
-
-#### Pairwise comparisons ($\beta$~1~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b1_footSize,
-            align = c("l", "l", rep("c", ncol(b0_GenderSR)-2, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-```
-
-
-
-#### Gender and Speech Rate (speech_rate) ($\beta$~1~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b0_GenderSR,
-            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-
-```
-
-#### Foot size as intercept ($\beta$~0~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b0_footSize,
-            align = c("l", rep("r", ncol(b0_GenderSR)-1, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-```
-
-#### Pairwise comparisons ($\beta$~1~)
-```{r echo=FALSE, warning=FALSE}
-formattable(b1_footSize,
-            align = c("l", "l", rep("c", ncol(b0_GenderSR)-2, "l")),
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-```
-
 
