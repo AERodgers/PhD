@@ -248,7 +248,7 @@ b1_footSize  <-
 
 
 #### Effects of Foot size, gender, and speech rate (SR) on PN
-```{r echo=FALSE, fig.height=3.5, fig.width=6.258, warnings=FALS}
+```{r echo=FALSE, fig.height=3.5, fig.width=6.258, warning=FALSE}
 print(visual)
 
 ```
