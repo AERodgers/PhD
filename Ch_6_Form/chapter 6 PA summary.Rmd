@@ -2,8 +2,8 @@
 title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
   and Phonetics of DCE Intonation'
 output:
-  html_document: 
   word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -407,6 +407,7 @@ ggplot(all) +
   theme(panel.border = element_rect(fill = NA))
 ```
 
+### PNs across foot size conditions (adjusted) 
 
 ```{r fig.height=4, fig.width=12}
 ggplot(all) +
@@ -417,11 +418,16 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(cols = vars(acc_phon)) +
-  theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across foot size conditions (adjusted)") +
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16)
+    ) +
+  #ggtitle("PNs across foot size conditions (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
+    
 
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
@@ -494,8 +500,13 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(cols = vars(acc_phon)) +
+    theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16)
+    ) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across anacrusis conditions (adjusted)") +
+  #ggtitle("PNs across anacrusis conditions (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "anacrusis (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))

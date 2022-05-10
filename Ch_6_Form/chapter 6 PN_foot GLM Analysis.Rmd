@@ -68,22 +68,9 @@ p_color <- x ~ style(
 ## **PNs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical test.
-test <- glmer(
-  acc_phon ~ foot_syls + (1 | speaker),
-  
-  data = pn_foot,
-  family = binomial(link = "logit"),
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  ),
-  nAGQ = 25
-)
+test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
+              data = pn_foot,
+              family = binomial(link = "logit"))
 
 y <- tidy(test) %>%
   filter(term != "sd_(Intercept).speaker") %>% 
@@ -128,17 +115,7 @@ for (i in 1:(numLevels)) {
   test <- glmer(
     acc_phon ~ foot_syls +  (1 | speaker),
     data = pn_foot,
-    family = binomial(link = "logit"),
-    control = glmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
-    ),
-    nAGQ = 25
+    family = binomial(link = "logit")
   )
   
   # Create visualization of model the first time the loop runs
