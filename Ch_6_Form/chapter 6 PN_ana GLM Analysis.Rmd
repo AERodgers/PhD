@@ -1,0 +1,254 @@
+---
+title: "Generalsed Linear Mixed Model Analysis of Anacrusis effect on PN Phonology"
+author: "AERodgers"
+date: "2/18/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    "tidyverse",
+    "knitr",
+    "speakr",
+    "codingMatrices",
+    "broomExtra",
+    "styler",
+    "lmerTest",
+    "optimx",
+    "sjPlot",
+    "sjmisc",
+    "ggplot2",
+    "hablar",
+    "ggpubr",
+    "MuMIn",
+    "mefa4",
+    "formattable",
+    "codingMatrices",
+    "hablar",
+    "lme4",
+    "sjPlot",
+    "speakr"
+  )
+)
+
+theme_set(theme_minimal(base_size = 14))
+
+# Get data frames for AH analysis
+source("scripts/get_AH_corpora.R")
+
+# trim pn tbls
+pn_ana <- select(pn_ana,
+                  speaker, gender, stim, ana_syls, acc_phon, speech_rate)
+
+p_color <- x ~ style(
+  color = if_else(
+    x < 0.001,
+    "green",
+    if_else(x < 0.01, "green", if_else(
+      x < 0.05, "green", if_else(x < 0.1, "orange", "red")
+    )
+)))
+
+```
+
+
+## **PNs** as fn of **anacrusis**
+```{r echo=FALSE, warning=FALSE}
+# Run GLME model statistical test.
+test <- glmer(
+  acc_phon ~ ana_syls + (1 | speaker),
+  
+  data = pn_ana,
+  family = binomial(link = "logit"),
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  ),
+  nAGQ = 25
+)
+
+y <- tidy(test) %>%
+  filter(term != "sd_(Intercept).speaker") %>% 
+  mutate(
+    estimate = round(estimate, 3),
+    std.error = round(std.error, 3),
+    statistic = round(statistic, 3),
+    p.value = round(p.value, 4),
+    ) %>% 
+  select(-c(group, effect)) %>% 
+  rename(z.value = statistic)
+
+plot_model(test,
+           show.intercept = TRUE,
+           show.values = TRUE,
+           show.p = FALSE,
+           title = "PN ~ anacrusis+ (1 | speaker)",
+           vline.color = "red",
+           colors = "Black") +
+  font_size(title = 12)
+
+formattable(y,
+            list(p.value = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+
+```
+
+## pairwise comparisons
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+# Get intercepts and pairwise comparisons for each foot size condition.
+ 
+# Get number of levels in target treatment variable.
+curLevels <- levels(pn_ana$ana_syls)
+numLevels <- length(curLevels)
+x = tibble()
+
+for (i in 1:(numLevels)) {
+  # Run GLME test on data
+  test <- glmer(
+    acc_phon ~ ana_syls +  (1 | speaker),
+    data = pn_ana,
+    family = binomial(link = "logit"),
+    control = glmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    ),
+    nAGQ = 25
+  )
+  
+  # Create visualization of model the first time the loop runs
+  if (i == 1) {
+    visual <- plot_model(
+      test,
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = "PN ~ anacrusis + (1 | speaker)",
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+    first_test <- test
+  }
+  
+  
+  # Convert the model output into a more readable format.
+  y <- tidy(test) %>%
+    # round values for readability.
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 4),
+      # make pairwise column = intercept
+      pairwise =
+        if_else(
+          term == "(Intercept)",
+          "intercept",
+          if_else(
+            term %notin% c("ana_syls0", "ana_syls1", "ana_syls2", "ana_syls3"),
+            "N/A",
+            paste("foot_syls", i-1, sep = "")
+          )
+        ),
+      # change term so "intercept" states the target condition name.
+      term =
+        if_else(term == "(Intercept)",
+                paste("ana_syls", i-1, sep = ""),
+                term)
+    ) %>%
+    # remove random effects detail
+    filter(term != "sd__(Intercept)") %>%
+    select(-group,-effect) %>%
+    # rename statistic column to "z.value"
+    rename(z.value = statistic)
+  
+  # make list of pairwise comparisons to keeps
+  keep = ""
+  for (j in i:4) {
+    keep <- c(keep, paste("ana_syls", j-1, sep = ""))
+  }
+  # remove pairwise comparisons which have already been done
+  y <- filter(y, term %in% keep)
+  
+  # add remaining pairwise comparisons to main tibble.
+  x <- bind_rows(x, y)
+  
+  # restructure the order of levels for next GLME test.
+  curLevels <- c(curLevels[2:numLevels], curLevels[1])
+  pn_ana <- pn_ana %>%
+    mutate(ana_syls = factor(ana_syls,
+                              levels = curLevels))
+  
+}
+
+# arrange tibble according to pairwise move it to first column position
+x  <- arrange(x, pairwise) %>%
+  relocate(pairwise)
+
+
+b0_anacrusis  <- filter(x, pairwise == "intercept") %>%
+  select(-pairwise) %>%
+  rename(intercept = term)
+
+
+b1_anacrusis  <-
+  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
+  select(pairwise,
+         term,
+         estimate,
+         std.error,
+         z.value,
+         p.value) %>%
+  rename(intercept = pairwise, slope = term)
+
+```
+
+
+#### Anacrusis as intercept ($\beta$~0~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b0_anacrusis,
+            list(p.value = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+
+```
+
+
+#### Pairwise comparisons ($\beta$~1~)
+```{r echo=FALSE, warning=FALSE}
+formattable(b1_anacrusis,
+            list(p.value = formatter("span",
+                                     style = p_color
+                                     )
+                 )
+            )
+```
+

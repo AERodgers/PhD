@@ -2,12 +2,14 @@
 title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
   and Phonetics of DCE Intonation'
 output:
+  html_document: 
   word_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
 ```
 
 ```{r}
@@ -155,7 +157,7 @@ nuc_pre <- nuc %>%
   filter(stim %in% c("A1111", "A0221", "A0321", "A0423")) %>%
   # Get number of preceding syllables from stim code
   mutate(pre_syls = str_sub(stim, 3, 3))  %>%
-  mutate(pre_syls = as.integer(pre_syls))
+  mutate(pre_syls = as.integer(pre_syls) - 1)
 
 nuc_foot <- nuc %>%
   # Get dataset for syllables preceding nuclear PA.
@@ -386,7 +388,10 @@ praat_run(script,
 all <- read_csv(my_table_g) %>%
   # Arrange PA levels according to hypothesized hierarchy.
   mutate(acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")))
+```
 
+
+```{r, fig.height=7, fig.width=12}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = acc_phon),
@@ -395,13 +400,15 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
-  ggtitle("PNs by gender and foot syls (adjusted for balance)") +
+  ggtitle("PNs by gender and foot syls (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size and gender",
        y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
+```
 
 
+```{r fig.height=4, fig.width=12}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = acc_phon),
@@ -411,7 +418,7 @@ ggplot(all) +
   ) +
   facet_grid(cols = vars(acc_phon)) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across foot size conditions (adjusted for balance)") +
+  ggtitle("PNs across foot size conditions (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
@@ -458,7 +465,10 @@ all <- read_csv(my_table_g) %>%
   # Arrange PA levels according to hypothesized hierarchy.
   mutate(acc_phon = factor(acc_phon, levels = c(
     "(*)", "L*", "H*", ">H*", "L*H")))
+```
 
+
+```{r fig.height=7, fig.width=8}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
@@ -467,13 +477,15 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
-  ggtitle("PNs by gender and anacrusis (adjusted for balance)") +
+  ggtitle("PNs by gender and anacrusis (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "anacrusis and gender",
        y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
+```
 
 
+```{r fig.height=4, fig.width=8}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
@@ -483,7 +495,7 @@ ggplot(all) +
   ) +
   facet_grid(cols = vars(acc_phon)) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across anacrusis conditions (adjusted for balance)") +
+  ggtitle("PNs across anacrusis conditions (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "anacrusis (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
@@ -536,7 +548,7 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuclear Contours by Gender and Foot Size (adjusted for balance)") +
+  ggtitle("Nuclear Contours by Gender and Foot Size (adjusted") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size and gender",
        y = "tokens (n)") +
@@ -553,7 +565,7 @@ ggplot(all) +
   facet_grid(cols = vars(nuc_contour)) +
   theme(panel.border = element_rect(fill = NA)) +
   ggtitle(
-    "Nuclear Contours across Foot Size Conditions (adjusted for balance)"
+    "Nuclear Contours by Foot Size (adjusted)"
     ) +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size (syllables)", y = "tokens (n)") +
@@ -606,7 +618,7 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuclear Contours by Gender and preceding syllables (adjusted for balance)") +
+  ggtitle("Nuclear Contours by Gender and preceding syllables (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size and gender",
        y = "tokens (n)") +
@@ -622,7 +634,7 @@ ggplot(all) +
   ) +
   facet_grid(cols = vars(nuc_contour)) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("Nuclear Contours across Foot Size Conditions (adjusted for balance)") +
+  ggtitle("Nuclear Contours by preceding syllables (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
   labs(x = "foot size (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
@@ -678,7 +690,7 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(init_contour)) +
-  ggtitle("PNs by gender and foot size (adjusted for balance)") +
+  ggtitle("PNs by gender and foot size (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "Initial Contour") +
   labs(x = "footsize  and gender",
        y = "tokens (n)") +
@@ -694,7 +706,7 @@ ggplot(all) +
   ) +
   facet_grid(cols = vars(init_contour)) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across fiit size conditions (adjusted for balance)") +
+  ggtitle("PNs by foot size conditions (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "init_contour") +
   labs(x = "foot size (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
@@ -752,7 +764,7 @@ ggplot(all) +
     position = position_dodge2(preserve = "single")
   ) +
   facet_grid(rows = vars(gender), cols = vars(init_contour)) +
-  ggtitle("PNs by gender and anacrusis (adjusted for balance)") +
+  ggtitle("PNs by gender and anacrusis (adjusted )") +
   scale_fill_brewer(palette = "Spectral", name = "Initial Contour") +
   labs(x = "anacrusis and gender",
        y = "tokens (n)") +
@@ -768,7 +780,7 @@ ggplot(all) +
   ) +
   facet_grid(cols = vars(init_contour)) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("PNs across anacrusis conditions (adjusted for balance)") +
+  ggtitle("PNs by anacrusis (adjusted)") +
   scale_fill_brewer(palette = "Spectral", name = "init_contour") +
   labs(x = "anacrusis (syllables)", y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
