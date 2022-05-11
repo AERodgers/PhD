@@ -68,22 +68,22 @@ p_color <- x ~ style(
 ## **PNs** as fn of **anacrusis**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical test.
-test <- glmer(
-  acc_phon ~ ana_syls + (1 | speaker),
-  
-  data = pn_ana,
-  family = binomial(link = "logit"),
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+
+  # Run GLME test on data
+  test <- glmer(
+    acc_phon ~ ana_syls +  (1 | speaker),
+    data = pn_ana,
+    family = binomial(link = "logit"),
+    control = glmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
     )
-  ),
-  nAGQ = 25
-)
+  )
 
 y <- tidy(test) %>%
   filter(term != "sd_(Intercept).speaker") %>% 
@@ -137,8 +137,7 @@ for (i in 1:(numLevels)) {
         starttests = FALSE,
         kkt = FALSE
       )
-    ),
-    nAGQ = 25
+    )
   )
   
   # Create visualization of model the first time the loop runs

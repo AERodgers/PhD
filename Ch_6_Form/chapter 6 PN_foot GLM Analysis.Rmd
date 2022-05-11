@@ -3,9 +3,9 @@ title: "Generalsed Linear Mixed Model Analysis of Footsize effect on PN Phonolog
 author: "AERodgers"
 date: "2/18/2020"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -68,43 +68,53 @@ p_color <- x ~ style(
 ## **PNs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical test.
-test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
-              data = pn_foot,
-              family = binomial(link = "logit"))
-
+test <- glmer(
+  acc_phon ~ foot_syls + (1 | speaker),
+  data = pn_foot,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 y <- tidy(test) %>%
-  filter(term != "sd_(Intercept).speaker") %>% 
+  filter(term != "sd_(Intercept).speaker") %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
     p.value = round(p.value, 4),
-    ) %>% 
-  select(-c(group, effect)) %>% 
+  ) %>%
+  select(-c(group, effect)) %>%
   rename(z.value = statistic)
 
-plot_model(test,
-           show.intercept = TRUE,
-           show.values = TRUE,
-           show.p = FALSE,
-           title = "PN ~ foot size + (1 | speaker)",
-           vline.color = "red",
-           colors = "Black") +
+plot_model(
+  test,
+  show.intercept = TRUE,
+  show.values = TRUE,
+  show.p = FALSE,
+  title = "PN ~ foot size + (1 | speaker)",
+  vline.color = "red",
+  colors = "Black"
+) +
   font_size(title = 12)
 
 formattable(y,
             list(p.value = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
+                                     style = p_color)))
 
 ```
 
 ## pairwise comparisons
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, paged.print=FALSE}
 # Get intercepts and pairwise comparisons for each foot size condition.
- 
+
 # Get number of levels in target treatment variable.
 curLevels <- levels(pn_foot$foot_syls)
 numLevels <- length(curLevels)
@@ -113,11 +123,20 @@ x = tibble()
 for (i in 1:(numLevels)) {
   # Run GLME test on data
   test <- glmer(
-    acc_phon ~ foot_syls +  (1 | speaker),
+    acc_phon ~ foot_syls + (1 | speaker),
     data = pn_foot,
-    family = binomial(link = "logit")
+    family = binomial(link = "logit"),
+    # change optimizer to avoid convergence errors
+    control = glmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
   )
-  
   # Create visualization of model the first time the loop runs
   if (i == 1) {
     visual <- plot_model(
@@ -135,7 +154,8 @@ for (i in 1:(numLevels)) {
   
   
   # Convert the model output into a more readable format.
-  y <- tidy(test) %>%
+  y <- tidy(test)
+  y <- y %>%
     # round values for readability.
     mutate(
       estimate = round(estimate, 3),

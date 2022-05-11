@@ -97,6 +97,17 @@ pn_lex <- pn %>% filter(stim %in% c(
   "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
   ))
 
+# remove word boundary condition only
+pn_by_speaker <- pn %>%
+  filter(stim %in% c("A0423",
+                     "A1422",
+                     "A2422",
+                     "A3422",
+                     "A0131",
+                     "A0221",
+                     "A0321")) %>%
+  select(speaker, acc_phon)
+
 # Create corpus for analysis of downstep
 pn_downstep <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Retain reference columns and phonological data.
@@ -246,6 +257,8 @@ pn_by_speaker %>%
   spread(acc_phon, accCount, is.on <- 0) %>%
   write_csv("output/pn_by_speaker.csv") %>%
   kable()
+kable(summary(pn_by_speaker, n=Inf))
+
 ```
 
 ### Nuclear Contours
