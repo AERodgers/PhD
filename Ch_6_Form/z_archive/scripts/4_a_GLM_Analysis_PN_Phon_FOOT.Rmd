@@ -151,7 +151,7 @@ for(i in 1:(numLevels)){
 
   
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)",
           "genderM",
           "SR",
@@ -321,7 +321,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)", "genderM", "SR", "genderMSR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 
@@ -490,7 +490,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)","SR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 

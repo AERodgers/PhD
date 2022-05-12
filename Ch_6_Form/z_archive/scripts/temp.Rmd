@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 source("0_Initialise_libs.R")
 source("0_Get_tbls.R")
 source("../functions/sigCodesTidy.R")
-source("../functions/pAdjustBF.R")
+source("../functions/AdjustPToBonferroni.R")
 theme_set(
     theme_minimal(base_size = 14)
 )
@@ -63,7 +63,7 @@ test <- glmer(acc_phon ~ foot_syls +(1 | speaker),
 
 y <- tidy(test) %>%
   filter(term != "sd_(Intercept).speaker") %>% 
-  pAdjustBF(
+  AdjustPToBonferroni(
     c("(Intercept)",
       "genderM",
       "SR",
@@ -136,7 +136,7 @@ for(i in 1:(numLevels)){
 
   
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)",
           "genderM",
           "SR",
@@ -306,7 +306,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)", "genderM", "SR", "genderMSR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 
@@ -475,7 +475,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    pAdjustBF(
+    AdjustPToBonferroni(
         c("(Intercept)","SR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 

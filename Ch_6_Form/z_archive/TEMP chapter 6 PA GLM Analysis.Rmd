@@ -87,7 +87,7 @@ test <- glmer(acc_phon ~ foot_syls + (1 | speaker),
 
 y <- tidy(test) %>%
   filter(term != "sd_(Intercept).speaker") %>% 
-  pAdjustBF(
+  AdjustPToBonferroni(
     c("(Intercept)",
       "foot_syls2",
       "foot_syls3",

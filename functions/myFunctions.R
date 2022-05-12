@@ -93,7 +93,9 @@ balancedData <- function(data_set,
   # Arrange PA levels according to hypothesized hierarchy.
   if (use_pa_hierarchy) {
     balanced <- balanced %>%
-      mutate(acc_phon = factor(!!response_col, levels = c("(*)", "L*", "H*", ">H*", "L*H")))
+      mutate(acc_phon = factor(
+        !!response_col, levels = c("(*)", "L*", "H*", ">H*", "L*H")
+        ))
   }
   
   balanced <- balanced %>%
@@ -108,7 +110,7 @@ balancedData <- function(data_set,
   return(balanced)
 }
 
-drawResiduals <- function(myModel){
+drawResiduals <- function(myModel) {
   myResiduals <- residuals(myModel)
   par(mfrow = c(1, 3))
   hist(myResiduals,
@@ -124,42 +126,44 @@ drawResiduals <- function(myModel){
        main = "(c) Residual plot")
 }
 
-pAdjustBF <- function(myTibble, excludeTerms, bonferroniMultiplier){
-  myTibble <- mutate(myTibble,
-                     p.adjusted = if_else(
-                       term %in% excludeTerms,
-                       p.value,
-                       if_else(p.value * bonferroniMultiplier > 1,
-                               0.9999,
-                               p.value * bonferroniMultiplier)
-                       
-                     ),
-                     p.adjusted = round(p.adjusted, 4)
+AdjustPToBonferroni <- function(myTibble,
+                      excludeTerms,
+                      bonferroniMultiplier) {
+  myTibble <- mutate(
+    myTibble,
+    p.adjusted = if_else(
+      term %in% excludeTerms,
+      p.value,
+      if_else(
+        p.value * bonferroniMultiplier > 1,
+        0.9999,
+        p.value * bonferroniMultiplier
+      )
+      
+    ),
+    p.adjusted = round(p.adjusted, 4)
   )
   return(myTibble)
 }
 
 
-sigCodesTidy <- function(myTibble){
-  myTibble <- mutate(
-    myTibble,
-    "signif. (adj.)" =
-      if_else(
-        p.adjusted < 0.001,'p<0.001',
-        if_else(
-          p.adjusted < 0.01,
-          'p<0.01',
-          if_else(
-            p.adjusted < 0.05,
-            'p<0.05',
-            if_else(
-              p.adjusted < 0.1,
-              '(p<0.1)',
-              ''
-            )
-          )
-        )
-      )
-  )
+sigCodesTidy <- function(myTibble) {
+  myTibble <- mutate(myTibble,
+                     "signif. (adj.)" =
+                       if_else(
+                         p.adjusted < 0.001,
+                         'p<0.001',
+                         if_else(
+                           p.adjusted < 0.01,
+                           'p<0.01',
+                           if_else(
+                             p.adjusted < 0.05,
+                             'p<0.05',
+                             if_else(p.adjusted < 0.1,
+                                     '(p<0.1)',
+                                     '')
+                           )
+                         )
+                       ))
   return(myTibble)
 }

@@ -1,5 +1,5 @@
 ---
-title: "Generalsed Linear Mixed Model Analysis of Footsize effect on PN Phonology"
+title: "Is PN Foot-Size a Good Predictor of L*H?"
 author: "AERodgers"
 date: "2/18/2020"
 output:
@@ -20,63 +20,57 @@ source("../functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    "tidyverse",
-    "knitr",
-    "speakr",
-    "codingMatrices",
-    "broomExtra",
-    "styler",
+    # Include statistical packages.
     "lmerTest",
     "optimx",
+    
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
     "sjPlot",
-    "sjmisc",
-    "ggplot2",
-    "hablar",
-    "ggpubr",
-    "MuMIn",
-    "mefa4",
     "formattable",
-    "codingMatrices",
-    "hablar",
-    "lme4",
-    "sjPlot",
-    "speakr"
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
   )
 )
 
-theme_set(theme_minimal(base_size = 14))
-
 # Get data frames for AH analysis
 source("scripts/get_AH_corpora.R")
+# Add isLH column
+pn_foot <- select(
+  pn_foot, speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>%
+  mutate(isLH =
+           if_else(acc_phon == "L*H",
+                   TRUE,
+                   FALSE))
 
-# trim pn_ tbls
-pn_foot <- select(pn_foot,
-                  speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>%
-  mutate(
-    acc_phon =
-      if_else(acc_phon == "L*H",
-              "L*H",
-              "other"),
-    acc_phon = factor(acc_phon, levels = c("other", "L*H"))
-  )
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
 
-p_color <- x ~ style(
-  color = if_else(
-    x < 0.001,
+p_color <- all_models_tidy ~ style(color = if_else(
+  all_models_tidy < 0.001,
+  "green",
+  if_else(
+    all_models_tidy < 0.01,
     "green",
-    if_else(x < 0.01, "green", if_else(
-      x < 0.05, "green", if_else(x < 0.1, "orange", "red")
+    if_else(
+      all_models_tidy < 0.05,
+      "green",
+      if_else(all_models_tidy < 0.1, "orange", "red")
     )
-)))
+  )
+))
 
 ```
 
 
 ## **L\*H PN** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
-# Run GLME model statistical test.
-test <- glmer(
-  acc_phon ~ foot_syls + (1 | speaker),
+# Run GLME model statistical cur_model.
+cur_model <- glmer(
+  isLH ~ foot_syls + (1 | speaker),
   data = pn_foot,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -90,7 +84,8 @@ test <- glmer(
     )
   )
 )
-y <- tidy(test) %>%
+
+cur_model_tidy <- tidy(cur_model) %>%
   filter(term != "sd_(Intercept).speaker") %>%
   mutate(
     estimate = round(estimate, 3),
@@ -102,21 +97,21 @@ y <- tidy(test) %>%
   rename(z.value = statistic)
 
 plot_model(
-  test,
+  cur_model,
   show.intercept = TRUE,
   show.values = TRUE,
   show.p = FALSE,
-  title = "PN ~ foot size + (1 | speaker)",
+  title = "isLH ~ foot size + (1 | speaker)",
   vline.color = "red",
   colors = "Black"
 ) +
   font_size(title = 12)
 
-formattable(y,
+formattable(cur_model_tidy,
             list(p.value = formatter("span",
                                      style = p_color)))
 
-print(summary(test))
+print(summary(cur_model))
 
 ```
 
@@ -127,15 +122,23 @@ print(summary(test))
 # Get number of levels in target treatment variable.
 curLevels <- levels(pn_foot$foot_syls)
 numLevels <- length(curLevels)
-x = tibble()
+all_models_tidy = tibble()
 
 for (i in 1:(numLevels)) {
-  # Run GLME test on data
-  test <- glmer(
-    acc_phon ~ foot_syls + (1 | speaker),
+  # Print info on current intercept.
+  cat(c(
+    "\n\nStatistical Model with foot_syls[",
+    curLevels[1],
+    "] as intercept"
+  ),
+  sep = "")
+  
+  # Test GLMM model on data.
+  cur_model <- glmer(
+    isLH ~ foot_syls + (1 | speaker),
     data = pn_foot,
     family = binomial(link = "logit"),
-    # change optimizer to avoid convergence errors
+    # Change optimizer to avoid convergence errors/
     control = glmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -147,39 +150,32 @@ for (i in 1:(numLevels)) {
     )
   )
   
-  
-  
-  cat(c(
-    "\n\nStatistical Model with foot_suls[",
-    numLevels[1],
-    "] as intercept",
-    sep = ""
-  ))
-  print(summary(test))
-  
-  print(
-    plot_model(
-      test,
-      show.intercept = TRUE,
-      show.values = TRUE,
-      show.p = FALSE,
-      title = "PN ~ foot size + (1 | speaker)",
-      vline.color = "red",
-      colors = "Black"
-    ) +
-      font_size(title = 12)
-  )
-  
   # Convert the model output into a more readable format.
-  y <- tidy(test) %>%
-    pAdjustBF("", 8) %>%
+  cur_model_tidy <- tidy(cur_model) %>%
+    AdjustPToBonferroni("", 8) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
       p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4),
-      # make pairwise column = intercept
+      p.adjusted = round(p.adjusted, 4)
+    )
+  
+  # Output current model.
+  print(kable(
+    cur_model_tidy %>%
+      select(-c(group, effect)) %>%
+      mutate(
+        z_value = statistic,
+        .before = p.value,
+        .keep = "unused"
+      )
+  ))
+  
+  # Prepare current model for pasting to all models output.
+  # Make 'pairwise' column = intercept.
+  cur_model_tidy <- cur_model_tidy %>%
+    mutate(
       pairwise =
         if_else(
           term == "(Intercept)",
@@ -190,7 +186,7 @@ for (i in 1:(numLevels)) {
             paste("foot_syls", i, sep = "")
           )
         ),
-      # change term so "intercept" states the target condition name.
+      # change 'term' so "intercept" states the target condition name.
       term =
         if_else(term == "(Intercept)",
                 paste("foot_syls", i, sep = ""),
@@ -202,39 +198,55 @@ for (i in 1:(numLevels)) {
     # rename statistic column to "z.value"
     rename(z.value = statistic)
   
+  
   # make list of pairwise comparisons to keeps
   keep = ""
   for (j in i:4) {
     keep <- c(keep, paste("foot_syls", j, sep = ""))
   }
   # remove pairwise comparisons which have already been done
-  y <- filter(y, term %in% keep)
+  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
   
   # add remaining pairwise comparisons to main tibble.
-  x <- bind_rows(x, y)
+  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
   
-  # restructure the order of levels for next GLME test.
+  # restructure the order of levels for next GLME cur_model.
   curLevels <- c(curLevels[2:numLevels], curLevels[1])
   pn_foot <- pn_foot %>%
     mutate(foot_syls = factor(foot_syls,
                               levels = curLevels))
   
+  # plot current model
+  print(
+    plot_model(
+      cur_model,
+      axis.lim = c(0.01, max(cur_model_tidy$estimate) * 10),
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = "isLH ~ foot size + (1 | speaker)",
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+  )
+  
 }
 
 # arrange tibble according to pairwise move it to first column position
-x  <- arrange(x, pairwise) %>%
+all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
   sigCodesTidy()
 
 
-b0_footSize  <- filter(x, pairwise == "intercept") %>%
+b0_footSize  <- filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
   sigCodesTidy()
 
 
 b1_footSize  <-
-  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
+  filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,
          term,
          estimate,

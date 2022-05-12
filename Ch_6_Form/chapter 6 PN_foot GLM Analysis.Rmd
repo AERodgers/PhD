@@ -20,27 +20,19 @@ source("../functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    "tidyverse",
-    "knitr",
-    "speakr",
-    "codingMatrices",
-    "broomExtra",
-    "styler",
+    # Include statistical packages.
     "lmerTest",
     "optimx",
+    
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
     "sjPlot",
-    "sjmisc",
-    "ggplot2",
-    "hablar",
-    "ggpubr",
-    "MuMIn",
-    "mefa4",
     "formattable",
-    "codingMatrices",
-    "hablar",
-    "lme4",
-    "sjPlot",
-    "speakr"
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
   )
 )
 
@@ -67,8 +59,8 @@ p_color <- x ~ style(
 
 ## **PNs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
-# Run GLME model statistical test.
-test <- glmer(
+# Run GLME model statistical cur_model.
+cur_model <- glmer(
   acc_phon ~ foot_syls + (1 | speaker),
   data = pn_foot,
   family = binomial(link = "logit"),
@@ -83,7 +75,7 @@ test <- glmer(
     )
   )
 )
-y <- tidy(test) %>%
+tidy_model <- tidy(cur_model) %>%
   filter(term != "sd_(Intercept).speaker") %>%
   mutate(
     estimate = round(estimate, 3),
@@ -95,7 +87,8 @@ y <- tidy(test) %>%
   rename(z.value = statistic)
 
 plot_model(
-  test,
+  cur_model,
+  axis.lim = c(0.01, max(tidy_model$estimate)*10),
   show.intercept = TRUE,
   show.values = TRUE,
   show.p = FALSE,
@@ -105,24 +98,31 @@ plot_model(
 ) +
   font_size(title = 12)
 
-formattable(y,
+formattable(tidy_model,
             list(p.value = formatter("span",
                                      style = p_color)))
 
 ```
 
 ## pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
-# Get intercepts and pairwise comparisons for each foot size condition.
+```{r echo=FALSE, paged.print=FALSE, warning=FALSE}
+# Get intercepts and pairwise comparisons for each foot size condition
+# by running
 
 # Get number of levels in target treatment variable.
 curLevels <- levels(pn_foot$foot_syls)
 numLevels <- length(curLevels)
-x = tibble()
+all_models_tidy = tibble()
 
 for (i in 1:(numLevels)) {
-  # Run GLME test on data
-  test <- glmer(
+  # print current intercept.
+  cat(
+    c("\n\nStatistical Model with foot_syls[", curLevels[1], "] as intercept"),
+    sep = ""
+    )
+  
+  # Run GLMM test on data
+  cur_model <- glmer(
     acc_phon ~ foot_syls + (1 | speaker),
     data = pn_foot,
     family = binomial(link = "logit"),
@@ -137,48 +137,58 @@ for (i in 1:(numLevels)) {
       )
     )
   )
-  # Create visualization of model the first time the loop runs
-  if (i == 1) {
-    visual <- plot_model(
-      test,
-      show.intercept = TRUE,
-      show.values = TRUE,
-      show.p = FALSE,
-      title = "PN ~ foot size + (1 | speaker)",
-      vline.color = "red",
-      colors = "Black"
-    ) +
-      font_size(title = 12)
-    first_test <- test
-  }
-  
-  #    print(plot_model(
-  #  test,
-  #  show.intercept = TRUE,
-  #  show.values = TRUE,
-  #  show.p = FALSE,
-  #  title = "PN ~ foot size + (1 | speaker)",
-  #  vline.color = "red",
-  #  colors = "Black"
-  #) +
-  #  font_size(title = 12))
-  
+
   # Convert the model output into a more readable format.
-  y <- tidy(test) %>%
-    pAdjustBF("", 4) %>%
+  cur_model_tidy <- tidy(cur_model) %>%
+    AdjustPToBonferroni("", 8) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
       p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4),
-      # make pairwise column = intercept
+      p.adjusted = round(p.adjusted, 4)
+    )
+  
+  # Output current model
+  print(kable(
+    cur_model_tidy %>%
+      select(-c(group, effect)) %>%
+      mutate(
+        z_value = statistic,
+        .before = p.value,
+        .keep = "unused"
+      )
+  ))
+  
+  # Create visualization of model the first time the loop runs
+  print(
+    plot_model(
+      axis.lim = c(0.01, 500),
+      cur_model,
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = paste("PN ~ foot size + (1 | speaker), intercept = foot_syls", i, sep =
+                      ""),
+      wrap.title = 150,
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+  )
+  
+  # Prepare current model for pasting to all models output
+  # make pairwise column = intercept
+  cur_model_tidy <- cur_model_tidy %>%
+    mutate(
       pairwise =
         if_else(
           term == "(Intercept)",
           "intercept",
           if_else(
-            term %notin% c("foot_syls1", "foot_syls2", "foot_syls3", "foot_syls4"),
+            term %notin% c(
+              "foot_syls1", "foot_syls2", "foot_syls3", "foot_syls4"
+              ),
             "N/A",
             paste("foot_syls", i, sep = "")
           )
@@ -191,9 +201,10 @@ for (i in 1:(numLevels)) {
     ) %>%
     # remove random effects detail
     filter(term != "sd__(Intercept)") %>%
-    select(-group, -effect) %>%
+    select(-group,-effect) %>%
     # rename statistic column to "z.value"
     rename(z.value = statistic)
+  
   
   # make list of pairwise comparisons to keeps
   keep = ""
@@ -201,12 +212,12 @@ for (i in 1:(numLevels)) {
     keep <- c(keep, paste("foot_syls", j, sep = ""))
   }
   # remove pairwise comparisons which have already been done
-  y <- filter(y, term %in% keep)
+  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
   
   # add remaining pairwise comparisons to main tibble.
-  x <- bind_rows(x, y)
+  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
   
-  # restructure the order of levels for next GLME test.
+  # restructure the order of levels for next GLME cur_model.
   curLevels <- c(curLevels[2:numLevels], curLevels[1])
   pn_foot <- pn_foot %>%
     mutate(foot_syls = factor(foot_syls,
@@ -215,19 +226,19 @@ for (i in 1:(numLevels)) {
 }
 
 # arrange tibble according to pairwise move it to first column position
-x  <- arrange(x, pairwise) %>%
+all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
   sigCodesTidy()
 
 
-b0_footSize  <- filter(x, pairwise == "intercept") %>%
+b0_footSize  <- filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
   sigCodesTidy()
 
 
 b1_footSize  <-
-  filter(x, pairwise %notin% c("intercept", "N/A")) %>%
+  filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,
          term,
          estimate,

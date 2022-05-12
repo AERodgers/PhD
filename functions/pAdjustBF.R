@@ -1,10 +1,10 @@
-pAdjustBF <- function(myTibble, excludeTerms, bonferroniMultiplier){
+AdjustPToBonferroni <- function(myTibble, excludeTerms, bonferroniMultiplier){
     myTibble <- mutate(myTibble,
                        p.adjusted = if_else(
                            term %in% excludeTerms,
                            p.value,
                            if_else(p.value * bonferroniMultiplier > 1,
-                                   0.999999999,
+                                   1,
                                    p.value * bonferroniMultiplier)
 
                        ),

@@ -95,7 +95,10 @@ y <- tidy(test) %>%
     ) %>% 
   select(-c(group, effect)) %>% 
   rename(z.value = statistic)
+```
 
+
+```{r echo=FALSE, warning=FALSE, eval=FALSE}
 plot_model(test,
            show.intercept = TRUE,
            show.values = TRUE,
