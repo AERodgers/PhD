@@ -4,7 +4,7 @@ pAdjustBF <- function(myTibble, excludeTerms, bonferroniMultiplier){
                            term %in% excludeTerms,
                            p.value,
                            if_else(p.value * bonferroniMultiplier > 1,
-                                   0.9999,
+                                   0.999999999,
                                    p.value * bonferroniMultiplier)
 
                        ),

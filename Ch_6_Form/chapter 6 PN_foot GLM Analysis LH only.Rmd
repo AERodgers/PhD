@@ -51,7 +51,14 @@ source("scripts/get_AH_corpora.R")
 
 # trim pn_ tbls
 pn_foot <- select(pn_foot,
-                  speaker, gender, stim, foot_syls, acc_phon, speech_rate)
+                  speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>%
+  mutate(
+    acc_phon =
+      if_else(acc_phon == "L*H",
+              "L*H",
+              "other"),
+    acc_phon = factor(acc_phon, levels = c("other", "L*H"))
+  )
 
 p_color <- x ~ style(
   color = if_else(
@@ -65,7 +72,7 @@ p_color <- x ~ style(
 ```
 
 
-## **PNs** as fn of **foot size**
+## **L\*H PN** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical test.
 test <- glmer(
@@ -109,6 +116,8 @@ formattable(y,
             list(p.value = formatter("span",
                                      style = p_color)))
 
+print(summary(test))
+
 ```
 
 ## pairwise comparisons
@@ -137,9 +146,19 @@ for (i in 1:(numLevels)) {
       )
     )
   )
-  # Create visualization of model the first time the loop runs
-  if (i == 1) {
-    visual <- plot_model(
+  
+  
+  
+  cat(c(
+    "\n\nStatistical Model with foot_suls[",
+    numLevels[1],
+    "] as intercept",
+    sep = ""
+  ))
+  print(summary(test))
+  
+  print(
+    plot_model(
       test,
       show.intercept = TRUE,
       show.values = TRUE,
@@ -149,23 +168,11 @@ for (i in 1:(numLevels)) {
       colors = "Black"
     ) +
       font_size(title = 12)
-    first_test <- test
-  }
-  
-  #    print(plot_model(
-  #  test,
-  #  show.intercept = TRUE,
-  #  show.values = TRUE,
-  #  show.p = FALSE,
-  #  title = "PN ~ foot size + (1 | speaker)",
-  #  vline.color = "red",
-  #  colors = "Black"
-  #) +
-  #  font_size(title = 12))
+  )
   
   # Convert the model output into a more readable format.
   y <- tidy(test) %>%
-    pAdjustBF("", 4) %>%
+    pAdjustBF("", 8) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
