@@ -103,7 +103,7 @@ null_model <- glmer(
 
 ### Anova comparison of current model with null equivalent.
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
 
 anova(cur_model, null_model, test="Chisq")
 formattable(r.squaredGLMM(cur_model))
@@ -122,6 +122,7 @@ cur_model_tidy <- tidy(cur_model) %>%
 
 plot_model(
   cur_model,
+  transform=NULL,
   show.intercept = TRUE,
   show.values = TRUE,
   show.p = FALSE,
@@ -149,14 +150,6 @@ numLevels <- length(curLevels)
 all_models_tidy = tibble()
 
 for (i in 1:(numLevels)) {
-  # Print info on current intercept.
-  cat(c(
-    "\n\nStatistical Model with foot_syls[",
-    curLevels[1],
-    "] as intercept"
-  ),
-  sep = "")
-  
   # Test GLMM model on data.
   cur_model <- glmer(
     isLH ~ foot_syls + (1 | speaker),
@@ -185,17 +178,6 @@ for (i in 1:(numLevels)) {
       p.adjusted = round(p.adjusted, 4)
     )
   
-  # Output current model.
-  print(kable(
-    cur_model_tidy %>%
-      select(-c(group, effect)) %>%
-      mutate(
-        z_value = statistic,
-        .before = p.value,
-        .keep = "unused"
-      )
-  ))
-  
   # Prepare current model for pasting to all models output.
   # Make 'pairwise' column = intercept.
   cur_model_tidy <- cur_model_tidy %>%
@@ -218,7 +200,7 @@ for (i in 1:(numLevels)) {
     ) %>%
     # remove random effects detail
     filter(term != "sd__(Intercept)") %>%
-    select(-group, -effect) %>%
+    select(-group,-effect) %>%
     # rename statistic column to "z.value"
     rename(z.value = statistic)
   
@@ -239,21 +221,6 @@ for (i in 1:(numLevels)) {
   pn_foot <- pn_foot %>%
     mutate(foot_syls = factor(foot_syls,
                               levels = curLevels))
-  
-  # plot current model
-  print(
-    plot_model(
-      cur_model,
-      axis.lim = c(0.01, max(cur_model_tidy$estimate) * 10),
-      show.intercept = TRUE,
-      show.values = TRUE,
-      show.p = FALSE,
-      title = "isLH ~ foot size + (1 | speaker)",
-      vline.color = "red",
-      colors = "Black"
-    ) +
-      font_size(title = 12)
-  )
   
 }
 

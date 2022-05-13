@@ -100,6 +100,7 @@ y <- tidy(test) %>%
 
 ```{r echo=FALSE, warning=FALSE, eval=FALSE}
 plot_model(test,
+           show.zeroinf = FALSE,
            show.intercept = TRUE,
            show.values = TRUE,
            show.p = FALSE,
