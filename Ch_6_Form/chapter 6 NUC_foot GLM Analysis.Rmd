@@ -1,9 +1,11 @@
 ---
-title: "Is PN Foot-Size a Good Predictor of L*H?"
+title: "Can foot size be used as a predictory of boundary tone? A Generalised Linear Mixed Effects Model Analysis of Footsize effect on final boundaries"
 author: "AERodgers"
 date: "2/18/2020"
 output:
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +21,7 @@ source("../functions/myFunctions.R")
 installMissingPackages(
   c(
     # Include statistical packages.
-    "lme4",
+    "lmerTest",
     "optimx",
     "MuMIn",
     
@@ -29,48 +31,48 @@ installMissingPackages(
     "sjPlot",
     "formattable",
     "knitr",
-    
+
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
 
+
+
 # Get data frames for AH analysis
 source("scripts/get_AH_corpora.R")
-# Add isLH column
-pn_foot <- select(
-  pn_foot, speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>%
-  mutate(isLH =
-           if_else(acc_phon == "L*H",
-                   TRUE,
-                   FALSE))
 
-# Set themes and colour schemes.
+# trim nuc_foot tbls
+nuc_foot <- select(nuc_foot,
+                   speaker,
+                   gender,
+                   stim,
+                   foot_syls,
+                   fin_phon,
+                   speech_rate) %>%
+  mutate(
+    fin_phon = factor(fin_phon, levels = unique(fin_phon)),
+    foot_syls = factor(foot_syls,
+                       levels = c(1, 2, 3, 4))
+  )
+
+# set colours and themes
 theme_set(theme_minimal(base_size = 14))
 
-p_color <- all_models_tidy ~ style(color = if_else(
-  all_models_tidy < 0.001,
-  "green",
-  if_else(
-    all_models_tidy < 0.01,
-    "green",
-    if_else(
-      all_models_tidy < 0.05,
-      "green",
-      "red")
-    )
-  )
-)
+p_color <- x ~ style(color = if_else(x < 0.05,
+                                     "green",
+                                     "red"))
+
 
 ```
 
 
-## **L\*H PN** as fn of **foot size**
+## **NUCs** as fn of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical cur_model.
 cur_model <- glmer(
-  isLH ~ foot_syls + (1 | speaker),
-  data = pn_foot,
+  fin_phon ~ foot_syls + (1 | speaker),
+  data = nuc_foot,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -85,8 +87,8 @@ cur_model <- glmer(
 )
 
 null_model <- glmer(
-  isLH ~ 1 + (1 | speaker),
-  data = pn_foot,
+  fin_phon ~ 1 + (1 | speaker),
+  data = nuc_foot,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -99,49 +101,48 @@ null_model <- glmer(
     )
   )
 )
+
 ```
 
 ### Anova comparison of current model with null equivalent.
 
 ```{r echo=FALSE, warning=FALSE}
-
-anova(cur_model, null_model, test="Chisq")
+formattable(tidy(anova(cur_model, null_model, test="Chisq")))
 formattable(r.squaredGLMM(cur_model))
 
-cur_model_tidy <- tidy(cur_model) %>%
+tidy_model <- tidy(cur_model) %>%
   filter(term != "sd_(Intercept).speaker") %>%
-  mutate(
-    estimate = round(estimate, 3),
-    std.error = round(std.error, 3),
-    statistic = round(statistic, 3),
-    p.value = round(p.value, 4),
-  ) %>%
-  select(-c(group, effect)) %>%
-  rename(z.value = statistic)
-
+    AdjustPToBonferroni("", 4) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 4),
+      p.adjusted = round(p.adjusted, 4)
+    )
 
 plot_model(
   cur_model,
+  axis.lim = c(0.01, max(tidy_model$estimate)*10),
   show.intercept = TRUE,
   show.values = TRUE,
   show.p = FALSE,
-  title = "isLH ~ foot size + (1 | speaker)",
+  title = "fin_phon ~ foot size + (1 | speaker)",
   vline.color = "red",
   colors = "Black"
 ) +
   font_size(title = 12)
 
-formattable(cur_model_tidy,
-            list(p.value = formatter("span",
+formattable(tidy_model,
+            list(p.adjusted = formatter("span",
                                      style = p_color)))
-
-print(summary(cur_model))
 
 ```
 
 ## pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
-# Get intercepts and pairwise comparisons for each foot size condition.
+```{r echo=FALSE, paged.print=FALSE, warning=FALSE}
+# Get intercepts and pairwise comparisons for each foot size condition
+# by running
 
 # Get number of levels in target treatment variable.
 curLevels <- levels(pn_foot$foot_syls)
@@ -149,20 +150,18 @@ numLevels <- length(curLevels)
 all_models_tidy = tibble()
 
 for (i in 1:(numLevels)) {
-  # Print info on current intercept.
-  cat(c(
-    "\n\nStatistical Model with foot_syls[",
-    curLevels[1],
-    "] as intercept"
-  ),
-  sep = "")
+  # print current intercept.
+  cat(
+    c("\n\nStatistical Model with foot_syls[", curLevels[1], "] as intercept"),
+    sep = ""
+    )
   
-  # Test GLMM model on data.
+  # Run GLMM test on data
   cur_model <- glmer(
-    isLH ~ foot_syls + (1 | speaker),
-    data = pn_foot,
+    fin_phon ~ foot_syls + (1 | speaker),
+    data = nuc_foot,
     family = binomial(link = "logit"),
-    # Change optimizer to avoid convergence errors/
+    # change optimizer to avoid convergence errors
     control = glmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -173,7 +172,7 @@ for (i in 1:(numLevels)) {
       )
     )
   )
-  
+
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
     AdjustPToBonferroni("", 8) %>%
@@ -185,7 +184,7 @@ for (i in 1:(numLevels)) {
       p.adjusted = round(p.adjusted, 4)
     )
   
-  # Output current model.
+  # Output current model
   print(kable(
     cur_model_tidy %>%
       select(-c(group, effect)) %>%
@@ -196,8 +195,25 @@ for (i in 1:(numLevels)) {
       )
   ))
   
-  # Prepare current model for pasting to all models output.
-  # Make 'pairwise' column = intercept.
+  # Create visualization of model the first time the loop runs
+  print(
+    plot_model(
+      axis.lim = c(0.01, 500),
+      cur_model,
+      show.intercept = TRUE,
+      show.values = TRUE,
+      show.p = FALSE,
+      title = paste("fin_phon ~ foot size + (1 | speaker), intercept = foot_syls", i, sep =
+                      ""),
+      wrap.title = 150,
+      vline.color = "red",
+      colors = "Black"
+    ) +
+      font_size(title = 12)
+  )
+  
+  # Prepare current model for pasting to all models output
+  # make pairwise column = intercept
   cur_model_tidy <- cur_model_tidy %>%
     mutate(
       pairwise =
@@ -205,12 +221,14 @@ for (i in 1:(numLevels)) {
           term == "(Intercept)",
           "intercept",
           if_else(
-            term %notin% c("foot_syls1", "foot_syls2", "foot_syls3", "foot_syls4"),
+            term %notin% c(
+              "foot_syls1", "foot_syls2", "foot_syls3", "foot_syls4"
+              ),
             "N/A",
             paste("foot_syls", i, sep = "")
           )
         ),
-      # change 'term' so "intercept" states the target condition name.
+      # change term so "intercept" states the target condition name.
       term =
         if_else(term == "(Intercept)",
                 paste("foot_syls", i, sep = ""),
@@ -218,7 +236,7 @@ for (i in 1:(numLevels)) {
     ) %>%
     # remove random effects detail
     filter(term != "sd__(Intercept)") %>%
-    select(-group, -effect) %>%
+    select(-group,-effect) %>%
     # rename statistic column to "z.value"
     rename(z.value = statistic)
   
@@ -236,24 +254,9 @@ for (i in 1:(numLevels)) {
   
   # restructure the order of levels for next GLME cur_model.
   curLevels <- c(curLevels[2:numLevels], curLevels[1])
-  pn_foot <- pn_foot %>%
+  nuc_foot <- nuc_foot %>%
     mutate(foot_syls = factor(foot_syls,
                               levels = curLevels))
-  
-  # plot current model
-  print(
-    plot_model(
-      cur_model,
-      axis.lim = c(0.01, max(cur_model_tidy$estimate) * 10),
-      show.intercept = TRUE,
-      show.values = TRUE,
-      show.p = FALSE,
-      title = "isLH ~ foot size + (1 | speaker)",
-      vline.color = "red",
-      colors = "Black"
-    ) +
-      font_size(title = 12)
-  )
   
 }
 

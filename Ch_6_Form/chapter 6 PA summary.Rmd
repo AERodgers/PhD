@@ -2,8 +2,8 @@
 title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
   and Phonetics of DCE Intonation'
 output:
-  html_document: default
   word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -404,7 +404,7 @@ all <- read_csv(my_table_g) %>%
 ```
 
 
-```{r, fig.height=7, fig.width=12}
+```{r, fig.height=7, fig.width=12, eval=FALSE}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = acc_phon),
@@ -487,7 +487,7 @@ all <- read_csv(my_table_g) %>%
 ```
 
 
-```{r fig.height=7, fig.width=8}
+```{r fig.height=7, fig.width=8, eval=FALSE}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
@@ -529,7 +529,7 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 
 ## 1.3.2 Nuclear Pitch Contours
 ### Nuclear Contours and Foot Size
-```{r}
+```{r, warning=FALSE}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/nuc_foot_adj_M.csv", sep = "")
 my_table_f <- paste(getwd(), "/output/nuc_foot_adj_F.csv", sep = "")
@@ -563,7 +563,10 @@ praat_run(script,
           my_table_g)
 
 all <- read_csv(my_table_g)
+```
 
+
+```{r eval=FALSE}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = nuc_contour),
@@ -577,8 +580,10 @@ ggplot(all) +
   labs(x = "foot size and gender",
        y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
+```
 
 
+```{r fig.height=4, fig.width=12}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = nuc_contour),
@@ -633,7 +638,10 @@ praat_run(script,
           my_table_g)
 
 all <- read_csv(my_table_g)
+```
 
+
+```{r, eval=FALSE}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = pre_syls, fill = nuc_contour),
@@ -647,8 +655,10 @@ ggplot(all) +
   labs(x = "foot size and gender",
        y = "tokens (n)") +
   theme(panel.border = element_rect(fill = NA))
+```
 
 
+```{r fig.height=4, fig.width=12}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = pre_syls, fill = nuc_contour),
@@ -664,6 +674,7 @@ ggplot(all) +
   theme(panel.border = element_rect(fill = NA))
 
 unlink(c(my_table_m, my_table_f, my_table_g))
+
 ```
 
 # **__1.4 Initial boundary and downstep__**

@@ -23,6 +23,7 @@ installMissingPackages(
     # Include statistical packages.
     "lmerTest",
     "optimx",
+    "MuMIn",
     
     # Include packages for tidy output.
     "tidyverse",
@@ -43,7 +44,13 @@ source("scripts/get_AH_corpora.R")
 
 # trim pn_ tbls
 pn_foot <- select(pn_foot,
-                  speaker, gender, stim, foot_syls, acc_phon, speech_rate)
+                  speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>% 
+  filter(acc_phon != ">H*",) %>% 
+  mutate(
+    acc_phon = factor(acc_phon,levels = c("(*)", "L*", "H*", "L*H"))
+  )
+  
+
 
 p_color <- x ~ style(
   color = if_else(
@@ -75,6 +82,31 @@ cur_model <- glmer(
     )
   )
 )
+
+
+null_model <- glmer(
+  acc_phon ~ 1 + (1 | speaker),
+  data = pn_foot,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+```
+
+### Anova comparison of current model with null equivalent.
+
+```{r echo=FALSE, warning=FALSE}
+formattable(tidy(anova(cur_model, null_model, test="Chisq")))
+formattable(r.squaredGLMM(cur_model))
+
 tidy_model <- tidy(cur_model) %>%
   filter(term != "sd_(Intercept).speaker") %>%
   mutate(
