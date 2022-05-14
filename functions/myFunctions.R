@@ -135,14 +135,13 @@ AdjustPToBonferroni <- function(myTibble,
       term %in% excludeTerms,
       p.value,
       if_else(
-        p.value * bonferroniMultiplier > 1,
-        0.9999,
+        p.value * bonferroniMultiplier >= 1,
+        0.9999999999,
         p.value * bonferroniMultiplier
       )
-      
-    ),
-    p.adjusted = round(p.adjusted, 4)
-  )
+      )
+    )
+
   return(myTibble)
 }
 

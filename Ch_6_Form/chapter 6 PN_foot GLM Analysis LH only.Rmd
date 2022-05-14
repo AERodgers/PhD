@@ -4,6 +4,7 @@ author: "AERodgers"
 date: "2/18/2020"
 output:
   html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -49,13 +50,13 @@ pn_foot <- select(
 theme_set(theme_minimal(base_size = 14))
 
 p_color <- all_models_tidy ~ style(color = if_else(
-  all_models_tidy < 0.001,
+  as.double(all_models_tidy) < 0.001,
   "green",
   if_else(
-    all_models_tidy < 0.01,
+    as.double(all_models_tidy) < 0.01,
     "green",
     if_else(
-      all_models_tidy < 0.05,
+      as.double(all_models_tidy)< 0.05,
       "green",
       "red")
     )
@@ -109,13 +110,15 @@ anova(cur_model, null_model, test="Chisq")
 formattable(r.squaredGLMM(cur_model))
 
 cur_model_tidy <- tidy(cur_model) %>%
-  filter(term != "sd_(Intercept).speaker") %>%
-  mutate(
-    estimate = round(estimate, 3),
-    std.error = round(std.error, 3),
-    statistic = round(statistic, 3),
-    p.value = round(p.value, 4),
-  ) %>%
+    filter(term != "sd__(Intercept)") %>%
+    AdjustPToBonferroni("", 4) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 8),
+      p.adjusted = round(p.adjusted, 8)
+    ) %>%
   select(-c(group, effect)) %>%
   rename(z.value = statistic)
 
@@ -132,9 +135,17 @@ plot_model(
 ) +
   font_size(title = 12)
 
-formattable(cur_model_tidy,
-            list(p.value = formatter("span",
-                                     style = p_color)))
+cur_model_tidy  %>%
+  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  p.value = if_else(p.value < 0.001,
+                    as.character(scientific(p.value)),
+                    as.character(round(p.value, 3))),
+  p.adjusted = if_else(
+    p.adjusted < 0.001,
+    as.character(scientific(p.adjusted)),
+    as.character(round(p.adjusted, 3))
+  )
+)
 
 print(summary(cur_model))
 
@@ -169,13 +180,13 @@ for (i in 1:(numLevels)) {
   
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
-    AdjustPToBonferroni("", 8) %>%
+    AdjustPToBonferroni("", 4) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4)
+      p.value = round(p.value, 8),
+      p.adjusted = round(p.adjusted, 8)
     )
   
   # Prepare current model for pasting to all models output.
@@ -187,7 +198,11 @@ for (i in 1:(numLevels)) {
           term == "(Intercept)",
           "intercept",
           if_else(
-            term %notin% c("foot_syls1", "foot_syls2", "foot_syls3", "foot_syls4"),
+            term %notin% c(
+              "foot_syls1",
+              "foot_syls2",
+              "foot_syls3",
+              "foot_syls4"),
             "N/A",
             paste("foot_syls", i, sep = "")
           )
@@ -253,23 +268,40 @@ b1_footSize  <-
 
 #### Foot size as intercept ($\beta$~0~)
 ```{r echo=FALSE, warning=FALSE}
-formattable(b0_footSize,
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
-
+b0_footSize %>%
+  formattable(list(p.adjusted = formatter("span",
+                                          style = p_color))) %>%
+  mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 3))
+    ),
+    p.adjusted = if_else(
+      p.adjusted < 0.001,
+      as.character(scientific(p.adjusted)),
+      as.character(round(p.adjusted, 3))
+    )
+  ) 
 ```
 
 
 #### Pairwise comparisons ($\beta$~1~)
 ```{r echo=FALSE, warning=FALSE}
-formattable(b1_footSize,
-            list(p.adjusted = formatter("span",
-                                     style = p_color
-                                     )
-                 )
-            )
+b1_footSize %>%
+  formattable(list(p.adjusted = formatter("span",
+                                          style = p_color))) %>%
+  mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 3))
+    ),
+    p.adjusted = if_else(
+      p.adjusted < 0.001,
+      as.character(scientific(p.adjusted)),
+      as.character(round(p.adjusted, 3))
+    )
+  ) 
 ```
 
