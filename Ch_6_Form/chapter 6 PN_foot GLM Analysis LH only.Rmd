@@ -139,11 +139,11 @@ cur_model_tidy  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
-                    as.character(round(p.value, 3))),
+                    as.character(round(p.value, 4))),
   p.adjusted = if_else(
     p.adjusted < 0.001,
     as.character(scientific(p.adjusted)),
-    as.character(round(p.adjusted, 3))
+    as.character(round(p.adjusted, 4))
   )
 )
 
@@ -275,12 +275,12 @@ b0_footSize %>%
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 3))
+      as.character(round(p.value, 4))
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
       as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 3))
+      as.character(round(p.adjusted, 4))
     )
   ) 
 ```
@@ -295,12 +295,12 @@ b1_footSize %>%
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 3))
+      as.character(round(p.value, 4))
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
       as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 3))
+      as.character(round(p.adjusted, 4))
     )
   ) 
 ```
