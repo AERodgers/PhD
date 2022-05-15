@@ -1,10 +1,9 @@
 ---
 title: "Is PN Foot-Size a Good Predictor of L*H?"
 author: "AERodgers"
-date: "2/18/2020"
+date: "2/18/2022"
 output:
   html_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -100,15 +99,24 @@ null_model <- glmer(
     )
   )
 )
+
+print(summary(cur_model))
 ```
 
-### Anova comparison of current model with null equivalent.
+### Anova comparison of current model with model with null fixed factors.
+```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
+anova(cur_model, null_model, test="Chisq")
+```
 
+```{r echo=FALSE, warning=FALSE, fig.width=7.5/2.54, fig.height=15.5/16*9/2.54}
+kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r^2 of model.")
+
+```
+
+### Visualisation and tidy representation of the model **isLH ~ foot size + (1 | speaker)**.
 ```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
 
-anova(cur_model, null_model, test="Chisq")
-formattable(r.squaredGLMM(cur_model))
-
+# Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
     AdjustPToBonferroni("", 4) %>%
@@ -121,7 +129,6 @@ cur_model_tidy <- tidy(cur_model) %>%
     ) %>%
   select(-c(group, effect)) %>%
   rename(z.value = statistic)
-
 
 plot_model(
   cur_model,
@@ -147,11 +154,11 @@ cur_model_tidy  %>%
   )
 )
 
-print(summary(cur_model))
+
 
 ```
 
-## pairwise comparisons
+## Pairwise comparisons
 ```{r echo=FALSE, paged.print=FALSE}
 # Get intercepts and pairwise comparisons for each foot size condition.
 
@@ -267,41 +274,37 @@ b1_footSize  <-
 
 
 #### Foot size as intercept ($\beta$~0~)
+
 ```{r echo=FALSE, warning=FALSE}
-b0_footSize %>%
-  formattable(list(p.adjusted = formatter("span",
-                                          style = p_color))) %>%
-  mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
-    ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
-    )
-  ) 
+b0_footSize  %>%
+  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  p.value = if_else(p.value < 0.001,
+                    as.character(scientific(p.value)),
+                    as.character(round(p.value, 4))),
+  p.adjusted = if_else(
+    p.adjusted < 0.001,
+    as.character(scientific(p.adjusted)),
+    as.character(round(p.adjusted, 4))
+  )
+)
+
+
 ```
 
 
 #### Pairwise comparisons ($\beta$~1~)
+
 ```{r echo=FALSE, warning=FALSE}
 b1_footSize %>%
-  formattable(list(p.adjusted = formatter("span",
-                                          style = p_color))) %>%
-  mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
-    ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
-    )
-  ) 
+  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  p.value = if_else(p.value < 0.001,
+                    as.character(scientific(p.value)),
+                    as.character(round(p.value, 4))),
+  p.adjusted = if_else(
+    p.adjusted < 0.001,
+    as.character(scientific(p.adjusted)),
+    as.character(round(p.adjusted, 4))
+  )
+) 
 ```
 
