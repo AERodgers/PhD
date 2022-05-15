@@ -65,7 +65,7 @@ p_color <- all_models_tidy ~ style(color = if_else(
 ```
 
 
-## **L\*H PN** as fn of **foot size**
+## **L\*H PN** as a function of **foot size**
 ```{r echo=FALSE, warning=FALSE}
 # Run GLME model statistical cur_model.
 cur_model <- glmer(
@@ -103,14 +103,10 @@ null_model <- glmer(
 print(summary(cur_model))
 ```
 
-### Anova comparison of current model with model with null fixed factors.
-```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
+### ANOVA to compare current model and model with null fixed factors
+```{r echo=FALSE, warning=FALSE}
 anova(cur_model, null_model, test="Chisq")
-```
-
-```{r echo=FALSE, warning=FALSE, fig.width=7.5/2.54, fig.height=15.5/16*9/2.54}
-kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r^2 of model.")
-
+kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r-squared of the model.")
 ```
 
 ### Visualisation and tidy representation of the model **isLH ~ foot size + (1 | speaker)**.
@@ -281,12 +277,12 @@ b0_footSize  %>%
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
                     as.character(round(p.value, 4))),
-  p.adjusted = if_else(
-    p.adjusted < 0.001,
-    as.character(scientific(p.adjusted)),
-    as.character(round(p.adjusted, 4))
-  )
-)
+  p.adjusted = if_else(p.adjusted < 0.001,
+                       as.character(scientific(p.adjusted)),
+                       as.character(round(p.adjusted, 4))
+                       )
+  ) 
+
 
 
 ```
@@ -300,11 +296,10 @@ b1_footSize %>%
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
                     as.character(round(p.value, 4))),
-  p.adjusted = if_else(
-    p.adjusted < 0.001,
-    as.character(scientific(p.adjusted)),
-    as.character(round(p.adjusted, 4))
-  )
-) 
+  p.adjusted = if_else(p.adjusted < 0.001,
+                       as.character(scientific(p.adjusted)),
+                       as.character(round(p.adjusted, 4))
+                       )
+  ) 
 ```
 
