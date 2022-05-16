@@ -172,7 +172,7 @@ for (i in 1:(numLevels)) {
 
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
-    AdjustPToBonferroni("", 8) %>%
+   bonferroniAdjust("", 8) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),

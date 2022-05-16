@@ -63,7 +63,7 @@ test <- glmer(acc_phon ~ foot_syls +(1 | speaker),
 
 y <- tidy(test) %>%
   filter(term != "sd_(Intercept).speaker") %>% 
-  AdjustPToBonferroni(
+ bonferroniAdjust(
     c("(Intercept)",
       "genderM",
       "SR",
@@ -136,7 +136,7 @@ for(i in 1:(numLevels)){
 
   
     y <- tidy(test) %>%
-    AdjustPToBonferroni(
+   bonferroniAdjust(
         c("(Intercept)",
           "genderM",
           "SR",
@@ -306,7 +306,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    AdjustPToBonferroni(
+   bonferroniAdjust(
         c("(Intercept)", "genderM", "SR", "genderMSR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 
@@ -475,7 +475,7 @@ for(i in 1:(numLevels)){
 
         bfAdj = 6
     y <- tidy(test) %>%
-    AdjustPToBonferroni(
+   bonferroniAdjust(
         c("(Intercept)","SR", "sd_(Intercept).speaker"),
         6)
     y <- y %>% 

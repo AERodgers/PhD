@@ -126,7 +126,7 @@ drawResiduals <- function(myModel) {
        main = "(c) Residual plot")
 }
 
-AdjustPToBonferroni <- function(myTibble,
+bonferroniAdjust <- function(myTibble,
                       excludeTerms,
                       bonferroniMultiplier) {
   myTibble <- mutate(
