@@ -658,8 +658,7 @@ procedure populateTable
         Set string value: bottomRow, "gender", gender$
         Set string value: bottomRow, "stim", stim$
         Set string value: bottomRow, "rep", rep$
-        Set string value: bottomRow, "location",
-        ... replace$(cur_address$, root_G$, "", 1)
+        Set string value: bottomRow, "location", cur_address$
 
 
         # add data requiring RHYTHM tier only
