@@ -25,13 +25,6 @@
 #     2. Unused columns no longer included in table, but still calculated in
 #        script; e.g., rhythm normalised times no longer saved to table.
 #     3. All actual times output re utterance start (i.e. from 0)
-#     4. V.2.0.1: Updated syl_normT estimations - each of these is now
-#                 normalised to a grand mean syllable time in ms for each
-#                 stim_metre pairing.
-#                 Added v/l/h_syl_ratio column to show target as a proportion
-#                 of the syllable.
-#     5. V.2.0.2: Removed "include allProcs.praat" line, and replaced it with
-#                 relevant procedures from libraries. (Makes script portable.)
 #     6. V.2.0.3: Updated @globalDictionaries to work on different machines
 #     7. V.2.0.4: Reduced likelihood of undefined pitch values being returned.
 
@@ -105,21 +98,19 @@ outputFileAddressArchive$ = root$ + "/" + corpusArchiveDir$ + "/"
 outputFileAddress$ = root$ + "/" +  batchFile$ + ".Table"
 
 # Create empty output table.
-id_data$ = "code speaker gender stim rep sent metre_ID stim_metre "
+id_data$ = "code speaker gender stim rep metre_ID stim_metre "
 grid_basics$ = "tot_syls ana_syls "
     ... + "tot_feet cur_foot foot_syls wrd_end_syl "
-    ... + "acc_phon phr_phon init_phon fin_phon v_text "
+    ... + "acc_phon phr_phon init_phon fin_phon "
 grid_times$ = "phr_strt_t phr_end_t ana_end_t "
     ... + "foot_strt_t foot_end_t stress_end_t wrd_fin_syl_strt_t wrd_end_t "
     ... + "v_onset_t v_offset_t "
 alignment_data$ = "strt_t end_t l_t h_t "
-    ... + "l_syl_strt_t l_syl_end_t "
-    ... + "h_syl_strt_t h_syl_end_t "
-    ... + "v_sylNormT l_sylNormT h_sylNormT "
-    ... + "v_syl l_syl h_syl "
-    ... + "v_syl_ratio l_syl_ratio h_syl_ratio "
+    ... + "l_syl_v_strt_t "
+    ... + "h_syl_v_strt_t "
+    ... + "l_syl h_syl "
 f0_data$ =
-    ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 slope_st intercept_st mean_st med_st "
+    ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 slope_st mean_st med_st "
 
 output_table = Create Table with column names: "output", 0,
     ... id_data$
@@ -136,6 +127,7 @@ for dir_i to num_dirs
     writeInfoLine: mid$(date$(), 12, 8), " Reading data for directory ",
     ... dir_i, "/", num_dirs, "."
     selectObject: dir_list
+
     cur_dir$ = Get string: dir_i
     cur_dir$ = cur_dir$ + "/" + corpus_to_analyse$ + "/"
     cur_fileList =  Create Strings as file list: "fileList" + string$(dir_i),
@@ -213,22 +205,16 @@ endfor
 appendInfoLine: mid$(date$(), 12, 8),
     ... " Calculating grand-mean syllable-normalised times."
 
-# Convert syllable-normalised time to grand-mean syllable-normalised time
-@grandMeanSylTime: output_table, root$, corpusRef_G$[corpus_to_analyse]
-
 # Convert times to ms using phr_strt_t as t=0. Couldn't do this tidily in R!
 selectObject: output_table
-Formula (column range): "phr_end_t", "h_syl_end_t",
+Formula (column range): "phr_end_t", "h_syl_v_strt_t",
     ... "fixed$((self - self[""phr_strt_t""]) * 1000, 0)"
 Remove column: "phr_strt_t"
-Formula (column range): "v_sylNormT", "h_sylNormT", "fixed$(self * 1000, 0)"
 
 # convert F0 to ST re 1 Hz using. Couldn't do this tidily in R!
 Formula (column range): "s_f0", "h_f0", "fixed$(12 * log2(self), 2)"
 Formula (column range): "mean_st", "med_st", "fixed$(self, 2)"
 
-# round syllable ratio values to two decimal places
-Formula (column range): "v_syl_ratio", "h_syl_ratio", "fixed$(self, 2)"
 
 # Calculate end time before user intervention.
 @seconds: "ended"
@@ -506,7 +492,6 @@ procedure processVowelTier: .textGrid, .sound, .pitchObject
                         ... foot_strt[cur_foot] + foot_stress_dur[cur_foot]
                 v_onset[cur_foot] = curStartTime
                 v_offset[cur_foot] = curEndTime
-                v_text$[cur_foot] = curVowelText$
                 @getPitchAtTime: .pitchObject, v_onset[cur_foot]
                 v_onset_f0[cur_foot] = result
             endif
@@ -556,7 +541,6 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
         h_t_cur = h_t[i]
         @getAccLinear: l_t_cur, h_t_cur, .pitchObject
         slope_st[i] = getAccLinear.slope_st
-        intercept_st[i] = getAccLinear.intercept_st
         mean_f0[i] = getAccLinear.mean_f0
         med_st[i] = getAccLinear.med_st
     endfor
@@ -605,20 +589,11 @@ procedure calculateAlignmentData
                 l_syl_num[cur_foot] = cur_syl
                 l_syl_strt[cur_foot] = cur_syl_l_edge
                 l_syl_end[cur_foot] = cur_syl_r_edge
-                l_syl_ratio[cur_foot] = (cur_l_t - cur_syl_l_edge) /
-                    ... (cur_syl_r_edge - cur_syl_l_edge)
             endif
             if cur_h_t >= cur_syl_l_edge and cur_h_t <= cur_syl_r_edge
                 h_syl_num[cur_foot] = cur_syl
                 h_syl_strt[cur_foot] = cur_syl_l_edge
                 h_syl_end[cur_foot] = cur_syl_r_edge
-                h_syl_ratio[cur_foot] = (cur_h_t - cur_syl_l_edge) /
-                    ... (cur_syl_r_edge - cur_syl_l_edge)
-            endif
-            if cur_v_onset >= cur_syl_l_edge and cur_v_onset <= cur_syl_r_edge
-                v_syl_num[cur_foot] = cur_syl
-                v_syl_ratio[cur_foot] = (cur_v_onset - cur_syl_l_edge) /
-                    ... (cur_syl_r_edge - cur_syl_l_edge)
             endif
         endfor
         cur_syl_strt += foot_syls[cur_foot]
@@ -683,7 +658,9 @@ procedure populateTable
         Set string value: bottomRow, "gender", gender$
         Set string value: bottomRow, "stim", stim$
         Set string value: bottomRow, "rep", rep$
-        Set string value: bottomRow, "location", cur_address$
+        Set string value: bottomRow, "location",
+        ... replace$(cur_address$, root_G$, "", 1)
+
 
         # add data requiring RHYTHM tier only
         Set string value: bottomRow, "init_phon", init_phono$
@@ -709,7 +686,6 @@ procedure populateTable
         Set string value: bottomRow, "phr_phon", phr_phono$
 
         # add data requiring ORTHO and/or rhythm / syllable tiers
-        Set string value: bottomRow, "sent", cur_sent$
         Set numeric value: bottomRow, "wrd_fin_syl_strt_t",
                                   ... wrd_fin_syl_strt_t[i]
         Set numeric value: bottomRow, "wrd_end_t", wrd_end_t[i]
@@ -722,7 +698,6 @@ procedure populateTable
         Set numeric value: bottomRow, "e_f0", e_f0
         Set numeric value: bottomRow, "v_onset_f0", v_onset_f0[i]
         Set numeric value: bottomRow, "slope_st", slope_st[i]
-        Set numeric value: bottomRow, "intercept_st", intercept_st[i]
         Set numeric value: bottomRow, "mean_st", mean_f0[i]
         Set numeric value: bottomRow, "med_st", med_st[i]
 
@@ -731,23 +706,14 @@ procedure populateTable
         Set numeric value: bottomRow, "h_t", h_t[i]
         Set numeric value: bottomRow, "strt_t", strt_t
         Set numeric value: bottomRow, "end_t", end_t
-        Set numeric value: bottomRow, "v_syl", v_syl_num[i]
-        Set numeric value: bottomRow, "v_syl_ratio", v_syl_ratio[i]
 
         # add other ALIGNMENT data
-        Set numeric value: bottomRow, "l_syl_strt_t", l_syl_strt[i]
-        Set numeric value: bottomRow, "l_syl_end_t", l_syl_end[i]
-        Set numeric value: bottomRow, "h_syl_strt_t", h_syl_strt[i]
-        Set numeric value: bottomRow, "h_syl_end_t", h_syl_end[i]
         Set numeric value: bottomRow, "l_syl", l_syl_num[i]
         Set numeric value: bottomRow, "h_syl", h_syl_num[i]
-        Set numeric value: bottomRow, "l_syl_ratio", l_syl_ratio[i]
-        Set numeric value: bottomRow, "h_syl_ratio", h_syl_ratio[i]
 
         # add data requiring VOWEL and RHYTHM tiers
         Set numeric value: bottomRow, "v_onset_t", v_t_ft[i]
         Set numeric value: bottomRow, "v_offset_t", v_off_ft[i]
-        Set string value: bottomRow, "v_text", v_text$[i]
         endif
     endfor
 endproc
@@ -771,89 +737,6 @@ procedure get_nearest_f0: .object, .time, .time_step
         .time = .time + .time_step/10
         .fo = Get value at time: .time, "Hertz", "Linear"
     endwhile
-endproc
-
-procedure grandMeanSylTime: .corpusTable, .root$, .corpus$
-    # Converts syllable-normalised time to grand-mean syllable-normalised time
-    # across all utterances). i.e.:
-    # INPUT: syllable normalised time, where integer part = syllable number,
-    #        decimal part = proportion of syllable
-    # OUPUT: grand mean syllable-nomalised time, where output value is the
-    #        otime based on the average syllable duration across all utterences
-    #        with the same stimulus and metre ID (i.e. the same stim_metre
-    #        parameter)
-
-    # Read or create Grand mean Source table
-    .gmSourceCSV$ = .root$ + "/" + .corpus$ + "_MeanSylDur.csv"
-    if fileReadable(.gmSourceCSV$)
-        .gmTable = Read Table from comma-separated file: .gmSourceCSV$
-    else
-        @meanSylDurs: .corpusTable, 0
-        .gmTable =  meanSylDurs.table
-        selectObject: .gmTable
-        Save as comma-separated file: .gmSourceCSV$
-    endif
-
-    # Convert gmTable to set of arrays for convenience and speed of processing
-    selectObject: .gmTable
-    .numStims = Get number of rows
-    for .curStim to .numStims
-        .stimMetre$[.curStim] = Get value: .curStim, "stimMetre"
-        .numSyls[.curStim] = Get value: .curStim, "numSyls"
-        .gmStrt[.curStim, 1] = 0
-        for .curSyl to .numSyls[.curStim]
-            .gmDur[.curStim, .curSyl] =
-                ... Get value: .curStim, "s" + string$(.curSyl)
-            if .curSyl > 1
-                .gmStrt[.curStim, .curSyl] =
-                ... .gmStrt[.curStim, .curSyl - 1] +
-                ... .gmDur[.curStim, .curSyl - 1]
-            endif
-        endfor
-    endfor
-
-    # use syl_NormT prefixes to use in loop
-    .affix$[1] = "v_"
-    .affix$[2] = "l_"
-    .affix$[3] = "h_"
-
-    selectObject: .corpusTable
-    # add temporary columns for grand mean calculation
-    for .i to 3
-        Append column: .affix$[.i] + "gmStrt"
-        Append column: .affix$[.i] + "gmDur"
-    endfor
-
-    # convert syl number and syl duration grandmean start time and duration
-    # using grand mean array values
-    for .curStim to .numStims
-        for .i to 3
-            .durCol$ =  .affix$[.i] + "gmDur"
-            .strtCol$ =  .affix$[.i] + "gmStrt"
-            .tgtRatio$ = .affix$[.i] + "syl_ratio"
-            .tgtSylNum$ = .affix$[.i] + "syl"
-            Formula: .durCol$,
-                ... "if self$[""stim_metre""] = .stimMetre$[.curStim] then " +
-                ... "self[.tgtRatio$] * .gmDur[.curStim, self[.tgtSylNum$]] " +
-                ... "else self endif"
-
-            Formula: .strtCol$,
-                ... "if self$[""stim_metre""] = .stimMetre$[.curStim] then " +
-                ... ".gmStrt[.curStim, self[.tgtSylNum$]] else self endif"
-        endfor
-    endfor
-    # convert sylNormT columns to grand mean syllable times
-    for .i to 3
-        Formula: .affix$[.i] + "sylNormT",
-            ... "self[.affix$[.i] + ""gmDur""] + self[.affix$[.i] + ""gmStrt""]"
-        # Remove columns as no longer necessary
-        Remove column: .affix$[.i] + "gmDur"
-        Remove column: .affix$[.i] + "gmStrt"
-    endfor
-
-    # remove remaining object
-    selectObject: .gmTable
-    Remove
 endproc
 
 # ==============================================================================
