@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 ```
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 # Load functions and packages
 source("../functions/myFunctions.R") 
 installMissingPackages(c("tidyverse",
@@ -709,7 +709,9 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 
 ```
 
-# **__1.4 Initial boundary and downstep__**
+
+# APPENDICES
+# **__A. Initial boundary and downstep__**
 ### foot size
 ```{r warning=FALSE}
 # create temp file addresses
@@ -884,7 +886,7 @@ pn_downstep %>%
 ```
 
 
-# **1.5 __Individiual Results__**
+# **__B. Individiual Results__**
 
 ```{r results = "asis",  warning=FALSE}
 # get vector of speakers

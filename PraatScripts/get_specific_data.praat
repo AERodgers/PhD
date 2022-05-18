@@ -83,7 +83,14 @@ endif
 ### PROCESS FILES
 
 # Get analysis table
-Read from file: table_directory$ + "/" + table_file$
+table_directory$ = replace$(
+                        ... replace$(table_directory$ + "/", "\", "/", 0),
+                        ... "//",
+                        ..."/",
+                        ... 0)
+
+Read from file: table_directory$ + table_file$
+
 batchData = selected()
 # get rows matching selection criteria
 Extract rows where column (text): db_field$#[field], "contains", target_text$

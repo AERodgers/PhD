@@ -1,0 +1,65 @@
+---
+title: "LMM Analysis of PNs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Get data frames for AH analysis
+source("scripts/get_AH_corpora.R")
+# Add isLH column
+pn_foot 
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+rm(pn, corpus, nuc)
+rm(nuc_foot, nuc_pre, pn_ana, pn_lex)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Summarise continuous pn_foot parameters per speaker per foot_syl.
+pn_foot_summary_phonetic <- param_summary(pn_foot, foot_syls, acc_phon)
+
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#get summary of each target parameter per pa per foot_syl condition
+l_t_means <- param_means(pn_foot_summary_phonetic, l_t, acc_phon, foot_syls)
+h_t_means <- param_means(pn_foot_summary_phonetic, h_t, acc_phon, foot_syls)
+l_f0_means <- param_means(pn_foot_summary_phonetic, l_f0, acc_phon, foot_syls)
+h_f0_means <- param_means(pn_foot_summary_phonetic, h_f0, acc_phon, foot_syls)
+lh_dur_means <- param_means(pn_foot_summary_phonetic, lh_dur, acc_phon, foot_syls)
+f0_exc_means <- param_means(pn_foot_summary_phonetic, f0_exc, acc_phon, foot_syls)
+slope_means <- param_means(pn_foot_summary_phonetic, slope, acc_phon, foot_syls)
+
+```
+

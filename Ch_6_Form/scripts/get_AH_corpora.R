@@ -2,59 +2,72 @@
 # --------------------------
 
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
-  # remove reference columns not needed for statistical analysis.
+  # Only keep pertinent columns!
   select(
-    -c(
-      sent,
-      v_text,
-      l_syl_end_t,
-      h_syl_end_t,
-      v_sylNormT,
-      l_sylNormT,
-      h_sylNormT,
-      v_syl,
-      v_syl_ratio,
-      l_syl_ratio,
-      intercept_st,
-      mean_st,
-      med_st,
-      phr_phon,
-      location,
-      rep,
-      metre_ID,
-      stim_metre
-    )
-  ) %>%
-  mutate(
-    # get foot_duration.
-    foot_dur = foot_end_t - foot_strt_t,
-    # include speech_rate
-    speech_rate = round(tot_syls / phr_end_t * 1000, 3),
-    # treat foot_syls and ana_syls as factor
-    ana_syls = factor(ana_syls, levels = unique(ana_syls)),
-    foot_syls = factor(foot_syls, levels = unique(foot_syls)),
-    # Ignore downstep.
-    acc_phon = str_replace(acc_phon, "!", ""),
-    # Arrange PA levels according to hypothesized hierarchy.
-    acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")),
-    # Arrange speaker factors in more intuitive order.
-    speaker = factor(
-      speaker,
-      levels = c(
-        "F5",
-        "F6",
-        "F12",
-        "F15",
-        "F16",
-        "F17",
-        "M4",
-        "M5",
-        "M8",
-        "M9",
-        "M10"
-      )
+    speaker,
+    gender,
+    stim,
+    cur_foot,
+    init_phon,
+    fin_phon,
+    wrd_end_syl,
+    ana_syls,
+    foot_syls,
+    tot_syls,
+    acc_phon,
+    foot_strt_t,
+    foot_end_t,
+    v_onset_t,
+    l_t,
+    h_t,
+    l_f0,
+    h_f0,
+    phr_end_t,
+    slope_st
+  ) %>% 
+mutate(
+  # create composite parameters for continuous data.
+  foot_dur = foot_end_t - foot_strt_t,
+  speech_rate = round(tot_syls / phr_end_t * 1000, 3),
+  f0_exc = h_f0 - l_f0,
+  lh_dur = h_t - l_t,
+  foot_dur = foot_end_t - foot_strt_t,
+  # Make L and H times relative to vowel onset (TBU).
+  l_t = l_t - v_onset_t,
+  h_t = h_t - v_onset_t,
+  # treat foot_syls and ana_syls as factor
+  ana_syls = factor(ana_syls, levels = unique(ana_syls)),
+  foot_syls = factor(foot_syls, levels = unique(foot_syls)),
+  # Ignore downstep.
+  acc_phon = str_replace(acc_phon, "!", ""),
+  # Arrange PA levels according to hypothesized hierarchy.
+  acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")),
+  # Arrange speaker factors in more intuitive order.
+  speaker = factor(
+    speaker,
+    levels = c(
+      "F5",
+      "F6",
+      "F12",
+      "F15",
+      "F16",
+      "F17",
+      "M4",
+      "M5",
+      "M8",
+      "M9",
+      "M10"
     )
   )
+) %>%
+  #rename slope!
+  rename(slope = slope_st) %>% 
+  # Remove columns which have outlived their use!
+  select(-c(v_onset_t,
+            foot_end_t,
+            foot_strt_t,
+            tot_syls,
+            phr_end_t))
 
 
 # CREATE PN SUBSETS
@@ -87,7 +100,6 @@ pn_foot <- pn %>%
 pn_lex <- pn %>% filter(stim %in% c(
   "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
 ))
-
 
 # CREATE NUCLEAR PA SUBSETS
 # -------------------------

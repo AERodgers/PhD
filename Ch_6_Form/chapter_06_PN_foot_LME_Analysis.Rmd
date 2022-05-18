@@ -1,7 +1,7 @@
 ---
 title: "LMM Analysis of PNs"
 author: "Antoin Rodgers"
-date: "1/19/2020"
+date: "18.05.2022"
 output:
   html_document: default
   pdf_document: default
@@ -48,9 +48,7 @@ pn_foot <- select(pn_foot,
                   stim,
                   init_phon,
                   foot_syls,
-                  tot_syls,
                   acc_phon,
-                  phr_end_t,
                   foot_strt_t,
                   foot_end_t,
                   v_onset_t,
@@ -58,18 +56,15 @@ pn_foot <- select(pn_foot,
                   h_t,
                   l_f0,
                   h_f0,
-                  slope_st,
-                  speech_rate
+                  slope_st
                   ) %>%
-  mutate(d_f0 = h_f0 - l_f0,
-         d_t = h_t - l_t,
+  mutate(excursion = h_f0 - l_f0,
+         duration = h_t - l_t,
          l_t = l_t - v_onset_t,
          h_t = h_t - v_onset_t,
          foot_dur = foot_end_t - foot_strt_t
          ) %>%
-  select(-c(phr_end_t,
-            tot_syls,
-            v_onset_t,
+  select(-c(v_onset_t,
             foot_end_t,
             foot_strt_t
             ))
@@ -83,13 +78,58 @@ p_color <- all_models_tidy ~ style(color =
                                              "red")
                                    )
 
-rm(nuc_foot, nuc_pre, pn_lex, pn_ana)
+rm(nuc_foot, nuc_pre, pn_lex, pn_ana, pn, corpus, nuc)
 ```
 
 
+h_t  as a function of foot_syls in L*H
+```{r fig.height=4, fig.width=12}
+temp_mdl = lmer(h_t ~ foot_syls +(1 + foot_syls | speaker),
+              data = pn_foot %>% 
+    filter(acc_phon == "L*H") %>%  select(-acc_phon),
+              control = lmerControl(
+                                    optimizer = "optimx",
+                                    calc.derivs = FALSE,
+                                    optCtrl = list(
+                                                   method = "nlminb",
+                                                   starttests = FALSE,
+                                                   kkt = FALSE
+                                                   )
+                                    )
+              )
 
+
+
+
+#step(temp_mdl)
+drawResiduals(temp_mdl)
+plot_model(temp_mdl)
+tidy(anova(temp_mdl)) %>%
+  mutate(p.value = round(p.value, 6),
+         statistic = round(statistic, 3)) %>% 
+  rename("F value" = statistic)
+summary(temp_mdl)
+anova(temp_mdl)
+  
+
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+plot_model(temp_mdl,
+  title = "h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker)",
+  show.intercept = TRUE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+summary(temp_mdl)
+anova(temp_mdl)
+r.squaredGLMM(temp_mdl)
+```
 
 h_t re acc_phon
+I am interpreting the mean estimates output in the foot_syl slopes by this model as essentially representing the timing of H targets once acc_phon, gender, and speaker have been taken into accout
 ```{r fig.height=4, fig.width=12}
 temp_mdl = lmer(h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker),
               data = pn_foot %>% 
@@ -128,7 +168,7 @@ anova(temp_mdl)
 ```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
 plot_model(temp_mdl,
   title = "h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker)",
-  show.intercept = FALSE,
+  show.intercept = TRUE,
   show.values = TRUE,
   vline.color = "red",
   colors = "Black"
