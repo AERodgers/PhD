@@ -520,21 +520,21 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
         if left$(cur_text$, 1) = "L"
             l_t[number(foot_ref$)] = cur_time
             @get_nearest_f0: .pitchObject, cur_time, 0.01
-            l_f0[number(foot_ref$)] = result
+            l_f0[number(foot_ref$)] = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "H"
             h_t[number(foot_ref$)] = cur_time
             @get_nearest_f0: .pitchObject, cur_time, 0.01
-            h_f0[number(foot_ref$)] = result
+            h_f0[number(foot_ref$)] = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "S"
             strt_t = cur_time
             @get_nearest_f0: .pitchObject, cur_time, 0.01
             strt_t = get_nearest_f0.time
-            s_f0 = get_nearest_f0.fo
+            s_f0 = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "E"
             end_t = cur_time
             @get_nearest_f0: .pitchObject, cur_time, -0.01
             end_t = get_nearest_f0.time
-            e_f0 =get_nearest_f0.fo
+            e_f0 =get_nearest_f0.f0
         endif
     endfor
 
@@ -746,7 +746,7 @@ procedure getPitchAtTime: .pitchObject, .time
     # Get value manually if the result is undefined.
     if result = undefined
         @get_nearest_f0: .pitchObject, .time, 0.01
-        result = get_nearest_f0.fo
+        result = get_nearest_f0.f0
     endif
 
 endproc
@@ -754,10 +754,10 @@ endproc
 procedure get_nearest_f0: .object, .time, .time_step
     # Finds nearestdefined f0 to .time (prefers right over left)
     selectObject: .object
-    .fo = Get value at time: .time, "Hertz", "Linear"
-    while .fo = undefined
+    .f0 = Get value at time: .time, "Hertz", "Linear"
+    while .f0 = undefined
         .time = .time + .time_step/10
-        .fo = Get value at time: .time, "Hertz", "Linear"
+        .f0 = Get value at time: .time, "Hertz", "Linear"
     endwhile
 endproc
 
