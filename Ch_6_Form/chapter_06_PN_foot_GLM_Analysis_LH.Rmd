@@ -71,7 +71,7 @@ rm(nuc_foot, nuc_pre, pn_lex, pn_ana, corpus, nuc, pn)
 ```{r echo=FALSE}
 # Run GLME model statistical cur_model.
 cur_model <- glmer(
-  isLH ~ foot_dur + (1 | speaker),
+  isLH ~ foot_syls + gender + speech_rate + (1 | speaker),
   data = pn_foot,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
