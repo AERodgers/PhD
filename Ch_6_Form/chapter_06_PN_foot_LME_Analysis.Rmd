@@ -91,7 +91,7 @@ rm(nuc_foot, nuc_pre, pn_lex, pn_ana)
 
 h_t re acc_phon
 ```{r fig.height=4, fig.width=12}
-temp_mdl = lmer(h_t ~ foot_syls*speech_rate + acc_phon*gender + (1 + foot_syls | speaker),
+temp_mdl = lmer(h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker),
               data = pn_foot %>% 
                      filter(acc_phon %in% c("H*", ">H*", "L*H")) %>% 
                      mutate(acc_phon = factor(acc_phon,
@@ -111,7 +111,7 @@ temp_mdl = lmer(h_t ~ foot_syls*speech_rate + acc_phon*gender + (1 + foot_syls |
 
 
 
-step(temp_mdl)
+#step(temp_mdl)
 drawResiduals(temp_mdl)
 plot_model(temp_mdl)
 tidy(anova(temp_mdl)) %>%
@@ -126,85 +126,15 @@ anova(temp_mdl)
 
 
 ```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
-plot_model(ht_anac,
-  title = "H time ~ anac + PN + gen + speech_rate + (1 + PN + speech_rate | speaker)",
+plot_model(temp_mdl,
+  title = "h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker)",
   show.intercept = FALSE,
   show.values = TRUE,
   vline.color = "red",
   colors = "Black"
 )
 
-summary(ht_anac)
-anova(ht_anac)
-r.squaredGLMM(ht_anac)
-```
-
-
-lmertest::step() was run to see what the most efficient model might be.
-This suggesest the same model but without the random slope.
-```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
-
-step(ht_anac)
-```
-Re-running model without random slopes increased r^2 of fixed slightly but reduced the r^2 of the whole model (slightly).
-This was not pursued further.
-```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
-ht_anac <- lmer(h_t ~ ana_syls + gender + speech_rate +
-  (1 | speaker),
-data = filter(pn_anac, acc_phon == "L*H"),
-control = lmerControl(
-  optimizer = "optimx",
-  calc.derivs = FALSE,
-  optCtrl = list(
-    method = "nlminb",
-    starttests = FALSE,
-    kkt = FALSE
-  )
-)
-)
-```
-```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
-plot_model(ht_anac,
-  title = "H time ~ anac + PN + gen + speech_rate + (1 + PN + speech_rate | speaker)",
-  show.intercept = FALSE,
-  show.values = TRUE,
-  vline.color = "red",
-  colors = "Black"
-)
-
-summary(ht_anac)
-anova(ht_anac)
-r.squaredGLMM(ht_anac)
-```
-
-
-### Testing HT as a function of anacrusis, pitchaccent, and gender * speechrate
-```{r fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
-ht_anac <- lmer(h_t ~ ana_syls + acc_phon + gender + speech_rate +
-  (1 + ana_syls + speech_rate | speaker),
-# data = filter(pn_anac, acc_phon == "L*H"),
-data = pn_anac,
-control = lmerControl(
-  optimizer = "optimx",
-  calc.derivs = FALSE,
-  optCtrl = list(
-    method = "nlminb",
-    starttests = FALSE,
-    kkt = FALSE
-  )
-)
-)
-```
-```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
-
-plot_model(ht_anac,
-  title = "H time ~ anac + PN + gen + speech_rate + (1 + speech_rate | speaker)",
-  show.intercept = FALSE,
-  show.values = TRUE,
-  vline.color = "red",
-  colors = "Black"
-)
-summary(ht_anac)
-anova(ht_anac)
-r.squaredGLMM(ht_anac)
+summary(temp_mdl)
+anova(temp_mdl)
+r.squaredGLMM(temp_mdl)
 ```
