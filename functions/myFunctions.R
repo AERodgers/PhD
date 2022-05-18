@@ -59,18 +59,18 @@ balancedData <- function(data_set,
   speakers_per_target = data_set %>%
     select(speaker,!!treatment_col) %>%
     group_by(!!treatment_col) %>%
-    summarise(speakers = n_distinct(speaker))
+    summarise(speakers = n_distinct(speaker), .groups="keep")
   
   # Get number of reps per speaker per target.
   pn_foot_reps <- data_set %>%
     group_by(speaker,!!treatment_col) %>%
-    summarise(acc_count = n())
+    summarise(acc_count = n(), .groups="keep")
   kable(pn_foot_reps)
   
   # Get number of PA tokens per speaker per target
   pn_foot_summary <- data_set %>%
     group_by(speaker,!!treatment_col,!!response_col) %>%
-    summarise(acc_count = n()) %>%
+    summarise(acc_count = n(), .groups="keep") %>%
     spread(!!response_col, acc_count, is.na <- 0)
   
   balanced <- left_join(pn_foot_summary, pn_foot_reps)
@@ -100,7 +100,7 @@ balancedData <- function(data_set,
   
   balanced <- balanced %>%
     group_by(!!treatment_col,!!response_col) %>%
-    summarise(mod_sum = sum(mod_count)) %>%
+    summarise(mod_sum = sum(mod_count), .groups="keep") %>%
     spread(!!response_col, mod_sum) %>%
     # Adjust token count re number of speakers per target condition.
     left_join(speakers_per_target) %>%

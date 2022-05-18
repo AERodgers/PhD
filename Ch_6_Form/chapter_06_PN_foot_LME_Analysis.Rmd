@@ -1,0 +1,210 @@
+---
+title: "LMM Analysis of PNs"
+author: "Antoin Rodgers"
+date: "1/19/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+
+    
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Get data frames for AH analysis
+source("scripts/get_AH_corpora.R")
+# Add isLH column
+pn_foot <- select(pn_foot,
+                  speaker,
+                  gender,
+                  stim,
+                  init_phon,
+                  foot_syls,
+                  tot_syls,
+                  acc_phon,
+                  phr_end_t,
+                  foot_strt_t,
+                  foot_end_t,
+                  v_onset_t,
+                  l_t,
+                  h_t,
+                  l_f0,
+                  h_f0,
+                  slope_st,
+                  speech_rate
+                  ) %>%
+  mutate(d_f0 = h_f0 - l_f0,
+         d_t = h_t - l_t,
+         l_t = l_t - v_onset_t,
+         h_t = h_t - v_onset_t,
+         foot_dur = foot_end_t - foot_strt_t
+         ) %>%
+  select(-c(phr_end_t,
+            tot_syls,
+            v_onset_t,
+            foot_end_t,
+            foot_strt_t
+            ))
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+
+rm(nuc_foot, nuc_pre, pn_lex, pn_ana)
+```
+
+
+
+
+h_t re acc_phon
+```{r fig.height=4, fig.width=12}
+temp_mdl = lmer(h_t ~ foot_syls*speech_rate + acc_phon*gender + (1 + foot_syls | speaker),
+              data = pn_foot %>% 
+                     filter(acc_phon %in% c("H*", ">H*", "L*H")) %>% 
+                     mutate(acc_phon = factor(acc_phon,
+                                              levels = c("H*", ">H*", "L*H"))
+                                              ),
+              control = lmerControl(
+                                    optimizer = "optimx",
+                                    calc.derivs = FALSE,
+                                    optCtrl = list(
+                                                   method = "nlminb",
+                                                   starttests = FALSE,
+                                                   kkt = FALSE
+                                                   )
+                                    )
+              )
+
+
+
+
+step(temp_mdl)
+drawResiduals(temp_mdl)
+plot_model(temp_mdl)
+tidy(anova(temp_mdl)) %>%
+  mutate(p.value = round(p.value, 6),
+         statistic = round(statistic, 3)) %>% 
+  rename("F value" = statistic)
+summary(temp_mdl)
+anova(temp_mdl)
+  
+
+```
+
+
+```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + speech_rate + (1 + PN + speech_rate | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```
+
+
+lmertest::step() was run to see what the most efficient model might be.
+This suggesest the same model but without the random slope.
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+
+step(ht_anac)
+```
+Re-running model without random slopes increased r^2 of fixed slightly but reduced the r^2 of the whole model (slightly).
+This was not pursued further.
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+ht_anac <- lmer(h_t ~ ana_syls + gender + speech_rate +
+  (1 | speaker),
+data = filter(pn_anac, acc_phon == "L*H"),
+control = lmerControl(
+  optimizer = "optimx",
+  calc.derivs = FALSE,
+  optCtrl = list(
+    method = "nlminb",
+    starttests = FALSE,
+    kkt = FALSE
+  )
+)
+)
+```
+```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + speech_rate + (1 + PN + speech_rate | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```
+
+
+### Testing HT as a function of anacrusis, pitchaccent, and gender * speechrate
+```{r fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+ht_anac <- lmer(h_t ~ ana_syls + acc_phon + gender + speech_rate +
+  (1 + ana_syls + speech_rate | speaker),
+# data = filter(pn_anac, acc_phon == "L*H"),
+data = pn_anac,
+control = lmerControl(
+  optimizer = "optimx",
+  calc.derivs = FALSE,
+  optCtrl = list(
+    method = "nlminb",
+    starttests = FALSE,
+    kkt = FALSE
+  )
+)
+)
+```
+```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
+
+plot_model(ht_anac,
+  title = "H time ~ anac + PN + gen + speech_rate + (1 + speech_rate | speaker)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+summary(ht_anac)
+anova(ht_anac)
+r.squaredGLMM(ht_anac)
+```

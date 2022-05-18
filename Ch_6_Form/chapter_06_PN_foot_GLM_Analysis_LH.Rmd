@@ -19,6 +19,7 @@ source("../functions/myFunctions.R")
 installMissingPackages(
   c(
     # Include statistical packages.
+    "lmerTest",
     "lme4",
     "optimx",
     "MuMIn",
@@ -38,29 +39,120 @@ installMissingPackages(
 # Get data frames for AH analysis
 source("scripts/get_AH_corpora.R")
 # Add isLH column
-pn_foot <- select(
-  pn_foot, speaker, gender, stim, foot_syls, acc_phon, speech_rate) %>%
+pn_foot <- select(pn_foot,
+                  speaker,
+                  gender,
+                  stim,
+                  foot_syls,
+                  acc_phon,
+                  speech_rate,
+                  foot_dur) %>%
   mutate(isLH =
            if_else(acc_phon == "L*H",
                    TRUE,
-                   FALSE))
+                   FALSE),
+         foot_dur = foot_dur / 100)
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
-p_color <- all_models_tidy ~ style(color = if_else(
-  as.double(all_models_tidy) < 0.001,
-  "green",
-  if_else(
-    as.double(all_models_tidy) < 0.01,
-    "green",
-    if_else(
-      as.double(all_models_tidy)< 0.05,
-      "green",
-      "red")
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+
+rm(nuc_foot, nuc_pre, pn_lex, pn_ana, corpus, nuc, pn)
+
+
+```
+
+## **L\*H PN** as a function of **foot size + speech rate + gender**
+```{r echo=FALSE}
+# Run GLME model statistical cur_model.
+cur_model <- glmer(
+  isLH ~ foot_dur + (1 | speaker),
+  data = pn_foot,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
     )
   )
 )
+
+null_model <- glmer(
+  isLH ~ 1 + (1 | speaker),
+  data = pn_foot,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+print(summary(cur_model))
+```
+
+### ANOVA to compare current model and model with null fixed factors
+```{r echo=FALSE}
+anova(cur_model, null_model, test="Chisq")
+kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r-squared of the model.")
+```
+
+### Visualisation and tidy representation of the model **isLH ~ foot size + speech_rate + gender + (1 | speaker)**.
+```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
+
+# Tidy up model.
+cur_model_tidy <- tidy(cur_model) %>%
+    filter(term != "sd__(Intercept)") %>%
+   bonferroniAdjust("", 10) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 8),
+      p.adjusted = round(p.adjusted, 8)
+    ) %>%
+  select(-c(group, effect)) %>%
+  rename(z.value = statistic)
+
+plot_model(
+  cur_model,
+  transform=NULL,
+  show.intercept = TRUE,
+  show.values = TRUE,
+  show.p = FALSE,
+  title = "isLH ~ foot size + (1 | speaker)",
+  vline.color = "red",
+  colors = "Black"
+) +
+  font_size(title = 12)
+
+cur_model_tidy  %>%
+  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  p.value = if_else(p.value < 0.001,
+                    as.character(scientific(p.value)),
+                    as.character(round(p.value, 4))),
+  p.adjusted = if_else(
+    p.adjusted < 0.001,
+    as.character(scientific(p.adjusted)),
+    as.character(round(p.adjusted, 4))
+  )
+)
+
+
 
 ```
 
@@ -115,7 +207,7 @@ kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional 
 # Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
-   bonferroniAdjust("", 4) %>%
+   bonferroniAdjust("", 10) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -183,7 +275,7 @@ for (i in 1:(numLevels)) {
   
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
-   bonferroniAdjust("", 4) %>%
+   bonferroniAdjust("", 10) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),

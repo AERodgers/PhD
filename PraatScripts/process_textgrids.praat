@@ -183,23 +183,11 @@ for dir_i to num_dirs
         @populateTable
 
         # remove current pitch, textgrid, tier and table objects
-        selectObject: cur_textGrid
-        plusObject: cur_sound
-        plusObject: cur_pitch
-        plusObject: syl_tier
-        plusObject: syl_table
-        plusObject: rhythm_tier
-        plusObject: rhy_table
-        plusObject: phono_tier
-        plusObject: phono_table
-        plusObject: ortho_tier
-        plusObject: ortho_table
-        plusObject: vowel_tier
-        plusObject: vowel_table
-        plusObject: tone_tier
-        plusObject: tone_table
-        endif
-        Remove
+        removeObject: {cur_textGrid, cur_sound, cur_pitch, syl_tier,syl_table,
+                   ... rhythm_tier, rhy_table, phono_tier, phono_table,
+                   ... ortho_tier, ortho_table, vowel_tier, vowel_table,
+                   ... tone_tier, tone_table}
+
     endfor
 
     # remove current file list
