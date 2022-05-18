@@ -314,7 +314,7 @@ print(pn_by_speaker_ratio_uncount %>%
   chisq_test(gender ~ acc_phon))
 ```
 
-### correlation between gender mean speech rate on adjusted data
+### correlation between gender mean and speech rate on adjusted data
 ```{r  fig.width = 4.5, fig.height = 4}
   summary(lm(mean_speech_rate ~ gender, data = pn_by_speaker_ratio))
 ```
