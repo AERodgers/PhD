@@ -41,25 +41,62 @@ pn_foot
 theme_set(theme_minimal(base_size = 14))
 
 rm(pn, corpus, nuc)
-rm(nuc_foot, nuc_pre, pn_ana, pn_lex)
+rm(nuc_foot, nuc_pre, pn_lex)
 ```
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-# Summarise continuous pn_foot parameters per speaker per foot_syl.
-pn_foot_summary_phonetic <- param_summary(pn_foot, foot_syls, acc_phon)
-
+# Summarise continuous PN data: parameter means per speaker per condition.
+pn_foot_param_sum <- param_summary(pn_foot, foot_syls, acc_phon)
+pn_ana_param_sum <- param_summary(pn_ana, ana_syls, acc_phon)
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 #get summary of each target parameter per pa per foot_syl condition
-l_t_means <- param_means(pn_foot_summary_phonetic, l_t, acc_phon, foot_syls)
-h_t_means <- param_means(pn_foot_summary_phonetic, h_t, acc_phon, foot_syls)
-l_f0_means <- param_means(pn_foot_summary_phonetic, l_f0, acc_phon, foot_syls)
-h_f0_means <- param_means(pn_foot_summary_phonetic, h_f0, acc_phon, foot_syls)
-lh_dur_means <- param_means(pn_foot_summary_phonetic, lh_dur, acc_phon, foot_syls)
-f0_exc_means <- param_means(pn_foot_summary_phonetic, f0_exc, acc_phon, foot_syls)
-slope_means <- param_means(pn_foot_summary_phonetic, slope, acc_phon, foot_syls)
-
+l_t_means <-
+  param_means(pn_foot_param_sum, l_t, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_l_t_means.csv")
+h_t_means <-
+  param_means(pn_foot_param_sum, h_t, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_h_t_means.csv")
+l_f0_means <-
+  param_means(pn_foot_param_sum, l_f0, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_l_f0_means.csv")
+h_f0_means <-
+  param_means(pn_foot_param_sum, h_f0, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_h_f0_means.csv")
+lh_dur_means <-
+  param_means(pn_foot_param_sum, lh_dur, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_lh_dur_means.csv")
+f0_exc_means <-
+  param_means(pn_foot_param_sum, f0_exc, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_f0_exc_means.csv")
+slope_means <-
+  param_means(pn_foot_param_sum, slope, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_slope_means.csv")
 ```
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#get summary of each target parameter per pa per foot_syl condition
+l_t_means <-
+  param_means(pn_ana_param_sum, l_t, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_l_t_means.csv")
+h_t_means <-
+  param_means(pn_ana_param_sum, h_t, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_h_t_means.csv")
+l_f0_means <-
+  param_means(pn_ana_param_sum, l_f0, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_l_f0_means.csv")
+h_f0_means <-
+  param_means(pn_ana_param_sum, h_f0, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_h_f0_means.csv")
+lh_dur_means <-
+  param_means(pn_ana_param_sum, lh_dur, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_lh_dur_means.csv")
+f0_exc_means <-
+  param_means(pn_ana_param_sum, f0_exc, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_f0_exc_means.csv")
+slope_means <-
+  param_means(pn_ana_param_sum, slope, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_slope_means.csv")
+```
