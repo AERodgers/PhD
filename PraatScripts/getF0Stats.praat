@@ -9,27 +9,25 @@
 form AER PhD: Get F0 Means and Standard Deviation for Sub Corpus
     natural corpus 1
     natural analysis_set 1
-    boolean declarative_data_only 1
+    comment Save declaratives only?
+    boolean dec_only 1
     boolean save_results 1
-    sentence save_directory
+    comment NB: Output will be saved in the same directory as the script.
 endform
-
-# shorten form variables
-dec_only = declarative_data_only
-save_dir$ = save_directory$
 
 # Load global dictionary.
 @globalDictionaries
 
 # if results not to be saved, create temporary file.
 if save_results
-    reportFile$ = save_dir$ +  "/GenStats_" + corpusRef_G$[corpus] + ".csv"
+    reportFile$ = "GenStats_" + corpusRef_G$[corpus] + ".csv"
 else
     reportFile$ = "temp.csv"
 endif
-
+appendInfoLine: "GenStats_" + corpusRef_G$[corpus] + ".csv"
+pause
 # Create output file
-writeFileLine: reportFile$, "speaker,mean_f0,SD_f0"
+writeFileLine: reportFile$, "speaker,f0_mean,f0_SD"
 
 # Get mean and SD F0 in ST re 1 Hz for each speaker
 for i to speakers_G

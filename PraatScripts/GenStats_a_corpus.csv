@@ -1,4 +1,4 @@
-speaker,mean_f0,SD_f0
+speaker,f0_mean,f0_SD
 F5,90.676,2.115
 F6,91.719,2.022
 F12,88.235,2.213

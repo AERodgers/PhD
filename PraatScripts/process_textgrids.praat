@@ -1,11 +1,11 @@
-# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.4
+# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.1.0
 # ================================================
 # Written for Praat 6.0.36
 
 # Antoin Eoin Rodgers
 # rodgeran@tcd.ie
 # Phonetics and speech Laboratory, Trinity College Dublin
-# latest update: 20/04/2022
+# latest update: 20/05/2022
 
 # Script Purpose
 # This script is designed to extract data from pre-annotated textgrids
@@ -34,10 +34,13 @@
 #                 relevant procedures from libraries. (Makes script portable.)
 #     6. V.2.0.3: Updated @globalDictionaries to work on different machines
 #     7. V.2.0.4: Reduced likelihood of undefined pitch values being returned.
+#     8. V.2.0.5: Added per-speaker F0 mean and SD re 1 ST to output table.
+#                 Added form option for save directory.
+
 
 # GET USER INPUT ---------------------------------------------------------------
 form Analysis of TextGrids and Pitch contours
-    choice corpus_to_analyse 3
+    choice corpus_to_analyse 1
         button alignment
         button focus
         button sentence modes
@@ -45,9 +48,17 @@ form Analysis of TextGrids and Pitch contours
     optionmenu Analysis_set: 1
         option Analysis set one (original)
         option Analysis set two (STH hypothesis)
+        sentence Save_to_directory ../Ch_6_Form/data
 endform
 # Get start time in seconds
 @seconds: "started"
+saveToDir$ = replace$(
+                  ... replace$(save_to_directory$, "\", "/", 0) + "/",
+                  ... "//",
+                  ... "/",
+                  ... 0)
+
+
 
 # PROCESS USER INPUT
 # Get input directory and output file names.
@@ -64,6 +75,12 @@ else
     corpus_to_analyse = 4
     corpus_to_analyse$ = "continutation"
     batchFile$ = "c_corpus"
+endif
+
+if not fileReadable("GenStats_'batchFile$'.csv")
+    gen_stats = 0
+else
+    gen_stats = Read Table from comma-separated file: "GenStats_'batchFile$'.csv"
 endif
 
 # DEFINE KEY VARIABLES ---------------------------------------------------------
@@ -120,6 +137,7 @@ alignment_data$ = "start_t end_t l_t h_t "
     ... + "v_syl_ratio l_syl_ratio h_syl_ratio "
 f0_data$ =
     ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 slope_st intercept_st mean_st med_st "
+    ... + "f0_mean f0_SD "
 
 output_table = Create Table with column names: "output", 0,
     ... id_data$
@@ -218,6 +236,11 @@ Formula (column range): "mean_st", "med_st", "fixed$(self, 2)"
 # round syllable ratio values to two decimal places
 Formula (column range): "v_syl_ratio", "h_syl_ratio", "fixed$(self, 2)"
 
+# Add per-speaker F0 and SD values if gen_stats is available.
+if gen_stats
+    @addGenF0Stats: output_table, gen_stats
+    removeObject: gen_stats
+endif
 # Calculate end time before user intervention.
 @seconds: "ended"
 
@@ -226,8 +249,7 @@ appendInfoLine: mid$(date$(), 12, 8), " Saving batch data."
 selectObject: output_table
 Save as comma-separated file: outputFileAddressArchive$
 Save as tab-separated file: outputFileAddress$
-saveToDir$ = chooseDirectory$: "Choose a CSV database output directory"
-Save as comma-separated file: saveToDir$ + "/" +  batchFile$ + ".csv"
+Save as comma-separated file: saveToDir$ + batchFile$ + ".csv"
 
 # Remove remaining objects
 selectObject: dir_list
@@ -1871,4 +1893,20 @@ procedure syllable: .textGrid, .tierNum, .startAtZero
 
     selectObject: .syl_tier
     Remove
+endproc
+
+procedure addGenF0Stats: .output_table, .gen_stats
+    selectObject: .gen_stats
+    .num_speakers = Get number of rows
+    for .i to .num_speakers
+        selectObject: .gen_stats
+        .speaker$ = Get value: .i, "speaker"
+        .f0_mean = Get value: .i, "f0_mean"
+        .f0_SD = Get value: .i, "f0_SD"
+        selectObject: .output_table
+        Formula: "f0_mean",
+        ... "if self$[""speaker""] = .speaker$ then .f0_mean else self endif"
+        Formula: "f0_SD",
+        ... "if self$[""speaker""] = .speaker$ then .f0_SD else self endif"
+    endfor
 endproc
