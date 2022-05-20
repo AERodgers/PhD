@@ -71,8 +71,8 @@ A_corpus <- read_csv("../data/a_corpus.csv") %>%
         init_phon, ana_syls, foot_syls, tot_syls,
         acc_phon, wrd_end_syl,
         ana_end_t, phr_end_t,
-        wrd_fin_syl_strt_t, wrd_end_t, ana_end_t,
-        foot_strt_t, foot_end_t,
+        wrd_fin_syl_start_t, wrd_end_t, ana_end_t,
+        foot_start_t, foot_end_t,
         v_onset_t, l_t, h_t,
         v_sylNormT, l_sylNormT, h_sylNormT,
         l_f0, h_f0, mean_st, slope_st
@@ -84,7 +84,7 @@ A_corpus <- read_csv("../data/a_corpus.csv") %>%
         h_t = h_t - v_onset_t,
         l_tNorm = l_sylNormT - v_sylNormT,
         h_tNorm = h_sylNormT - v_sylNormT,
-        foot_dur_t = foot_end_t - foot_strt_t,
+        foot_dur_t = foot_end_t - foot_start_t,
         SR = 1000 * tot_syls / phr_end_t,
         isLH = acc_phon %in% "L*H",
         stim = factor(stim,levels = unique(stim))
@@ -160,7 +160,7 @@ SR_meansData <- full_join(
     by = "speaker")
     rm(a_frag)
 
-SR_spkr_means <- select(A_corpus, speaker, gender, SR) %>%
+SR_speaker_means <- select(A_corpus, speaker, gender, SR) %>%
     group_by(speaker, gender) %>%
     summarise(meanSpRate = mean(SR))
 

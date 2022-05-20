@@ -1,44 +1,60 @@
+# Get F0 Stats
+# ============
+# Gets F0 means and standard deviations for target.
+# 20/05/2022
+#
+# Global dictonaries: global variables suffixes with _G
+
 ## UI replacement
-spkrs = 11
-corpus = 1
-dec_only = 1
-analysis_set = 1
-directory$ = "../Ch_6_Form/data"
+form AER PhD: Get F0 Means and Standard Deviation for Sub Corpus
+    natural corpus 1
+    natural analysis_set 1
+    boolean declarative_data_only 1
+    boolean save_results 1
+    sentence save_directory
+endform
 
+# shorten form variables
+dec_only = declarative_data_only
+save_dir$ = save_directory$
+
+# Load global dictionary.
 @globalDictionaries
-appendInfoLine: directory$ +  "/GenStats_" +
-    ... corpusRef_G$[corpus] + ".csv"
 
-reportFile$ = directory$ +  "/GenStats_" +
-    ... corpusRef_G$[corpus] + ".csv"
+# if results not to be saved, create temporary file.
+if save_results
+    reportFile$ = save_dir$ +  "/GenStats_" + corpusRef_G$[corpus] + ".csv"
+else
+    reportFile$ = "temp.csv"
+endif
 
-text$ = "speaker" + "," +
-    ... "mean_f0" + "," +
-    ... "SD_f0"
+# Create output file
+writeFileLine: reportFile$, "speaker,mean_f0,SD_f0"
 
-@reportInitialise: reportFile$, text$
-
-appendInfoLine: "=======" + tab$ +
-    ... "=======" + tab$ +
-    ... "====="
-
-for i to spkrs
+# Get mean and SD F0 in ST re 1 Hz for each speaker
+for i to speakers_G
+    # Set folder address to pitch folder for current speaker.
     folder$ =root_G$ + "/" + analysis_G$[analysis_set] + "/"
-        ... + spkr_G$[i] + "/" + corpusFolder_G$[corpus] + "/pitch"
+        ... + speaker_G$[i] + "/" + corpusFolder_G$[corpus] + "/pitch"
 
+    # Get f0 summary info for current speaker.
     @speakerF0Stats: folder$, dec_only
 
-	text$ = spkr_G$[i] + "," +
-		... fixed$(speakerF0Stats.meanF0,3) + "," +
-		... fixed$(speakerF0Stats.sdF0,3) + newline$
-	@reportUpdate: reportFile$, text$
+    # Update output file.
+	appendFile: reportFile$,
+            ... speaker_G$[i] + "," +
+    		... fixed$(speakerF0Stats.meanF0,3) + "," +
+    		... fixed$(speakerF0Stats.sdF0,3) + newline$
 endfor
 
-appendInfoLine: newline$, "... Summary of F0 stats in ST re 1 HZ for ",
-            ... corpusRef_G$[corpus]
-
+# If not saving results, load them into the Praat objects window
+if not save_results
+    Read Table from comma-separated file: reportFile$
+    Rename: "GenStats_" + corpusRef_G$[corpus]
+    deleteFile: reportFile$
+endif
+# PROCEDURES---------------------------------------------------------------------
 procedure speakerF0Stats: .folder$, .decOnly
-    @globalDictionaries
     # decide F0 measurement for analysis
 
     # Get folder information
@@ -132,10 +148,10 @@ procedure globalDictionaries
     # Get an array of the drives available on the local disk
     .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
     if windows and !.directoryExists
-        runSystem: "fsutil fsinfo drives > 'temporaryDirectory$'/f.tmp"
-        .drives = Read Strings from raw text file: "'temporaryDirectory$'/f.tmp"
+        runSystem: "fsutil fsinfo drives > 'temporarysave_dir$'/f.tmp"
+        .drives = Read Strings from raw text file: "'temporarysave_dir$'/f.tmp"
         .drives$ = Get string: 2
-        deleteFile: "'temporaryDirectory$'/f.tmp"
+        deleteFile: "'temporarysave_dir$'/f.tmp"
         removeObject: .drives
                 .drives$ = replace$(.drives$, "Drives: ", "", 1)
         @line2Array: .drives$, " ", "globalDictionaries.drives$"
@@ -159,8 +175,8 @@ procedure globalDictionaries
 
     meanSylDur_M$ = "/M-Corpus_MeanSylDur.Table"
     meanSylDur_A$ = "/A-Corpus_MeanSylDur.Table"
-    sylMeanStrtT_M$ = "/M-Corpus_sylMeanStrtT.Table"
-    sylMeanStrtT_A$ = "/A-Corpus_sylMeanStrtT.Table"
+    sylMeanstartT_M$ = "/M-Corpus_sylMeanstartT.Table"
+    sylMeanstartT_A$ = "/A-Corpus_sylMeanstartT.Table"
     # analysis folders
     analyses_G = 2
     analysis_G$[1] = "Analysis_1_standard"
@@ -195,33 +211,33 @@ procedure globalDictionaries
 	####################################
 
     # SPEAKER CODES
-    spkrs_G = 11
-    spkr_G$[1] = "F5"
-    spkr_G$[2] = "F6"
-    spkr_G$[3] = "F12"
-    spkr_G$[4] = "F15"
-    spkr_G$[5] = "F16"
-    spkr_G$[6] = "F17"
-    spkr_G$[7] = "M4"
-    spkr_G$[8] = "M5"
-    spkr_G$[9] = "M8"
-    spkr_G$[10] = "M9"
-    spkr_G$[11] = "M10"
-    spkr_G$[12] = "Sample"
+    speakers_G = 11
+    speaker_G$[1] = "F5"
+    speaker_G$[2] = "F6"
+    speaker_G$[3] = "F12"
+    speaker_G$[4] = "F15"
+    speaker_G$[5] = "F16"
+    speaker_G$[6] = "F17"
+    speaker_G$[7] = "M4"
+    speaker_G$[8] = "M5"
+    speaker_G$[9] = "M8"
+    speaker_G$[10] = "M9"
+    speaker_G$[11] = "M10"
+    speaker_G$[12] = "Sample"
 
     # SPEAKER NUMBERS
-    spkrNum_G["F5"] = 1
-    spkrNum_G["F6"] = 2
-    spkrNum_G["F12"] = 3
-    spkrNum_G["F15"] = 4
-    spkrNum_G["F16"] = 5
-    spkrNum_G["F17"] = 6
-    spkrNum_G["M4"] = 7
-    spkrNum_G["M5"] = 8
-    spkrNum_G["M8"] = 9
-    spkrNum_G["M9"] = 10
-    spkrNum_G["M10"] = 11
-    spkrNum_G["Sample"] = 12
+    speakerNum_G["F5"] = 1
+    speakerNum_G["F6"] = 2
+    speakerNum_G["F12"] = 3
+    speakerNum_G["F15"] = 4
+    speakerNum_G["F16"] = 5
+    speakerNum_G["F17"] = 6
+    speakerNum_G["M4"] = 7
+    speakerNum_G["M5"] = 8
+    speakerNum_G["M8"] = 9
+    speakerNum_G["M9"] = 10
+    speakerNum_G["M10"] = 11
+    speakerNum_G["Sample"] = 12
 
 
     ### M-CORPUS
@@ -486,16 +502,6 @@ procedure globalDictionaries
     focusType$["FN1"] = "NF-Dad"
     focusType$["FN2"] = "NF-Liv"
     focusType$["FN0"] = "BF"
-endproc
-
-procedure reportInitialise: .reportFile$, .text$
-	writeInfoLine: replace$(.text$, ",", "'tab$'", 0)
-	writeFileLine: .reportFile$, .text$
-endproc
-
-procedure reportUpdate: .reportFile$, .text$
-    appendInfo: replace$(.text$, ",", "'tab$'", 0)
-    appendFile: .reportFile$, .text$
 endproc
 
 procedure fileName: .file_name$, .sep$

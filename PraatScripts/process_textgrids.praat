@@ -109,12 +109,12 @@ id_data$ = "code speaker gender stim rep sent metre_ID stim_metre "
 grid_basics$ = "tot_syls ana_syls "
     ... + "tot_feet cur_foot foot_syls wrd_end_syl "
     ... + "acc_phon phr_phon init_phon fin_phon v_text "
-grid_times$ = "phr_strt_t phr_end_t ana_end_t "
-    ... + "foot_strt_t foot_end_t stress_end_t wrd_fin_syl_strt_t wrd_end_t "
+grid_times$ = "phr_start_t phr_end_t ana_end_t "
+    ... + "foot_start_t foot_end_t stress_end_t wrd_fin_syl_start_t wrd_end_t "
     ... + "v_onset_t v_offset_t "
-alignment_data$ = "strt_t end_t l_t h_t "
-    ... + "l_syl_strt_t l_syl_end_t "
-    ... + "h_syl_strt_t h_syl_end_t "
+alignment_data$ = "start_t end_t l_t h_t "
+    ... + "l_syl_start_t l_syl_end_t "
+    ... + "h_syl_start_t h_syl_end_t "
     ... + "v_sylNormT l_sylNormT h_sylNormT "
     ... + "v_syl l_syl h_syl "
     ... + "v_syl_ratio l_syl_ratio h_syl_ratio "
@@ -204,11 +204,11 @@ appendInfoLine: mid$(date$(), 12, 8),
 # Convert syllable-normalised time to grand-mean syllable-normalised time
 @grandMeanSylTime: output_table, root$, corpusRef_G$[corpus_to_analyse]
 
-# Convert times to ms using phr_strt_t as t=0. Couldn't do this tidily in R!
+# Convert times to ms using phr_start_t as t=0. Couldn't do this tidily in R!
 selectObject: output_table
 Formula (column range): "phr_end_t", "h_syl_end_t",
-    ... "fixed$((self - self[""phr_strt_t""]) * 1000, 0)"
-Remove column: "phr_strt_t"
+    ... "fixed$((self - self[""phr_start_t""]) * 1000, 0)"
+Remove column: "phr_start_t"
 Formula (column range): "v_sylNormT", "h_sylNormT", "fixed$(self * 1000, 0)"
 
 # convert F0 to ST re 1 Hz using. Couldn't do this tidily in R!
@@ -310,12 +310,12 @@ procedure processRhythmTier: .textGrid
     num_rows = Get number of rows
 
     # get phrase start and end
-    phr_strt = Get value: 1, "tmin"
+    phr_start = Get value: 1, "tmin"
     phr_end = Get value: num_rows, "tmin"
     tot_feet = 0
     boundaries = 0
 
-    # get start time of each foot: foot_strt[#]
+    # get start time of each foot: foot_start[#]
     # get duration of each stressed syllable:  foot_stress_dur[#]
     for .i to num_rows
         rhy_time_cur = Get value: .i, "tmin"
@@ -327,10 +327,10 @@ procedure processRhythmTier: .textGrid
             char_cur$= mid$ (rhy_text_cur$, .j, 1)
             if char_cur$ = "<"
                 tot_feet += 1
-                foot_strt[tot_feet] = rhy_time_cur
+                foot_start[tot_feet] = rhy_time_cur
                 stress_end[tot_feet] = Get value: .i + 1, "tmin"
                 foot_stress_dur[tot_feet] = stress_end[tot_feet] - rhy_time_cur
-                foot_strt[tot_feet] = rhy_time_cur
+                foot_start[tot_feet] = rhy_time_cur
             elsif char_cur$ = "%"
                 boundaries += 1
                 if boundaries = 1
@@ -344,14 +344,14 @@ procedure processRhythmTier: .textGrid
 
     # get duration of each foot: foot_dur[#]
     for .i to tot_feet - 1
-        foot_dur[.i] = foot_strt[.i+1] - foot_strt[.i]
-        foot_end[.i] = foot_strt[.i+1]
+        foot_dur[.i] = foot_start[.i+1] - foot_start[.i]
+        foot_end[.i] = foot_start[.i+1]
     endfor
-    foot_dur[tot_feet] =  (phr_end) - foot_strt[tot_feet]
+    foot_dur[tot_feet] =  (phr_end) - foot_start[tot_feet]
     foot_end[tot_feet] = phr_end
     # get anacrusis and phrase duration
-    ana_end_t = foot_strt[1]
-    phr_dur =  phr_end - phr_strt
+    ana_end_t = foot_start[1]
+    phr_dur =  phr_end - phr_start
 endproc
 
 procedure processSyllableTier: .textGrid
@@ -366,16 +366,16 @@ procedure processSyllableTier: .textGrid
     # get number of syllables
     num_syls = Get number of rows
 
-    # get start time of each syllable: syl_strt[#]
+    # get start time of each syllable: syl_start[#]
     # check number of syllables of anacrusis: ana_syls[#]
     ana_syls = 0
     cur_foot = 0
-    foot_one_start = foot_strt[1]
-    stress_one_end = foot_strt[1] + foot_stress_dur[1]
+    foot_one_start = foot_start[1]
+    stress_one_end = foot_start[1] + foot_stress_dur[1]
     for i to num_syls
-        cur_syl_strt = Get value: i, "tmin"
+        cur_syl_start = Get value: i, "tmin"
         cur_syl_end_t = Get value: i, "tmax"
-        cur_syl_mid = (cur_syl_end_t + cur_syl_strt) / 2
+        cur_syl_mid = (cur_syl_end_t + cur_syl_start) / 2
 
         # check if current syllable is part of anacrusis
         if cur_syl_mid < foot_one_start
@@ -388,7 +388,7 @@ procedure processSyllableTier: .textGrid
 
         # else check if current syllable is start of a new foot
         elsif cur_syl_mid >
-            ... foot_strt[cur_foot] + foot_dur[cur_foot]
+            ... foot_start[cur_foot] + foot_dur[cur_foot]
             cur_foot += 1
             foot_syls[cur_foot] = 1
 
@@ -399,8 +399,8 @@ procedure processSyllableTier: .textGrid
         # get foot identity of each syllable: syl_foot_ID[#]
         syl_foot_ID[i] = cur_foot
         # get duration of each syllable: syl_dur[#]
-        syl_dur[i] = cur_syl_end_t - cur_syl_strt
-        syl_strt[i] = cur_syl_strt
+        syl_dur[i] = cur_syl_end_t - cur_syl_start
+        syl_start[i] = cur_syl_start
     endfor
 
     metrical_ID = ana_syls
@@ -456,7 +456,7 @@ procedure processOrthoTier: .textGrid
     #get word end boundaries
     for i to tot_feet
         selectObject: ortho_tier
-        mid_lex_stress = foot_stress_dur[i] / 2 + foot_strt[i]
+        mid_lex_stress = foot_stress_dur[i] / 2 + foot_start[i]
         lex_word = Get interval at time: 1, mid_lex_stress
         lex_word$[i] = Get label of interval: 1, lex_word
         word_start_t = Get start point: 1, lex_word
@@ -465,7 +465,7 @@ procedure processOrthoTier: .textGrid
        selectObject: syl_tier
        word_fin_syll = Get low interval at time: 1, word_end_t - 0.001
        foot_first_syl = Get low interval at time: 1, mid_lex_stress
-       wrd_fin_syl_strt_t[i] = Get start time of interval: 1, word_fin_syll
+       wrd_fin_syl_start_t[i] = Get start time of interval: 1, word_fin_syll
        wrd_end_t[i] = word_end_t
        wrd_end_syl[i] = word_fin_syll - foot_first_syl + 1
     endfor
@@ -489,9 +489,9 @@ procedure processVowelTier: .textGrid, .sound, .pitchObject
             curEndTime = Get value: i, "tmax"
             # add vowel info if foot number is valid
 
-            if curStartTime >= foot_strt[cur_foot]
+            if curStartTime >= foot_start[cur_foot]
                         ... and curEndTime <=
-                        ... foot_strt[cur_foot] + foot_stress_dur[cur_foot]
+                        ... foot_start[cur_foot] + foot_stress_dur[cur_foot]
                 v_onset[cur_foot] = curStartTime
                 v_offset[cur_foot] = curEndTime
                 v_text$[cur_foot] = curVowelText$
@@ -526,9 +526,9 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
             @get_nearest_f0: .pitchObject, cur_time, 0.01
             h_f0[number(foot_ref$)] = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "S"
-            strt_t = cur_time
+            start_t = cur_time
             @get_nearest_f0: .pitchObject, cur_time, 0.01
-            strt_t = get_nearest_f0.time
+            start_t = get_nearest_f0.time
             s_f0 = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "E"
             end_t = cur_time
@@ -551,10 +551,10 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
 endproc
 
 procedure calculateAlignmentData
-    cur_syl_strt = ana_syls
+    cur_syl_start = ana_syls
     # get H, L, and V-onset times normalised to rhythm
     for cur_foot to tot_feet
-        cur_foot_start = foot_strt[cur_foot]
+        cur_foot_start = foot_start[cur_foot]
         cur_stress_dur = foot_stress_dur[cur_foot]
         cur_foot_dur = foot_dur[cur_foot]
         cur_foot_syls = foot_syls[cur_foot]
@@ -585,20 +585,20 @@ procedure calculateAlignmentData
 
         # Get times normalised to syllables
         for i to foot_syls[cur_foot]
-            cur_syl = cur_syl_strt + i
-            cur_syl_l_edge = syl_strt[cur_syl]
-            cur_syl_r_edge = syl_strt[cur_syl]
+            cur_syl = cur_syl_start + i
+            cur_syl_l_edge = syl_start[cur_syl]
+            cur_syl_r_edge = syl_start[cur_syl]
                 ... + syl_dur[cur_syl]
             if cur_l_t >= cur_syl_l_edge and cur_l_t <= cur_syl_r_edge
                 l_syl_num[cur_foot] = cur_syl
-                l_syl_strt[cur_foot] = cur_syl_l_edge
+                l_syl_start[cur_foot] = cur_syl_l_edge
                 l_syl_end[cur_foot] = cur_syl_r_edge
                 l_syl_ratio[cur_foot] = (cur_l_t - cur_syl_l_edge) /
                     ... (cur_syl_r_edge - cur_syl_l_edge)
             endif
             if cur_h_t >= cur_syl_l_edge and cur_h_t <= cur_syl_r_edge
                 h_syl_num[cur_foot] = cur_syl
-                h_syl_strt[cur_foot] = cur_syl_l_edge
+                h_syl_start[cur_foot] = cur_syl_l_edge
                 h_syl_end[cur_foot] = cur_syl_r_edge
                 h_syl_ratio[cur_foot] = (cur_h_t - cur_syl_l_edge) /
                     ... (cur_syl_r_edge - cur_syl_l_edge)
@@ -609,7 +609,7 @@ procedure calculateAlignmentData
                     ... (cur_syl_r_edge - cur_syl_l_edge)
             endif
         endfor
-        cur_syl_strt += foot_syls[cur_foot]
+        cur_syl_start += foot_syls[cur_foot]
     endfor
 
     # Get  times of L, H, and V relative to the current foot
@@ -676,12 +676,12 @@ procedure populateTable
         # add data requiring RHYTHM tier only
         Set string value: bottomRow, "init_phon", init_phono$
         Set string value: bottomRow, "fin_phon", fin_phono$
-        Set numeric value: bottomRow, "phr_strt_t", phr_strt
+        Set numeric value: bottomRow, "phr_start_t", phr_start
         Set numeric value: bottomRow, "phr_end_t", phr_end
         Set numeric value: bottomRow, "tot_feet", tot_feet
         Set numeric value: bottomRow, "stress_end_t", stress_end[i]
         Set numeric value: bottomRow, "foot_end_t", foot_end[i]
-        Set numeric value: bottomRow, "foot_strt_t", foot_strt[i]
+        Set numeric value: bottomRow, "foot_start_t", foot_start[i]
         Set numeric value: bottomRow, "cur_foot", i
 
         # add data requiring SYLLABLE and/or rhythm tiers
@@ -698,8 +698,8 @@ procedure populateTable
 
         # add data requiring ORTHO and/or rhythm / syllable tiers
         Set string value: bottomRow, "sent", cur_sent$
-        Set numeric value: bottomRow, "wrd_fin_syl_strt_t",
-                                  ... wrd_fin_syl_strt_t[i]
+        Set numeric value: bottomRow, "wrd_fin_syl_start_t",
+                                  ... wrd_fin_syl_start_t[i]
         Set numeric value: bottomRow, "wrd_end_t", wrd_end_t[i]
         Set numeric value: bottomRow, "wrd_end_syl", wrd_end_syl[i]
 
@@ -717,15 +717,15 @@ procedure populateTable
         # add ALIGNMENT data requiring VOWEL Tiers
         Set numeric value: bottomRow, "l_t", l_t[i]
         Set numeric value: bottomRow, "h_t", h_t[i]
-        Set numeric value: bottomRow, "strt_t", strt_t
+        Set numeric value: bottomRow, "start_t", start_t
         Set numeric value: bottomRow, "end_t", end_t
         Set numeric value: bottomRow, "v_syl", v_syl_num[i]
         Set numeric value: bottomRow, "v_syl_ratio", v_syl_ratio[i]
 
         # add other ALIGNMENT data
-        Set numeric value: bottomRow, "l_syl_strt_t", l_syl_strt[i]
+        Set numeric value: bottomRow, "l_syl_start_t", l_syl_start[i]
         Set numeric value: bottomRow, "l_syl_end_t", l_syl_end[i]
-        Set numeric value: bottomRow, "h_syl_strt_t", h_syl_strt[i]
+        Set numeric value: bottomRow, "h_syl_start_t", h_syl_start[i]
         Set numeric value: bottomRow, "h_syl_end_t", h_syl_end[i]
         Set numeric value: bottomRow, "l_syl", l_syl_num[i]
         Set numeric value: bottomRow, "h_syl", h_syl_num[i]
@@ -788,13 +788,13 @@ procedure grandMeanSylTime: .corpusTable, .root$, .corpus$
     for .curStim to .numStims
         .stimMetre$[.curStim] = Get value: .curStim, "stimMetre"
         .numSyls[.curStim] = Get value: .curStim, "numSyls"
-        .gmStrt[.curStim, 1] = 0
+        .gmstart[.curStim, 1] = 0
         for .curSyl to .numSyls[.curStim]
             .gmDur[.curStim, .curSyl] =
                 ... Get value: .curStim, "s" + string$(.curSyl)
             if .curSyl > 1
-                .gmStrt[.curStim, .curSyl] =
-                ... .gmStrt[.curStim, .curSyl - 1] +
+                .gmstart[.curStim, .curSyl] =
+                ... .gmstart[.curStim, .curSyl - 1] +
                 ... .gmDur[.curStim, .curSyl - 1]
             endif
         endfor
@@ -808,7 +808,7 @@ procedure grandMeanSylTime: .corpusTable, .root$, .corpus$
     selectObject: .corpusTable
     # add temporary columns for grand mean calculation
     for .i to 3
-        Append column: .affix$[.i] + "gmStrt"
+        Append column: .affix$[.i] + "gmstart"
         Append column: .affix$[.i] + "gmDur"
     endfor
 
@@ -817,7 +817,7 @@ procedure grandMeanSylTime: .corpusTable, .root$, .corpus$
     for .curStim to .numStims
         for .i to 3
             .durCol$ =  .affix$[.i] + "gmDur"
-            .strtCol$ =  .affix$[.i] + "gmStrt"
+            .startCol$ =  .affix$[.i] + "gmstart"
             .tgtRatio$ = .affix$[.i] + "syl_ratio"
             .tgtSylNum$ = .affix$[.i] + "syl"
             Formula: .durCol$,
@@ -825,18 +825,18 @@ procedure grandMeanSylTime: .corpusTable, .root$, .corpus$
                 ... "self[.tgtRatio$] * .gmDur[.curStim, self[.tgtSylNum$]] " +
                 ... "else self endif"
 
-            Formula: .strtCol$,
+            Formula: .startCol$,
                 ... "if self$[""stim_metre""] = .stimMetre$[.curStim] then " +
-                ... ".gmStrt[.curStim, self[.tgtSylNum$]] else self endif"
+                ... ".gmstart[.curStim, self[.tgtSylNum$]] else self endif"
         endfor
     endfor
     # convert sylNormT columns to grand mean syllable times
     for .i to 3
         Formula: .affix$[.i] + "sylNormT",
-            ... "self[.affix$[.i] + ""gmDur""] + self[.affix$[.i] + ""gmStrt""]"
+            ... "self[.affix$[.i] + ""gmDur""] + self[.affix$[.i] + ""gmstart""]"
         # Remove columns as no longer necessary
         Remove column: .affix$[.i] + "gmDur"
-        Remove column: .affix$[.i] + "gmStrt"
+        Remove column: .affix$[.i] + "gmstart"
     endfor
 
     # remove remaining object
@@ -888,8 +888,8 @@ procedure globalDictionaries
 
     meanSylDur_M$ = "/M-Corpus_MeanSylDur.Table"
     meanSylDur_A$ = "/A-Corpus_MeanSylDur.Table"
-    sylMeanStrtT_M$ = "/M-Corpus_sylMeanStrtT.Table"
-    sylMeanStrtT_A$ = "/A-Corpus_sylMeanStrtT.Table"
+    sylMeanstartT_M$ = "/M-Corpus_sylMeanstartT.Table"
+    sylMeanstartT_A$ = "/A-Corpus_sylMeanstartT.Table"
     # analysis folders
     analyses_G = 2
     analysis_G$[1] = "Analysis_1_standard"
@@ -924,33 +924,33 @@ procedure globalDictionaries
 	####################################
 
     # SPEAKER CODES
-    spkrs_G = 11
-    spkr_G$[1] = "F5"
-    spkr_G$[2] = "F6"
-    spkr_G$[3] = "F12"
-    spkr_G$[4] = "F15"
-    spkr_G$[5] = "F16"
-    spkr_G$[6] = "F17"
-    spkr_G$[7] = "M4"
-    spkr_G$[8] = "M5"
-    spkr_G$[9] = "M8"
-    spkr_G$[10] = "M9"
-    spkr_G$[11] = "M10"
-    spkr_G$[12] = "Sample"
+    speakers_G = 11
+    speaker_G$[1] = "F5"
+    speaker_G$[2] = "F6"
+    speaker_G$[3] = "F12"
+    speaker_G$[4] = "F15"
+    speaker_G$[5] = "F16"
+    speaker_G$[6] = "F17"
+    speaker_G$[7] = "M4"
+    speaker_G$[8] = "M5"
+    speaker_G$[9] = "M8"
+    speaker_G$[10] = "M9"
+    speaker_G$[11] = "M10"
+    speaker_G$[12] = "Sample"
 
     # SPEAKER NUMBERS
-    spkrNum_G["F5"] = 1
-    spkrNum_G["F6"] = 2
-    spkrNum_G["F12"] = 3
-    spkrNum_G["F15"] = 4
-    spkrNum_G["F16"] = 5
-    spkrNum_G["F17"] = 6
-    spkrNum_G["M4"] = 7
-    spkrNum_G["M5"] = 8
-    spkrNum_G["M8"] = 9
-    spkrNum_G["M9"] = 10
-    spkrNum_G["M10"] = 11
-    spkrNum_G["Sample"] = 12
+    speakerNum_G["F5"] = 1
+    speakerNum_G["F6"] = 2
+    speakerNum_G["F12"] = 3
+    speakerNum_G["F15"] = 4
+    speakerNum_G["F16"] = 5
+    speakerNum_G["F17"] = 6
+    speakerNum_G["M4"] = 7
+    speakerNum_G["M5"] = 8
+    speakerNum_G["M8"] = 9
+    speakerNum_G["M9"] = 10
+    speakerNum_G["M10"] = 11
+    speakerNum_G["Sample"] = 12
 
 
     ### M-CORPUS
@@ -1683,7 +1683,7 @@ procedure rhythm: .textGrid, .tierNum, .startAtZero
     .numRows = Get number of rows
 
     # get phrase start and end
-    .phrStrt = Get value: 1, "tmin"
+    .phrstart = Get value: 1, "tmin"
     .phrEnd = Get value: .numRows, "tmin"
     .feet = 0
     .boundaries = 0
@@ -1699,10 +1699,10 @@ procedure rhythm: .textGrid, .tierNum, .startAtZero
             .charCur$= mid$ (.textCur$, .j, 1)
             if .charCur$ = "<"
                 .feet += 1
-                .ftStrt[.feet] = .timeCur
+                .ftstart[.feet] = .timeCur
                 .strEnd[.i] = Get value: .i+1, "tmin"
                 .ftStrDur[.feet] = .strEnd[.i] - .timeCur
-                .ftStrt[.feet] = .timeCur - .phrStrt
+                .ftstart[.feet] = .timeCur - .phrstart
             elsif .charCur$ = "%"
                 .boundaries += 1
                 if .boundaries = 1
@@ -1716,34 +1716,34 @@ procedure rhythm: .textGrid, .tierNum, .startAtZero
 
     # get duration of each foot: .ftDur[#]
     for .i to .feet - 1
-        .ftDur[.i] = .ftStrt[.i+1] - .ftStrt[.i]
+        .ftDur[.i] = .ftstart[.i+1] - .ftstart[.i]
     endfor
-    .ftDur[.feet] =  (.phrEnd - .phrStrt) - .ftStrt[.feet]
+    .ftDur[.feet] =  (.phrEnd - .phrstart) - .ftstart[.feet]
     # get anacrusis and phrase duration
-    .anaDur = .ftStrt[1]
-    .phrDur =  .phrEnd - .phrStrt
+    .anaDur = .ftstart[1]
+    .phrDur =  .phrEnd - .phrstart
 
     # create RhythmTable mimicking interval table
-    .table = Create Table with column names: .name$, 0, "num_foot tmin foot_strt_t"
+    .table = Create Table with column names: .name$, 0, "num_foot tmin foot_start_t"
         ... + " tmax ft_dur text"
     # add anacrusis
     if .anaDur > 0
         Append row
         Set numeric value: 1, "tmin", 0
-        Set numeric value: 1, "tmax", .ftStrt[1]
+        Set numeric value: 1, "tmax", .ftstart[1]
         Set string value: 1, "text", "%"
         Set numeric value: 1, "num_foot", 0
-        Set numeric value: 1, "foot_strt_t", 0
-        Set numeric value: 1, "ft_dur", .ftStrt[1]
+        Set numeric value: 1, "foot_start_t", 0
+        Set numeric value: 1, "ft_dur", .ftstart[1]
     endif
     # add stressed syllables plus unstressed syllables (except final tail)
     for .i to .feet
         Append row
         .curRow = Get number of rows
-        Set numeric value: .curRow, "tmin", .ftStrt[.i]
-        Set numeric value: .curRow, "tmax", .ftStrt[.i] + .ftStrDur[.i]
+        Set numeric value: .curRow, "tmin", .ftstart[.i]
+        Set numeric value: .curRow, "tmax", .ftstart[.i] + .ftStrDur[.i]
         Set numeric value: .curRow, "num_foot", .i
-        Set numeric value: .curRow, "foot_strt_t", .ftStrt[.i]
+        Set numeric value: .curRow, "foot_start_t", .ftstart[.i]
         Set numeric value: .curRow, "ft_dur", .ftDur[.i]
 
         if .anaDur = 0 and .i = 1
@@ -1758,11 +1758,11 @@ procedure rhythm: .textGrid, .tierNum, .startAtZero
         if .i != .feet and .ftDur[.i] != .ftStrDur[.i]
             Append row
             .curRow = Get number of rows
-            Set numeric value: .curRow, "tmin", .ftStrt[.i] + .ftStrDur[.i]
-            Set numeric value: .curRow, "tmax", .ftStrt[.i + 1]
+            Set numeric value: .curRow, "tmin", .ftstart[.i] + .ftStrDur[.i]
+            Set numeric value: .curRow, "tmax", .ftstart[.i + 1]
             Set string value: .curRow, "text", "..."
             Set numeric value: .curRow, "num_foot", .i
-            Set numeric value: .curRow, "foot_strt_t", .ftStrt[.i]
+            Set numeric value: .curRow, "foot_start_t", .ftstart[.i]
             Set numeric value: .curRow, "ft_dur", .ftDur[.i]
         endif
     endfor
@@ -1770,22 +1770,22 @@ procedure rhythm: .textGrid, .tierNum, .startAtZero
     if .ftStrDur[.feet] < .ftDur[.feet]
         Append row
         .curRow = Get number of rows
-        Set numeric value: .curRow, "tmin", .ftStrt[.feet] + .ftStrDur[.feet]
+        Set numeric value: .curRow, "tmin", .ftstart[.feet] + .ftStrDur[.feet]
         Set numeric value: .curRow, "tmax", .phrDur
         Set string value: .curRow, "text", "%"
         Set numeric value: .curRow, "num_foot", .i-1
-        Set numeric value: .curRow, "foot_strt_t", .ftStrt[.i-1]
+        Set numeric value: .curRow, "foot_start_t", .ftstart[.i-1]
         Set numeric value: .curRow, "ft_dur", .ftDur[.i-1]
     endif
     if .startAtZero
         .offset = 0
     else
-        .offset = .phrStrt
+        .offset = .phrstart
     endif
     Formula: "tmin", "number(fixed$(self + .offset, 3))"
     Formula: "tmax", "number(fixed$(self + .offset, 3))"
     Formula: "ft_dur", "number(fixed$(self + .offset, 3))"
-    Formula: "foot_strt_t", "number(fixed$(self + .offset, 3))"
+    Formula: "foot_start_t", "number(fixed$(self + .offset, 3))"
 
     selectObject: .tierGrid
     plusObject: .tierTable
@@ -1801,7 +1801,7 @@ procedure syllable: .textGrid, .tierNum, .startAtZero
     .table = Down to Table: "yes", 3, "no", "no"
     Rename: .name$
     Set column label (index): 1, "syl"
-    .phr_start = rhythm.phrStrt
+    .phr_start = rhythm.phrstart
 
     selectObject: .table
     # get number of syllables
@@ -1811,8 +1811,8 @@ procedure syllable: .textGrid, .tierNum, .startAtZero
     # check number of syllables of anacrusis: ana_syls[#]
     .ana_syls = 0
     .cur_foot = 0
-    .foot_one_start = .phr_start + rhythm.ftStrt[1]
-    .stress_one_end = .phr_start + rhythm.ftStrt[1] + rhythm.ftStrDur[1]
+    .foot_one_start = .phr_start + rhythm.ftstart[1]
+    .stress_one_end = .phr_start + rhythm.ftstart[1] + rhythm.ftStrDur[1]
     for .i to .num_syls
         .cur_syl_start = Get value: .i, "tmin"
         .cur_syl_end = Get value: .i, "tmax"
@@ -1828,7 +1828,7 @@ procedure syllable: .textGrid, .tierNum, .startAtZero
             .foot_syls[.cur_foot] = 1
 
         # else check if current syllable is start of a new foot
-        elsif .cur_syl_mid > .phr_start + rhythm.ftStrt[.cur_foot] +
+        elsif .cur_syl_mid > .phr_start + rhythm.ftstart[.cur_foot] +
             ... rhythm.ftDur[.cur_foot]
             .cur_foot += 1
             .foot_syls[.cur_foot] = 1

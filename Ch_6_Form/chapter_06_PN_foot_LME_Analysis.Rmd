@@ -49,7 +49,7 @@ pn_foot <- select(pn_foot,
                   init_phon,
                   foot_syls,
                   acc_phon,
-                  foot_strt_t,
+                  foot_start_t,
                   foot_end_t,
                   v_onset_t,
                   l_t,
@@ -62,11 +62,11 @@ pn_foot <- select(pn_foot,
          duration = h_t - l_t,
          l_t = l_t - v_onset_t,
          h_t = h_t - v_onset_t,
-         foot_dur = foot_end_t - foot_strt_t
+         foot_dur = foot_end_t - foot_start_t
          ) %>%
   select(-c(v_onset_t,
             foot_end_t,
-            foot_strt_t
+            foot_start_t
             ))
 
 # Set themes and colour schemes.

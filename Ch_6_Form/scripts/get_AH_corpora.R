@@ -24,7 +24,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     foot_syls,
     tot_syls,
     acc_phon,
-    foot_strt_t,
+    foot_start_t,
     foot_end_t,
     v_onset_t,
     l_t,
@@ -36,11 +36,11 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   ) %>% 
 mutate(
   # create composite parameters for continuous data.
-  foot_dur = foot_end_t - foot_strt_t,
+  foot_dur = foot_end_t - foot_start_t,
   speech_rate = round(tot_syls / phr_end_t * 1000, 3),
   f0_exc = h_f0 - l_f0,
   lh_dur = h_t - l_t,
-  foot_dur = foot_end_t - foot_strt_t,
+  foot_dur = foot_end_t - foot_start_t,
   # Make L and H times relative to vowel onset (TBU).
   l_t = l_t - v_onset_t,
   h_t = h_t - v_onset_t,
@@ -74,7 +74,7 @@ mutate(
   # Remove columns which have outlived their use!
   select(-c(v_onset_t,
             foot_end_t,
-            foot_strt_t,
+            foot_start_t,
             tot_syls,
             phr_end_t))
 

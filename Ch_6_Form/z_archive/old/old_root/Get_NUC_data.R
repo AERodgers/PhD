@@ -27,8 +27,8 @@ NUC$R_fo <- NUC$H_fo - NUC$L_fo
 
 # change H_t and L_t to time from V-on
 
-NUC$L_t <- (NUC$L_t - NUC$ft_strt) - NUC$V_on  # NUC$ft_strt needed due to odd
-NUC$H_t <- (NUC$H_t - NUC$ft_strt)  - NUC$V_on # data structure in Praat table
+NUC$L_t <- (NUC$L_t - NUC$ft_start) - NUC$V_on  # NUC$ft_start needed due to odd
+NUC$H_t <- (NUC$H_t - NUC$ft_start)  - NUC$V_on # data structure in Praat table
 NUC$D_t <- NUC$H_t - NUC$L_t
 
 # CONVERT TIME TO MS
