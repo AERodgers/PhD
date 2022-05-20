@@ -34,8 +34,25 @@ installMissingPackages(
 
 # Get data frames for AH analysis
 source("scripts/get_AH_corpora.R")
-# Add isLH column
-pn_foot 
+
+  # Convert f0 values to z-scores
+  pn_ana <- pn_ana %>%
+  mutate(l_f0 = (l_f0 - f0_mean) / f0_SD,
+         h_f0 = (h_f0 - f0_mean) / f0_SD,
+         # redo excursion based on z-scores
+         f0_exc = h_f0 - l_f0
+         ) %>% 
+  select(-f0_mean, -f0_SD)
+  
+  pn_foot <- pn_foot %>%
+  mutate(l_f0 = (l_f0 - f0_mean) / f0_SD,
+         h_f0 = (h_f0 - f0_mean) / f0_SD,
+         # redo excursion based on z-scores
+         f0_exc = h_f0 - l_f0
+         ) %>% 
+  select(-f0_mean, -f0_SD)
+
+
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))

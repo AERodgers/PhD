@@ -1,15 +1,9 @@
 # LOAD AND PROCESS AH CORPUS
 # --------------------------
-gen_f0_stats <- as_tibble(read.csv("data/GenStats_a_corpus.csv"))
 
-#
-# NEEDS FIXING SO THAT F0 IS CONVERTED TO Z-SCORES. 
-# PROBABLY NEEDS TO BE A FUNCTION WITH MULTIPLE OUTPUTS
-# AND "F0 as z-score" as an input parameter
-# WHY? --> BECAUSE COMPOSITE PARAMETERS LIKE EXCURSION SIZE NEED TO BE
-# GENERATE FROM BASE VALUES CONVERTED AFTER THE FACT
-# values, NOT CONERTED TO Z-SCORES AFTERWARDS
-#
+## Get per-speaker f0 stats.
+#gen_f0_stats <- as_tibble(read.csv("data/GenStats_a_corpus.csv"))
+
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
@@ -32,7 +26,9 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     l_f0,
     h_f0,
     phr_end_t,
-    slope_st
+    slope_st,
+    f0_mean,
+    f0_SD
   ) %>% 
 mutate(
   # create composite parameters for continuous data.
