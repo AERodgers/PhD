@@ -1,4 +1,4 @@
-# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.1.0
+# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.5
 # ================================================
 # Written for Praat 6.0.36
 
@@ -129,7 +129,7 @@ grid_basics$ = "tot_syls ana_syls "
 grid_times$ = "phr_start_t phr_end_t ana_end_t "
     ... + "foot_start_t foot_end_t stress_end_t wrd_fin_syl_start_t wrd_end_t "
     ... + "v_onset_t v_offset_t "
-alignment_data$ = "start_t end_t l_t h_t "
+alignment_data$ = "s_t e_t l_t h_t "
     ... + "l_syl_start_t l_syl_end_t "
     ... + "h_syl_start_t h_syl_end_t "
     ... + "v_sylNormT l_sylNormT h_sylNormT "
@@ -548,14 +548,14 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
             @get_nearest_f0: .pitchObject, cur_time, 0.01
             h_f0[number(foot_ref$)] = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "S"
-            start_t = cur_time
+            s_t = cur_time
             @get_nearest_f0: .pitchObject, cur_time, 0.01
-            start_t = get_nearest_f0.time
+            s_t = get_nearest_f0.time
             s_f0 = get_nearest_f0.f0
         elsif left$(cur_text$, 1) = "E"
-            end_t = cur_time
+            e_t = cur_time
             @get_nearest_f0: .pitchObject, cur_time, -0.01
-            end_t = get_nearest_f0.time
+            e_t = get_nearest_f0.time
             e_f0 =get_nearest_f0.f0
         endif
     endfor
@@ -739,8 +739,8 @@ procedure populateTable
         # add ALIGNMENT data requiring VOWEL Tiers
         Set numeric value: bottomRow, "l_t", l_t[i]
         Set numeric value: bottomRow, "h_t", h_t[i]
-        Set numeric value: bottomRow, "start_t", start_t
-        Set numeric value: bottomRow, "end_t", end_t
+        Set numeric value: bottomRow, "s_t", s_t
+        Set numeric value: bottomRow, "e_t", e_t
         Set numeric value: bottomRow, "v_syl", v_syl_num[i]
         Set numeric value: bottomRow, "v_syl_ratio", v_syl_ratio[i]
 

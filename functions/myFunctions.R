@@ -43,7 +43,7 @@ balancedData <- function(data_set,
 #     num_speakers ... number of speakers in ideal corpus
 #     num_reps ....... number of repetitions per speaker in ideal corpus.
 {
-  if (gender_filter == "M") {
+  if (gender_filter == "M"){
     data_set <- data_set %>% filter(gender == "M")
   }
   else {
@@ -57,19 +57,19 @@ balancedData <- function(data_set,
   
   # Get number of speakers per target.
   speakers_per_target = data_set %>%
-    select(speaker, !!treatment_col) %>%
+    select(speaker,!!treatment_col) %>%
     group_by(!!treatment_col) %>%
     summarise(speakers = n_distinct(speaker), .groups = "keep")
   
   # Get number of reps per speaker per target.
   pn_foot_reps <- data_set %>%
-    group_by(speaker, !!treatment_col) %>%
+    group_by(speaker,!!treatment_col) %>%
     summarise(acc_count = n(), .groups = "keep")
   kable(pn_foot_reps)
   
   # Get number of PA tokens per speaker per target
   pn_foot_summary <- data_set %>%
-    group_by(speaker, !!treatment_col, !!response_col) %>%
+    group_by(speaker,!!treatment_col,!!response_col) %>%
     summarise(acc_count = n(), .groups = "keep") %>%
     spread(!!response_col, acc_count, is.na <- 0)
   
@@ -83,7 +83,7 @@ balancedData <- function(data_set,
     
     mutate(across(pa_columns,  ~  (.x / acc_count * num_reps))) %>%
     group_by(!!treatment_col) %>%
-    select(-speaker, -acc_count)
+    select(-speaker,-acc_count)
   
   num_cols <- length(colnames(balanced))
   
@@ -97,7 +97,7 @@ balancedData <- function(data_set,
   }
   
   balanced <- balanced %>%
-    group_by(!!treatment_col, !!response_col) %>%
+    group_by(!!treatment_col,!!response_col) %>%
     summarise(mod_sum = sum(mod_count), .groups = "keep") %>%
     spread(!!response_col, mod_sum) %>%
     # Adjust token count re number of speakers per target condition.
@@ -108,7 +108,8 @@ balancedData <- function(data_set,
   return(balanced)
 }
 
-drawResiduals <- function(myModel) {
+drawResiduals <- function(myModel)
+{
   myResiduals <- residuals(myModel)
   par(mfrow = c(1, 3))
   hist(myResiduals,
@@ -126,7 +127,8 @@ drawResiduals <- function(myModel) {
 
 bonferroniAdjust <- function(myTibble,
                              excludeTerms,
-                             bonferroniMultiplier) {
+                             bonferroniMultiplier)
+{
   myTibble <- mutate(myTibble,
                      p.adjusted = if_else(
                        term %in% excludeTerms,
@@ -166,28 +168,58 @@ sigCodesTidy <- function(my_tibble, incl_marginal_sig = FALSE)
   return(my_tibble)
 }
 
-param_summary <- function(df, treatment, phonology)
-  # Summarise dataset by speaker, treatment variable, and phonology
-{
-  treatment <- enquo(treatment)
-  phonology  <- enquo(phonology)
-  
-  return(
-    df %>%
-      group_by(speaker, !!treatment, !!phonology) %>%
-      summarise(
-        l_t = round(mean(l_t), 2),
-        h_t = round(mean(h_t), 2),
-        lh_dur = round(mean(lh_dur), 2),
-        l_f0 = round(mean(l_f0), 2),
-        h_f0 = round(mean(h_f0), 2),
-        f0_exc = round(mean(f0_exc), 2),
-        slope = round(mean(slope), 2),
-        .groups = "keep"
-      )
-  )
-  
-}
+param_summary <-
+  function(df, treatment, phonology, is_nucleus = FALSE)
+    # Summarise dataset by speaker, treatment variable, and phonology
+  {
+    treatment <- enquo(treatment)
+    phonology  <- enquo(phonology)
+    
+    if (is_nucleus == TRUE)
+    {
+      ans <- df %>%
+        group_by(speaker,!!treatment,!!phonology) %>%
+        summarise(
+          l_t = round(mean(l_t), 2),
+          h_t = round(mean(h_t), 2),
+          lh_dur = round(mean(lh_dur), 2),
+          l_f0 = round(mean(l_f0), 2),
+          l_f0_z = round(mean(l_f0_z), 3),
+          h_f0 = round(mean(h_f0), 2),
+          h_f0_z = round(mean(h_f0_z), 3),
+          e_f0 = round(mean(e_f0, 2)),
+          e_f0_z = round(mean(e_f0_z, 3)),
+          e_f0_exc_z = round(mean(e_f0_exc_z, 3)),
+          e_t = round(mean(e_t, 2)),
+          he_dur = round(mean(he_dur, 2)),
+          f0_exc = round(mean(f0_exc), 2),
+          f0_exc_z = round(mean(f0_exc_z), 3),
+          slope = round(mean(slope), 2),
+          .groups = "keep"
+        )
+    } else {
+      ans <- df %>%
+        group_by(speaker,!!treatment,!!phonology) %>%
+        summarise(
+          s_t = round(mean(s_t, 2)),
+          s_f0_z = round(mean(s_f0_z, 3)),
+          l_t = round(mean(l_t), 2),
+          h_t = round(mean(h_t), 2),
+          lh_dur = round(mean(lh_dur), 2),
+          l_f0 = round(mean(l_f0), 2),
+          l_f0_z = round(mean(l_f0_z), 3),
+          h_f0 = round(mean(h_f0), 2),
+          h_f0_z = round(mean(h_f0_z), 3),
+          f0_exc = round(mean(f0_exc), 2),
+          f0_exc_z = round(mean(f0_exc_z), 3),
+          slope = round(mean(slope), 2),
+          .groups = "keep"
+        )
+    }
+    
+    return(ans)
+    
+  }
 
 param_means <-
   # Return a horizontal x vertical tibble summarising mean parameter phonetic.
@@ -195,14 +227,15 @@ param_means <-
            phonet_param,
            hor_param,
            vert_param,
-           rounding = 2) {
+           rounding = 2)
+  {
     phonet_param <- enquo(phonet_param)
     hor_param  <- enquo(hor_param)
     vert_param  <- enquo(vert_param)
     
     return(
       df %>%
-        group_by(!!hor_param, !!vert_param) %>%
+        group_by(!!hor_param,!!vert_param) %>%
         summarise(new_means = round(mean(!!phonet_param), rounding),
                   .groups = "keep") %>%
         pivot_wider(names_from = !!hor_param, values_from = new_means)

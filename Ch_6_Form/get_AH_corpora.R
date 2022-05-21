@@ -4,6 +4,7 @@
 ## Get per-speaker f0 stats.
 #gen_f0_stats <- as_tibble(read.csv("data/GenStats_a_corpus.csv"))
 
+#corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>% 
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
@@ -23,56 +24,73 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     v_onset_t,
     l_t,
     h_t,
+    s_t,
+    e_t,
     l_f0,
     h_f0,
+    s_f0,
+    e_f0,
     phr_end_t,
     slope_st,
     f0_mean,
     f0_SD
-  ) %>% 
-mutate(
-  # create composite parameters for continuous data.
-  foot_dur = foot_end_t - foot_start_t,
-  speech_rate = round(tot_syls / phr_end_t * 1000, 3),
-  f0_exc = h_f0 - l_f0,
-  lh_dur = h_t - l_t,
-  foot_dur = foot_end_t - foot_start_t,
-  # Make L and H times relative to vowel onset (TBU).
-  l_t = l_t - v_onset_t,
-  h_t = h_t - v_onset_t,
-  # treat foot_syls and ana_syls as factor
-  ana_syls = factor(ana_syls, levels = unique(ana_syls)),
-  foot_syls = factor(foot_syls, levels = unique(foot_syls)),
-  # Ignore downstep.
-  acc_phon = str_replace(acc_phon, "!", ""),
-  # Arrange PA levels according to hypothesized hierarchy.
-  acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")),
-  # Arrange speaker factors in more intuitive order.
-  speaker = factor(
-    speaker,
-    levels = c(
-      "F5",
-      "F6",
-      "F12",
-      "F15",
-      "F16",
-      "F17",
-      "M4",
-      "M5",
-      "M8",
-      "M9",
-      "M10"
+  ) %>%
+  mutate(
+    # create composite parameters for continuous data.
+    foot_dur = foot_end_t - foot_start_t,
+    speech_rate = round(tot_syls / phr_end_t * 1000, 3),
+    f0_exc = h_f0 - l_f0,
+    e_f0_exc = e_f0 - h_f0,
+    lh_dur = h_t - l_t,
+    he_dur = e_t - h_t,
+    l_f0_z = (l_f0 - f0_mean) / f0_SD,
+    h_f0_z = (h_f0 - f0_mean) / f0_SD,
+    s_f0_z = (s_f0 - f0_mean) / f0_SD,
+    e_f0_z = (e_f0 - f0_mean) / f0_SD,
+    # redo excursion based on z-scores
+    f0_exc_z = h_f0_z - l_f0_z,
+    e_f0_exc_z = e_f0_z - h_f0_z,
+    # Make L and H times relative to vowel onset (TBU).
+    l_t = l_t - v_onset_t,
+    h_t = h_t - v_onset_t,
+    e_t = e_t - v_onset_t,
+    # treat foot_syls and ana_syls as factor
+    ana_syls = factor(ana_syls, levels = unique(ana_syls)),
+    foot_syls = factor(foot_syls, levels = unique(foot_syls)),
+    # Ignore downstep.
+    acc_phon = str_replace(acc_phon, "!", ""),
+    # Arrange PA levels according to hypothesized hierarchy.
+    acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")),
+    # Arrange speaker factors in more intuitive order.
+    speaker = factor(
+      speaker,
+      levels = c(
+        "F5",
+        "F6",
+        "F12",
+        "F15",
+        "F16",
+        "F17",
+        "M4",
+        "M5",
+        "M8",
+        "M9",
+        "M10"
+      )
     )
-  )
-) %>%
+  ) %>%
   #rename slope!
-  rename(slope = slope_st) %>% 
+  rename(slope = slope_st) %>%
   # Remove columns which have outlived their use!
-  select(-c(v_onset_t,
-            foot_end_t,
-            foot_start_t,
-            tot_syls,
-            phr_end_t))
+  select(-c(
+    v_onset_t,
+    foot_end_t,
+    foot_start_t,
+    tot_syls,
+    phr_end_t,
+    f0_mean,
+    f0_SD
+  ))
 
 
 # CREATE PN SUBSETS
@@ -84,20 +102,21 @@ pn <- filter(corpus, cur_foot == 1) %>%
         init_phon,
         acc_phon,
         sep = " ",
-        remove = FALSE)
+        remove = FALSE) %>% 
+  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, he_dur))
 # Get subset of all data for PN analysis
 
 # Extract PN anacrusis data.
 pn_ana <- pn %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
   # Remove columns which are no longer needed for pn_ana analysis.
-  select(-(cur_foot:wrd_end_syl),-fin_phon)
+  select(-(cur_foot:wrd_end_syl))
 
 # Make PN foot-size dataset.
 pn_foot <- pn %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
   # remove columns no longer needed for pn_foot analysis.
-  select(-(ana_syls:cur_foot), -wrd_end_syl,-fin_phon) %>% 
+  select(-(ana_syls:cur_foot),-c(wrd_end_syl, fin_phon)) %>%
   mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)))
 
 
@@ -117,7 +136,8 @@ nuc <- filter(corpus, cur_foot == 2) %>%
         acc_phon,
         fin_phon,
         sep = " ",
-        remove = FALSE)
+        remove = FALSE) %>% 
+  select(-c(s_f0, s_f0_z, s_t))
 
 # Make nuclear PA preceding syllable dataset.
 nuc_pre <- nuc %>%

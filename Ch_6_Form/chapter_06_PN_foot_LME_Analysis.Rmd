@@ -40,7 +40,7 @@ installMissingPackages(
 )
 
 # Get data frames for AH analysis
-source("scripts/get_AH_corpora.R")
+source("get_AH_corpora.R")
 # Add isLH column
 pn_foot <- select(pn_foot,
                   speaker,

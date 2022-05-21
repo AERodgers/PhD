@@ -48,7 +48,7 @@ theme_set(
 )
 
 # Get data frames for AH analysis
-source("scripts/get_AH_corpora.R")
+source("get_AH_corpora.R")
 
 # trim pn_ tbls
 pn_foot <- select(pn_foot,
