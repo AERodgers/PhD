@@ -26,6 +26,11 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     h_t,
     s_t,
     e_t,
+    v_grand_mean_t,
+    l_grand_mean_t,
+    h_grand_mean_t,
+    s_grand_mean_t,
+    e_grand_mean_t,
     l_f0,
     h_f0,
     s_f0,
@@ -33,7 +38,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     phr_end_t,
     slope_st,
     f0_mean,
-    f0_SD
+    f0_SD,
+    
   ) %>%
   mutate(
     # create composite parameters for continuous data.
@@ -51,9 +57,15 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     f0_exc_z = h_f0_z - l_f0_z,
     e_f0_exc_z = e_f0_z - h_f0_z,
     # Make L and H times relative to vowel onset (TBU).
+    s_t = s_t - v_onset_t,
     l_t = l_t - v_onset_t,
     h_t = h_t - v_onset_t,
     e_t = e_t - v_onset_t,
+    s_grand_mean_t = s_grand_mean_t - v_grand_mean_t,
+    l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
+    h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
+    e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
+    
     # treat foot_syls and ana_syls as factor
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),
     foot_syls = factor(foot_syls, levels = unique(foot_syls)),
@@ -103,7 +115,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
         acc_phon,
         sep = " ",
         remove = FALSE) %>% 
-  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, he_dur))
+  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur))
 # Get subset of all data for PN analysis
 
 # Extract PN anacrusis data.
@@ -137,7 +149,7 @@ nuc <- filter(corpus, cur_foot == 2) %>%
         fin_phon,
         sep = " ",
         remove = FALSE) %>% 
-  select(-c(s_f0, s_f0_z, s_t))
+  select(-c(s_f0, s_f0_z, s_t, s_grand_mean_t))
 
 # Make nuclear PA preceding syllable dataset.
 nuc_pre <- nuc %>%

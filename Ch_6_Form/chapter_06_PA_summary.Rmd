@@ -2,8 +2,8 @@
 title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
   and Phonetics of DCE Intonation'
 output:
-  html_document: default
   word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -29,13 +29,13 @@ installMissingPackages(c("tidyverse",
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ## set colours
-my_colours <- brewer.pal(5, "Accent")
+my_colours <- brewer.pal(5, "Spectral")
 pitch_accent_colours <- c("(*)" = my_colours[1],
                           "L*" = my_colours[2],
                           "H*" = my_colours[3],
                           ">H*" = my_colours[4],
                           "L*H" = my_colours[5],
-                          "L*H %" = my_colours[1],
+                          "L*H %" = my_colours[5],
                           "L*H L%" = my_colours[2]
                           )
 ```
