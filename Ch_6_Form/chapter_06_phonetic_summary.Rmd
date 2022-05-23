@@ -69,13 +69,73 @@ rm(pn, corpus, nuc)
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Summarise continuous PN data: parameter means per speaker per condition.
-pn_foot_param_sum <- param_summary(pn_foot, foot_syls, acc_phon)
-pn_ana_param_sum <- param_summary(pn_ana, ana_syls, acc_phon)
-nuc_foot_param_sum <- param_summary(
-  nuc_foot, foot_syls, nuc_contour, is_nucleus = TRUE)
-nuc_pre_param_sum <- param_summary(
-  nuc_pre, pre_syls, nuc_contour, is_nucleus = TRUE)
+pn_foot_param_sum <- param_summary(pn_foot, foot_syls, acc_phon) %>%
+  mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)),
+         acc_phon =  factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H"))
+         ) 
+pn_ana_param_sum <- param_summary(pn_ana, ana_syls, acc_phon) %>% 
+   mutate(ana_syls = factor(ana_syls, levels = c(0, 1, 2, 3)),
+         acc_phon =  factor(acc_phon, levels = c("H*", ">H*", "L*H"))
+         )  
+nuc_foot_param_sum <- param_summary(nuc_foot, foot_syls, nuc_contour, is_nucleus = TRUE) %>%
+  mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)))
+
+nuc_pre_param_sum <- param_summary(nuc_pre, pre_syls, nuc_contour, is_nucleus = TRUE) %>%
+  mutate(pre_syls = factor(pre_syls, levels = c(1, 2, 3, 4)))
 ```
+
+
+Testing visuals in R using GG plot 2 as alternative to Excel. Would be nice to be able to show good error bars / IQRs etc.
+```{r}
+ggplot(data = nuc_foot_param_sum) +
+  geom_violin(
+    aes(x=foot_syls, y=h_t, fill=nuc_contour),
+       # trim=FALSE,
+    draw_quantiles = c(0.25, 0.5, 0.75)
+    ) +
+  geom_jitter(
+        aes(x=foot_syls, y=h_t, fill=nuc_contour),
+      #  trim=FALSE,
+    height = 0, width = 0.1
+    ) +
+  geom_violin(
+    aes(x=foot_syls, y=l_t, fill=nuc_contour),
+      #  trim=FALSE,
+    draw_quantiles = c(0.25, 0.5, 0.75)
+    ) +
+  geom_jitter(
+        aes(x=foot_syls, y=l_t, fill=nuc_contour),
+     #   trim=FALSE,
+    height = 0, width = 0.1
+    )
+
+
+
+ggplot(data = nuc_foot_param_sum %>% filter(nuc_contour %in% c("L*H %"))) +
+  geom_smooth(
+    aes(x=h_t, y=h_f0_z, fill=nuc_contour)
+    ) + 
+    geom_point(
+    aes(x=h_t, y=h_f0_z, fill=nuc_contour)
+    )
+
+ggplot() +
+  geom_smooth(data = pn_foot_param_sum %>% filter(acc_phon %in% c("L*H")),
+    aes(x=h_t, y=h_f0_z, fill=acc_phon)
+    ) + 
+    geom_point(data = pn_foot_param_sum %>% filter(acc_phon %in% c("L*H")),
+    aes(x=h_t, y=h_f0_z, fill=acc_phon)
+    )
+```
+
+
+
+
+
+
+
+
+
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
