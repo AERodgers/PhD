@@ -40,10 +40,12 @@
 #                 Now calculates grand mean syllable time for e_t and s_t
 #                 removed unneeded columns from output table
 
+## Load global variables
+live_version = 1
+@globalDictionaries
+root$ = root_G$ + "/" + analysis_G$[analysis_set]
 
 # GET USER INPUT ---------------------------------------------------------------
-live_version = 1
-
 form Analysis of TextGrids and Pitch contours
     choice corpus_to_analyse 1
         button alignment
@@ -55,32 +57,22 @@ form Analysis of TextGrids and Pitch contours
         option Analysis set two (STH hypothesis)
         sentence Save_to_directory ../Ch_6_Form/data
 endform
+
 # Get start time in seconds
 @seconds: "started"
+
 writeInfoLine:  "PROCESSING TEXTGRIDS'newline$'===================='newline$'"
 
-saveToDir$ = replace$(
-                  ... replace$(save_to_directory$, "\", "/", 0) + "/",
+saveToDir$ = replace$(replace$(save_to_directory$, "\", "/", 0) + "/",
                   ... "//",
                   ... "/",
                   ... 0)
 
 # PROCESS USER INPUT
 # Get input directory and output file names.
-if corpus_to_analyse = 1
-    corpus_to_analyse$ = "alignment and H_Placement"
-    batchFile$ = "a_corpus"
-elsif corpus_to_analyse = 2
-    corpus_to_analyse$ = "focus"
-    batchFile$ = "f_corpus"
-elsif corpus_to_analyse = 3
-    batchFile$ = "m_corpus"
-    corpus_to_analyse$ = "sentence_modes"
-else
-    corpus_to_analyse = 4
-    corpus_to_analyse$ = "continutation"
-    batchFile$ = "c_corpus"
-endif
+batchFile$ = corpusRef_G$[corpus_to_analyse]
+corpus_to_analyse$ = corpusFolder_G$[corpus_to_analyse]
+
 
 if not fileReadable("GenStats_'batchFile$'.csv")
     appendInfoLine: "Calculating per-speaker F0 means and SDs."
@@ -90,9 +82,6 @@ gen_stats = Read Table from comma-separated file: "GenStats_'batchFile$'.csv"
 
 
 # DEFINE KEY VARIABLES ---------------------------------------------------------
-
-@globalDictionaries
-root$ = root_G$ + "/" + analysis_G$[analysis_set]
 corpusArchiveDir$ = "_Corpus archive"
 
 # Define directory list by individual folders in root directory.
@@ -934,375 +923,6 @@ endproc
 # ==============================================================================
 # PROCEDURES FROM OWN LIBRARIES=================================================
 
-# global.dictionaries.praat ----------------------------------------------------
-procedure globalDictionaries
-    # NB: this procedure is designed to allow the script to run on different
-    #     machines with root directory on different drive.
-    #     It is also designed for potential future changes the root directory
-    #     identification on different types of machine.
-
-    ### ROOT DIRECTORY
-	##################
-    root_G$ = "C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings"
-    root_G$ = replace$(replace$(root_G$, "\", "/", 0) + "/", "//", "", 0)
-    # Get an array of the drives available on the local disk
-    .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
-    if windows and !.directoryExists
-        runSystem: "fsutil fsinfo drives > 'temporaryDirectory$'/f.tmp"
-        .drives = Read Strings from raw text file: "'temporaryDirectory$'/f.tmp"
-        .drives$ = Get string: 2
-        deleteFile: "'temporaryDirectory$'/f.tmp"
-        removeObject: .drives
-                .drives$ = replace$(.drives$, "Drives: ", "", 1)
-        @line2Array: .drives$, " ", "globalDictionaries.drives$"
-
-        original_dir$ = left$(root_G$, index(root_G$, "/"))
-        .i = 0
-        while .i < .drives_N and !.directoryExists
-            .i += 1
-            .drives$[.i] = replace$(.drives$[.i], "\", "/", 1)
-            root_G$ = replace$(root_G$, original_dir$, .drives$[.i], 1)
-            .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
-        endwhile
-
-        while !.directoryExists
-            root_G$ = chooseFolder$: "Select the root directory."
-            root_G$ = replace$(replace$(root_G$, "\", "/", 0) + "/", "//", "", 0)
-            .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
-        endwhile
-
-    endif
-
-    meanSylDur_M$ = "/M-Corpus_MeanSylDur.Table"
-    meanSylDur_A$ = "/A-Corpus_MeanSylDur.Table"
-    sylMeanstartT_M$ = "/M-Corpus_sylMeanstartT.Table"
-    sylMeanstartT_A$ = "/A-Corpus_sylMeanstartT.Table"
-    # analysis folders
-    analyses_G = 2
-    analysis_G$[1] = "Analysis_1_standard"
-    analysis_G$[2] = "Analysis_2_STH"
-
-    ### TEXTGRID TIER NUMBERS
-	#########################
-    tierName_G$[1] = "ortho"
-    tierName_G$[2] = "syllable"
-    tierName_G$[3] = "rhythmic"
-    tierName_G$[4] = "phono"
-
-    tierName_G["ortho"] = 1
-    tierName_G["syllable"] = 2
-    tierName_G["rhythmic"] = 3
-    tierName_G["phono"] = 4
-
-    ### CORPORA CODES AND DIRECTORY NAMES
-	#####################################
-    corpora_G = 4
-    corpusFolder_G$[1] = "alignment and H_Placement"
-    corpusRef_G$[1] = "a_corpus"
-    corpusFolder_G$[2] = "focus"
-    corpusRef_G$[2] = "F-corpus"
-    corpusFolder_G$[3] = "sentence_modes"
-    corpusRef_G$[3] = "M-corpus"
-    corpusFolder_G$[4] = "continutation"
-    corpusRef_G$[4] = "C-corpus"
-
-
-    #### SPEAKER ARRAYS AND DICTIONARIES
-	####################################
-
-    # SPEAKER CODES
-    speakers_G = 11
-    speaker_G$[1] = "F5"
-    speaker_G$[2] = "F6"
-    speaker_G$[3] = "F12"
-    speaker_G$[4] = "F15"
-    speaker_G$[5] = "F16"
-    speaker_G$[6] = "F17"
-    speaker_G$[7] = "M4"
-    speaker_G$[8] = "M5"
-    speaker_G$[9] = "M8"
-    speaker_G$[10] = "M9"
-    speaker_G$[11] = "M10"
-    speaker_G$[12] = "Sample"
-
-    # SPEAKER NUMBERS
-    speakerNum_G["F5"] = 1
-    speakerNum_G["F6"] = 2
-    speakerNum_G["F12"] = 3
-    speakerNum_G["F15"] = 4
-    speakerNum_G["F16"] = 5
-    speakerNum_G["F17"] = 6
-    speakerNum_G["M4"] = 7
-    speakerNum_G["M5"] = 8
-    speakerNum_G["M8"] = 9
-    speakerNum_G["M9"] = 10
-    speakerNum_G["M10"] = 11
-    speakerNum_G["Sample"] = 12
-
-
-    ### M-CORPUS
-	############
-
-    # SENTENCE MODE
-    cat_G$["MDC1"] = "DEC"
-    cat_G$["MDC2"] = "DEC"
-    cat_G$["MDC3"] = "DEC"
-    cat_G$["MYN1"] = "YNQ"
-    cat_G$["MYN2"] = "YNQ"
-    cat_G$["MYN3"] = "YNQ"
-    cat_G$["MWH1"] = "WHQ"
-    cat_G$["MWH2"] = "WHQ"
-    cat_G$["MWH3"] = "WHQ"
-    cat_G$["MDQ1"] = "DCQ"
-    cat_G$["MDQ2"] = "DCQ"
-    cat_G$["MDQ3"] = "DCQ"
-
-    # SENTENCE MODE HIERARCHY
-    mode_G["DEC"] = 1
-    mode_G["WHQ"] = 2
-    mode_G["YNQ"] = 3
-    mode_G["DCQ"] = 4
-
-    # SENTENCE MODE LONG FORM
-    modeLong_G$["DEC"] = "declarative"
-    modeLong_G$["WHQ"] = "wh- question"
-    modeLong_G$["YNQ"] = "yes/no question"
-    modeLong_G$["DCQ"] = "declarative question"
-
-    # TARGET WORD IN NUCLEUS
-    nucWord_G$["MDC1"] = "vases"
-    nucWord_G$["MDC2"] = "valley"
-    nucWord_G$["MDC3"] = "valuables"
-    nucWord_G$["MYN1"] = "vases"
-    nucWord_G$["MYN2"] = "valley"
-    nucWord_G$["MYN3"] = "valuables"
-    nucWord_G$["MWH1"] = "vases"
-    nucWord_G$["MWH2"] = "valley"
-    nucWord_G$["MWH3"] = "valuables"
-    nucWord_G$["MDQ1"] = "vases"
-    nucWord_G$["MDQ2"] = "valley"
-    nucWord_G$["MDQ3"] = "valuables"
-
-    # CODE FOR TARGET WORD IN NUCLEUS
-    word_G["vases"] = 1
-    word_G["valley"] = 2
-    word_G["valuables"] = 3
-
-    word_G$[1] = "vases"
-    word_G$[2] = "valley"
-    word_G$[3] = "valuables"
-
-    ### A-CORPUS / H-CORPUS
-	#######################
-
-    # SYLLABLES OF ANACRUSIS
-    ana_G["A01"] = 0
-    ana_G["A1422"] = 1
-    ana_G["A2422"] = 2
-    ana_G["A3422"] = 3
-    ana_G["A0131"] = 0
-    ana_G["A0221"] = 0
-    ana_G["A0321"] = 0
-    ana_G["A0423"] = 0
-    ana_G["A1111"] = 1
-    ana_G["A1211"] = 1
-    ana_G["A11"] = 0
-    ana_G["A12"] = 0
-    ana_G["A13"] = 1
-    ana_G["A14"] = 0
-    ana_G["A1231"] = 1
-    ana_G["A1241"] = 0
-
-    ana_G["H0322"] = 0
-    ana_G["H0421"] = 0
-    ana_G["H0422"] = 0
-    ana_G["H1322"] = 1
-    ana_G["H1321"] = 1
-
-    # SYLLABLES IN PRE-NUCLEAR FOOT
-    pnSyls_G["A01"] = 4
-    pnSyls_G["A1422"] = 4
-    pnSyls_G["A2422"] = 4
-    pnSyls_G["A3422"] = 1
-    pnSyls_G["A0131"] = 2
-    pnSyls_G["A0221"] = 3
-    pnSyls_G["A0321"] = 3
-    pnSyls_G["A0423"] = 4
-    pnSyls_G["A1111"] = 1
-    pnSyls_G["A1211"] = 2
-    pnSyls_G["A11"] = 3
-    pnSyls_G["A12"] = 4
-    pnSyls_G["A13"] = 2
-    pnSyls_G["A14"] = 2
-    pnSyls_G["A1231"] = 2
-    pnSyls_G["A1241"] = 2
-
-    pnSyls_G["H0322"] = 3
-    pnSyls_G["H0421"] = 4
-    pnSyls_G["H0422"] = 4
-    pnSyls_G["H1322"] = 3
-    pnSyls_G["H1321"] = 3
-
-    # PN target stressed Syllable onset
-    pnStrOn_G$["A1422"] = "v"
-    pnStrOn_G$["A2422"] = "v"
-    pnStrOn_G$["A3422"] = "v"
-    pnStrOn_G$["A0131"] = "v"
-    pnStrOn_G$["A0221"] = "v"
-    pnStrOn_G$["A0321"] = "v"
-    pnStrOn_G$["A0423"] = "v"
-    pnStrOn_G$["A1111"] = "n"
-    pnStrOn_G$["A1211"] = "l"
-    pnStrOn_G$["A1231"] = "l"
-    pnStrOn_G$["A1241"] = "n"
-
-	pnStrOn_G$["H0322"] = "l"
-	pnStrOn_G$["H0421"] = "v"
-	pnStrOn_G$["H0422"] = "l"
-	pnStrOn_G$["H1322"] = "l"
-	pnStrOn_G$["H1321"] = "l"
-
-    # PN target stressed Syllable rhyme
-    pnStrRhy_G$["A1422"] = "al"
-    pnStrRhy_G$["A2422"] = "al"
-    pnStrRhy_G$["A3422"] = "al"
-    pnStrRhy_G$["A0131"] = "alz"
-    pnStrRhy_G$["A0221"] = "alz"
-    pnStrRhy_G$["A0321"] = "alz"
-    pnStrRhy_G$["A0423"] = "al"
-    pnStrRhy_G$["A1111"] = "oU"
-    pnStrRhy_G$["A1211"] = "Iv"
-    pnStrRhy_G$["A1231"] = "Iv"
-    pnStrRhy_G$["A1241"] = "id"
-
-	pnStrRhy_G$["H0322"] = "al"
-	pnStrRhy_G$["H0421"] = "al"
-	pnStrRhy_G$["H0422"] = "al"
-	pnStrRhy_G$["H1322"] = "eIn"
-	pnStrRhy_G$["H1321"] = "eIn"
-
-    # NUC target stressed Syllable onset
-    nucStrOn_G$["A1422"] = "r"
-    nucStrOn_G$["A2422"] = "r"
-    nucStrOn_G$["A3422"] = "r"
-    nucStrOn_G$["A0131"] = "v"
-    nucStrOn_G$["A0221"] = "v"
-    nucStrOn_G$["A0321"] = "v"
-    nucStrOn_G$["A0423"] = "v"
-    nucStrOn_G$["A1111"] = "v"
-    nucStrOn_G$["A1211"] = "v"
-    nucStrOn_G$["A1231"] = "v"
-    nucStrOn_G$["A1241"] = "v"
-
-	nucStrOn_G$["H0322"] = "v"
-	nucStrOn_G$["H0421"] = "l"
-	nucStrOn_G$["H0422"] = "v"
-	nucStrOn_G$["H1322"] = "n"
-	nucStrOn_G$["H1321"] = "n"
-
-    # NUC target stressed Syllable rhyme
-    nucStrRhy_G$["A1422"] = "Iv"
-    nucStrRhy_G$["A2422"] = "Iv"
-    nucStrRhy_G$["A3422"] = "Iv"
-    nucStrRhy_G$["A0131"] = "al"
-    nucStrRhy_G$["A0221"] = "al"
-    nucStrRhy_G$["A0321"] = "al"
-    nucStrRhy_G$["A0423"] = "al"
-    nucStrRhy_G$["A1111"] = "al"
-    nucStrRhy_G$["A1211"] = "al"
-    nucStrRhy_G$["A1231"] = "al"
-    nucStrRhy_G$["A1241"] = "al"
-
-	nucStrRhy_G$["H0322"] = "al"
-	nucStrRhy_G$["H0421"] = "al"
-	nucStrRhy_G$["H0422"] = "al"
-	nucStrRhy_G$["H1322"] = "an"
-	nucStrRhy_G$["H1321"] = "an"
-
-
-    # UNSTRESSED SYLLABLES BEFORE NUCLEUS
-    nucPreSyls_G["A01"] = 3
-    nucPreSyls_G["A1422"] = 3
-    nucPreSyls_G["A2422"] = 3
-    nucPreSyls_G["A3422"] = 0
-    nucPreSyls_G["A0131"] = 1
-    nucPreSyls_G["A0221"] = 2
-    nucPreSyls_G["A0321"] = 2
-    nucPreSyls_G["A0423"] = 3
-    nucPreSyls_G["A1111"] = 0
-    nucPreSyls_G["A1211"] = 1
-    nucPreSyls_G["A11"] = 2
-    nucPreSyls_G["A12"] = 3
-    nucPreSyls_G["A13"] = 1
-    nucPreSyls_G["A14"] = 1
-    nucPreSyls_G["A1231"] = 1
-    nucPreSyls_G["A1241"] = 1
-
-    nucPreSyls_G["H0322"] = 2
-    nucPreSyls_G["H0422"] = 3
-    nucPreSyls_G["H0421"] = 3
-    nucPreSyls_G["H1322"] = 2
-    nucPreSyls_G["H1321"] = 2
-
-    # SYLLABLES IN NUCLEAR FOOT
-    nucSyls_G["A01"] = 2
-    nucSyls_G["A1422"] = 2
-    nucSyls_G["A2422"] = 2
-    nucSyls_G["A3422"] = 2
-    nucSyls_G["A0131"] = 3
-    nucSyls_G["A0221"] = 2
-    nucSyls_G["A0321"] = 2
-    nucSyls_G["A0423"] = 2
-    nucSyls_G["A1111"] = 1
-    nucSyls_G["A1211"] = 1
-    nucSyls_G["A11"] = 2
-    nucSyls_G["A12"] = 2
-    nucSyls_G["A13"] = 1
-    nucSyls_G["A14"] = 2
-    nucSyls_G["A1231"] = 3
-    nucSyls_G["A1241"] = 4
-
-    nucSyls_G["H0322"] = 2
-    nucSyls_G["H0421"] = 2
-    nucSyls_G["H0422"] = 2
-    nucSyls_G["H1322"] = 2
-    nucSyls_G["H1321"] = 2
-
-    ### H-CORPUS ONLY
-    ##################
-
-    # FINAL SYLLABLE OF WORD WITH LEXICAL STRESS IN PN FOOT
-    pnWordEnd_G["A0321"] = 1
-    pnWordEnd_G["H0322"] = 2
-    pnWordEnd_G["H0421"] = 1
-    pnWordEnd_G["H0422"] = 2
-    pnWordEnd_G["A0423"] = 3
-    pnWordEnd_G["H1322"] = 2
-    pnWordEnd_G["H1321"] = 1
-
-    # DOES FIRST SYLLABLE OF WORD WITH LEXICAL STRESS START IN ANACRUSIS
-    pnWordStart_G["A0321"] = 0
-    pnWordStart_G["H0322"] = 0
-    pnWordStart_G["H0421"] = 0
-    pnWordStart_G["H0422"] = 0
-    pnWordStart_G["A0423"] = 0
-    pnWordStart_G["H1322"] = 1
-    pnWordStart_G["H1321"] = 1
-
-    ### F-CORPUS
-    #############
-
-    # FOCUS FOOT
-    focusType["FN3"] = 3
-    focusType["FN1"] = 1
-    focusType["FN2"] = 2
-    focusType["FN0"] = 0
-
-    focusType$["FN3"] = "NF-Val"
-    focusType$["FN1"] = "NF-Dad"
-    focusType$["FN2"] = "NF-Liv"
-    focusType$["FN0"] = "BF"
-endproc
 
 # object.management.praat ------------------------------------------------------
 # Time and Date procedures
@@ -1621,7 +1241,6 @@ endproc
 
 # Corpus management / processing procedures -------------------------------------
 procedure meanSylDurs: .corpus_choice, .analysis_set
-    @globalDictionaries
     # .analysis_set = 0 --> corpus_choice object already in object window!
     if .analysis_set = 0
         selectObject: .corpus_choice
@@ -1976,4 +1595,5 @@ procedure addGenF0Stats: .output_table, .gen_stats
     endfor
 endproc
 
-include getF0Stats.proc
+include procs/getF0Stats.proc
+include procs/globalDictionaries.proc

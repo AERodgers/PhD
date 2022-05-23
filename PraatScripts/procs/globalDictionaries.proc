@@ -1,130 +1,3 @@
-# Get F0 Stats
-# ============
-# Gets F0 means and standard deviations for target.
-# 20/05/2022
-#
-# Global dictonaries: global variables suffixes with _G
-#
-# PROCEDURES--------------------------------------------------------------------
-# Load global dictionary.
-@globalDictionaries
-procedure getF0Stats: .corpus, .analysis_set, .dec_only, .save_results
-    # Gets F0 means and SDs for all speakers
-    # if results not to be saved, create temporary file.
-    if .save_results
-        .reportFile$ = "GenStats_" + corpusRef_G$[.corpus] + ".csv"
-    else
-        reportFile$ = "temp.csv"
-    endif
-    appendInfoLine: "GenStats_" + corpusRef_G$[.corpus] + ".csv"
-    # Create output file
-    writeFileLine: .reportFile$, "speaker,f0_mean,f0_SD"
-
-    # Get mean and SD F0 in ST re 1 Hz for each speaker
-    for .i to speakers_G
-        # Set folder address to pitch folder for current speaker.
-        .folder$ =root_G$ + "/" + analysis_G$[.analysis_set] + "/"
-            ... + speaker_G$[i] + "/" + corpusFolder_G$[corpus] + "/pitch"
-
-        # Get f0 summary info for current speaker.
-        @speakerF0Stats: .folder$, .dec_only
-
-        # Update output file.
-    	appendFile: .reportFile$,
-                ... speaker_G$[.i] + "," +
-        		... fixed$(speakerF0Stats.meanF0,3) + "," +
-        		... fixed$(speakerF0Stats.sdF0,3) + newline$
-    endfor
-
-    # If not saving results, load them into the Praat objects window
-    if not .save_results
-        Read Table from comma-separated file: .reportFile$
-        Rename: "GenStats_" + corpusRef_G$[.corpus]
-        deleteFile: .reportFile$
-    endif
-endproc
-
-
-procedure speakerF0Stats: .folder$, .decOnly
-    # decide F0 measurement for analysis
-
-    # Get folder information
-    .fileList = Create Strings as file list: "", .folder$
-    .files = Get number of strings
-    # create output folder
-    .tempTable = Create Table with column names: "tempTable", 0, "Frame Time F0"
-
-    # concatenate pitch objects in a table
-    for .i to .files
-        selectObject: .fileList
-        .curFile$ = Get string: .i
-        @fileName: .curFile$, "_"
-        if left$(fileName.part$[1],1) = "P"
-            .mode$ = fileName.part$[3]
-        else
-            .mode$ = fileName.part$[2]
-        endif
-
-        # decide
-        if corpus = 3
-            if .decOnly
-                if cat_G$[.mode$] = "DEC"
-                    .include = 1
-                else
-                    .include = 0
-                endif
-            endif
-        else
-            .include = 1
-        endif
-
-        if left$(.curFile$, 2) = "PF" and .include
-            .curPitch = Read from file: .folder$ + "/" + .curFile$
-            @pitch2Table: .curPitch, 0
-            .curTable = selected()
-            plusObject: .tempTable
-            .newTemp = Append
-            selectObject: .tempTable
-            plusObject: .curPitch
-            plusObject: .curTable
-            Remove
-            .tempTable = .newTemp
-        endif
-    endfor
-
-    # convert to ST (speaker mean) if specified
-    selectObject: .tempTable
-    Formula: "F0", "log2(self)*12"
-
-
-    # get general F0 stats for speaker
-    #.minF0 = Get minimum: "F0"
-    #.maxF0 = Get maximum: "F0"
-    .meanF0 = Get mean: "F0"
-    .sdF0 = Get standard deviation: "F0"
-
-    # vvvvv OLD STATS NOT REALLY NEEDED  vvvvvvvvv #
-
-    #.sdMedF0 = Get median absolute deviation: "F0"
-    #.q1F0 = Get quantile: "F0", 0.25
-    #.medF0 = Get quantile: "F0", 0.5
-    #.q3F0 = Get quantile: "F0", 0.75
-    #Append column: "DEV_3"
-    #Formula: "DEV_3", "(self[""F0""]-.meanF0)^3"
-    #.devPWR3  = Get mean: "DEV_3"
-    #.dataPoints = Get number of rows
-    #.devPWR3 = .devPWR3 * .dataPoints
-    #.skew = ((.devPWR3/.dataPoints)/.sdF0^3)*(.dataPoints*(.dataPoints-1))^0.5
-    #    ... /(.dataPoints-2)
-
-    # ^^^^^ OLD STATS NOT REALLY NEEDED  ^^^^^ #
-
-    # remove unwanted procedure objects
-    selectObject: .tempTable
-    plusObject: .fileList
-    Remove
-endproc
-
 # global.dictionaries.praat ----------------------------------------------------
 procedure globalDictionaries
     # NB: this procedure is designed to allow the script to run on different
@@ -139,10 +12,10 @@ procedure globalDictionaries
     # Get an array of the drives available on the local disk
     .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
     if windows and !.directoryExists
-        runSystem: "fsutil fsinfo drives > 'temporarysave_dir$'/f.tmp"
-        .drives = Read Strings from raw text file: "'temporarysave_dir$'/f.tmp"
+        runSystem: "fsutil fsinfo drives > 'temporaryDirectory$'/f.tmp"
+        .drives = Read Strings from raw text file: "'temporaryDirectory$'/f.tmp"
         .drives$ = Get string: 2
-        deleteFile: "'temporarysave_dir$'/f.tmp"
+        deleteFile: "'temporaryDirectory$'/f.tmp"
         removeObject: .drives
                 .drives$ = replace$(.drives$, "Drives: ", "", 1)
         @line2Array: .drives$, " ", "globalDictionaries.drives$"
@@ -191,12 +64,11 @@ procedure globalDictionaries
     corpusFolder_G$[1] = "alignment and H_Placement"
     corpusRef_G$[1] = "a_corpus"
     corpusFolder_G$[2] = "focus"
-    corpusRef_G$[2] = "F-corpus"
+    corpusRef_G$[2] = "f_corpus"
     corpusFolder_G$[3] = "sentence_modes"
-    corpusRef_G$[3] = "M-corpus"
-    corpusFolder_G$[4] = "continutation"
-    corpusRef_G$[4] = "C-corpus"
-
+    corpusRef_G$[3] = "m_corpus"
+    corpusFolder_G$[4] = "continuation"
+    corpusRef_G$[4] = "c_corpus"
 
     #### SPEAKER ARRAYS AND DICTIONARIES
 	####################################
@@ -493,107 +365,4 @@ procedure globalDictionaries
     focusType$["FN1"] = "NF-Dad"
     focusType$["FN2"] = "NF-Liv"
     focusType$["FN0"] = "BF"
-endproc
-
-procedure fileName: .file_name$, .sep$
-    ## get length of filename string and index of <dot> suffix if it exists
-    .length = length(.file_name$)
-    .period = rindex(.file_name$, ".")
-    ## get name of suffix, and fix value of .period if no file suffix
-    if .period = 0
-        .period = .length + 1
-        .suffix$ = ""
-    else
-        .suffix$ = right$ (.file_name$, .length - .period)
-    endif
-    .name_end = .period - 1
-
-    ## assume at least one part of file name and set first separator index to 1
-    .parts = 1
-    .sep[1] = 0
-	## find separators in file name
-    for .i to .name_end
-        .char_cur$ = mid$(.file_name$, .i, 1)
-            ## get text for each part before between separators
-            if  .char_cur$ = .sep$
-                .sep[.parts + 1] = .i
-                .part$[.parts ] =
-                 ... mid$ (.file_name$, .sep[.parts] + 1,
-                 ... .sep[.parts + 1] - .sep[.parts] - 1)
-                .parts += 1
-            endif
-    endfor
-	## get text for final part
-    .part$[.parts] =
-        ... mid$ (.file_name$, .sep[.parts] + 1, .name_end  - .sep[.parts])
-    .sep[.parts + 1] = .name_end + 1
-endproc
-
-procedure pitch2Table: .pitchObject, .interpolate
-    selectObject: .pitchObject
-
-    if .interpolate
-        .pitchObject = Interpolate
-    endif
-    .originalObject = .pitchObject
-
-    # Get key pitch data
-    .frameTimeFirst = Get time from frame number: 1
-    .timeStep = Get time step
-
-    #create pitch Table (remove temp objects)
-    .pitchTier = Down to PitchTier
-    .tableofReal = Down to TableOfReal: "Hertz"
-    .pitchTable = To Table: "rowLabel"
-    selectObject: .pitchTier
-    plusObject: .tableofReal
-    Remove
-
-    # Get key pitchTable data
-    selectObject: .pitchTable
-    .rows = Get number of rows
-    .rowTimeFirst = Get value: 1, "Time"
-
-    # estimate frame of first row
-    Set column label (index): 1, "Frame"
-    for .n to .rows
-        .rowTimeN = Get value: .n, "Time"
-        .tableFrameN = round((.rowTimeN - .frameTimeFirst) / .timeStep + 1)
-        Set numeric value: .n, "Frame", .tableFrameN
-    endfor
-
-    #removeInterpolated pitch
-    if     .originalObject != .pitchObject
-        selectObject: .pitchObject
-        Remove
-    endif
-	.table = .pitchTable
-endproc
-
-procedure line2Array: .string$, .sep$, .out$
-    # correct variable name Strings
-    if right$(.out$, 1) != "$"
-        .out$ += "$"
-    endif
-    .size$ = replace$(.out$, "$", "_N", 0)
-
-    # fix input csvLine array
-    .string$ = replace$(.string$, "'.sep$' ", .sep$, 0)
-    while index(.string$, "  ")
-        .string$ = replace$(.string$, "  ", " ", 0)
-    endwhile
-    .string$ = replace_regex$ (.string$, "^[ \t\r\n]+|[ \t\r\n]+$", "", 0)
-    .string$ += .sep$
-    # generate output array
-    '.size$' = 0
-    while length(.string$) > 0
-        '.size$' += 1
-        .nextElementEnds = index(.string$, .sep$)
-        '.out$'['.size$'] = left$(.string$, .nextElementEnds)
-        .string$ = replace$(.string$, '.out$'['.size$'], "", 1)
-        '.out$'['.size$'] = replace$('.out$'['.size$'], .sep$, "", 1)
-        if '.out$'['.size$'] = ""
-            '.size$' -= 1
-        endif
-    endwhile
 endproc

@@ -19,4 +19,5 @@ endform
 @globalDictionaries
 @getF0Stats: corpus, analysis_set, dec_only, save_results
 
-include getF0stats.proc
+include procs/getF0stats.proc
+include procs/globalDictionaries.proc
