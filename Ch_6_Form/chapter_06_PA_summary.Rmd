@@ -2,8 +2,8 @@
 title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
   and Phonetics of DCE Intonation'
 output:
-  word_document: default
   html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
