@@ -1,3 +1,4 @@
+cur_selected# = selected#()
 sound = selected("Sound")
 selectObject: sound
 start_t = Get start time
@@ -16,6 +17,9 @@ Add pitch point at: (end_t - start_t) / 2, mean
 endeditor
 newsound = Get resynthesis (overlap-add)
 removeObject: manip
+selectObject: newsound
+Edit
+selectObject: cur_selected#
 
 
 
