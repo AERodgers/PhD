@@ -47,7 +47,7 @@ root$ = root_G$ + "/" + analysis_G$[analysis_set]
 
 # GET USER INPUT ---------------------------------------------------------------
 form Analysis of TextGrids and Pitch contours
-    choice corpus_to_analyse 1
+    choice corpus_to_analyse 3
         button alignment
         button focus
         button sentence modes
@@ -55,7 +55,7 @@ form Analysis of TextGrids and Pitch contours
     optionmenu Analysis_set: 1
         option Analysis set one (original)
         option Analysis set two (STH hypothesis)
-        sentence Save_to_directory ../Ch_6_Form/data
+        sentence Save_to_directory D:\Users\antoi\GitHub\PhD\Ch_7_Sentence_Modes\data
 endform
 
 # Get start time in seconds
