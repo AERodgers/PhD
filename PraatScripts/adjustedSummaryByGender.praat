@@ -35,14 +35,14 @@ procedure count2rows(.table, .treatment$, .response$, .count$)
     .item = 0
     for .cur_row to .num_rows
         selectObject: .table
-        .cur_foot_syls = Get value: .cur_row, .treatment$
-        .cur_acc_phon$ = Get value: .cur_row, .response$
+        .cur_treatment$ = Get value: .cur_row, .treatment$
+        .cur_response$ = Get value: .cur_row, .response$
         .cur_value = Get value: .cur_row, .count$
-        selectObject: .new_table 
+        selectObject: .new_table
         for .i to .cur_value
             .item += 1
-            Set numeric value: .item, .treatment$, .cur_foot_syls
-            Set string value: .item, .response$, .cur_acc_phon$ 
+            Set string value: .item, .treatment$, .cur_treatment$
+            Set string value: .item, .response$, .cur_response$
         endfor
     endfor
 endproc
@@ -60,7 +60,3 @@ procedure addGenderCol(m, f)
     Append
     Rename: new_name$
 endproc
-
-
-
-

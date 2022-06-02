@@ -180,10 +180,10 @@ kable(nuc_pre_summary_raw)
 pn_by_speaker %>%
   group_by(speaker, acc_phon) %>%
   summarise(accCount = n(), .groups="keep") %>%
-  spread(acc_phon, accCount, is.on <- 0) %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
   write_csv("output/pn_by_speaker.csv") %>%
   kable()
-kable(summary(pn_by_speaker, n=Inf))
+#kable(summary(pn_by_speaker, n=Inf))
 
 ```
 
@@ -192,7 +192,7 @@ kable(summary(pn_by_speaker, n=Inf))
 nuc_by_speaker %>%
   group_by(speaker, nuc_contour) %>%
   summarise(nuc_count = n(), .groups="keep") %>%
-  spread(nuc_contour, nuc_count, is.on <- 0) %>%
+  spread(nuc_contour, nuc_count, is.na <- 0) %>%
   write_csv("output/nuc_by_speaker.csv") %>%
   kable()
 ```
@@ -219,7 +219,7 @@ pn_by_speaker_ratio <- pn_by_speaker %>%
     summarise(accCount = n(), .groups = "keep") %>%
     spread(acc_phon, accCount, is.na <- 0, drop = FALSE) %>% 
     mutate(tot_PAs = sum(c_across())) %>% 
-    mutate(across(2:5, ~ round(. / tot_PAs * 100))) %>% 
+    mutate(across(1:5, ~ round(. / tot_PAs * 100))) %>% 
     select(-tot_PAs) %>% 
   left_join(mean_speech_rate, "speaker")
 
@@ -870,7 +870,7 @@ pn_downstep %>%
   select(speaker, init_contour) %>%
   group_by(speaker, init_contour) %>%
   summarise(accCount = n()) %>%
-  spread(init_contour, accCount, is.on <- 0) %>%
+  spread(init_contour, accCount, is.na <- 0) %>%
   kable()
 
 
@@ -879,7 +879,7 @@ pn_downstep %>%
   select(speaker, init_contour) %>%
   group_by(speaker, init_contour) %>%
   summarise(accCount = n()) %>%
-  spread(init_contour, accCount, is.on <- 0) %>%
+  spread(init_contour, accCount, is.na <- 0) %>%
   kable()
 
 
