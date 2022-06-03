@@ -283,7 +283,14 @@ nuc_by_speaker_ratio_uncount <- nuc_by_speaker_ratio %>%
   uncount(count) %>%
   mutate(acc_phon = factor(
     acc_phon,
-    levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+    levels = c(
+      "^[L*H]",
+      "L*^[H]",
+      "^[L*]H",
+      ">H*",
+      "L*H",
+      "H*"
+      )
   ))
 
 
