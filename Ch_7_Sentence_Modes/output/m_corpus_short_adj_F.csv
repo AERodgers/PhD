@@ -1,0 +1,13 @@
+mode,acc_phon,value
+MDC,^[L*H],0
+MDC,L*^[H],0
+MDC,L*H,90
+MWH,^[L*H],0
+MWH,L*^[H],0
+MWH,L*H,90
+MYN,^[L*H],5
+MYN,L*^[H],4
+MYN,L*H,81
+MDQ,^[L*H],34
+MDQ,L*^[H],21
+MDQ,L*H,35
