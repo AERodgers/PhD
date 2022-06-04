@@ -407,12 +407,12 @@ my_table_g <-
 
 
 pivot_longer(balancedData(pn_foot, foot_syls, acc_phon, "M", 5, 5),
-             c(2:5),
+             c(2:last_col()),
              names_to = "acc_phon") %>%
   write_csv(my_table_m)
 
 pivot_longer(balancedData(pn_foot, foot_syls, acc_phon, "F", 6, 5),
-             c(2:6),
+             c(2:last_col()),
              names_to = "acc_phon") %>%
   write_csv(my_table_f)
 
@@ -488,13 +488,13 @@ my_table_g <-
 
 
 pivot_longer(balancedData(pn_ana, ana_syls, acc_phon, "M", 5, 5),
-             c(2:4),
+             c(2:last_col()),
              names_to = "acc_phon") %>%
   write_csv(my_table_m)
 
 
 pivot_longer(balancedData(pn_ana, ana_syls, acc_phon, "F", 6, 5),
-             c(2:3),
+             c(2:last_col()),
              names_to = "acc_phon") %>%
   write_csv(my_table_f)
 
@@ -570,12 +570,12 @@ my_table_g <-
 
 
 pivot_longer(balancedData(nuc_foot, foot_syls, nuc_contour, "M", 5, 5),
-             c(2:3),
+             c(2:last_col()),
              names_to = "nuc_contour") %>%
   write_csv(my_table_m)
 
 pivot_longer(balancedData(nuc_foot, foot_syls, nuc_contour, "F", 6, 5),
-             c(2:3),
+             c(2:last_col()),
              names_to = "nuc_contour") %>%
   write_csv(my_table_f)
 
@@ -645,12 +645,12 @@ my_table_g <-
 
 
 pivot_longer(balancedData(nuc_pre, pre_syls, nuc_contour, "M", 5, 5),
-             c(2:2),
+             c(2:last_col()),
              names_to = "nuc_contour") %>%
   write_csv(my_table_m)
 
 pivot_longer(balancedData(nuc_pre, pre_syls, nuc_contour, "F", 6, 5),
-             c(2:3),
+             c(2:last_col()),
              names_to = "nuc_contour") %>%
   write_csv(my_table_f)
 
@@ -722,7 +722,7 @@ my_table_g <- paste(getwd(), "/output/G.csv", sep = "")
 pn_downstep %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
   balancedData(foot_syls, init_contour, "M", 5, 5, FALSE) %>%
-  pivot_longer(c(2:7),
+  pivot_longer(c(2:last_col()),
                names_to = "init_contour") %>%
   write_csv(my_table_m)
 
@@ -730,7 +730,7 @@ pn_downstep %>%
 pn_downstep %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
   balancedData(foot_syls, init_contour, "F", 5, 6, FALSE) %>%
-  pivot_longer(c(2:12),
+  pivot_longer(c(2:last_col()),
                names_to = "init_contour") %>%
   write_csv(my_table_f)
 
@@ -796,7 +796,7 @@ my_table_g <-
 pn_downstep %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
   balancedData(ana_syls, init_contour, "M", 5, 5, FALSE) %>%
-  pivot_longer(c(2:7),
+  pivot_longer(c(2:last_col()),
                names_to = "init_contour") %>%
   write_csv(my_table_m)
 
@@ -804,7 +804,7 @@ pn_downstep %>%
 pn_downstep %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
   balancedData(ana_syls, init_contour, "F", 5, 6, FALSE) %>%
-  pivot_longer(c(2:6),
+  pivot_longer(c(2:last_col()),
                names_to = "init_contour") %>%
   write_csv(my_table_f)
 
