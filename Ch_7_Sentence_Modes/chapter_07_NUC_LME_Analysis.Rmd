@@ -1,0 +1,172 @@
+---
+title: "Chapter 7 - LME analysis of Mode and Nuclear Contours"
+author: "Antoin Rodgers"
+date: "5.6.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+# Load Functions.
+source("../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    "performance",
+    # Include statistical packages.
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+mode_colours <- c("WHQ" = "#a6dba0",
+                  "MDC" = "#7b32942",
+                  "MYN" = "#008837",
+                  "MDQ" = "#c2a5cf")
+
+pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
+                          "L*H"    = brewer.pal(6, "Spectral")[6],
+                          ">H*"    = brewer.pal(6, "Spectral")[5],
+                          "^[L*]H" = brewer.pal(6, "Spectral")[3],
+                          "L*^[H]" = brewer.pal(6, "Spectral")[2],
+                          "^[L*H]" = brewer.pal(6, "Spectral")[1])
+
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+
+
+```
+
+```{r}
+# Load Corpus
+m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    nuc_contour =
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      ),
+    acc_phon =
+      factor(
+        str_replace(nuc_contour,
+                    "\\s%$|\\sL%$",
+                    ""),
+        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+      ),
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+  ) %>%
+  # Select only columns for analysis
+  select(
+    speaker,
+    gender,
+    mode,
+    prompt,
+    foot_syls,
+    acc_phon,
+    phr_phon,
+    fin_phon,
+    l_t,
+    h_t,
+    l_f0,
+    h_f0,
+    f0_exc,
+    e_f0_exc,
+    slope, 
+    utt_mean_f0
+  )
+```
+
+```{r}
+response_vars <- c("l_t", "l_f0", "h_f0", "f0_exc", "slope")
+
+```
+
+
+l_t  as a function of mode
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  slope ~ mode + (1 | gender) + (1 + mode | speaker),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(temp_mdl)
+cat(c(
+  "\nperformance::check_singularity(temp_mdl): ",
+  check_singularity(temp_mdl, tolerance = 1e-05),
+  "\n"
+))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% formattable(caption = "Anova of model")
+
+tidy(temp_mdl) %>%
+    filter(term != "sd__(Intercept)") %>%
+   bonferroniAdjust("", 5) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 5),
+      p.adjusted = round(p.adjusted, 5)
+    ) %>%
+  filter(effect %notin% "ran_pars") %>% 
+  select(-c(group, effect)) %>%
+  rename(z.value = statistic) %>% 
+  formattable(
+    caption = "Intercept and slopes of fixed effects of model with Bonferroni adjusted p values"
+    )
+
+kable(r2_nakagawa(temp_mdl), caption = "Conditional and marginal R^2^ of model", digits = 2,align = "l")
+
+
+```
+
+
+
+```{r fig.height=4, fig.width=5}
+plot_model(
+  temp_mdl,
+  title = "l_f0 ~ mode + gender + (1 + mode | speaker)+ (1 + mode | prompt)",
+  show.intercept = FALSE,
+  show.values = TRUE,
+  vline.color = "red",
+  colors = "Black"
+)
+
+```

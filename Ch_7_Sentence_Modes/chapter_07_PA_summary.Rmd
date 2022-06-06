@@ -12,10 +12,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 ```{r warning=FALSE, message=FALSE}
-# Load functions and packages.
-
-source("../functions/myFunctions.R")
-
+# Load packages.
 installMissingPackages(
     c("tidyverse",
       "knitr",
@@ -25,14 +22,19 @@ installMissingPackages(
       "ggpubr",
       "RColorBrewer",
       "tidymodels",
-      # Include packages for %in% %notin% syntactic notation
+      # Include packages for %in% / %notin% syntactic notation
       "mefa4"
       )
     )
 
-# PRAAT DIRECTORY
+
+# Set up Praat Directory.
+
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
+
+# Load Functions.
+source("../functions/myFunctions.R") 
 
 ## set colours
 mode_colours <- c("WHQ" = "#a6dba0",
@@ -51,9 +53,7 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
 
 ```{r warning=FALSE, message=FALSE}
 # Get  Data.
-source("get_M_corpora.R")
-
-m_corpus <- m_corpus %>%
+m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
     select(speaker,
            gender,
            stim,
