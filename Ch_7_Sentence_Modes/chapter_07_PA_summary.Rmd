@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 ```{r warning=FALSE, message=FALSE}
+
+# Load Functions.
+source("../functions/myFunctions.R") 
+
 # Load packages.
 installMissingPackages(
     c("tidyverse",
@@ -28,19 +32,19 @@ installMissingPackages(
     )
 
 
-# Set up Praat Directory.
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
 
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
-# Load Functions.
-source("../functions/myFunctions.R") 
-
 ## set colours
-mode_colours <- c("WHQ" = "#a6dba0",
-                  "MDC" = "#7b32942",
-                  "MYN" = "#008837",
-                  "MDQ" = "#c2a5cf")
+mode_colours <- c("WHQ" = "#e66101",
+                  "MDC" = "#5e3c99",
+                  "MYN" = "#fdb863",
+                  "MDQ" = "#b2abd2")
+
 
 pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
                           "L*H"    = brewer.pal(6, "Spectral")[6],
@@ -252,8 +256,8 @@ ggplot(mode_tokens_adjusted) +
     theme(panel.border = element_rect(fill = NA))
 ```
 
-```{r fig.height=4, fig.width=15}
-ggplot(mode_tokens_adjusted) +
+```{r fig.height=2, fig.width=5.5}
+ggplot(mode_tokens_adjusted %>% filter(acc_phon %notin%(c("H*", ">H*", "^[L*]H")))) +
     geom_bar(
         mapping = aes(x = mode, fill = acc_phon),
         show.legend = FALSE,
@@ -268,7 +272,7 @@ ggplot(mode_tokens_adjusted) +
     ) +
     #ggtitle("PNs across foot size conditions (adjusted)") +
     scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-    labs(x = "foot size (syllables)", y = "tokens (n)") +
+    labs(x = "Mode", y = "tokens (n)") +
     theme(panel.border = element_rect(fill = NA))
 
 ```
@@ -313,7 +317,7 @@ rm(mean_speech_rate)
 ```
 
 
-```{r warning=FALSE, fig.width = 8, fig.height = 4}
+```{r warning=FALSE, fig.width = 5.5, fig.height = 2}
 # Percentage Stacked bar
 
 ggplot(data = pa_by_speaker_pc_uncount,
@@ -326,8 +330,8 @@ ggplot(data = pa_by_speaker_pc_uncount,
     ) +
     scale_fill_manual(values = pitch_accent_colours[1:6]) +
     
-    labs(x = "Proportion of nuclear Contours per speaker",
-         y = "Speaker") +
+    labs(y = "Proportion of Pitch Accents",
+         x = "Speaker") +
     theme(panel.border = element_rect(fill = NA)) +
     scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
 ```

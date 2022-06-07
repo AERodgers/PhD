@@ -4,7 +4,7 @@
 ## Get per-speaker f0 stats.
 #gen_f0_stats <- as_tibble(read.csv("data/GenStats_a_corpus.csv"))
 
-#corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>% 
+#corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
@@ -39,7 +39,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     slope_st,
     f0_mean,
     f0_SD,
-    
+
   ) %>%
   mutate(
     # create composite parameters for continuous data.
@@ -65,7 +65,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
     h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
     e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
-    
+
     # treat foot_syls and ana_syls as factor
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),
     foot_syls = factor(foot_syls, levels = unique(foot_syls)),
@@ -114,7 +114,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
         init_phon,
         acc_phon,
         sep = " ",
-        remove = FALSE) %>% 
+        remove = FALSE) %>%
   select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur))
 # Get subset of all data for PN analysis
 
@@ -122,13 +122,13 @@ pn <- filter(corpus, cur_foot == 1) %>%
 pn_ana <- pn %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
   # Remove columns which are no longer needed for pn_ana analysis.
-  select(-(cur_foot:wrd_end_syl))
+  select(-c(cur_foot, wrd_end_syl, foot_syls))
 
 # Make PN foot-size dataset.
 pn_foot <- pn %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
   # remove columns no longer needed for pn_foot analysis.
-  select(-(ana_syls:cur_foot),-c(wrd_end_syl, fin_phon)) %>%
+  select(-c(ana_syls,fin_phon, wrd_end_syl,cur_foot)) %>%
   mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)))
 
 
@@ -148,7 +148,7 @@ nuc <- filter(corpus, cur_foot == 2) %>%
         acc_phon,
         fin_phon,
         sep = " ",
-        remove = FALSE) %>% 
+        remove = FALSE) %>%
   select(-c(s_f0, s_f0_z, s_t, s_grand_mean_t))
 
 # Make nuclear PA preceding syllable dataset.

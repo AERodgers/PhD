@@ -21,6 +21,7 @@ source("../functions/myFunctions.R")
 installMissingPackages(
   c(
     # Include statistical packages.
+    "performance",
     "lmerTest",
     "lme4",
     "optimx",
@@ -41,33 +42,7 @@ installMissingPackages(
 
 # Get data frames for AH analysis
 source("get_AH_corpora.R")
-# Add isLH column
-pn_foot <- select(pn_foot,
-                  speaker,
-                  gender,
-                  stim,
-                  init_phon,
-                  foot_syls,
-                  acc_phon,
-                  foot_start_t,
-                  foot_end_t,
-                  v_onset_t,
-                  l_t,
-                  h_t,
-                  l_f0,
-                  h_f0,
-                  slope_st
-                  ) %>%
-  mutate(excursion = h_f0 - l_f0,
-         duration = h_t - l_t,
-         l_t = l_t - v_onset_t,
-         h_t = h_t - v_onset_t,
-         foot_dur = foot_end_t - foot_start_t
-         ) %>%
-  select(-c(v_onset_t,
-            foot_end_t,
-            foot_start_t
-            ))
+
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
@@ -85,7 +60,7 @@ rm(nuc_foot, nuc_pre, pn_lex, pn_ana, pn, corpus, nuc)
 h_t  as a function of foot_syls in L*H
 ```{r fig.height=4, fig.width=12}
 temp_mdl = lmer(h_t ~ foot_syls +(1 + foot_syls | speaker),
-              data = pn_foot %>% 
+              data = pn_foot %>%
     filter(acc_phon == "L*H") %>%  select(-acc_phon),
               control = lmerControl(
                                     optimizer = "optimx",
@@ -103,21 +78,25 @@ temp_mdl = lmer(h_t ~ foot_syls +(1 + foot_syls | speaker),
 
 #step(temp_mdl)
 drawResiduals(temp_mdl)
-plot_model(temp_mdl)
 tidy(anova(temp_mdl)) %>%
   mutate(p.value = round(p.value, 6),
          statistic = round(statistic, 3)) %>% 
   rename("F value" = statistic)
 summary(temp_mdl)
 anova(temp_mdl)
+cat(c(
+  "\nperformance::check_singularity(temp_mdl): ",
+  check_singularity(temp_mdl, tolerance = 1e-05),
+  "\n"
+))
   
 
 ```
 
 ```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
 plot_model(temp_mdl,
-  title = "h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker)",
-  show.intercept = TRUE,
+  title = "h_t ~ foot_syls + gender + (1 + foot_syls | speaker)",
+  #show.intercept = TRUE,
   show.values = TRUE,
   vline.color = "red",
   colors = "Black"
@@ -153,7 +132,6 @@ temp_mdl = lmer(h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker),
 
 #step(temp_mdl)
 drawResiduals(temp_mdl)
-plot_model(temp_mdl)
 tidy(anova(temp_mdl)) %>%
   mutate(p.value = round(p.value, 6),
          statistic = round(statistic, 3)) %>% 
@@ -168,7 +146,7 @@ anova(temp_mdl)
 ```{r echo=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
 plot_model(temp_mdl,
   title = "h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker)",
-  show.intercept = TRUE,
+  #show.intercept = TRUE,
   show.values = TRUE,
   vline.color = "red",
   colors = "Black"

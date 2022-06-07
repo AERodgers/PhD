@@ -135,7 +135,7 @@ bonferroniAdjust <- function(myTibble,
                        p.value,
                        if_else(
                          p.value * bonferroniMultiplier >= 1,
-                         0.9999999999,
+                         0.9999,
                          p.value * bonferroniMultiplier
                        )
                      ))
@@ -493,23 +493,6 @@ drawResiduals <- function(myModel)
        main = "(c) Residual plot")
 }
 
-bonferroniAdjust <- function(myTibble,
-                             excludeTerms,
-                             bonferroniMultiplier)
-{
-  myTibble <- mutate(myTibble,
-                     p.adjusted = if_else(
-                       term %in% excludeTerms,
-                       p.value,
-                       if_else(
-                         p.value * bonferroniMultiplier >= 1,
-                         0.9999999999,
-                         p.value * bonferroniMultiplier
-                       )
-                     ))
-
-  return(myTibble)
-}
 
 
 sigCodesTidy <- function(my_tibble, incl_marginal_sig = FALSE)
