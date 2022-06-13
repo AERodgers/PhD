@@ -36,9 +36,9 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     s_f0,
     e_f0,
     phr_end_t,
-    slope_st,
-    f0_mean,
-    f0_SD,
+    lh_slope,
+    spkr_f0_mean,
+    spkr_f0_SD,
 
   ) %>%
   mutate(
@@ -49,10 +49,10 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     e_f0_exc = e_f0 - h_f0,
     lh_dur = h_t - l_t,
     he_dur = e_t - h_t,
-    l_f0_z = (l_f0 - f0_mean) / f0_SD,
-    h_f0_z = (h_f0 - f0_mean) / f0_SD,
-    s_f0_z = (s_f0 - f0_mean) / f0_SD,
-    e_f0_z = (e_f0 - f0_mean) / f0_SD,
+    l_f0_z = (l_f0 - spkr_f0_mean) / spkr_f0_SD,
+    h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
+    s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
+    e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
     # redo excursion based on z-scores
     f0_exc_z = h_f0_z - l_f0_z,
     e_f0_exc_z = e_f0_z - h_f0_z,
@@ -92,7 +92,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     )
   ) %>%
   #rename slope!
-  rename(slope = slope_st) %>%
+  rename(slope = lh_slope) %>%
   # Remove columns which have outlived their use!
   select(-c(
     v_onset_t,
@@ -100,8 +100,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     foot_start_t,
     tot_syls,
     phr_end_t,
-    f0_mean,
-    f0_SD
+    spkr_f0_mean,
+    spkr_f0_SD
   ))
 
 
@@ -162,4 +162,3 @@ nuc_pre <- nuc %>%
 nuc_foot <- nuc %>%
   # Get dataset for syllables preceding nuclear PA.
   filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
-

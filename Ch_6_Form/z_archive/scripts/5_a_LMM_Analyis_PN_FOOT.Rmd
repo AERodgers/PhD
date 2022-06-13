@@ -37,7 +37,7 @@ pn_foot <- read_csv("../data/a_corpus.csv") %>%
            init_phon, foot_syls, tot_syls,
            acc_phon, phr_end_t, foot_end_t,
            v_onset_t, l_t, h_t,
-           l_f0, h_f0, mean_st, slope_st
+           l_f0, h_f0, mean_st, lh_slope
            ) %>%
     mutate(
            d_f0 = h_f0 - l_f0,

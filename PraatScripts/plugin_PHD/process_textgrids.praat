@@ -1,4 +1,4 @@
-# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.6
+# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.7
 # ================================================
 # Written for Praat 6.0.36
 
@@ -39,6 +39,10 @@
 #     8. V.2.0.6: Clearer variables.
 #                 Now calculates grand mean syllable time for e_t and s_t
 #                 removed unneeded columns from output table
+#     9. V.2.0.7: Clearer variables.
+#                 corrected slope calculation error
+#                 now collected utterance and PA slope in ST / sec and
+#                 in z-score / sec using speaker f0 mean and SD.
 
 ## Load global variables
 live_version = 1
@@ -55,7 +59,7 @@ form Analysis of TextGrids and Pitch contours
     optionmenu Analysis_set: 1
         option Analysis set one (original)
         option Analysis set two (STH hypothesis)
-        sentence Save_to_directory D:\Users\antoi\GitHub\PhD\Ch_7_Sentence_Modes\data
+        sentence Save_to_directory C:\Users\antoi\GitHub\PhD\Ch_7_Sentence_Modes\data
 endform
 
 # Get start time in seconds
@@ -133,8 +137,10 @@ alignment_data$ = "s_t e_t l_t h_t "
     ... + "v_syl_ratio l_syl_ratio h_syl_ratio s_syl_ratio e_syl_ratio "
 f0_data$ =
     ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 "
-    ... + "slope_st intercept_st utt_mean_f0 utt_med_f0 "
-    ... + "f0_mean f0_SD "
+    ... + "lh_slope lh_slope_z intercept_st lh_mean_f0 lh_med_f0 "
+    ... + "utt_mean_f0 utt_slope utt_slope_z "
+    ... + "spkr_f0_mean spkr_f0_SD "
+
 
 output_table = Create Table with column names: "output", 0,
     ... id_data$
@@ -191,11 +197,13 @@ for dir_i to num_dirs
         @processPhonoTier: cur_textGrid
         @processOrthoTier: cur_textGrid
         @processVowelTier: cur_textGrid, cur_sound, cur_pitch
-        @processToneTier: cur_textGrid, cur_sound, cur_pitch
+        @processToneTier: cur_textGrid, cur_sound, cur_pitch,
+                      ... speaker$, gen_stats
         # Calculate alignment info
         @calculateAlignmentData
 
         @populateTable
+
 
         # remove current pitch, textgrid, tier and table objects
         removeObject: {cur_textGrid, cur_sound, cur_pitch, syl_tier,syl_table,
@@ -229,7 +237,7 @@ Formula (column range): "v_grand_mean_t", "e_grand_mean_t",
 
 # convert F0 to ST re 1 Hz using. Couldn't do this tidily in R!
 Formula (column range): "s_f0", "h_f0", "fixed$(12 * log2(self), 2)"
-Formula (column range): "utt_mean_f0", "utt_med_f0", "fixed$(self, 2)"
+Formula (column range): "lh_mean_f0", "lh_med_f0", "fixed$(self, 2)"
 
 # round syllable ratio values to two decimal places
 Formula (column range): "v_syl_ratio", "e_syl_ratio", "fixed$(self, 2)"
@@ -531,7 +539,20 @@ procedure processVowelTier: .textGrid, .sound, .pitchObject
     endfor
 endproc
 
-procedure processToneTier: .textGrid, .sound, .pitchObject
+procedure processToneTier: .textGrid, .sound, .pitchObject,
+                       ... .speaker$, .gen_stats
+    # Get Global F0 stats: slope and mean
+    selectObject: .textGrid
+    .num_ints = Get number of intervals: syl_tier_num
+    .utt_start_t = Get end point: syl_tier_num, 1
+    .utt_end_t = Get start point: syl_tier_num, .num_ints
+    @getF0LineRegr: .utt_start_t, .utt_end_t, .pitchObject,
+                ... .speaker$, .gen_stats
+    utt_slope = getF0LineRegr.slope
+    utt_slope_z = getF0LineRegr.slope_z
+    utt_mean_f0 = getF0LineRegr.mean_f0
+
+
     # convert phono tier to table
     selectObject: .textGrid
     Extract one tier: tone_tier_num
@@ -607,11 +628,13 @@ procedure processToneTier: .textGrid, .sound, .pitchObject
     for i to tot_feet
         l_t_cur = l_t[i]
         h_t_cur = h_t[i]
-        @getAccLinear: l_t_cur, h_t_cur, .pitchObject
-        slope_st[i] = getAccLinear.slope_st
-        intercept_st[i] = getAccLinear.intercept_st
-        mean_f0[i] = getAccLinear.mean_f0
-        utt_med_f0[i] = getAccLinear.med_f0
+        @getF0LineRegr: l_t_cur, h_t_cur, .pitchObject,
+                    ... .speaker$, .gen_stats
+        lh_slope[i] = getF0LineRegr.slope
+        lh_slope_z[i] = getF0LineRegr.slope_z
+        intercept_st[i] = getF0LineRegr.intercept_st
+        mean_f0[i] = getF0LineRegr.mean_f0
+        lh_med_f0[i] = getF0LineRegr.med_f0
     endfor
 endproc
 
@@ -686,7 +709,7 @@ procedure calculateAlignmentData
     endfor
 endproc
 
-procedure getAccLinear: .l_t, .h_t, .pitchObj
+procedure getF0LineRegr: .s_t, .e_t, .pitchObj, .speaker$, .gen_stats
     # Calculates linear regression of pitch curve between T*  +T
 
     #convert target pitch object to table
@@ -695,10 +718,10 @@ procedure getAccLinear: .l_t, .h_t, .pitchObj
     .pitchTable = pitch2Table.table
 
     #keep only rows between l_t and h_t
-    if .l_t > .h_t
-        .temp = .l_t
-        .l_t = .h_t
-        .h_t = .temp
+    if .s_t > .e_t
+        .temp = .s_t
+        .s_t = .e_t
+        .e_t = .temp
     endif
 
     .num_rows = Get number of rows
@@ -708,7 +731,7 @@ procedure getAccLinear: .l_t, .h_t, .pitchObj
         .cur_num_rows = Get number of rows
         # remove line ONLY if outside time range and there are at least
         # three rows in table.
-        if (.curT < .l_t or .curT > .h_t) and (.cur_num_rows > 2)
+        if (.curT < .s_t or .curT > .e_t) and (.cur_num_rows > 2)
             Remove row: .curRow
         endif
     endfor
@@ -717,11 +740,25 @@ procedure getAccLinear: .l_t, .h_t, .pitchObj
     Formula: "F0", "12 * log2(self)"
 
     @tableStats: .pitchTable, "Time", "F0"
-    .slope_st = tableStats.slope
+    .slope = tableStats.slope
     .intercept_st = tableStats.intercept
     .mean_f0 = tableStats.yMean
     .med_f0 = tableStats.yMed
+
+    # Get speaker mean F0 and SD.
+    selectObject: .gen_stats
+    .speaker_row = Search column: "speaker", .speaker$
+    .speaker_mean_f0 = Get value: .speaker_row, "f0_mean"
+    .speaker_f0_SD = Get value: .speaker_row, "f0_SD"
+
+    # Get z_scored_f0 Slope
     selectObject: .pitchTable
+    Formula: "F0", "(self - .speaker_mean_f0) / .speaker_f0_SD"
+    @tableStats: .pitchTable, "Time", "F0"
+    .slope_z = tableStats.slope
+
+    selectObject: .pitchTable
+
     Remove
 endproc
 
@@ -774,10 +811,14 @@ procedure populateTable
         Set numeric value: bottomRow, "s_f0", s_f0
         Set numeric value: bottomRow, "e_f0", e_f0
         Set numeric value: bottomRow, "v_onset_f0", v_onset_f0[i]
-        Set numeric value: bottomRow, "slope_st", slope_st[i]
+        Set numeric value: bottomRow, "lh_slope", lh_slope[i]
+        Set numeric value: bottomRow, "lh_slope_z", lh_slope_z[i]
         Set numeric value: bottomRow, "intercept_st", intercept_st[i]
-        Set numeric value: bottomRow, "utt_mean_f0", mean_f0[i]
-        Set numeric value: bottomRow, "utt_med_f0", utt_med_f0[i]
+        Set numeric value: bottomRow, "lh_mean_f0", mean_f0[i]
+        Set numeric value: bottomRow, "lh_med_f0", lh_med_f0[i]
+        Set numeric value: bottomRow, "utt_slope", utt_slope
+        Set numeric value: bottomRow, "utt_slope_z", utt_slope_z
+        Set string value: bottomRow, "utt_mean_f0", fixed$(utt_mean_f0, 2)
 
         # add ALIGNMENT data requiring VOWEL Tiers
         Set numeric value: bottomRow, "l_t", l_t[i]
@@ -1588,9 +1629,9 @@ procedure addGenF0Stats: .output_table, .gen_stats
         .f0_mean = Get value: .i, "f0_mean"
         .f0_SD = Get value: .i, "f0_SD"
         selectObject: .output_table
-        Formula: "f0_mean",
+        Formula: "spkr_f0_mean",
         ... "if self$[""speaker""] = .speaker$ then .f0_mean else self endif"
-        Formula: "f0_SD",
+        Formula: "spkr_f0_SD",
         ... "if self$[""speaker""] = .speaker$ then .f0_SD else self endif"
     endfor
 endproc

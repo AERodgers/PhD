@@ -277,7 +277,7 @@ get_m_corpus <- function(file_address) {
         s_f0,
         e_f0,
         phr_end_t,
-        slope_st,
+        lh_slope,
         f0_mean,
         f0_SD,
 
@@ -335,7 +335,7 @@ get_m_corpus <- function(file_address) {
         )
       ) %>%
       #rename slope!
-      rename(slope = slope_st) %>%
+      rename(slope = lh_slope) %>%
 
       # Remove columns which have outlived their use!
       select(
@@ -628,8 +628,8 @@ get_m_corpus <- function(file_address) {
         s_f0,
         e_f0,
         phr_end_t,
-        slope_st,
-        utt_mean_f0,
+        lh_slope,
+        lh_mean_f0,
         f0_mean,
         f0_SD,
 
@@ -646,7 +646,7 @@ get_m_corpus <- function(file_address) {
         h_f0_z = (h_f0 - f0_mean) / f0_SD,
         s_f0_z = (s_f0 - f0_mean) / f0_SD,
         e_f0_z = (e_f0 - f0_mean) / f0_SD,
-        u_mean_f0_z = (utt_mean_f0 - f0_mean) / f0_SD,
+        u_mean_f0_z = (lh_mean_f0 - f0_mean) / f0_SD,
         # redo excursion based on z-scores
         f0_exc_z = h_f0_z - l_f0_z,
         e_f0_exc_z = e_f0_z - h_f0_z,
@@ -688,7 +688,7 @@ get_m_corpus <- function(file_address) {
         )
       ) %>%
       #rename slope!
-      rename(slope = slope_st) %>%
+      rename(slope = lh_slope) %>%
 
       # Remove columns which have outlived their use!
       select(

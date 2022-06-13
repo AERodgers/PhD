@@ -35,7 +35,7 @@ form open textgrids containing given text in phonological analysis
         option does not contain a word ending with
         option matches (regex)
 
-    sentence table_directory D:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings\Analysis_1_standard
+    sentence table_directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings\Analysis_1_standard
     sentence table_file m_corpus.Table
     comment Select tiers to HIDE ("syllable" is necessary)
     boolean ortho 1
