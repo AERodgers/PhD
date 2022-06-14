@@ -281,7 +281,7 @@ b1_footSize  <-
          z.value,
          p.value,
          p.adjusted) %>%
-  rename(intercept = pairwise, slope = term) %>%
+  rename(intercept = pairwise, lh_slope = term) %>%
   sigCodesTidy()
 
 ```

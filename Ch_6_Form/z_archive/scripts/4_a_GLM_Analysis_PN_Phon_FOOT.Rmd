@@ -225,7 +225,7 @@ b1_footSize  <- filter(x, pairwise %notin% c("intercept", "N/A")) %>%
     p.adjusted,
     "signif. (adj.)"
     ) %>% 
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 
 
@@ -387,7 +387,7 @@ b1_footSize  <- filter(x, pairwise %notin% c("intercept", "N/A")) %>%
     p.adjusted,
     "signif. (adj.)"
     ) %>% 
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 p_color <- x ~ style(color = if_else(
   x < 0.001, "green",if_else(
@@ -555,7 +555,7 @@ b1_footSize  <- filter(x, pairwise %notin% c("intercept", "N/A")) %>%
     p.adjusted,
     "signif. (adj.)"
     ) %>% 
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 p_color <- x ~ style(color = if_else(
   x < 0.001, "green",if_else(

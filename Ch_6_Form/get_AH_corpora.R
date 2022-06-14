@@ -91,8 +91,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
       )
     )
   ) %>%
-  #rename slope!
-  rename(slope = lh_slope) %>%
+  #rename lh_slope!
+  rename(lh_slope = lh_slope) %>%
   # Remove columns which have outlived their use!
   select(-c(
     v_onset_t,

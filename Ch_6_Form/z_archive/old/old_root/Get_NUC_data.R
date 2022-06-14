@@ -40,7 +40,7 @@ NUC$V_on <- NUC$V_on * 1000
 NUC$V_off <- NUC$V_off * 1000
 
 # GET SIMPLE STATISTICAL DAT
-# NB $slope, $intercept, $mean from Praat table are based on a linear regression
+# NB $lh_slope, $intercept, $mean from Praat table are based on a linear regression
 #    of between two tonal targets, with the contour measured in ST re 1 Hz
 
 NUC$middle <- (NUC$H_fo + NUC$L_fo) / 2

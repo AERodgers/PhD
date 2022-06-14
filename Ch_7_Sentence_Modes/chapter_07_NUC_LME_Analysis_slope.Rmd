@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: slope"
+title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: lh_slope"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -96,7 +96,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
     l_f0,
     h_f0,
     f0_exc,
-    slope
+    lh_slope
   )
 
 ```
@@ -104,7 +104,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "slope ~ mode + gender + (1 + mode | speaker)"
+cur_equation <- "lh_slope ~ mode + gender + (1 + mode | speaker)"
 
 ```
 
@@ -152,7 +152,7 @@ tidy(temp_mdl) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
   rename(t.value = statistic) %>%
-  formattable(caption = "Intercept and slopes of fixed effects",
+  formattable(caption = "Intercept and lh_slopes of fixed effects",
               list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
@@ -176,7 +176,7 @@ tidy(temp_mdl) %>%
   )
 
 do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
-  write.csv("output/LME_slope_r2.csv")
+  write.csv("output/LME_lh_slope_r2.csv")
 
 print(
   plot_model(
@@ -299,7 +299,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
   )  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_slope_b0.csv")
+  write_csv("output/LME_lh_slope_b0.csv")
 
 
 # print pairwise comparisons of (B1 table)
@@ -311,7 +311,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
          t.value,
          p.value,
          p.adjusted) %>%
-  rename(intercept = pairwise, slope = term) %>%
+  rename(intercept = pairwise, lh_slope = term) %>%
   sigCodesTidy() %>% mutate(
     p.value = if_else(
       p.value < 0.001,
@@ -326,7 +326,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   )  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_slope_b1.csv")
+  write_csv("output/LME_lh_slope_b1.csv")
 
 ```
 

@@ -1,4 +1,4 @@
-intercept,slope,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
+intercept,lh_slope,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
 modeMDC,modeMWH,2.94,7.04,0.418,0.6775,0.9999,
 modeMDC,modeMYN,-5.204,7.204,-0.722,0.4738,0.9999,
 modeMDC,modeMDQ,-37.003,15.519,-2.384,0.0375,0.1873,

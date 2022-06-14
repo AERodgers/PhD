@@ -40,8 +40,8 @@
 #                 Now calculates grand mean syllable time for e_t and s_t
 #                 removed unneeded columns from output table
 #     9. V.2.0.7: Clearer variables.
-#                 corrected slope calculation error
-#                 now collected utterance and PA slope in ST / sec and
+#                 corrected lh_slope calculation error
+#                 now collected utterance and PA lh_slope in ST / sec and
 #                 in z-score / sec using speaker f0 mean and SD.
 
 ## Load global variables
@@ -138,7 +138,7 @@ alignment_data$ = "s_t e_t l_t h_t "
 f0_data$ =
     ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 "
     ... + "lh_slope lh_slope_z intercept_st lh_mean_f0 lh_med_f0 "
-    ... + "utt_mean_f0 utt_slope utt_slope_z "
+    ... + "utt_mean_f0 utt_lh_slope utt_lh_slope_z "
     ... + "spkr_f0_mean spkr_f0_SD "
 
 
@@ -541,15 +541,15 @@ endproc
 
 procedure processToneTier: .textGrid, .sound, .pitchObject,
                        ... .speaker$, .gen_stats
-    # Get Global F0 stats: slope and mean
+    # Get Global F0 stats: lh_slope and mean
     selectObject: .textGrid
     .num_ints = Get number of intervals: syl_tier_num
     .utt_start_t = Get end point: syl_tier_num, 1
     .utt_end_t = Get start point: syl_tier_num, .num_ints
     @getF0LineRegr: .utt_start_t, .utt_end_t, .pitchObject,
                 ... .speaker$, .gen_stats
-    utt_slope = getF0LineRegr.slope
-    utt_slope_z = getF0LineRegr.slope_z
+    utt_lh_slope = getF0LineRegr.lh_slope
+    utt_lh_slope_z = getF0LineRegr.lh_slope_z
     utt_mean_f0 = getF0LineRegr.mean_f0
 
 
@@ -624,14 +624,14 @@ procedure processToneTier: .textGrid, .sound, .pitchObject,
 
 
 
-    # Get intercept & slope of linear regression between L & H in each foot
+    # Get intercept & lh_slope of linear regression between L & H in each foot
     for i to tot_feet
         l_t_cur = l_t[i]
         h_t_cur = h_t[i]
         @getF0LineRegr: l_t_cur, h_t_cur, .pitchObject,
                     ... .speaker$, .gen_stats
-        lh_slope[i] = getF0LineRegr.slope
-        lh_slope_z[i] = getF0LineRegr.slope_z
+        lh_slope[i] = getF0LineRegr.lh_slope
+        lh_slope_z[i] = getF0LineRegr.lh_slope_z
         intercept_st[i] = getF0LineRegr.intercept_st
         mean_f0[i] = getF0LineRegr.mean_f0
         lh_med_f0[i] = getF0LineRegr.med_f0
@@ -740,7 +740,7 @@ procedure getF0LineRegr: .s_t, .e_t, .pitchObj, .speaker$, .gen_stats
     Formula: "F0", "12 * log2(self)"
 
     @tableStats: .pitchTable, "Time", "F0"
-    .slope = tableStats.slope
+    .lh_slope = tableStats.lh_slope
     .intercept_st = tableStats.intercept
     .mean_f0 = tableStats.yMean
     .med_f0 = tableStats.yMed
@@ -755,7 +755,7 @@ procedure getF0LineRegr: .s_t, .e_t, .pitchObj, .speaker$, .gen_stats
     selectObject: .pitchTable
     Formula: "F0", "(self - .speaker_mean_f0) / .speaker_f0_SD"
     @tableStats: .pitchTable, "Time", "F0"
-    .slope_z = tableStats.slope
+    .lh_slope_z = tableStats.lh_slope
 
     selectObject: .pitchTable
 
@@ -816,8 +816,8 @@ procedure populateTable
         Set numeric value: bottomRow, "intercept_st", intercept_st[i]
         Set numeric value: bottomRow, "lh_mean_f0", mean_f0[i]
         Set numeric value: bottomRow, "lh_med_f0", lh_med_f0[i]
-        Set numeric value: bottomRow, "utt_slope", utt_slope
-        Set numeric value: bottomRow, "utt_slope_z", utt_slope_z
+        Set numeric value: bottomRow, "utt_lh_slope", utt_lh_slope
+        Set numeric value: bottomRow, "utt_lh_slope_z", utt_lh_slope_z
         Set string value: bottomRow, "utt_mean_f0", fixed$(utt_mean_f0, 2)
 
         # add ALIGNMENT data requiring VOWEL Tiers
@@ -1084,11 +1084,11 @@ procedure tableStats: .table, .colX$, .colY$
 		.stDevX = Get standard deviation: .colX$
 		.linear_regression = To linear regression
 		.linear_regression$ = Info
-		.slope = extractNumber (.linear_regression$, "Coefficient of factor '.colX$': ")
-		.slope = number(fixed$(.slope, 3))
+		.lh_slope = extractNumber (.linear_regression$, "Coefficient of factor '.colX$': ")
+		.lh_slope = number(fixed$(.lh_slope, 3))
 		.intercept = extractNumber (.linear_regression$, "Intercept: ")
 		.intercept = number(fixed$(.intercept, 3))
-		.r = number(fixed$(.slope * .stDevX / .stDevY, 3))
+		.r = number(fixed$(.lh_slope * .stDevX / .stDevY, 3))
 		selectObject: .linear_regression
 		.info$ = Info
 		Remove
@@ -1097,7 +1097,7 @@ procedure tableStats: .table, .colX$, .colY$
 		.stDevX = undefined
 		.linear_regression = undefined
 		.linear_regression$ = "N/A"
-		.slope = undefined
+		.lh_slope = undefined
 		.intercept = Get value: 1, .colY$
 		.r = undefined
 		.info$ = "N/A"

@@ -1,10 +1,10 @@
 Linear mixed model fit by REML. t-tests use Satterthwaite's method [lmerModLmerTest]
-Formula: slope ~ ft_syls + gender + (1 + ft_syls | speaker)
+Formula: lh_slope ~ ft_syls + gender + (1 + ft_syls | speaker)
    Data: PN_foot
 Control: 
 lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",  
     starttests = FALSE, kkt = FALSE))
- Subset: abs(scale(resid(PN.ft.mdl.slope))) < 2.5
+ Subset: abs(scale(resid(PN.ft.mdl.lh_slope))) < 2.5
 
 REML criterion at convergence: 1450.7
 

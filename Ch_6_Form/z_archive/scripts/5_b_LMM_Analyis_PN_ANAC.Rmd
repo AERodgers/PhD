@@ -126,12 +126,12 @@ r.squaredGLMM(ht_anac)
 
 
 lmertest::step() was run to see what the most efficient model might be.
-This suggesest the same model but without the random slope.
+This suggesest the same model but without the random lh_slope.
 ```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
 
 step(ht_anac)
 ```
-Re-running model without random slopes increased r^2 of fixed slightly but reduced the r^2 of the whole model (slightly).
+Re-running model without random lh_slopes increased r^2 of fixed slightly but reduced the r^2 of the whole model (slightly).
 This was not pursued further.
 ```{r eval=FALSE, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, include=FALSE}
 ht_anac <- lmer(h_t ~ ana_syls + gender + SR +

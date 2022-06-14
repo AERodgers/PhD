@@ -95,13 +95,13 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
     l_f0,
     h_f0,
     f0_exc,
-    slope
+    lh_slope
   )
 
 ```
 
 ```{r}
-response_vars <- c("l_t", "l_f0", "h_f0", "f0_exc", "slope")
+response_vars <- c("l_t", "l_f0", "h_f0", "f0_exc", "lh_slope")
 model_equation = NULL
 model_equation = c(model_equation, paste(response_vars, " ~ mode + gender + (1 + mode | speaker)", sep = ""))
 
@@ -149,7 +149,7 @@ for (cur_equation in model_equation) {
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
     rename(t.value = statistic) %>%
-    formattable(caption = "Intercept and slopes of fixed effects",
+    formattable(caption = "Intercept and lh_slopes of fixed effects",
                 list(p.adjusted = formatter("span", style = p_color))) %>%
     mutate(
       p.value = if_else(
@@ -305,7 +305,7 @@ for (cur_equation in model_equation) {
            t.value,
            p.value,
            p.adjusted) %>%
-    rename(intercept = pairwise, slope = term) %>%
+    rename(intercept = pairwise, lh_slope = term) %>%
     sigCodesTidy() %>% mutate(
         p.value = if_else(
           p.value < 0.001,

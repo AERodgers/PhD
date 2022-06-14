@@ -141,24 +141,24 @@ i = 4
          width = 15, height = 8, units = "cm")
   
   
-  PN.ft.model.slope.sum = summary(PN.ft.model.slope)
-  PN.ft.model.slope.ano = anova(PN.ft.model.slope)
-  fileName = paste("PN_foot_modelOutput/7_PN.ft.model.slope_", syls[i], "syl.txt", sep = "")
-  capture.output(PN.ft.model.slope.sum, file = fileName)
-  capture.output(PN.ft.model.slope.ano, file = fileName, append =  TRUE)
+  PN.ft.model.lh_slope.sum = summary(PN.ft.model.lh_slope)
+  PN.ft.model.lh_slope.ano = anova(PN.ft.model.lh_slope)
+  fileName = paste("PN_foot_modelOutput/7_PN.ft.model.lh_slope_", syls[i], "syl.txt", sep = "")
+  capture.output(PN.ft.model.lh_slope.sum, file = fileName)
+  capture.output(PN.ft.model.lh_slope.ano, file = fileName, append =  TRUE)
   
-  tab_model(PN.ft.model.slope,
+  tab_model(PN.ft.model.lh_slope,
             title = paste("Slope (ST/sec),", syls[i], "as intercept"),
             show.icc = FALSE,
-            file = paste("PN_foot_modelOutput/7_PN.slope.regression_", syls[i], "syl.html", sep = ""))
-  plot_model(PN.ft.model.slope,
+            file = paste("PN_foot_modelOutput/7_PN.lh_slope.regression_", syls[i], "syl.html", sep = ""))
+  plot_model(PN.ft.model.lh_slope,
              title = paste("Slope (ST/sec),", syls[i], "as intercept"),
              show.intercept = FALSE,
              show.values = TRUE,
              #order.terms = c(2,3,4),
              vline.color = "red",
              colors = "Black")
-  ggsave(file = paste("PN_foot_modelOutput/7_PN.slope.regression.plot_", syls[i], ".png", sep = ""),
+  ggsave(file = paste("PN_foot_modelOutput/7_PN.lh_slope.regression.plot_", syls[i], ".png", sep = ""),
          width = 15, height = 8, units = "cm")
 
   

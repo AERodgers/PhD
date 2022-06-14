@@ -1,5 +1,5 @@
 Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
-Formula: slope ~ hasAnac + gender + (1 + hasAnac | speaker)
+Formula: lh_slope ~ hasAnac + gender + (1 + hasAnac | speaker)
    Data: PN_anac
 Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",      starttests = FALSE, kkt = FALSE))
 
@@ -48,4 +48,4 @@ gender           1 12.297  12.297     1 8.3270  0.3212 0.5858
 hasAnac          2 12.070  12.070     1 7.3825  0.3157 0.5908
 
 Model found:
-slope ~ (1 + hasAnac | speaker)
+lh_slope ~ (1 + hasAnac | speaker)

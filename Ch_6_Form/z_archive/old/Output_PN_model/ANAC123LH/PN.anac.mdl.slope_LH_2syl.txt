@@ -1,5 +1,5 @@
 Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
-Formula: slope ~ ana_syls + gender + (1 + ana_syls | speaker)
+Formula: lh_slope ~ ana_syls + gender + (1 + ana_syls | speaker)
    Data: PN_anac
 Control: lmerControl(optimizer = "optimx", calc.derivs = FALSE, optCtrl = list(method = "nlminb",      starttests = FALSE, kkt = FALSE))
 
@@ -55,4 +55,4 @@ ana_syls          0 296.578 148.289     2 10.0133  4.7947 0.03462 *
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Model found:
-slope ~ ana_syls + (1 + ana_syls | speaker)
+lh_slope ~ ana_syls + (1 + ana_syls | speaker)

@@ -70,7 +70,7 @@ NUC.pre.mdl.R_fo  = lmer(R_fo ~ PrN_unStr + gender + (1 + PrN_unStr | speaker),
                                            )
                       )
 
-NUC.pre.mdl.slope = lmer(slope  ~ PrN_unStr + gender + (1 + PrN_unStr | speaker),
+NUC.pre.mdl.lh_slope = lmer(lh_slope  ~ PrN_unStr + gender + (1 + PrN_unStr | speaker),
                      data = NUC.pre,
                      control = lmerControl(optimizer = "optimx",
                                            calc.derivs = FALSE,

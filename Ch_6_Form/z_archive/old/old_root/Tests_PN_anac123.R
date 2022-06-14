@@ -125,8 +125,8 @@ for(i in 1:3){
                             )
 
     # only works with subset when i == 1 and i-cept only mode when i = 2 in L*H
-    PN.anac.mdl.slope = lmer(
-        slope  ~ ana_syls + gender + (1 + ana_syls  | speaker),
+    PN.anac.mdl.lh_slope = lmer(
+        lh_slope  ~ ana_syls + gender + (1 + ana_syls  | speaker),
         data = PN_anac,
         control = lmerControl(optimizer = "optimx",
                               calc.derivs = FALSE,
@@ -222,11 +222,11 @@ for(i in 1:3){
     capture.output(PN.anac.mdl.med.ano, file = fileName, append =  TRUE)
     capture.output(PN.anac.mdl.med.step, file = fileName, append =  TRUE)
 
-    PN.anac.mdl.slope.ano = anova(PN.anac.mdl.slope)
-    PN.anac.mdl.slope.sum = summary(PN.anac.mdl.slope)
-    PN.anac.mdl.slope.step = step(PN.anac.mdl.slope)
-    fileName = paste(folder, "PN.anac.mdl.slope_", PN_Type, "_", syls[1], "syl.txt", sep = "")
-    capture.output(PN.anac.mdl.slope.sum, file = fileName)
-    capture.output(PN.anac.mdl.slope.ano, file = fileName, append =  TRUE)
-    capture.output(PN.anac.mdl.slope.step, file = fileName, append =  TRUE)}
+    PN.anac.mdl.lh_slope.ano = anova(PN.anac.mdl.lh_slope)
+    PN.anac.mdl.lh_slope.sum = summary(PN.anac.mdl.lh_slope)
+    PN.anac.mdl.lh_slope.step = step(PN.anac.mdl.lh_slope)
+    fileName = paste(folder, "PN.anac.mdl.lh_slope_", PN_Type, "_", syls[1], "syl.txt", sep = "")
+    capture.output(PN.anac.mdl.lh_slope.sum, file = fileName)
+    capture.output(PN.anac.mdl.lh_slope.ano, file = fileName, append =  TRUE)
+    capture.output(PN.anac.mdl.lh_slope.step, file = fileName, append =  TRUE)}
     }

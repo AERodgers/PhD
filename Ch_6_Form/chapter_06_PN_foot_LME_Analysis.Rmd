@@ -108,7 +108,7 @@ r.squaredGLMM(temp_mdl)
 ```
 
 h_t re acc_phon
-I am interpreting the mean estimates output in the foot_syl slopes by this model as essentially representing the timing of H targets once acc_phon, gender, and speaker have been taken into accout
+I am interpreting the mean estimates output in the foot_syl lh_slopes by this model as essentially representing the timing of H targets once acc_phon, gender, and speaker have been taken into accout
 ```{r fig.height=4, fig.width=12}
 temp_mdl = lmer(h_t ~ foot_syls + acc_phon + gender + (1 + foot_syls | speaker),
               data = pn_foot %>% 

@@ -195,7 +195,7 @@ b0_GenderSR <- filter(x, term %in% c("genderM", "SR", "genderM:SR")) %>%
 
 b1_anaSize <- filter(x, pairwise %notin% c("intercept", "N/A")) %>% 
   select(pairwise, term, estimate, std.error, z.value, p.value, p.adjusted, "signif. (adj.)") %>% 
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 
 p_color <- x ~ style(color = if_else(
@@ -351,7 +351,7 @@ b0_GenderSR  <- filter(x, term %in% c("genderM", "SR", "genderM:SR")) %>%
 
 b1_anaSize  <- filter(x, pairwise %notin% c("intercept", "N/A")) %>% 
   select(pairwise, term, estimate, std.error, z.value, p.value, p.adjusted, "signif. (adj.)") %>% 
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 
 ```

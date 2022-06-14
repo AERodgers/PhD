@@ -96,7 +96,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
     l_f0,
     h_f0,
     f0_exc,
-    slope
+    lh_slope
   )
 
 ```
@@ -154,7 +154,7 @@ tidy(temp_mdl) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
   rename("t.value" = statistic) %>%
-  formattable(caption = "Intercept and slopes of fixed effects",
+  formattable(caption = "Intercept and lh_slopes of fixed effects",
               list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
@@ -313,7 +313,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
          `t.value`,
          p.value,
          p.adjusted) %>%
-  rename(intercept = pairwise, slope = term) %>%
+  rename(intercept = pairwise, lh_slope = term) %>%
   sigCodesTidy() %>% mutate(
     p.value = if_else(
       p.value < 0.001,

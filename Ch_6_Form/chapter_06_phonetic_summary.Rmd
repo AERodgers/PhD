@@ -154,8 +154,8 @@ param_means(pn_foot_param_sum, lh_dur, foot_syls, acc_phon) %>%
   write_csv("output/pn_foot_lh_dur_means.csv")
 param_means(pn_foot_param_sum, f0_exc_z, foot_syls, acc_phon) %>%
   write_csv("output/pn_foot_exc_f0_means.csv")
-param_means(pn_foot_param_sum, slope, foot_syls, acc_phon) %>%
-  write_csv("output/pn_foot_slope_means.csv")
+param_means(pn_foot_param_sum, lh_slope, foot_syls, acc_phon) %>%
+  write_csv("output/pn_foot_lh_slope_means.csv")
 
 #get summary of each target parameter per pa per pre_syl condition
 param_means(pn_ana_param_sum, l_t, ana_syls, acc_phon) %>%
@@ -170,8 +170,8 @@ param_means(pn_ana_param_sum, lh_dur, ana_syls, acc_phon) %>%
   write_csv("output/pn_ana_lh_dur_means.csv")
 param_means(pn_ana_param_sum, f0_exc_z, ana_syls, acc_phon) %>%
   write_csv("output/pn_ana_exc_f0_means.csv")
-param_means(pn_ana_param_sum, slope, ana_syls, acc_phon) %>%
-  write_csv("output/pn_ana_slope_means.csv")
+param_means(pn_ana_param_sum, lh_slope, ana_syls, acc_phon) %>%
+  write_csv("output/pn_ana_lh_slope_means.csv")
 ```
 
 
@@ -201,8 +201,8 @@ param_means(nuc_foot_param_sum, he_dur, foot_syls, nuc_contour) %>%
   write_csv("output/nuc_foot_he_dur_means.csv")
 param_means(nuc_foot_param_sum, f0_exc_z, foot_syls, nuc_contour) %>%
   write_csv("output/nuc_foot_exc_f0_means.csv")
-param_means(nuc_foot_param_sum, slope, foot_syls, nuc_contour) %>%
-  write_csv("output/nuc_foot_slope_means.csv")
+param_means(nuc_foot_param_sum, lh_slope, foot_syls, nuc_contour) %>%
+  write_csv("output/nuc_foot_lh_slope_means.csv")
 
 
 
@@ -229,6 +229,6 @@ param_means(nuc_pre_param_sum, he_dur, pre_syls, nuc_contour) %>%
   write_csv("output/nuc_pre_he_dur_means.csv")
 param_means(nuc_pre_param_sum, f0_exc_z, pre_syls, nuc_contour) %>%
   write_csv("output/nuc_pre_exc_f0_means.csv")
-param_means(nuc_pre_param_sum, slope, pre_syls, nuc_contour) %>%
-  write_csv("output/nuc_pre_slope_means.csv")
+param_means(nuc_pre_param_sum, lh_slope, pre_syls, nuc_contour) %>%
+  write_csv("output/nuc_pre_lh_slope_means.csv")
 ```

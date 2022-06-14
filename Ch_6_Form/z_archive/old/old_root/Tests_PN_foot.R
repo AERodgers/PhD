@@ -138,7 +138,7 @@ for(i in 1:4){
                 }
 
     # i = 3 == problem for untrimmed version
-    PN.ft.mdl.slope = lmer(slope  ~ ft_syls + gender + (1 + ft_syls | speaker),
+    PN.ft.mdl.lh_slope = lmer(lh_slope  ~ ft_syls + gender + (1 + ft_syls | speaker),
                            data = PN_foot,
                            control = lmerControl(optimizer = "optimx",
                                                  calc.derivs = FALSE,
@@ -149,10 +149,10 @@ for(i in 1:4){
                                                  )
                            )
     if (i == 3){
-                PN.ft.mdl.slope = lmer(
-                    slope  ~ ft_syls + gender + (1 + ft_syls | speaker),
+                PN.ft.mdl.lh_slope = lmer(
+                    lh_slope  ~ ft_syls + gender + (1 + ft_syls | speaker),
                     data = PN_foot,
-                    subset = abs(scale(resid(PN.ft.mdl.slope)))<2.5,
+                    subset = abs(scale(resid(PN.ft.mdl.lh_slope)))<2.5,
                     control = lmerControl(optimizer = "optimx",
                                           calc.derivs = FALSE,
                                           optCtrl = list(
@@ -235,10 +235,10 @@ for(i in 1:4){
     capture.output(PN.ft.mdl.med.sum, file = fileName)
     capture.output(PN.ft.mdl.med.ano, file = fileName, append =  TRUE)
 
-    PN.ft.mdl.slope.ano = anova(PN.ft.mdl.slope)
-    PN.ft.mdl.slope.sum = summary(PN.ft.mdl.slope)
-    fileName = paste(folder, "PN.ft.mdl.slope_", syls[i], "syl.txt", sep = "")
-    capture.output(PN.ft.mdl.slope.sum, file = fileName)
-    capture.output(PN.ft.mdl.slope.ano, file = fileName, append =  TRUE)
+    PN.ft.mdl.lh_slope.ano = anova(PN.ft.mdl.lh_slope)
+    PN.ft.mdl.lh_slope.sum = summary(PN.ft.mdl.lh_slope)
+    fileName = paste(folder, "PN.ft.mdl.lh_slope_", syls[i], "syl.txt", sep = "")
+    capture.output(PN.ft.mdl.lh_slope.sum, file = fileName)
+    capture.output(PN.ft.mdl.lh_slope.ano, file = fileName, append =  TRUE)
 
 }

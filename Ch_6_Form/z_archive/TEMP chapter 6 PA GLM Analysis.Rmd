@@ -233,7 +233,7 @@ b1_footSize  <-
          std.error,
          z.value,
          p.value) %>%
-  rename(intercept = pairwise, slope = term)
+  rename(intercept = pairwise, lh_slope = term)
 
 ```
 
