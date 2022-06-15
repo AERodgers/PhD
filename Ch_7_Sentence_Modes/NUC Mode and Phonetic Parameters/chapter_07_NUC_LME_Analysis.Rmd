@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -63,7 +63,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =

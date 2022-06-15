@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: l_t"
+title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: h_f0"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -63,7 +63,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =
@@ -104,7 +104,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "l_t ~ mode + gender + (1 + mode | speaker)"
+cur_equation <- "h_f0 ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
 
 ```
 
@@ -123,6 +123,7 @@ temp_mdl = lmer(
   )
 )
 
+step(temp_mdl)
 ```
 
 
@@ -131,7 +132,9 @@ print(summary(temp_mdl))
 
 drawResiduals(temp_mdl)
 
-anova(temp_mdl) %>% formattable(caption = "Anova of model") %>% print()
+anova(temp_mdl) %>% formattable(caption = "Anova of model")
+
+
 ```
 
 
@@ -151,7 +154,7 @@ tidy(temp_mdl) %>%
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
-  rename(t.value = statistic) %>%
+  rename("t.value" = statistic) %>%
   formattable(caption = "Intercept and lh_slopes of fixed effects",
               list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
@@ -175,7 +178,8 @@ tidy(temp_mdl) %>%
     align = "l"
   )
 
-do.call(rbind, r2_nakagawa(temp_mdl))[,1]  %>% write.csv("output/LME_l_t_r2.csv")
+do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
+  write.csv("../output/LME_h_f0_r2.csv")
 
 print(
   plot_model(
@@ -253,7 +257,7 @@ for (i in 1:(num_levels)) {
     filter(term != "sd__(Intercept)") %>%
     select(-effect) %>%
     # rename statistic column to "t.value"
-    rename(t.value = statistic)
+    rename("t.value" = statistic)
   
   
   # make list of pairwise comparisons to keeps
@@ -298,7 +302,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
   )  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_l_t_b0.csv")
+  write_csv("../output/LME_h_f0_b0.csv")
 
 
 # print pairwise comparisons of (B1 table)
@@ -307,7 +311,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
          term,
          estimate,
          std.error,
-         t.value,
+         `t.value`,
          p.value,
          p.adjusted) %>%
   rename(intercept = pairwise, lh_slope = term) %>%
@@ -325,7 +329,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   )  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_l_t_b1.csv")
+  write_csv("../output/LME_h_f0_b1.csv")
 
 ```
 

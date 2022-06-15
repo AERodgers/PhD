@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r warning=FALSE, message=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -57,7 +57,7 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
 
 ```{r warning=FALSE, message=FALSE}
 # Get  Data.
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     select(speaker,
            gender,
            stim,
@@ -107,7 +107,7 @@ modes_nuc_summaries <- m_corpus_short %>%
   summarise(acc_count = n()) %>%
   spread(acc_phon,acc_count, is.na <- 0) %>% 
   # Save the results in a csv file
-  write_csv("output/modes_nuc_raw.csv")
+  write_csv("../output/modes_nuc_raw.csv")
 ```
 
 ### Nuclear Pitch Accent by Sentence Mode
@@ -131,7 +131,7 @@ m_corpus_short %>%
   group_by(speaker, acc_phon) %>%
   summarise(acc_count = n(), .groups="keep") %>%
   spread(acc_phon, acc_count, is.na <- 0) %>%
-  write_csv("output/nuc_by_speaker_raw.csv") %>%
+  write_csv("../output/nuc_by_speaker_raw.csv") %>%
   rename("\\^[L*]H" = "^[L*]H",
          "L*\\^[H]" = "L*^[H]",
          "\\^[L*H]" = "^[L*H]",
@@ -163,7 +163,7 @@ balancedData(m_corpus_short %>% filter(acc_phon %notin% c(">H", "H*")),
     group_by(acc_phon, mode) %>%
     summarise(acc_count = sum(value)) %>%
     spread(acc_phon, acc_count, is.na <- 0) %>%
-    write_csv("output/modes_nuc_balanced.csv") %>%
+    write_csv("../output/modes_nuc_balanced.csv") %>%
     rename(
         "\\^[L*]H" = "^[L*]H",
         "L*\\^[H]" = "L*^[H]",
@@ -256,7 +256,7 @@ ggplot(mode_tokens_adjusted) +
     theme(panel.border = element_rect(fill = NA))
 ```
 
-```{r fig.height=2, fig.width=5.5}
+```{r fig.height=4, fig.width=11}
 ggplot(mode_tokens_adjusted %>% filter(acc_phon %notin%(c("H*", ">H*", "^[L*]H")))) +
     geom_bar(
         mapping = aes(x = mode, fill = acc_phon),
@@ -290,7 +290,7 @@ pa_by_speaker_pc <- m_corpus_short %>%
     select(-tot_PAs)
 
 pa_by_speaker_pc %>%
-    write_csv("output/nuc_by_speaker_adj.csv")  %>%
+    write_csv("../output/nuc_by_speaker_adj.csv")  %>%
     rename(
         "\\^[L*]H" = "^[L*]H",
         "L*\\^[H]" = "L*^[H]",

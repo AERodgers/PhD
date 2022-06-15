@@ -27,7 +27,7 @@ PN_Type = "PAs"
 #PN_anac <- PN_anac[(PN_anac$acc %in% ">H*"),]                                   # >H* only
 #PN_Type = "dH"
 
-write.table(PN_anac, paste("data/PN_anac_", PN_Type, ".txt", sep = ""), sep = "\t")
+write.table(PN_anac, paste("../data/PN_anac_", PN_Type, ".txt", sep = ""), sep = "\t")
 
 # SET INTERCEPT PERMUTATION ARRAY
 syls <- as.array(c("3", "0", "1", "2"))

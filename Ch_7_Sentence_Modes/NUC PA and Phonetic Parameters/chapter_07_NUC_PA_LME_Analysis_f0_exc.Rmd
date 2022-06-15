@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: h_t"
+title: "Chapter 7 - LME analysis of Nuclear Contours: f0_exc"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -63,7 +63,9 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =
@@ -77,7 +79,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
         str_replace(nuc_contour,
                     "\\s%$|\\sL%$",
                     ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+        levels = l_star_h_types
       ),
     fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
   ) %>%
@@ -97,14 +99,15 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
     h_f0,
     f0_exc,
     lh_slope
-  )
+  ) %>% 
+  filter(acc_phon %in% l_star_h_types)
 
 ```
 
 
 ```{r}
 # set current equation
-cur_equation <- "h_t ~ mode + gender + (1 + mode | speaker)"
+cur_equation <- "f0_exc ~ acc_phon + (1 | speaker)"
 
 ```
 
@@ -128,7 +131,6 @@ temp_mdl = lmer(
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl))
-
 drawResiduals(temp_mdl)
 
 anova(temp_mdl) %>% formattable(caption = "Anova of model") %>% print()
@@ -152,7 +154,8 @@ tidy(temp_mdl) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
   rename(t.value = statistic) %>%
-  formattable(caption = "Intercept and lh_slopes of fixed effects",
+  mutate(term = str_replace(term, "\\^\\[", "\\\\^\\\\[")) %>%
+  formattable(caption = cur_equation,
               list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
@@ -175,7 +178,8 @@ tidy(temp_mdl) %>%
     align = "l"
   )
 
-do.call(rbind, r2_nakagawa(temp_mdl))[,1]  %>% write.csv("output/LME_h_t_r2.csv")
+do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
+  write.csv("../output/LME_PA_f0_exc_r2.csv")
 
 print(
   plot_model(
@@ -187,11 +191,14 @@ print(
     colors = "Black"
   )
 )
+```
 
-# Get intercepts and pairwise comparisons for each foot size condition.
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# Get intercepts and pairwise comparisons for each PA
 
 # Get number of levels in target treatment variable.
-cur_levels <- levels(m_corpus$mode)
+cur_levels <- levels(m_corpus$acc_phon)
 orig_levels <- cur_levels
 num_levels <- length(cur_levels)
 all_models_tidy = tibble()
@@ -233,19 +240,16 @@ for (i in 1:(num_levels)) {
           term == "(Intercept)",
           "intercept",
           if_else(
-            term %notin% c("modeMDC",
-                           "modeMWH",
-                           "modeMYN",
-                           "modeMDQ"),
+            term %notin% paste("acc_phon", cur_levels, sep = ""),
             "N/A",
-            paste("mode", cur_levels[1], sep = "") #???
+            paste("acc_phon", cur_levels[1], sep = "")
           )
         ),
       # change 'term' so "intercept" states the target condition name.
       term =
         if_else(
           term == "(Intercept)",
-          paste("mode", cur_levels[1], sep = ""),
+          paste("acc_phon", cur_levels[1], sep = ""),
           term
         )
     ) %>%
@@ -258,10 +262,10 @@ for (i in 1:(num_levels)) {
   
   # make list of pairwise comparisons to keeps
   keep = NULL
-  for (j in i:4) {
-    keep <- c(keep, paste("mode", orig_levels[j], sep = ""))
+  for (j in i:num_levels) {
+    keep <- c(keep, paste("acc_phon", orig_levels[j], sep = ""))
+
   }
-  
   # remove pairwise comparisons which have already been done
   cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
   
@@ -271,12 +275,12 @@ for (i in 1:(num_levels)) {
   # restructure the order of levels for next LME cur_model.
   cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
   m_corpus <- m_corpus %>%
-    mutate(mode = factor(mode,
+    mutate(acc_phon = factor(acc_phon,
                          levels = cur_levels))
 }
 
 # arrange tibble according to pairwise move it to first column position
-all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
+all_models_tidy  %>% 
   relocate(pairwise) %>%
   sigCodesTidy()
 
@@ -296,9 +300,13 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  write_csv("../output/LME_PA_f0_exc_b0.csv") %>%
+  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
+         intercept = str_replace(intercept, "acc_phon", "")
+) %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_h_t_b0.csv")
+              caption = paste("b0 for", cur_equation, sep = " "))
+
 
 
 # print pairwise comparisons of (B1 table)
@@ -310,7 +318,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
          t.value,
          p.value,
          p.adjusted) %>%
-  rename(intercept = pairwise, lh_slope = term) %>%
+  rename(intercept = pairwise) %>%
   sigCodesTidy() %>% mutate(
     p.value = if_else(
       p.value < 0.001,
@@ -322,10 +330,17 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_h_t_b1.csv")
+  ) %>%
+  write_csv("../output/LME_PA_f0_exc_b1.csv")  %>%
+  mutate(
+    term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
+    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
+    term = str_replace(term, "acc_phon", ""),
+    intercept = str_replace(intercept, "acc_phon", "")
+    ) %>%  
+    rename(`est. (slope)` = estimate) %>% 
+formattable(list(p.adjusted = formatter("span", style = p_color)),
+            caption = paste("b1 for", cur_equation, sep = " "))
 
 ```
 

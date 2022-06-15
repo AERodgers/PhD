@@ -2,10 +2,10 @@
 # --------------------------
 
 ## Get per-speaker f0 stats.
-#gen_f0_stats <- as_tibble(read.csv("data/GenStats_a_corpus.csv"))
+#gen_f0_stats <- as_tibble(read.csv("../data/GenStats_a_corpus.csv"))
 
 #corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>%
-corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
+corpus <- as_tibble(read.csv("../data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
     speaker,

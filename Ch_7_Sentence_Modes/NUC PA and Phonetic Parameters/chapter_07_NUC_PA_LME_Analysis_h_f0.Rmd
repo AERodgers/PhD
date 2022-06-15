@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Nuclear Contours: l_f0"
+title: "Chapter 7 - LME analysis of Nuclear Contours: h_f0"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -65,7 +65,7 @@ p_color <- all_models_tidy ~ style(color =
 # Load Corpus
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =
@@ -107,7 +107,7 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "l_f0 ~ acc_phon + (1 + acc_phon | speaker)"
+cur_equation <- "h_f0 ~ acc_phon + (1 | speaker)"
 
 ```
 
@@ -179,7 +179,7 @@ tidy(temp_mdl) %>%
   )
 
 do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
-  write.csv("output/LME_PA_l_f0_r2.csv")
+  write.csv("../output/LME_PA_h_f0_r2.csv")
 
 print(
   plot_model(
@@ -280,7 +280,7 @@ for (i in 1:(num_levels)) {
 }
 
 # arrange tibble according to pairwise move it to first column position
-all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
+all_models_tidy  %>% 
   relocate(pairwise) %>%
   sigCodesTidy()
 
@@ -300,7 +300,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
-  write_csv("output/LME_PA_l_f0_b0.csv") %>%
+  write_csv("../output/LME_PA_h_f0_b0.csv") %>%
   mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
          intercept = str_replace(intercept, "acc_phon", "")
 ) %>%
@@ -331,13 +331,14 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   ) %>%
-  write_csv("output/LME_PA_l_f0_b1.csv")  %>%
+  write_csv("../output/LME_PA_h_f0_b1.csv")  %>%
   mutate(
     term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
     intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
     term = str_replace(term, "acc_phon", ""),
     intercept = str_replace(intercept, "acc_phon", "")
-  ) %>% 
+    ) %>%  
+    rename(`est. (slope)` = estimate) %>% 
 formattable(list(p.adjusted = formatter("span", style = p_color)),
             caption = paste("b1 for", cur_equation, sep = " "))
 

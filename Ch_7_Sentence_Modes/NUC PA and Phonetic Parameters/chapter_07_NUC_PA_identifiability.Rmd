@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -32,6 +32,7 @@ installMissingPackages(
     "formattable",
     "knitr",
     "RColorBrewer",
+    "plotly",
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
@@ -63,7 +64,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =
@@ -109,69 +110,92 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
 
 ```
 
-Density plot of mode by lh contour mean f0 and lh_slope
-
-```{r, fig.width=4, fig.height=3}
-ggplot(m_corpus %>% filter(mode %in% c("MDC", "MDQ")),
-       aes(y = lh_mean_f0_z, x = lh_slope, color = mode)) +
-  geom_point() +
-  geom_density_2d() +
-  scale_color_manual(values = mode_colours) +
-  xlim(-20, 100) +
-  ylim(-3, 3)
-
-ggplot(
-  m_corpus %>% filter(mode %in% c("MDC", "MDQ"), speaker != "F16"),
-  aes(y = lh_mean_f0_z, x = lh_slope, color = mode)
-) +
-  geom_point() +
-  geom_density_2d() +
-  scale_color_manual(values = mode_colours) +
-  xlim(-20, 100) +
-  ylim(-3, 3)
-
-
-```
-
-Density plot of mode by utterance contour
-
-```{r, fig.width=4, fig.height=3}
-ggplot(m_corpus %>% filter(mode %in% c("MDC", "MDQ")),
-       aes(y = utt_mean_f0_z, x = utt_lh_slope, color = mode)) +
-  geom_point() +
-  geom_density_2d() +
-  scale_color_manual(values = mode_colours) +
-  xlim(-20, 20) +
-  ylim(-3, 3)
-
-ggplot(
-  m_corpus %>% filter(mode %in% c("MDC", "MDQ"), speaker != "F16"),
-  aes(y = utt_mean_f0_z, x = utt_lh_slope, color = mode)
-) +
-  geom_point() +
-  geom_density_2d() +
-  scale_color_manual(values = mode_colours) +
-  xlim(-20, 20) +
-  ylim(-3, 3)
-
-```
 
 Density plot of PAs by lh mean f0 and lh_slope
 
 ```{r, fig.width=4, fig.height=3}
+ggplot(m_corpus %>% filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")),
+       aes(y = lh_mean_f0_z, x = lh_slope, color = acc_phon)) +
+  geom_point() +
+  #stat_ellipse() +
+  geom_density_2d() +
+  #scale_color_manual(values = pitch_accent_colours) +
+  xlim(-20, 100) +
+  ylim(-4, 4)
 
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ mode,
+
+
+
+m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
             data = m_corpus
             )
 
 print(summary(m))
 
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ mode,
+m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
             data = m_corpus %>% 
-              filter(mode %in% c("MDC", "MDQ")))
+              filter(acc_phon %in% c("L*H", "L*^[H]")))
 
-print
 print(summary(m))
 
+m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*H", "^[L*H]")))
+
+print(summary(m))
+
+m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*^[H]","^[L*H]")))
+
+print(summary(m))
+```
+
+Density plot of PAs by l and h f0
+
+```{r, fig.width=4, fig.height=3}
+ggplot(m_corpus %>% filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")),
+       aes(x = l_f0_z, y = h_f0_z, color = acc_phon)) +
+  geom_point() +
+  #stat_ellipse() +
+  geom_density_2d() 
+  #scale_color_manual(values = pitch_accent_colours) 
+
+
+
+m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]"))
+            )
+print(summary(m))
+
+m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*H", "L*^[H]")))
+print(summary(m))
+
+m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*H", "^[L*H]")))
+print(summary(m))
+
+m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
+            data = m_corpus %>% 
+              filter(acc_phon %in% c("L*^[H]","^[L*H]")))
+print(summary(m))
+```
+
+3D plot of L_f0_z, H_f0_z, and Slope
+```{r}
+plot_ly(
+  m_corpus %>% filter(acc_phon %in% c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")),
+  x = ~ l_f0_z,
+  y = ~ h_f0_z,
+  z = ~ lh_slope,
+  type = "scatter3d",
+  mode = "markers",
+  color = ~ acc_phon,
+  opacity = 0.75
+)
 ```
 

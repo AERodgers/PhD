@@ -26,7 +26,7 @@ PN_Type = "dH"
 #PN_Type = "all"                                                                # all
 
 
-#write.table(PN_anac, paste("data/PN_anac_", PN_Type, ".txt", sep =), sep = "\t")
+#write.table(PN_anac, paste("../data/PN_anac_", PN_Type, ".txt", sep =), sep = "\t")
 
 # SET INTERCEPT PERMUTATION ARRAY
 syls <- as.array(c(3, 1, 2))

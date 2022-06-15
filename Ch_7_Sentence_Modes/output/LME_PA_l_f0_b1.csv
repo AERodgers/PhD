@@ -1,7 +1,7 @@
 intercept,term,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
-acc_phon^[L*]H,acc_phonL*^[H],-2.406,0.811,-2.969,1,0.9999,
-acc_phon^[L*]H,acc_phon^[L*H],0.231,0.979,0.236,1,0.9999,
-acc_phonL*^[H],acc_phon^[L*H],2.638,0.582,4.535,8.0914e-04,0.004,p<0.01
-acc_phonL*H,acc_phon^[L*]H,4.561,1.361,3.351,1,0.9999,
-acc_phonL*H,acc_phonL*^[H],1.426,0.242,5.881,1.0000e-08,5.0000e-08,p<0.001
-acc_phonL*H,acc_phon^[L*H],4.063,0.568,7.15,5.5060e-05,2.7531e-04,p<0.001
+acc_phonL*H,acc_phon^[L*]H,4.288,0.587,7.3,0.0000e+00,0.0000e+00,p<0.001
+acc_phonL*H,acc_phonL*^[H],1.416,0.262,5.408,9.0000e-08,4.6000e-07,p<0.001
+acc_phonL*H,acc_phon^[L*H],3.922,0.146,26.934,0.0000e+00,0.0000e+00,p<0.001
+acc_phon^[L*]H,acc_phonL*^[H],-2.872,0.641,-4.479,8.9300e-06,4.4670e-05,p<0.001
+acc_phon^[L*]H,acc_phon^[L*H],-0.366,0.591,-0.619,0.536,0.9999,
+acc_phonL*^[H],acc_phon^[L*H],2.506,0.289,8.681,0.0000e+00,0.0000e+00,p<0.001

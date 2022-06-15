@@ -1,0 +1,7 @@
+intercept,term,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
+acc_phonL*H,acc_phon^[L*]H,-3.179,0.616,-5.165,3.2000e-07,1.6200e-06,p<0.001
+acc_phonL*H,acc_phonL*^[H],4.263,0.275,15.526,0.0000e+00,0.0000e+00,p<0.001
+acc_phonL*H,acc_phon^[L*H],1.328,0.153,8.701,0.0000e+00,0.0000e+00,p<0.001
+acc_phon^[L*]H,acc_phonL*^[H],7.442,0.672,11.079,0.0000e+00,0.0000e+00,p<0.001
+acc_phon^[L*]H,acc_phon^[L*H],4.507,0.62,7.273,0.0000e+00,0.0000e+00,p<0.001
+acc_phonL*^[H],acc_phon^[L*H],-2.935,0.302,-9.704,0.0000e+00,0.0000e+00,p<0.001

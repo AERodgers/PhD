@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: f0_exc"
+title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: lh_slope"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
-source("../functions/myFunctions.R") 
+source("../../functions/myFunctions.R") 
 
 # Load packages.
 installMissingPackages(
@@ -63,8 +63,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-
-m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
     nuc_contour =
@@ -105,7 +104,9 @@ m_corpus <- get_m_corpus("data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "f0_exc ~ mode + gender + (1 + mode | speaker)"
+cur_equation <-
+  "log(abs(lh_slope)) ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
+
 
 ```
 
@@ -177,7 +178,7 @@ tidy(temp_mdl) %>%
   )
 
 do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
-  write.csv("output/LME_f0_exc_r2.csv")
+  write.csv("../output/LME_lh_slope_r2.csv")
 
 print(
   plot_model(
@@ -297,10 +298,10 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
+  ) %>% 
+  write_csv("../output/LME_slope_b0.csv") %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_f0_exc_b0.csv")
+              caption =paste("b0 for", cur_equation, sep = " "))
 
 
 # print pairwise comparisons of (B1 table)
@@ -324,10 +325,10 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
+  )  %>% 
+  write_csv("../output/LME_slope_b1.csv") %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("output/LME_f0_exc_b1.csv")
+              caption =paste("b1 for", cur_equation, sep = " "))
 
 ```
 
