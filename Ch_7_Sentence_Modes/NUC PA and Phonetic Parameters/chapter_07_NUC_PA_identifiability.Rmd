@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - Analysis of Utterance mean f0 and lh_slope of linear regression"
+title: "Chapter 7 - Analysis of Nuclear PA L_f0 H_f0, and slope"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -85,117 +85,60 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Select only columns for analysis
   select(
     speaker,
-    gender,
-    mode,
-    nuc_contour,
+    stim,
     acc_phon,
-    fin_phon,
-    
-    utt_mean_f0,
-    utt_lh_slope,
-    
-    lh_mean_f0,
     lh_slope,
-    
-    utt_mean_f0_z,
-    utt_lh_slope_z,
-
-    lh_mean_f0_z,
-    lh_slope_z,
-    
     l_f0_z,
-    h_f0_z
+    h_f0_z,
+    lh_mean_f0_z,
+    lh_slope_z
 
   )
 
 ```
 
 
-Density plot of PAs by lh mean f0 and lh_slope
+```{r}
+# Get mean slope and f0_z per speaker per stimulus.
+m_corpus_summary <- m_corpus %>%
+  group_by(speaker, stim, acc_phon) %>%
+  summarise(
+    mean_slope_z = round(mean(lh_slope_z), 3),
+    mean_l_f0_z = round(mean(l_f0_z), 3),
+    mean_h_f0_z = round(mean(h_f0_z), 3),
+    .groups = "keep"
+  ) 
 
-```{r, fig.width=4, fig.height=3}
-ggplot(m_corpus %>% filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")),
-       aes(y = lh_mean_f0_z, x = lh_slope, color = acc_phon)) +
-  geom_point() +
-  #stat_ellipse() +
-  geom_density_2d() +
-  #scale_color_manual(values = pitch_accent_colours) +
-  xlim(-20, 100) +
-  ylim(-4, 4)
-
-
-
-
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus
-            )
-
-print(summary(m))
-
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*H", "L*^[H]")))
-
-print(summary(m))
-
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*H", "^[L*H]")))
-
-print(summary(m))
-
-m <- manova(cbind(lh_mean_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*^[H]","^[L*H]")))
-
-print(summary(m))
-```
-
-Density plot of PAs by l and h f0
-
-```{r, fig.width=4, fig.height=3}
-ggplot(m_corpus %>% filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")),
-       aes(x = l_f0_z, y = h_f0_z, color = acc_phon)) +
-  geom_point() +
-  #stat_ellipse() +
-  geom_density_2d() 
-  #scale_color_manual(values = pitch_accent_colours) 
-
-
-
-m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]"))
-            )
-print(summary(m))
-
-m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*H", "L*^[H]")))
-print(summary(m))
-
-m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*H", "^[L*H]")))
-print(summary(m))
-
-m <- manova(cbind(l_f0_z, h_f0_z, lh_slope) ~ acc_phon,
-            data = m_corpus %>% 
-              filter(acc_phon %in% c("L*^[H]","^[L*H]")))
-print(summary(m))
+  # exclude outlier speakers
+  # filter(speaker %notin% c("F16", "F15", "M8"))
 ```
 
 3D plot of L_f0_z, H_f0_z, and Slope
-```{r}
+```{r, fig.width=7, fig.height=5}
+
+# If colors aren't  explicitly linked to levels, plot_ly appears to adjust the
+# RGB settings on the fly, which is very irritating! The following two lines
+# prevent this from happening
+pal <- brewer.pal(4, "Dark2")
+pal <- setNames(pal, c("L*H", "^[L*]H", "L*^[H]", "^[L*H]"))
+
 plot_ly(
-  m_corpus %>% filter(acc_phon %in% c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")),
-  x = ~ l_f0_z,
-  y = ~ h_f0_z,
-  z = ~ lh_slope,
+  m_corpus_summary %>% filter(acc_phon %in% c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")),
+  #m_corpus %>% filter(acc_phon %in% c("L*H")),
+  x = ~ mean_slope_z,
+  y = ~ mean_l_f0_z,
+  z = ~ mean_h_f0_z,
   type = "scatter3d",
   mode = "markers",
-  color = ~ acc_phon,
-  opacity = 0.75
+  color = ~acc_phon,
+  colors = pal,
+  opacity = 0.5,
+  # Marker characteristics must be stated explicitly inside the 'marker =' 
+  # parameter setting. However, as marker is a struct (?list?), we need to
+  # use the 'list()' function to set the values inside the marker struct.
+  # This process is iterated for the line parameters with the marker struct.
+  marker = list(size = 6, line = list(width = 0.5, color = "#333333", opacity = 0.75))
 )
+
 ```
 

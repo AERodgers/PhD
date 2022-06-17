@@ -138,7 +138,7 @@ alignment_data$ = "s_t e_t l_t h_t "
 f0_data$ =
     ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 "
     ... + "lh_slope lh_slope_z intercept_st lh_mean_f0 lh_med_f0 "
-    ... + "utt_mean_f0 utt_lh_slope utt_lh_slope_z "
+    ... + "utt_mean_f0 utt_slope utt_slope_z "
     ... + "spkr_f0_mean spkr_f0_SD "
 
 
@@ -548,8 +548,8 @@ procedure processToneTier: .textGrid, .sound, .pitchObject,
     .utt_end_t = Get start point: syl_tier_num, .num_ints
     @getF0LineRegr: .utt_start_t, .utt_end_t, .pitchObject,
                 ... .speaker$, .gen_stats
-    utt_lh_slope = getF0LineRegr.lh_slope
-    utt_lh_slope_z = getF0LineRegr.lh_slope_z
+    utt_slope = getF0LineRegr.lh_slope
+    utt_slope_z = getF0LineRegr.lh_slope_z
     utt_mean_f0 = getF0LineRegr.mean_f0
 
 
@@ -816,8 +816,8 @@ procedure populateTable
         Set numeric value: bottomRow, "intercept_st", intercept_st[i]
         Set numeric value: bottomRow, "lh_mean_f0", mean_f0[i]
         Set numeric value: bottomRow, "lh_med_f0", lh_med_f0[i]
-        Set numeric value: bottomRow, "utt_lh_slope", utt_lh_slope
-        Set numeric value: bottomRow, "utt_lh_slope_z", utt_lh_slope_z
+        Set numeric value: bottomRow, "utt_slope", utt_slope
+        Set numeric value: bottomRow, "utt_slope_z", utt_slope_z
         Set string value: bottomRow, "utt_mean_f0", fixed$(utt_mean_f0, 2)
 
         # add ALIGNMENT data requiring VOWEL Tiers

@@ -87,24 +87,71 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     gender,
     mode,
     prompt,
-    foot_syls,
-    acc_phon,
     phr_phon,
     fin_phon,
-    l_t,
-    h_t,
-    l_f0,
     h_f0,
-    f0_exc,
-    lh_slope
+    h_f0_z
   )
 
 ```
 
+```{r}
+# set current equation
+cur_equation <-
+  "h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)"
+
+```
+
+### LME model analysis using initial model.
+
+Initial equation: ``r cur_equation``
+
+Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+model_after_step <- step(temp_mdl)
+```
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+cat("\n")
+print(model_after_step)
+
+```
+
+* Model found from step regression: 
+    * `h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)`
+* Prompt is non-significant.
+* Distribution of residuals is fine.
+
+
+### LME model analysis using reduced model
+Running reduced model 
 
 ```{r}
 # set current equation
-cur_equation <- "h_f0 ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
+cur_equation <-
+  "h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)"
 
 ```
 
@@ -122,8 +169,6 @@ temp_mdl = lmer(
     )
   )
 )
-
-step(temp_mdl)
 ```
 
 
@@ -132,19 +177,62 @@ print(summary(temp_mdl))
 
 drawResiduals(temp_mdl)
 
-anova(temp_mdl) %>% formattable(caption = "Anova of model")
+anova(temp_mdl) %>% print()
 
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+* Reduced model caused singularity error.
+* Reverted to original BUT this led to singularity issues with pairwise comparison.
+* Removing gender as fixed effect, since random effects of speaker should also account for the variance contributed by gender (i.e. gender is a fixed parameter for each speaker).
+
+```{r}
+# set current equation
+cur_equation <-
+  "h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)"
 
 ```
 
 
-performance::check_singularity(temp_mdl) = `r check_singularity(temp_mdl, tolerance = 1e-05)`
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+```
 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05) -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+
+* Singularity issue resolved.
+
+NB: Gender will have to be removed from the other f0 parameter tests to ensure that parity across intercepts.  
+
+### Final model: ``r cur_equation``
+#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 5) %>%
+  bonferroniAdjust("", 6) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -154,7 +242,7 @@ tidy(temp_mdl) %>%
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
-  rename("t.value" = statistic) %>%
+  rename(t.value = statistic) %>%
   formattable(caption = "Intercept and lh_slopes of fixed effects",
               list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
@@ -191,9 +279,10 @@ print(
     colors = "Black"
   )
 )
+```
 
-# Get intercepts and pairwise comparisons for each foot size condition.
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
@@ -219,7 +308,7 @@ for (i in 1:(num_levels)) {
   cur_model_tidy <- tidy(cur_model) %>%
     filter(effect != "ran_pars") %>%
     select(-group) %>%
-    bonferroniAdjust("", 5) %>%
+    bonferroniAdjust("", 6) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -257,7 +346,7 @@ for (i in 1:(num_levels)) {
     filter(term != "sd__(Intercept)") %>%
     select(-effect) %>%
     # rename statistic column to "t.value"
-    rename("t.value" = statistic)
+    rename(t.value = statistic)
   
   
   # make list of pairwise comparisons to keeps
@@ -278,7 +367,11 @@ for (i in 1:(num_levels)) {
     mutate(mode = factor(mode,
                          levels = cur_levels))
 }
+```
 
+### Summary of intercepts 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
@@ -299,19 +392,22 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
+  ) %>% 
+  write_csv("../output/LME_h_f0_b0.csv")  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_h_f0_b0.csv")
+              caption =paste("b0 for", cur_equation, sep = " "))
+```
 
+### Summary of pairwise comparisons
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print pairwise comparisons of (B1 table)
 filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,
          term,
          estimate,
          std.error,
-         `t.value`,
+         t.value,
          p.value,
          p.adjusted) %>%
   rename(intercept = pairwise, lh_slope = term) %>%
@@ -327,10 +423,9 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  write_csv("../output/LME_h_f0_b1.csv") %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_h_f0_b1.csv")
-
+              caption = paste("b1 for", cur_equation, sep = " "))
 ```
 
 

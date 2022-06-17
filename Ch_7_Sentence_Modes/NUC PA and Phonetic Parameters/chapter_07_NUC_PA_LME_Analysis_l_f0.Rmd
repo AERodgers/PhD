@@ -63,7 +63,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
@@ -93,12 +93,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     acc_phon,
     phr_phon,
     fin_phon,
-    l_t,
-    h_t,
     l_f0,
-    h_f0,
-    f0_exc,
-    lh_slope
+    l_f0_z
   ) %>% 
   filter(acc_phon %in% l_star_h_types)
 
@@ -107,7 +103,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "l_f0 ~ acc_phon + (1 | speaker)"
+cur_equation <- "l_f0 ~ acc_phon + fin_phon + gender + (1 + acc_phon | speaker)"
 
 ```
 
@@ -134,11 +130,57 @@ print(summary(temp_mdl))
 drawResiduals(temp_mdl)
 
 anova(temp_mdl) %>% formattable(caption = "Anova of model") %>% print()
+
+step(temp_mdl) 
+check_singularity(temp_mdl, tolerance = 1e-05)
+```
+
+* Distribution of residuals is leptokurtic.
+
+### LME model analysis using reduced model and removing outliers (|residual|>3.4)
+
+Running new model again but trimming rows with |residual| > 3.4 (as per Baayen 2008: 279-282).
+
+NB a value of 3.4 was chosen as this removes the minimum number of outliers without leading to singularity errors while at the same time providing a more reasonably distribution or residuals.
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+m_corpus_trimmed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) < 3)
+
+temp_mdl.trimmed = lmer(
+  formula(cur_equation),
+  data = m_corpus_trimmed,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 ```
 
 
-performance::check_singularity(temp_mdl) = `r check_singularity(temp_mdl, tolerance = 1e-05)`
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl.trimmed))
 
+drawResiduals(temp_mdl.trimmed)
+
+anova(temp_mdl.trimmed) %>% print()
+
+cat("Check_singularity(temp_mdl.trimmed, tolerance = 1e-05 -->", check_singularity(temp_mdl.trimmed, tolerance = 1e-05, "\n"))
+cat("\n")
+
+
+removed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) >= 3) 
+removed %>% 
+  select(c(speaker, gender, mode, prompt, acc_phon, fin_phon, l_f0, l_f0_z)) %>% 
+  mutate(acc_phon = str_replace_all(acc_phon, "\\^", "\\\\^"),
+         acc_phon = str_replace_all(acc_phon, "\\*", "\\\\*")) %>% 
+  kable(caption = "Data trimmed from model")
+
+```
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy(temp_mdl) %>%
@@ -300,10 +342,9 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
   write_csv("../output/LME_PA_l_f0_b0.csv") %>%
-  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
-         intercept = str_replace(intercept, "acc_phon", "")
-) %>%
+  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption = paste("b0 for", cur_equation, sep = " "))
 
@@ -331,12 +372,13 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   ) %>%
+  mutate(
+    term = str_replace(term, "acc_phon", ""),
+    intercept = str_replace(intercept, "acc_phon", "")) %>% 
   write_csv("../output/LME_PA_l_f0_b1.csv")  %>%
   mutate(
     term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
-    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
-    term = str_replace(term, "acc_phon", ""),
-    intercept = str_replace(intercept, "acc_phon", "")
+    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
     ) %>%  
     rename(`est. (slope)` = estimate) %>% 
 formattable(list(p.adjusted = formatter("span", style = p_color)),

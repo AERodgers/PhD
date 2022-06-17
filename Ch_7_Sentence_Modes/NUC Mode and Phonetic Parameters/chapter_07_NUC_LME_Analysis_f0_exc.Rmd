@@ -63,7 +63,6 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
@@ -88,28 +87,81 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     gender,
     mode,
     prompt,
-    foot_syls,
-    acc_phon,
     phr_phon,
     fin_phon,
-    l_t,
-    h_t,
-    l_f0,
-    h_f0,
     f0_exc,
-    lh_slope
+    f0_exc_z
   )
 
 ```
 
 
+
 ```{r}
 # set current equation
-cur_equation <- "f0_exc ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
+cur_equation <-
+  "f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt) "
 
 ```
 
+### LME model analysis using initial model.
+
+Initial equation: ``r cur_equation``
+
+Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+
+NB: Gender caused singularity issues for another f0 parameter test (l_f0). However, it is not excluded here, since excursion size intercepts will not be used to plot stylized PAs contours.
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+model_after_step <- step(temp_mdl)
+```
+
+
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+cat("\n")
+print(model_after_step)
+
+```
+
+* Model found from step regression: 
+    * `f0_exc ~ mode + fin_phon + (1 + mode | speaker)`
+* Prompt is non-significant.
+* Gender is non-significant.
+* Singularity problem!
+
+
+### LME model analysis using reduced models
+
+#### Removing (1 | prompt)
+
+```{r}
+# set current equation
+cur_equation <-
+  "f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)"
+
+```
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 temp_mdl = lmer(
   formula(cur_equation),
   data = m_corpus,
@@ -124,7 +176,7 @@ temp_mdl = lmer(
   )
 )
 
-step(temp_mdl)
+model_after_step <- step(temp_mdl)
 ```
 
 
@@ -134,16 +186,110 @@ print(summary(temp_mdl))
 drawResiduals(temp_mdl)
 
 anova(temp_mdl) %>% print()
+
+print(model_after_step)
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+
+* Singularity issue disappears with reduced model.
+* Gender eliminated
+* Model found: `f0_exc ~ mode + fin_phon + (1 + mode | speaker)`
+
+#### Removing gender
+
+```{r}
+# set current equation
+cur_equation <-
+  "f0_exc ~ mode + fin_phon + (1 + mode | speaker) + (1 | prompt)"
+
+```
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
 ```
 
 
-performance::check_singularity(temp_mdl) = `r check_singularity(temp_mdl, tolerance = 1e-05)`
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
 
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+print(model_after_step)
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+
+* Singularity issue returns.
+* Gender eliminated
+* Best final model, most likely: `f0_exc ~ mode + fin_phon + (1 + mode | speaker)`
+
+
+#### Testing model without gender or prompt
+
+```{r}
+# set current equation
+cur_equation <-
+  "f0_exc ~ mode + fin_phon + (1 + mode | speaker)"
+
+```
+
+
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+print(model_after_step)
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+### Final model: ``r cur_equation``
+#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 5) %>%
+  bonferroniAdjust("", 6) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -190,9 +336,10 @@ print(
     colors = "Black"
   )
 )
+```
 
-# Get intercepts and pairwise comparisons for each foot size condition.
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
@@ -218,7 +365,7 @@ for (i in 1:(num_levels)) {
   cur_model_tidy <- tidy(cur_model) %>%
     filter(effect != "ran_pars") %>%
     select(-group) %>%
-    bonferroniAdjust("", 5) %>%
+    bonferroniAdjust("", 6) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -277,7 +424,11 @@ for (i in 1:(num_levels)) {
     mutate(mode = factor(mode,
                          levels = cur_levels))
 }
+```
 
+#### Summary of intercepts 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
@@ -298,12 +449,15 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
+  ) %>% 
+  write_csv("../output/LME_f0_exc_b0.csv")  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_f0_exc_b0.csv")
+              caption =paste("b0 for", cur_equation, sep = " "))
+```
 
+#### Summary of pairwise comparisons
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print pairwise comparisons of (B1 table)
 filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,
@@ -326,10 +480,9 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  write_csv("../output/LME_f0_exc_b1.csv") %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_f0_exc_b1.csv")
-
+              caption = paste("b1 for", cur_equation, sep = " "))
 ```
 
 

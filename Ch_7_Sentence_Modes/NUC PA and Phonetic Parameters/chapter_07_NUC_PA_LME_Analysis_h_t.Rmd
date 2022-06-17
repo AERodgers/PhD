@@ -63,7 +63,7 @@ p_color <- all_models_tidy ~ style(color =
 
 ```{r}
 # Load Corpus
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
@@ -300,10 +300,9 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
   write_csv("../output/LME_PA_h_t_b0.csv") %>%
-  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
-         intercept = str_replace(intercept, "acc_phon", "")
-) %>%
+  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption = paste("b0 for", cur_equation, sep = " "))
 
@@ -331,12 +330,13 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   ) %>%
+  mutate(
+    term = str_replace(term, "acc_phon", ""),
+    intercept = str_replace(intercept, "acc_phon", "")) %>% 
   write_csv("../output/LME_PA_h_t_b1.csv")  %>%
   mutate(
     term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
-    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\["),
-    term = str_replace(term, "acc_phon", ""),
-    intercept = str_replace(intercept, "acc_phon", "")
+    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
     ) %>%  
     rename(`est. (slope)` = estimate) %>% 
 formattable(list(p.adjusted = formatter("span", style = p_color)),

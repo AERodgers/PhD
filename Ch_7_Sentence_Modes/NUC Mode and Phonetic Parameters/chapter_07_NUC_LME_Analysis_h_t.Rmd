@@ -87,24 +87,74 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     gender,
     mode,
     prompt,
-    foot_syls,
-    acc_phon,
     phr_phon,
     fin_phon,
-    l_t,
-    h_t,
-    l_f0,
-    h_f0,
-    f0_exc,
-    lh_slope
+    h_t
   )
 
 ```
 
 
+
 ```{r}
 # set current equation
-cur_equation <- "h_t ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
+cur_equation <-
+  "h_t ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt) "
+
+```
+
+### LME model analysis using initial model.
+
+Initial equation: ``r cur_equation``
+
+Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+
+NB: Gender caused singularity issues for another f0 parameter test (l_f0). However, it is not excluded here, since time is not a characteristic of speaker.
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+model_after_step <- step(temp_mdl)
+```
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+cat("\n")
+print(model_after_step)
+
+```
+
+* Model found from step regression: 
+    * `h_t ~ mode + fin_phon + gender + (1 | prompt) + (1 | speaker)`
+* Prompt significant.
+* fin_phon significant.
+* Singularity issues.
+
+
+### LME model analysis using reduced model
+
+```{r}
+# set current equation
+cur_equation <-
+  "h_t ~ mode + fin_phon + gender + (1 | prompt) + (1 | speaker)"
 
 ```
 
@@ -123,8 +173,6 @@ temp_mdl = lmer(
   )
 )
 
-step(temp_mdl)
-
 ```
 
 
@@ -133,17 +181,22 @@ print(summary(temp_mdl))
 
 drawResiduals(temp_mdl)
 
-anova(temp_mdl) %>% formattable(caption = "Anova of model") %>% print()
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
 ```
 
+* Singularity gone!
 
-performance::check_singularity(temp_mdl) = `r check_singularity(temp_mdl, tolerance = 1e-05)`
 
+### Final model: ``r cur_equation``
+#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 5) %>%
+  bonferroniAdjust("", 6) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -169,7 +222,6 @@ tidy(temp_mdl) %>%
     )
   )
 
-
   kable(
     r2_nakagawa(temp_mdl),
     caption = "Conditional and marginal R^2^ of model",
@@ -177,9 +229,10 @@ tidy(temp_mdl) %>%
     align = "l"
   )
 
-do.call(rbind, r2_nakagawa(temp_mdl))[,1]  %>% write.csv("../output/LME_h_t_r2.csv")
+do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
+  write.csv("../output/LME_h_t_r2.csv")
 
-print(
+print( 
   plot_model(
     temp_mdl,
     title = cur_equation,
@@ -189,9 +242,10 @@ print(
     colors = "Black"
   )
 )
+```
 
-# Get intercepts and pairwise comparisons for each foot size condition.
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
@@ -214,10 +268,10 @@ for (i in 1:(num_levels)) {
     )
   )
   # Convert the model output into a more readable format.
-  cur_model_tidy <- tidy(cur_model) %>%
+  cur_modeh_tidy <- tidy(cur_model) %>%
     filter(effect != "ran_pars") %>%
     select(-group) %>%
-    bonferroniAdjust("", 5) %>%
+    bonferroniAdjust("", 6) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -228,7 +282,7 @@ for (i in 1:(num_levels)) {
   
   # Prepare current model for pasting to all models output.
   # Make 'pairwise' column = intercept.
-  cur_model_tidy <- cur_model_tidy %>%
+  cur_modeh_tidy <- cur_modeh_tidy %>%
     mutate(
       pairwise =
         if_else(
@@ -265,10 +319,10 @@ for (i in 1:(num_levels)) {
   }
   
   # remove pairwise comparisons which have already been done
-  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
+  cur_modeh_tidy <- filter(cur_modeh_tidy, term %in% keep)
   
   # add remaining pairwise comparisons to main tibble.
-  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
+  all_models_tidy <- bind_rows(all_models_tidy, cur_modeh_tidy)
   
   # restructure the order of levels for next LME cur_model.
   cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
@@ -276,7 +330,11 @@ for (i in 1:(num_levels)) {
     mutate(mode = factor(mode,
                          levels = cur_levels))
 }
+```
 
+#### Summary of intercepts 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
@@ -297,12 +355,15 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(scientific(p.adjusted)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
+  ) %>% 
+  write_csv("../output/LME_h_t_b0.csv")  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_h_t_b0.csv")
+              caption =paste("b0 for", cur_equation, sep = " "))
+```
 
+#### Summary of pairwise comparisons
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print pairwise comparisons of (B1 table)
 filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,
@@ -325,10 +386,9 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(round(p.adjusted, 4))
     )
   )  %>%
+  write_csv("../output/LME_h_t_b1.csv") %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption =paste("b1 for", cur_equation, sep = " ")) %>% 
-  write_csv("../output/LME_h_t_b1.csv")
-
+              caption = paste("b1 for", cur_equation, sep = " "))
 ```
 
 

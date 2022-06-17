@@ -286,9 +286,9 @@ get_m_corpus <- function(file_address) {
         lh_mean_f0,
         lh_slope,
         lh_slope_z,
-        utt_lh_slope,
+        utt_slope,
         utt_mean_f0,
-        utt_lh_slope_z,
+        utt_slope_z,
         spkr_f0_mean,
         spkr_f0_SD,
 

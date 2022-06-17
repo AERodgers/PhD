@@ -87,27 +87,30 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     gender,
     mode,
     prompt,
-    foot_syls,
-    acc_phon,
     phr_phon,
     fin_phon,
-    l_t,
-    h_t,
     l_f0,
-    h_f0,
-    f0_exc,
-    lh_slope
+    l_f0_z
   )
 
 ```
 
 
+
 ```{r}
 # set current equation
 cur_equation <-
-  "l_f0 ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
+  "l_f0  ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)"
 
 ```
+
+### LME model analysis using initial model.
+
+Initial equation: ``r cur_equation``
+
+Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+
+NB: Gender was originally included as a fixed effect; however, because this caused singularity issues for other f0 parameter tests (l_f0), it has been excluded. Note that f0 gender effects will be compensated for though the random effect of speaker.
 
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 temp_mdl = lmer(
@@ -123,9 +126,7 @@ temp_mdl = lmer(
     )
   )
 )
-
-step(temp_mdl)
-
+model_after_step <- step(temp_mdl)
 ```
 
 
@@ -134,17 +135,115 @@ print(summary(temp_mdl))
 
 drawResiduals(temp_mdl)
 
-anova(temp_mdl) %>% formattable(caption = "Anova of model") %>% print()
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+cat("\n")
+print(model_after_step)
+
+```
+
+* Model found from step regression: 
+    * `l_f0 ~ mode + fin_phon + (1 + mode | speaker)`
+* Prompt is non-significant.
+* Distribution of residuals is leptokurtic.
+
+
+### LME model analysis using reduced model.
+
+
+```{r}
+# set current equation
+cur_equation <-
+  "l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)"
+
+```
+
+`cur_equation`
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 ```
 
 
-performance::check_singularity(temp_mdl) = `r check_singularity(temp_mdl, tolerance = 1e-05)`
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
 
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+
+```
+
+* Distribution of still residuals is leptokurtic.
+
+### LME model analysis using reduced model and removing outliers (|residual|>3.4)
+
+Running new model again but trimming rows with |residual| > 3.4 (as per Baayen 2008: 279-282).
+
+NB a value of 3.4 was chosen as this removes the minimum number of outliers without leading to singularity errors while at the same time providing a more reasonably distribution or residuals.
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+m_corpus_trimmed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) < 3.4)
+
+temp_mdl.trimmed = lmer(
+  formula(cur_equation),
+  data = m_corpus_trimmed,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+```
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl.trimmed))
+
+drawResiduals(temp_mdl.trimmed)
+
+anova(temp_mdl.trimmed) %>% print()
+
+cat("Check_singularity(temp_mdl.trimmed, tolerance = 1e-05 -->", check_singularity(temp_mdl.trimmed, tolerance = 1e-05, "\n"))
+cat("\n")
+
+
+removed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) >= 3.4) 
+removed %>% 
+  select(c(speaker, gender, mode, prompt, phr_phon, l_f0, l_f0_z)) %>% 
+  mutate(phr_phon = str_replace_all(phr_phon, "\\^", "\\\\^"),
+         phr_phon = str_replace_all(phr_phon, "\\*", "\\\\*")) %>% 
+  kable(caption = "Data trimmed from model")
+
+```
+* Distribution of residuals is more reasonable after removing outliers.
+
+### Final model: ``r cur_equation``
+
+#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 5) %>%
+  bonferroniAdjust("", 6) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -191,11 +290,12 @@ print(
     colors = "Black"
   )
 )
+```
 
-# Get intercepts and pairwise comparisons for each foot size condition.
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
-cur_levels <- levels(m_corpus$mode)
+cur_levels <- levels(m_corpus_trimmed$mode)
 orig_levels <- cur_levels
 num_levels <- length(cur_levels)
 all_models_tidy = tibble()
@@ -204,7 +304,7 @@ for (i in 1:(num_levels)) {
   # Test GLMM model on data.
   cur_model <- lmer(
     formula(cur_equation),
-    data = m_corpus,
+    data = m_corpus_trimmed,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -219,7 +319,7 @@ for (i in 1:(num_levels)) {
   cur_model_tidy <- tidy(cur_model) %>%
     filter(effect != "ran_pars") %>%
     select(-group) %>%
-    bonferroniAdjust("", 5) %>%
+    bonferroniAdjust("", 6) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -274,11 +374,15 @@ for (i in 1:(num_levels)) {
   
   # restructure the order of levels for next LME cur_model.
   cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-  m_corpus <- m_corpus %>%
+  m_corpus_trimmed <- m_corpus_trimmed %>%
     mutate(mode = factor(mode,
                          levels = cur_levels))
 }
+```
 
+#### Summary of intercepts 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
@@ -303,8 +407,11 @@ filter(all_models_tidy, pairwise == "intercept") %>%
   write_csv("../output/LME_l_f0_b0.csv")  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
               caption =paste("b0 for", cur_equation, sep = " "))
+```
 
+#### Summary of pairwise comparisons
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print pairwise comparisons of (B1 table)
 filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   select(pairwise,

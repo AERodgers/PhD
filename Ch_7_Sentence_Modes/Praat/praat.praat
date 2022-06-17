@@ -12,7 +12,7 @@ mode$# = {"MDC", "MWH", "MYN", "MDQ"}
 Line width: 7
 for i to 4
     Colour: colours$#[i]
-    Scatter plot where (mark): "utt_lh_slope_z", -5, 5, "utt_mean_f0_z", -3, 3, 1, "no", "o", "self$[""stim""] == mode$#[i]"
+    Scatter plot where (mark): "utt_slope_z", -5, 5, "utt_mean_f0_z", -3, 3, 1, "no", "o", "self$[""stim""] == mode$#[i]"
 endfor
 
 
@@ -20,7 +20,7 @@ for i to 4
     for j from 1 to 4
         Line width: ((5 - j ))^2/4
         Colour: colours$#[i]
-        Draw ellipse where (standard deviation): "utt_lh_slope_z", -5, 5, "utt_mean_f0_z", -3, 3, (j) / 2, "no", "self$[""stim""] == mode$#[i]"
+        Draw ellipse where (standard deviation): "utt_slope_z", -5, 5, "utt_mean_f0_z", -3, 3, (j) / 2, "no", "self$[""stim""] == mode$#[i]"
     endfor
 endfor
 
