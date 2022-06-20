@@ -1409,7 +1409,7 @@ procedure trimCorpus: .originalCorpusVar$
     selectObject: .corpus
     .name$ = selected$("Table")
     selectObject: .trim
-    Rename: .name$ + "_trimmed"
+    Rename: .name$ + ".trimmed"
     @removeRowsWhere: .trim, "cur_foot", "!= ""1"""
     Remove column: "cur_foot"
     selectObject: .corpus

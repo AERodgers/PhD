@@ -1,0 +1,152 @@
+---
+title: "Issue with GLMM"
+author: "Antoin Rodgers"
+date: '2022-06-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, message=FALSE, include=FALSE}
+# load packages
+library(lmerTest)
+library(tidyverse)
+library(formattable)
+library(optimx)
+library(broomExtra)
+```
+
+## The problem
+I have a GLM model:
+    `outcome ~ treatment + (1 | patient`
+    
+In my data, treatment 1 always results in outcome 1, while the other treatments have less deterministic outcomes.
+
+However, because the effect of treatment one is deterministic, the output from the model suggests that the model is highly non-significant.
+
+The issue is illustrated below. (Excuse the clunky way I created the datasets.)
+
+### Creating sample data
+
+```{r}
+# Create data set.
+outcome <-
+    c(1, 1, 1, 1, 1, 2, 1, 2, 3, 2, 3, 3, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3,
+      1, 1, 1, 2, 2, 1, 2, 3, 2, 3, 3)
+outcome <- c(
+    outcome,
+    c(1, 1, 1, 1, 1, 2, 1, 2, 3, 2, 3, 3, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3,
+      1, 1, 1, 2, 2, 1, 2, 3, 2, 3, 1, 1, 1, 1, 1, 2, 1, 2, 3, 2, 3, 3,
+      1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 2, 2, 1, 2, 3, 3, 3, 3)
+    )
+
+treatment <-
+    c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4,
+      1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4)
+treatment <- c(
+    treatment,
+    c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4,
+      1, 1, 1, 2, 2, 2, 3, 3, 3, 4),
+    treatment
+    )
+
+patient <-
+    c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+      7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+      9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)
+
+my_tibble_1 <- as_tibble(data.frame(outcome, treatment, patient))
+my_tibble_1 <- my_tibble_1 %>%
+    mutate(outcome = factor(outcome),
+           treatment = factor(treatment),
+           patient = factor(patient))
+```
+
+### Output from the model when treatment 1 always leads to outcome 1.
+
+```{r  echo = TRUE}
+my_model_1 <-
+    glmer(
+        as.formula(outcome ~ treatment + (treatment | patient)),
+        data = my_tibble_1,
+        family = binomial(link = "logit"),
+        # change optimizer to avoid convergence errors
+        control = glmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+            )
+        )
+    )
+```
+
+#### Showing Fixed effects only of my_model_1
+```{r echo = FALSE}
+# Show summary of results.
+#(summary(my_model_1))
+
+# Show fixed effects in a tidy format.
+my_model_1 %>% tidy() %>% filter(effect == "fixed") %>% select(-group) %>%
+    rename(z.score = statistic) %>%
+    formattable(caption = "Fixed effects when treatment 1 always leads to outcome 1")
+```
+
+You can see that the standard error is extremely high, z_score extrememly low and thus the p.value is approaching 1.
+
+This issue disappears completely when even one instance of treatment 1 leads to a different outcome, as demonstrated below.
+
+```{r}
+my_tibble_2 <- my_tibble_1 %>%  add_row()
+my_tibble_2[nrow(my_tibble_2), "outcome"] = "2"
+my_tibble_2[nrow(my_tibble_2), "treatment"] = "1"
+my_tibble_2[nrow(my_tibble_2), "patient"] = "9"
+
+```
+
+### Output from the model when treatment 1 leads to outcome 1 in all but one case.
+
+
+```{r echo = TRUE}
+my_model_2 <-
+    glmer(
+        as.formula(outcome ~ treatment + (treatment | patient)),
+        data = my_tibble_2,
+        family = binomial(link = "logit"),
+        # change optimizer to avoid convergence errors
+        control = glmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+            )
+        )
+    )
+```
+
+#### Showing Fixed effects only of my_model_2
+```{r echo = FALSE}
+# Show summary of results.
+#print(summary(my_model_2))
+
+# Show fixed effects in a tidy format.
+my_model_2 %>%
+    tidy() %>%
+    filter(effect == "fixed") %>%
+    select(-group) %>%
+    rename(z_score = statistic) %>%
+    formattable(caption = "Fixed effects when treatment 1 does not always lead to outcome 1") 
+
+```
+
+It is clear that the intial model is a good model, but because one of the treatments is 100% correlated with a specific outcome, it leads to a very misleading model summary.
+
+How do I fix this issue? Should I add a dummy row to prevent this error from occurring?

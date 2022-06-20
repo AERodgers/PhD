@@ -174,7 +174,6 @@ sigCodesTidy <- function(my_tibble, incl_marginal_sig = FALSE)
 
 param_summary <-
   function(df, treatment, phonology, is_nucleus = FALSE)
-
   {
     # Summarise dataset by speaker, treatment variable, and phonology
     treatment <- enquo(treatment)
@@ -320,8 +319,9 @@ get_m_corpus <- function(file_address) {
         h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
         e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
 
-        # treat foot_syls
+        # Ensure factor variables are interpreted as factors
         foot_syls = factor(foot_syls, levels = unique(foot_syls)),
+        gender = factor(gender, levels = unique(gender)),
 
         # create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3), levels = c("MDC", "MWH", "MYN", "MDQ")),

@@ -1,0 +1,7 @@
+intercept,lh_slope,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
+modeMDC,modeMWH,0.471,0.311,1.516,0.1604,0.3208,
+modeMDC,modeMYN,0.761,0.249,3.06,0.012,0.0239,p<0.05
+modeMDC,modeMDQ,2.29,0.439,5.211,3.8746e-04,7.7491e-04,p<0.001
+modeMWH,modeMYN,0.29,0.253,1.149,0.2774,0.5547,
+modeMWH,modeMDQ,1.819,0.632,2.876,0.0164,0.0329,p<0.05
+modeMYN,modeMDQ,1.529,0.591,2.586,0.027,0.0541,

@@ -1,0 +1,349 @@
+---
+title: "Chapter 7 - LME analysis of Nuclear Contours: h_f0"
+author: "Antoin Rodgers"
+date: "5.6.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+# Load Functions.
+source("../../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+
+
+```
+
+```{r}
+# Load Corpus
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
+
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    nuc_contour =
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      ),
+    acc_phon =
+      factor(
+        str_replace(nuc_contour,
+                    "\\s%$|\\sL%$",
+                    ""),
+        levels = l_star_h_types
+      ),
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+  ) %>%
+  # Select only columns for analysis
+  select(
+    speaker,
+    gender,
+    mode,
+    prompt,
+    foot_syls,
+    acc_phon,
+    phr_phon,
+    fin_phon,
+    h_f0,
+    h_f0_z
+  ) %>% 
+  filter(acc_phon %in% l_star_h_types)
+
+```
+
+
+```{r}
+# set current equation
+cur_equation <- "h_f0 ~ acc_phon + fin_phon + gender + (1 | speaker)"
+
+```
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+temp_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+```
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+print(summary(temp_mdl))
+
+drawResiduals(temp_mdl)
+
+anova(temp_mdl) %>% print()
+
+cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
+cat("\n")
+
+
+step(temp_mdl)
+```
+
+* Distribution of residuals is okay.
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+tidy(temp_mdl) %>%
+  filter(term != "sd__(Intercept)") %>%
+  bonferroniAdjust("", 5) %>%
+  mutate(
+    estimate = round(estimate, 3),
+    std.error = round(std.error, 3),
+    statistic = round(statistic, 3),
+    p.value = round(p.value, 4),
+    p.adjusted = round(p.adjusted, 4)
+  ) %>%
+  filter(effect %notin% "ran_pars") %>%
+  select(-c(group, effect)) %>%
+  rename(t.value = statistic) %>%
+  mutate(term = str_replace(term, "\\^\\[", "\\\\^\\\\[")) %>%
+  formattable(caption = cur_equation,
+              list(p.adjusted = formatter("span", style = p_color))) %>%
+  mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 4))
+    ),
+    p.adjusted = if_else(
+      p.adjusted < 0.001,
+      as.character(scientific(p.adjusted)),
+      as.character(round(p.adjusted, 4))
+    )
+  )
+
+
+  kable(
+    r2_nakagawa(temp_mdl),
+    caption = "Conditional and marginal R^2^ of model",
+    digits = 2,
+    align = "l"
+  )
+
+do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
+  write.csv("../output/LME_PA_h_f0_r2.csv")
+
+print(
+  plot_model(
+    temp_mdl,
+    title = cur_equation,
+    show.intercept = FALSE,
+    show.values = TRUE,
+    vline.color = "red",
+    colors = "Black"
+  )
+)
+```
+
+### Final model: ``r cur_equation``
+
+#### Analysis of model
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# Get intercepts and pairwise comparisons for each PA
+
+# Get number of levels in target treatment variable.
+cur_levels <- levels(m_corpus$acc_phon)
+orig_levels <- cur_levels
+num_levels <- length(cur_levels)
+all_models_tidy = tibble()
+
+for (i in 1:(num_levels)) {
+  # Test GLMM model on data.
+  cur_model <- lmer(
+    formula(cur_equation),
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+  # Convert the model output into a more readable format.
+  cur_model_tidy <- tidy(cur_model) %>%
+    filter(effect != "ran_pars") %>%
+    select(-group) %>%
+    bonferroniAdjust("", 5) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      p.value = round(p.value, 8),
+      p.adjusted = round(p.adjusted, 8)
+    )
+  
+  # Prepare current model for pasting to all models output.
+  # Make 'pairwise' column = intercept.
+  cur_model_tidy <- cur_model_tidy %>%
+    mutate(
+      pairwise =
+        if_else(
+          term == "(Intercept)",
+          "intercept",
+          if_else(
+            term %notin% paste("acc_phon", cur_levels, sep = ""),
+            "N/A",
+            paste("acc_phon", cur_levels[1], sep = "")
+          )
+        ),
+      # change 'term' so "intercept" states the target condition name.
+      term =
+        if_else(
+          term == "(Intercept)",
+          paste("acc_phon", cur_levels[1], sep = ""),
+          term
+        )
+    ) %>%
+    # remove random effects detail
+    filter(term != "sd__(Intercept)") %>%
+    select(-effect) %>%
+    # rename statistic column to "t.value"
+    rename(t.value = statistic)
+  
+  
+  # make list of pairwise comparisons to keeps
+  keep = NULL
+  for (j in i:num_levels) {
+    keep <- c(keep, paste("acc_phon", orig_levels[j], sep = ""))
+
+  }
+  # remove pairwise comparisons which have already been done
+  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
+  
+  # add remaining pairwise comparisons to main tibble.
+  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
+  
+  # restructure the order of levels for next LME cur_model.
+  cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
+  m_corpus <- m_corpus %>%
+    mutate(acc_phon = factor(acc_phon,
+                         levels = cur_levels))
+}
+```
+
+#### Summary of intercepts 
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# arrange tibble according to pairwise move it to first column position
+all_models_tidy  %>% 
+  relocate(pairwise) %>%
+  sigCodesTidy()
+
+# print b0 table
+filter(all_models_tidy, pairwise == "intercept") %>%
+  select(-pairwise) %>%
+  rename(intercept = term) %>%
+  sigCodesTidy() %>% mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 4))
+    ),
+    p.adjusted = if_else(
+      p.adjusted < 0.001,
+      as.character(scientific(p.adjusted)),
+      as.character(round(p.adjusted, 4))
+    )
+  )  %>%
+  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
+  write_csv("../output/LME_PA_h_f0_b0.csv") %>%
+  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
+  formattable(list(p.adjusted = formatter("span", style = p_color)),
+              caption = paste("b0 for", cur_equation, sep = " "))
+```
+
+
+#### Summary of pairwise comparisons 
+
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# print pairwise comparisons of (B1 table)
+filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
+  select(pairwise,
+         term,
+         estimate,
+         std.error,
+         t.value,
+         p.value,
+         p.adjusted) %>%
+  rename(intercept = pairwise) %>%
+  sigCodesTidy() %>% mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 4))
+    ),
+    p.adjusted = if_else(
+      p.adjusted < 0.001,
+      as.character(scientific(p.adjusted)),
+      as.character(round(p.adjusted, 4))
+    )
+  ) %>%
+  mutate(
+    term = str_replace(term, "acc_phon", ""),
+    intercept = str_replace(intercept, "acc_phon", "")) %>% 
+  write_csv("../output/LME_PA_h_f0_b1.csv")  %>%
+  mutate(
+    term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
+    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
+    ) %>%  
+    rename(`est. (slope)` = estimate) %>% 
+formattable(list(p.adjusted = formatter("span", style = p_color)),
+            caption = paste("b1 for", cur_equation, sep = " "))
+
+```
+
+
+
+
+

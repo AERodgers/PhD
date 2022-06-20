@@ -5,7 +5,7 @@
 #gen_f0_stats <- as_tibble(read.csv("../data/GenStats_a_corpus.csv"))
 
 #corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>%
-corpus <- as_tibble(read.csv("../data/a_corpus_audited.csv")) %>%
+corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
     speaker,
@@ -38,7 +38,7 @@ corpus <- as_tibble(read.csv("../data/a_corpus_audited.csv")) %>%
     phr_end_t,
     lh_slope,
     spkr_f0_mean,
-    spkr_f0_SD,
+    spkr_f0_SD
 
   ) %>%
   mutate(
