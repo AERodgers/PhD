@@ -560,7 +560,8 @@ outliers.</li>
 <h4>Analysis of model</h4>
 <table class="table table-condensed">
 <caption>
-Intercept and lh_slopes of fixed effects
+Intercept and slopes of fixed effects: h_f0 ~ mode + fin_phon + gender +
+(1 + mode | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -572,6 +573,12 @@ estimate
 </th>
 <th style="text-align:right;">
 std.error
+</th>
+<th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
 </th>
 <th style="text-align:right;">
 t.value
@@ -599,10 +606,16 @@ p.adjusted
 1.264
 </td>
 <td style="text-align:right;">
+89.132
+</td>
+<td style="text-align:right;">
+94.085
+</td>
+<td style="text-align:right;">
 72.502
 </td>
 <td style="text-align:right;">
-11.61834
+11.62
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -622,10 +635,16 @@ modeMWH
 0.374
 </td>
 <td style="text-align:right;">
+-0.331
+</td>
+<td style="text-align:right;">
+1.136
+</td>
+<td style="text-align:right;">
 1.076
 </td>
 <td style="text-align:right;">
-10.37243
+10.37
 </td>
 <td style="text-align:right;">
 0.3063
@@ -645,10 +664,16 @@ modeMYN
 0.340
 </td>
 <td style="text-align:right;">
+1.183
+</td>
+<td style="text-align:right;">
+2.516
+</td>
+<td style="text-align:right;">
 5.436
 </td>
 <td style="text-align:right;">
-10.40210
+10.40
 </td>
 <td style="text-align:right;">
 2.0000e-04
@@ -668,10 +693,16 @@ modeMDQ
 0.683
 </td>
 <td style="text-align:right;">
+3.663
+</td>
+<td style="text-align:right;">
+6.343
+</td>
+<td style="text-align:right;">
 7.320
 </td>
 <td style="text-align:right;">
-10.07122
+10.07
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -691,10 +722,16 @@ fin_phonL%
 0.252
 </td>
 <td style="text-align:right;">
+-1.653
+</td>
+<td style="text-align:right;">
+-0.665
+</td>
+<td style="text-align:right;">
 -4.599
 </td>
 <td style="text-align:right;">
-354.77281
+354.77
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -714,10 +751,16 @@ genderM
 1.402
 </td>
 <td style="text-align:right;">
+-7.669
+</td>
+<td style="text-align:right;">
+-2.175
+</td>
+<td style="text-align:right;">
 -3.512
 </td>
 <td style="text-align:right;">
-10.83485
+10.83
 </td>
 <td style="text-align:right;">
 0.005
@@ -766,6 +809,12 @@ estimate
 std.error
 </th>
 <th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
 t.value
 </th>
 <th style="text-align:right;">
@@ -788,16 +837,22 @@ signif. (adj.)
 modeMDC
 </td>
 <td style="text-align:right;">
-91.578
+91.609
 </td>
 <td style="text-align:right;">
-1.262
+1.264
 </td>
 <td style="text-align:right;">
-72.565
+89.132
 </td>
 <td style="text-align:right;">
-11.58624
+94.085
+</td>
+<td style="text-align:right;">
+72.502
+</td>
+<td style="text-align:right;">
+11.62
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -814,16 +869,22 @@ p&lt;0.001
 modeMWH
 </td>
 <td style="text-align:right;">
-91.982
+92.011
 </td>
 <td style="text-align:right;">
-1.123
+1.125
 </td>
 <td style="text-align:right;">
-81.914
+89.806
 </td>
 <td style="text-align:right;">
-11.14108
+94.216
+</td>
+<td style="text-align:right;">
+81.781
+</td>
+<td style="text-align:right;">
+11.14
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -840,16 +901,22 @@ p&lt;0.001
 modeMYN
 </td>
 <td style="text-align:right;">
-93.428
+93.458
 </td>
 <td style="text-align:right;">
-1.137
+1.139
 </td>
 <td style="text-align:right;">
-82.188
+91.225
 </td>
 <td style="text-align:right;">
-11.21151
+95.691
+</td>
+<td style="text-align:right;">
+82.035
+</td>
+<td style="text-align:right;">
+11.21
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -866,16 +933,22 @@ p&lt;0.001
 modeMDQ
 </td>
 <td style="text-align:right;">
-96.623
+96.611
 </td>
 <td style="text-align:right;">
-1.523
+1.524
 </td>
 <td style="text-align:right;">
-63.433
+93.624
 </td>
 <td style="text-align:right;">
-12.19155
+99.598
+</td>
+<td style="text-align:right;">
+63.392
+</td>
+<td style="text-align:right;">
+12.20
 </td>
 <td style="text-align:right;">
 0.0000e+00
@@ -903,7 +976,7 @@ prompt)
 intercept
 </th>
 <th style="text-align:right;">
-lh_slope
+slope
 </th>
 <th style="text-align:right;">
 estimate
@@ -912,7 +985,16 @@ estimate
 std.error
 </th>
 <th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
 t.value
+</th>
+<th style="text-align:right;">
+df
 </th>
 <th style="text-align:right;">
 p.value
@@ -937,13 +1019,22 @@ modeMWH
 0.403
 </td>
 <td style="text-align:right;">
-0.372
+0.374
 </td>
 <td style="text-align:right;">
-1.083
+-0.331
 </td>
 <td style="text-align:right;">
-0.3033
+1.136
+</td>
+<td style="text-align:right;">
+1.076
+</td>
+<td style="text-align:right;">
+10.37
+</td>
+<td style="text-align:right;">
+0.3063
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999 </span>
@@ -959,16 +1050,25 @@ modeMDC
 modeMYN
 </td>
 <td style="text-align:right;">
-1.849
+1.850
 </td>
 <td style="text-align:right;">
-0.339
+0.340
 </td>
 <td style="text-align:right;">
-5.455
+1.183
 </td>
 <td style="text-align:right;">
-2.4505e-04
+2.516
+</td>
+<td style="text-align:right;">
+5.436
+</td>
+<td style="text-align:right;">
+10.40
+</td>
+<td style="text-align:right;">
+2.0000e-04
 </td>
 <td style="text-align:right;">
 <span style="color: green">0.0015 </span>
@@ -985,19 +1085,28 @@ modeMDC
 modeMDQ
 </td>
 <td style="text-align:right;">
-5.045
+5.003
 </td>
 <td style="text-align:right;">
-0.693
+0.683
 </td>
 <td style="text-align:right;">
-7.285
+3.663
 </td>
 <td style="text-align:right;">
-2.5540e-05
+6.343
 </td>
 <td style="text-align:right;">
-<span style="color: green">1.5323e-04</span>
+7.320
+</td>
+<td style="text-align:right;">
+10.07
+</td>
+<td style="text-align:right;">
+0.0000e+00
+</td>
+<td style="text-align:right;">
+<span style="color: green">1.0000e-04</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.001
@@ -1011,19 +1120,28 @@ modeMWH
 modeMYN
 </td>
 <td style="text-align:right;">
-1.446
+1.447
 </td>
 <td style="text-align:right;">
-0.469
+0.470
 </td>
 <td style="text-align:right;">
-3.082
+0.526
 </td>
 <td style="text-align:right;">
-0.0117
+2.368
 </td>
 <td style="text-align:right;">
-<span style="color: red">0.0703 </span>
+3.080
+</td>
+<td style="text-align:right;">
+9.91
+</td>
+<td style="text-align:right;">
+0.0118
+</td>
+<td style="text-align:right;">
+<span style="color: red">0.0705 </span>
 </td>
 <td style="text-align:right;">
 </td>
@@ -1036,19 +1154,28 @@ modeMWH
 modeMDQ
 </td>
 <td style="text-align:right;">
-4.641
+4.600
 </td>
 <td style="text-align:right;">
-0.925
+0.922
 </td>
 <td style="text-align:right;">
-5.017
+2.793
 </td>
 <td style="text-align:right;">
-5.1632e-04
+6.408
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0031 </span>
+4.988
+</td>
+<td style="text-align:right;">
+10.05
+</td>
+<td style="text-align:right;">
+5.0000e-04
+</td>
+<td style="text-align:right;">
+<span style="color: green">0.0032 </span>
 </td>
 <td style="text-align:right;">
 p&lt;0.01
@@ -1062,13 +1189,22 @@ modeMYN
 modeMDQ
 </td>
 <td style="text-align:right;">
-3.196
+3.153
 </td>
 <td style="text-align:right;">
-0.811
+0.800
 </td>
 <td style="text-align:right;">
-3.941
+1.584
+</td>
+<td style="text-align:right;">
+4.722
+</td>
+<td style="text-align:right;">
+3.939
+</td>
+<td style="text-align:right;">
+10.08
 </td>
 <td style="text-align:right;">
 0.0027

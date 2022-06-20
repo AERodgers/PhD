@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of Mode and Nuclear Contours: l_t"
+title: "Chapter 7 - LME analysis of Mode and Nuclear Contours"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -305,7 +305,7 @@ for (cur_equation in model_equation) {
            t.value,
            p.value,
            p.adjusted) %>%
-    rename(intercept = pairwise, lh_slope = term) %>%
+    rename(intercept = pairwise, slope = term) %>%
     sigCodesTidy() %>% mutate(
         p.value = if_else(
           p.value < 0.001,

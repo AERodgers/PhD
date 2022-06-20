@@ -5,6 +5,7 @@ output:
   word_document: default
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
@@ -67,7 +68,6 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
                           "^[L*H]" = brewer.pal(6, "Spectral")[1])
 ```
 
-
 ```{r warning=FALSE, message=FALSE}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
@@ -101,7 +101,6 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```
 
-
 ```{r}
 # consolidate contour types.
 
@@ -127,6 +126,7 @@ m_corpus_short <- m_corpus %>%
 ```
 
 ## **__Raw Data__**
+
 ```{r warning=FALSE}
 
 # Calculate the number of tokens of each PA as a function of sentence mode.
@@ -144,43 +144,8 @@ modes_nuc_summaries <- m_corpus_short %>%
   write_csv("../output/modes_nuc_raw.csv")
 ```
 
-### Nuclear Pitch Accent by Sentence Mode
-```{r warning=FALSE}
-# Create summary table of Pitch Accent by Sentence Mode.
+### Nuclear Pitch Accent by speaker
 
-modes_nuc_summaries %>% 
-  rename("\\^[L*]H" = "^[L*]H",
-         "L*\\^[H]" = "L*^[H]",
-         "\\^[L*H]" = "^[L*H]",
-         "\\>H*" = ">H*") %>% 
-  formattable()
-
-```
-
-
-
-#### Chi Squared test of association using raw data
-```{r}
-
-with(m_corpus_short,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
-
-```
-
-
-#### Chi Squared test of association using raw data without outlier tokens
-```{r}
-
-with(
-  m_corpus_short %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
-
-```
-
-### Nuclear Pitrch Accent by speaker
 ```{r warning=FALSE}
 # Create summary table of Pitch Accent by Speaker.
 
@@ -196,8 +161,114 @@ m_corpus_short %>%
   formattable()
 ```
 
-## **__Adjusted Data__**
+
 ### Nuclear Pitch Accent by Sentence Mode
+
+```{r warning=FALSE}
+# Create summary table of Pitch Accent by Sentence Mode.
+
+modes_nuc_summaries %>% 
+  rename("\\^[L*]H" = "^[L*]H",
+         "L*\\^[H]" = "L*^[H]",
+         "\\^[L*H]" = "^[L*H]",
+         "\\>H*" = ">H*") %>% 
+  formattable()
+
+```
+
+
+#### Chi Squared test of association using raw data
+
+```{r}
+
+with(m_corpus_short,
+     table(mode, acc_phon)) %>% chisq.test %>% print()
+
+```
+
+#### Chi Squared test of association using raw data without outlier tokens
+
+```{r}
+
+with(
+  m_corpus_short %>%
+    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
+    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
+  table(mode, acc_phon)
+)  %>% chisq.test %>% print()
+
+```
+
+
+## **__Adjusted Data__**
+
+The raw data is unbalanced since there number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
+
+This is done in three stages, using the local function `balancedData()`:
+    1. The function calculates the ratio of each token per target per speaker. This is multiplies by a constant reflecting the target number of token for that utterance.
+    2. It then calculates the total number of tokens per target as a proportion of the actual number of speakers for each target. Again, this is multiplied by a constant to reflect the ideal target number of speakers per target.
+    3. The resulting values are rounded to an integer to approximate the projected ideal number of total tokens per speaker per utterance.
+
+
+### Nuclear Pitch Accent by Speaker
+
+```{r warning=FALSE}
+pa_by_speaker_pc <- m_corpus_short %>%
+    #filter (speaker == cur_speaker, .preserve = TRUE) %>%
+    group_by(speaker, acc_phon) %>%
+    summarise(nuc_count = n(), .groups = "keep") %>%
+    spread(acc_phon, nuc_count, is.na <- 0, drop = FALSE) %>%
+    mutate(tot_PAs = sum(c_across())) %>%
+    mutate(across(1:7, ~ round(. / tot_PAs * 100))) %>%
+    select(-tot_PAs)
+
+pa_by_speaker_pc %>%
+    write_csv("../output/nuc_by_speaker_adj.csv")  %>%
+    rename(
+        "\\^[L*]H" = "^[L*]H",
+        "L*\\^[H]" = "L*^[H]",
+        "\\^[L*H]" = "^[L*H]",
+        "\\>H*" = ">H*"
+    ) %>%
+    formattable()
+
+pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
+    gather("acc_phon", "count",-c(speaker)) %>%
+    uncount(count) %>%
+    mutate(acc_phon = factor(
+        acc_phon,
+        levels = c("^[L*H]",
+                   "L*^[H]",
+                   "^[L*]H",
+                   ">H*",
+                   "L*H",
+                   "H*")
+    ))
+
+```
+
+
+```{r warning=FALSE, fig.width = 10, fig.height = 4}
+# Percentage Stacked bar
+
+ggplot(data = pa_by_speaker_pc_uncount,
+       aes(fill = acc_phon, x = speaker)) +
+    geom_bar(
+        stat = "count",
+        position = "fill",
+        width = 0.30,
+        colour = "black"
+    ) +
+    scale_fill_manual(values = pitch_accent_colours[1:6]) +
+    
+    labs(y = "Proportion of Pitch Accents",
+         x = "Speaker") +
+    theme(panel.border = element_rect(fill = NA)) +
+    scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
+```
+
+### Nuclear Pitch Accent by Sentence Mode
+
 ```{r warning=FALSE}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
 #
@@ -298,28 +369,6 @@ mode_tokens_adjusted <- rbind(
 
 ```
 
-#### Chi Squared test of association using adjusted data
-```{r}
-
-with(mode_tokens_adjusted,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
-
-```
-
-
-#### Chi Squared test of association using adjusted data without outlier tokens
-```{r}
-
-with(
-  mode_tokens_adjusted %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
-
-```
-
-
 ```{r, fig.height=7, fig.width=15, eval=FALSE}
 ggplot(mode_tokens_adjusted) +
     geom_bar(
@@ -357,59 +406,23 @@ ggplot(mode_tokens_adjusted %>% filter(acc_phon %notin%(c("H*", ">H*", "^[L*]H")
 
 ```
 
-### Nuclear Pitch Accent by Speaker
+#### Chi Squared test of association using adjusted data
 
-```{r warning=FALSE}
-pa_by_speaker_pc <- m_corpus_short %>%
-    #filter (speaker == cur_speaker, .preserve = TRUE) %>%
-    group_by(speaker, acc_phon) %>%
-    summarise(nuc_count = n(), .groups = "keep") %>%
-    spread(acc_phon, nuc_count, is.na <- 0, drop = FALSE) %>%
-    mutate(tot_PAs = sum(c_across())) %>%
-    mutate(across(1:7, ~ round(. / tot_PAs * 100))) %>%
-    select(-tot_PAs)
+```{r}
 
-pa_by_speaker_pc %>%
-    write_csv("../output/nuc_by_speaker_adj.csv")  %>%
-    rename(
-        "\\^[L*]H" = "^[L*]H",
-        "L*\\^[H]" = "L*^[H]",
-        "\\^[L*H]" = "^[L*H]",
-        "\\>H*" = ">H*"
-    ) %>%
-    formattable()
-
-pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
-    gather("acc_phon", "count",-c(speaker)) %>%
-    uncount(count) %>%
-    mutate(acc_phon = factor(
-        acc_phon,
-        levels = c("^[L*H]",
-                   "L*^[H]",
-                   "^[L*]H",
-                   ">H*",
-                   "L*H",
-                   "H*")
-    ))
+with(mode_tokens_adjusted,
+     table(mode, acc_phon)) %>% chisq.test %>% print()
 
 ```
 
 
-```{r warning=FALSE, fig.width = 10, fig.height = 4}
-# Percentage Stacked bar
+#### Chi Squared test of association using adjusted data without outlier tokens
 
-ggplot(data = pa_by_speaker_pc_uncount,
-       aes(fill = acc_phon, x = speaker)) +
-    geom_bar(
-        stat = "count",
-        position = "fill",
-        width = 0.30,
-        colour = "black"
-    ) +
-    scale_fill_manual(values = pitch_accent_colours[1:6]) +
-    
-    labs(y = "Proportion of Pitch Accents",
-         x = "Speaker") +
-    theme(panel.border = element_rect(fill = NA)) +
-    scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
-```
+```{r}
+
+with(
+  mode_tokens_adjusted %>%
+    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
+    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
+  table(mode, acc_phon)
+)  %>% chisq.test %>% print()

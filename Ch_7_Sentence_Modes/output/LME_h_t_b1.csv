@@ -1,7 +1,7 @@
-intercept,lh_slope,estimate,std.error,t.value,p.value,p.adjusted,signif. (adj.)
-modeMDC,modeMWH,0.562,3.072,0.183,0.855,0.9999,
-modeMDC,modeMYN,-4.017,3.065,-1.311,0.1904,0.9999,
-modeMDC,modeMDQ,-19.602,3.122,-6.278,0.0000e+00,0.0000e+00,p<0.001
-modeMWH,modeMYN,-4.578,3.08,-1.486,0.1377,0.826,
-modeMWH,modeMDQ,-20.163,3.147,-6.408,0.0000e+00,0.0000e+00,p<0.001
-modeMYN,modeMDQ,-15.585,3.123,-4.99,7.8000e-07,4.7100e-06,p<0.001
+intercept,slope,estimate,std.error,2.5% CI,97.5% CI,t.value,df,p.value,p.adjusted,signif. (adj.)
+modeMDC,modeMWH,0.562,3.072,-5.459,6.582,0.183,622.04,0.855,0.9999,
+modeMDC,modeMYN,-4.017,3.065,-10.023,1.989,-1.311,622.02,0.1904,0.9999,
+modeMDC,modeMDQ,-19.602,3.122,-25.721,-13.483,-6.278,622.12,0.0000e+00,0.0000e+00,p<0.001
+modeMWH,modeMYN,-4.578,3.08,-10.615,1.458,-1.486,622.08,0.1377,0.826,
+modeMWH,modeMDQ,-20.163,3.147,-26.331,-13.996,-6.408,622.25,0.0000e+00,0.0000e+00,p<0.001
+modeMYN,modeMDQ,-15.585,3.123,-21.706,-9.464,-4.99,622.1,0.0000e+00,0.0000e+00,p<0.001

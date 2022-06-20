@@ -196,21 +196,48 @@ removed %>%
 #### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-tidy(temp_mdl) %>%
+tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
   bonferroniAdjust("", 6) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
+    df = round(df, 2),
     p.value = round(p.value, 4),
     p.adjusted = round(p.adjusted, 4)
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
-  rename(t.value = statistic) %>%
-  formattable(caption = "Intercept and lh_slopes of fixed effects",
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+  rename(t.value = statistic)
+
+# Get CIs of model using Wald method (fast, fixed effects only)
+ci_Wald <- confint(temp_mdl, method = "Wald") %>%
+  as_tibble() %>%
+  filter(`2.5 %` != "NA") %>%
+  mutate(`2.5 %` = round(`2.5 %`, 3),
+         `97.5 %` = round(`97.5 %`, 3)) %>%
+  rename("2.5% CI" = "2.5 %",
+         "97.5% CI" = "97.5 %")
+
+# Bind tidy model to...
+cbind(tidy_model, ci_Wald) %>%
+  # re-order columns
+  select(
+    "term",
+    "estimate",
+    "std.error",
+    "2.5% CI",
+    "97.5% CI",
+    "t.value",
+    "df",
+    "p.value",
+    "p.adjusted"
+  ) %>%
+  formattable(
+    caption = paste("Intercept and slopes of fixed effects:", cur_equation),
+    list(p.adjusted = formatter("span", style = p_color))
+  ) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
@@ -223,9 +250,11 @@ tidy(temp_mdl) %>%
       as.character(round(p.adjusted, 4))
     )
   )
+```
 
 
-  kable(
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+kable(
     r2_nakagawa(temp_mdl),
     caption = "Conditional and marginal R^2^ of model",
     digits = 2,
@@ -250,7 +279,7 @@ print(
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
-cur_levels <- levels(m_corpus.trimmed$mode)
+cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
 num_levels <- length(cur_levels)
 all_models_tidy = tibble()
@@ -259,7 +288,7 @@ for (i in 1:(num_levels)) {
   # Test GLMM model on data.
   cur_model <- lmer(
     formula(cur_equation),
-    data = m_corpus.trimmed,
+    data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -270,22 +299,48 @@ for (i in 1:(num_levels)) {
       )
     )
   )
+  
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
-    filter(effect != "ran_pars") %>%
-    select(-group) %>%
+    filter(term != "sd__(Intercept)") %>%
     bonferroniAdjust("", 6) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
-      p.value = round(p.value, 8),
-      p.adjusted = round(p.adjusted, 8)
-    )
+      df = round(df, 2),
+      p.value = round(p.value, 4),
+      p.adjusted = round(p.adjusted, 4)
+    ) %>%
+    filter(effect %notin% "ran_pars") %>%
+    select(-c(group, effect)) %>%
+    rename(t.value = statistic)
+
+  # Get CIs of model using Wald method (fast, fixed effects only)
+  ci_Wald <- confint(cur_model, method = "Wald") %>%
+    as_tibble() %>%
+    filter(`2.5 %` != "NA") %>%
+    mutate(`2.5 %` = round(`2.5 %`, 3),
+           `97.5 %` = round(`97.5 %`, 3)) %>%
+    rename("2.5% CI" = "2.5 %",
+           "97.5% CI" = "97.5 %")
   
+  # Bind tidy model to...
+  cur_model_tidy <- cbind(cur_model_tidy, ci_Wald) %>%
+    # re-order columns
+    select(
+      "term",
+      "estimate",
+      "std.error",
+      "2.5% CI",
+      "97.5% CI",
+      "t.value",
+      "df",
+      "p.value",
+      "p.adjusted"
+    ) %>%
   # Prepare current model for pasting to all models output.
   # Make 'pairwise' column = intercept.
-  cur_model_tidy <- cur_model_tidy %>%
     mutate(
       pairwise =
         if_else(
@@ -309,10 +364,7 @@ for (i in 1:(num_levels)) {
         )
     ) %>%
     # remove random effects detail
-    filter(term != "sd__(Intercept)") %>%
-    select(-effect) %>%
-    # rename statistic column to "t.value"
-    rename(t.value = statistic)
+    filter(term != "sd__(Intercept)")
   
   
   # make list of pairwise comparisons to keeps
@@ -329,7 +381,7 @@ for (i in 1:(num_levels)) {
   
   # restructure the order of levels for next LME cur_model.
   cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-  m_corpus.trimmed <- m_corpus.trimmed %>%
+  m_corpus <- m_corpus %>%
     mutate(mode = factor(mode,
                          levels = cur_levels))
 }
@@ -369,14 +421,19 @@ filter(all_models_tidy, pairwise == "intercept") %>%
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print pairwise comparisons of (B1 table)
 filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
-  select(pairwise,
-         term,
-         estimate,
-         std.error,
-         t.value,
-         p.value,
-         p.adjusted) %>%
-  rename(intercept = pairwise, lh_slope = term) %>%
+  select(
+    pairwise,
+    term,
+    estimate,
+    std.error,
+    `2.5% CI`,
+    `97.5% CI`,
+    t.value,
+    df,
+    p.value,
+    p.adjusted
+  ) %>%
+  rename(intercept = pairwise, slope = term) %>%
   sigCodesTidy() %>% mutate(
     p.value = if_else(
       p.value < 0.001,
