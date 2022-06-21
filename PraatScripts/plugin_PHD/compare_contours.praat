@@ -9,7 +9,10 @@ form
         option Intense (3)
     comment Image Options
     boolean Reset_image_window 0
+    natural Font_size 14
+    natural Base_line_width 6
     boolean Line_border 1
+
     optionmenu Line_colour 2
         option Dark Orange
         option Light Orange
@@ -19,6 +22,7 @@ form
         option Grey
 endform
 
+base_line_width
 # Colour scheme: ColorBrewer2.org, photocopy, print friendy, colorblind safe
 line_colour$# = {
              ... "{0.902, 0.380, 0.004}",
@@ -31,16 +35,19 @@ line_colour$# = {
 smoothing# = {0, 19, 10, 3}
 
 @drawDecs: f0_floor, f0_ceiling, smoothing#[smoothing],
-    ... reset_image_window, line_colour$#[line_colour], line_border
+    ... reset_image_window, line_colour$#[line_colour],
+    ... line_border, base_line_width, font_size
 
-procedure drawDecs: .f0_min, .f0_max, .smoothing, .erase_all, .colour$, .border
+procedure drawDecs: .f0_min, .f0_max, .smoothing,
+    ... .erase_all, .colour$,
+    ... .border, .line_width, .font_size
 
     if .erase_all
         # reset Praat Picture Window
         Erase all
         Times
         Select outer viewport: 0, 6, 0, 3.5
-        10
+        'font_size'
         Black
         Line width: 1
         Solid line
@@ -70,12 +77,12 @@ procedure drawDecs: .f0_min, .f0_max, .smoothing, .erase_all, .colour$, .border
 
             if .border
                 Colour: "Black"
-                Line width: 4
+                Line width: .line_width * 1.2
                 Draw logarithmic: .s_t, .e_t, .f0_min, .f0_max, "no"
             endif
 
             Colour: '.colour$'
-            Line width: 3
+            Line width: .line_width
             Draw logarithmic: .s_t, .e_t, .f0_min, .f0_max, "no"
             Remove
         endfor
