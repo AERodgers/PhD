@@ -365,20 +365,21 @@ for (i in 1:(num_levels)) {
 filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
-  sigCodesTidy(`p.val. adj. (bf=7)`) %>% mutate(
+  sigCodesTidy(`p.val. adj. (bf=7)`) %>%
+  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>%
+  write_csv("../output/LME_PA_lh_slope_b0.csv") %>%
+  mutate(
     p.value = if_else(
       p.value < 0.001,
-      as.character(scientific(p.value, digits=2)),
-      as.character(round(p.value, 4), digits=2)
+      as.character(scientific(p.value, digits = 2)),
+      as.character(round(p.value, 4), digits = 2)
     ),
     `p.val. adj. (bf=7)` = if_else(
       `p.val. adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.val. adj. (bf=7)`, digits=2)),
+      as.character(scientific(`p.val. adj. (bf=7)`, digits = 2)),
       as.character(round(`p.val. adj. (bf=7)`, 4))
     )
   )  %>%
-  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
-  write_csv("../output/LME_PA_lh_slope_b0.csv") %>%
   mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
   formattable(list(`p.val. adj. (bf=7)` = formatter("span", style = p_color)),
               caption = paste("b0 for", cur_equation, sep = " "))
@@ -402,29 +403,31 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     `p.val. adj. (bf=7)`
   ) %>%
   rename(intercept = pairwise) %>%
-  sigCodesTidy(`p.val. adj. (bf=7)`) %>% mutate(
+  sigCodesTidy(`p.val. adj. (bf=7)`) %>%
+  mutate(
+    term = str_replace(term, "acc_phon", ""),
+    intercept = str_replace(intercept, "acc_phon", "")
+  ) %>%
+  write_csv("../output/LME_PA_lh_slope_b1.csv")  %>%
+  mutate(
     p.value = if_else(
       p.value < 0.001,
-      as.character(scientific(p.value, digits=2)),
-      as.character(round(p.value, 4), digits=2)
+      as.character(scientific(p.value, digits = 2)),
+      as.character(round(p.value, 4), digits = 2)
     ),
     `p.val. adj. (bf=7)` = if_else(
       `p.val. adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.val. adj. (bf=7)`, digits=2)),
+      as.character(scientific(`p.val. adj. (bf=7)`, digits = 2)),
       as.character(round(`p.val. adj. (bf=7)`, 4))
     )
   ) %>%
   mutate(
-    term = str_replace(term, "acc_phon", ""),
-    intercept = str_replace(intercept, "acc_phon", "")) %>% 
-  write_csv("../output/LME_PA_lh_slope_b1.csv")  %>%
-  mutate(
     term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
     intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
-    ) %>%  
-    rename(`est. (slope)` = estimate) %>% 
-formattable(list(`p.val. adj. (bf=7)` = formatter("span", style = p_color)),
-            caption = paste("b1 for", cur_equation, sep = " "))
+  ) %>%
+  rename(`est. (slope)` = estimate) %>%
+  formattable(list(`p.val. adj. (bf=7)` = formatter("span", style = p_color)),
+              caption = paste("b1 for", cur_equation, sep = " "))
 
 ```
 
