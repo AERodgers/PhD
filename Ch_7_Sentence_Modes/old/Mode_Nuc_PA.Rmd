@@ -149,10 +149,7 @@ modes_nuc_summaries <- m_corpus_short %>%
 # Create summary table of Pitch Accent by Sentence Mode.
 
 modes_nuc_summaries %>% 
-  rename("\\^[L*]H" = "^[L*]H",
-         "L*\\^[H]" = "L*^[H]",
-         "\\^[L*H]" = "^[L*H]",
-         "\\>H*" = ">H*") %>% 
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   formattable()
 
 ```
@@ -166,10 +163,7 @@ m_corpus_short %>%
   summarise(acc_count = n(), .groups="keep") %>%
   spread(acc_phon, acc_count, is.na <- 0) %>%
   write_csv("../output/nuc_by_speaker_raw.csv") %>%
-  rename("\\^[L*]H" = "^[L*]H",
-         "L*\\^[H]" = "L*^[H]",
-         "\\^[L*H]" = "^[L*H]",
-         "\\>H*" = ">H*") %>% 
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   formattable()
 ```
 
@@ -198,11 +192,7 @@ balancedData(m_corpus_short,
     summarise(acc_count = sum(value)) %>%
     spread(acc_phon, acc_count, is.na <- 0) %>%
     write_csv("../output/modes_nuc_balanced.csv") %>%
-    rename(
-        "\\^[L*]H" = "^[L*]H",
-        "L*\\^[H]" = "L*^[H]",
-        "\\^[L*H]" = "^[L*H]"
-    ) %>%
+    rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
     formattable()
 
 ```
@@ -347,12 +337,7 @@ pa_by_speaker_pc <- m_corpus_short %>%
 
 pa_by_speaker_pc %>%
     write_csv("../output/nuc_by_speaker_adj.csv")  %>%
-    rename(
-        "\\^[L*]H" = "^[L*]H",
-        "L*\\^[H]" = "L*^[H]",
-        "\\^[L*H]" = "^[L*H]",
-        "\\>H*" = ">H*"
-    ) %>%
+    rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
     formattable()
 
 pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%

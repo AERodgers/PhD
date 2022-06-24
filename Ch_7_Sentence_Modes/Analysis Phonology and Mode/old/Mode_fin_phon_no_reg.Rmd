@@ -1,5 +1,5 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes'
+title: 'Chapter 07: Analysis of Function: Final Falls'
 output:
   html_document: default
   word_document: default
@@ -55,17 +55,14 @@ mode_colours <- c("WHQ" = "#e66101",
                   "MYN" = "#fdb863",
                   "MDQ" = "#b2abd2")
 
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
+p_color <- all_models_tidy ~ style(
+  color =if_else(as.double(all_models_tidy) < 0.05,
                                              "green",
                                              "red")
                                    )
-pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
-                          "L*H"    = brewer.pal(6, "Spectral")[6],
-                          ">H*"    = brewer.pal(6, "Spectral")[5],
-                          "^[L*]H" = brewer.pal(6, "Spectral")[3],
-                          "L*^[H]" = brewer.pal(6, "Spectral")[2],
-                          "^[L*H]" = brewer.pal(6, "Spectral")[1])
+
+pitch_accent_colours <- c("%"  = brewer.pal(6, "Spectral")[6],
+                          "L%" = brewer.pal(6, "Spectral")[2])
 ```
 
 ```{r warning=FALSE, message=FALSE}
@@ -73,20 +70,8 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+    fin_phon = str_replace_all(fin_phon, "\\^|\\[|\\]", ""),
+    fin_phon = factor(fin_phon, levels = unique(fin_phon))
   ) %>%
   # Select only columns for analysis
   select(speaker,
@@ -94,36 +79,11 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          mode,
          prompt,
          stim,
-         phr_phon,
-         fin_phon,
-         acc_phon,
-         nuc_contour)
+         fin_phon)
 
 ```
 
-```{r}
-# consolidate contour types.
-
-m_corpus_short <- m_corpus %>%
-  mutate(
-    nuc_contour = factor(
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      )
-    ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
-  )
-
-```
+The analysis of nuclear contours suggests a correlation between nuclear contour and mode. However, it looks like the relationship is really between final boundary and mode.
 
 ## **__Raw Data__**
 
@@ -134,45 +94,35 @@ m_corpus_short <- m_corpus %>%
 # These are mode_tokens_adjusted raw values and can over- or under-represent
 # sentence modes and speakers.
 
-modes_nuc_summaries <- m_corpus_short %>%
-  #filter(acc_phon %notin% c("H*", ">H*")) %>% 
-  #mutate(acc_phon = str_replace_all(acc_phon, "\\^|\\[|\\]", "")) %>% 
-  group_by(mode, acc_phon) %>%
-  summarise(acc_count = n()) %>%
-  spread(acc_phon,acc_count, is.na <- 0) %>% 
+modes_nuc_summaries <- m_corpus %>%
+  group_by(mode, fin_phon) %>%
+  summarise(nuc_count = n()) %>%
+  spread(fin_phon, nuc_count, is.na <- 0) %>% 
   # Save the results in a csv file
-  write_csv("../output/modes_nuc_raw.csv")
+  write_csv("../output/modes_fin_phon_raw_no_reg.csv")
 ```
 
-### Nuclear Pitch Accent by speaker
+### Boundary Tone by speaker
 
 ```{r warning=FALSE}
 # Create summary table of Pitch Accent by Speaker.
 
-m_corpus_short %>%
-  group_by(speaker, acc_phon) %>%
-  summarise(acc_count = n(), .groups="keep") %>%
-  spread(acc_phon, acc_count, is.na <- 0) %>%
-  write_csv("../output/nuc_by_speaker_raw.csv") %>%
-  rename("\\^[L*]H" = "^[L*]H",
-         "L*\\^[H]" = "L*^[H]",
-         "\\^[L*H]" = "^[L*H]",
-         "\\>H*" = ">H*") %>% 
+m_corpus %>%
+  group_by(speaker, fin_phon) %>%
+  summarise(nuc_count = n(), .groups="keep") %>%
+  spread(fin_phon, nuc_count, is.na <- 0) %>%
+  write_csv("../output/fin_phon_by_speaker_raw_no_reg.csv") %>%
+  
   formattable()
 ```
 
 
-### Nuclear Pitch Accent by Sentence Mode
+### Boundary Tone by Sentence Mode
 
 ```{r warning=FALSE}
 # Create summary table of Pitch Accent by Sentence Mode.
 
-modes_nuc_summaries %>% 
-  rename("\\^[L*]H" = "^[L*]H",
-         "L*\\^[H]" = "L*^[H]",
-         "\\^[L*H]" = "^[L*H]",
-         "\\>H*" = ">H*") %>% 
-  formattable()
+modes_nuc_summaries %>% formattable()
 
 ```
 
@@ -181,24 +131,9 @@ modes_nuc_summaries %>%
 
 ```{r}
 
-with(m_corpus_short,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
+with(m_corpus, table(mode, fin_phon)) %>% chisq.test %>% print()
 
 ```
-
-#### Chi Squared test of association using raw data without outlier tokens
-
-```{r}
-
-with(
-  m_corpus_short %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
-
-```
-
 
 ## **__Adjusted Data__**
 
@@ -210,40 +145,30 @@ This is done in three stages, using the local function `balancedData()`:
     3. The resulting values are rounded to an integer to approximate the projected ideal number of total tokens per speaker per utterance.
 
 
-### Nuclear Pitch Accent by Speaker
+### Boundary Tone by Speaker
 
 ```{r warning=FALSE}
-pa_by_speaker_pc <- m_corpus_short %>%
-    #filter (speaker == cur_speaker, .preserve = TRUE) %>%
-    group_by(speaker, acc_phon) %>%
+pa_by_speaker_pc <- m_corpus %>%
+    mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))) %>% 
+    group_by(speaker, fin_phon) %>%
     summarise(nuc_count = n(), .groups = "keep") %>%
-    spread(acc_phon, nuc_count, is.na <- 0, drop = FALSE) %>%
+    spread(fin_phon, nuc_count, is.na <- 0, drop = FALSE) %>%
     mutate(tot_PAs = sum(c_across())) %>%
-    mutate(across(1:7, ~ round(. / tot_PAs * 100))) %>%
+    mutate(across(1:last_col(), ~ round(. / tot_PAs * 100))) %>%
     select(-tot_PAs)
 
 pa_by_speaker_pc %>%
-    write_csv("../output/nuc_by_speaker_adj.csv")  %>%
-    rename(
-        "\\^[L*]H" = "^[L*]H",
-        "L*\\^[H]" = "L*^[H]",
-        "\\^[L*H]" = "^[L*H]",
-        "\\>H*" = ">H*"
-    ) %>%
+    write_csv("../output/fin_phon_by_speaker_adj_no_reg.csv")  %>%
+    
     formattable()
 
 pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
-    gather("acc_phon", "count",-c(speaker)) %>%
+    gather("fin_phon", "count",-c(speaker)) %>%
     uncount(count) %>%
-    mutate(acc_phon = factor(
-        acc_phon,
-        levels = c("^[L*H]",
-                   "L*^[H]",
-                   "^[L*]H",
-                   ">H*",
-                   "L*H",
-                   "H*")
-    ))
+    mutate(fin_phon = factor(
+        fin_phon,
+        levels = unique(fin_phon)))
+
 
 ```
 
@@ -252,53 +177,48 @@ pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
 # Percentage Stacked bar
 
 ggplot(data = pa_by_speaker_pc_uncount,
-       aes(fill = acc_phon, x = speaker)) +
+       aes(fill = fin_phon, x = speaker)) +
     geom_bar(
         stat = "count",
         position = "fill",
         width = 0.30,
         colour = "black"
     ) +
-    scale_fill_manual(values = pitch_accent_colours[1:6]) +
+    scale_fill_manual(values = pitch_accent_colours[1:2]) +
     
-    labs(y = "Proportion of Pitch Accents",
+    labs(y = "Proportion of Pitch Accents (no register)",
          x = "Speaker") +
     theme(panel.border = element_rect(fill = NA)) +
     scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
 ```
+Not all speakers take advantage of the availability of L%!
 
-### Nuclear Pitch Accent by Sentence Mode
+### Boundary Tone by Sentence Mode
 
 ```{r warning=FALSE}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
 #
 # This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
 
-balancedData(m_corpus_short,
-             stim, acc_phon,
+balancedData(m_corpus,
+             stim, fin_phon,
              "",
              11,
              5,
              use_pa_hierarchy = FALSE) %>%
     rename(mode = stim) %>%
     mutate(mode = substr(mode, 1, 3)) %>% group_by(mode) %>%
-    pivot_longer(2:last_col(), "acc_phon") %>%
-    mutate(acc_phon = factor(
-        acc_phon,
-                levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+    pivot_longer(2:last_col(), "fin_phon") %>%
+    mutate(fin_phon = factor(
+        fin_phon,
+                levels = unique(fin_phon)
     ),
     mode = factor(mode, levels = c("MDC", "MWH", "MYN", "MDQ"))) %>%
-    group_by(acc_phon, mode) %>%
+    group_by(fin_phon, mode) %>%
     summarise(acc_count = sum(value)) %>%
-    spread(acc_phon, acc_count, is.na <- 0) %>%
-    write_csv("../output/modes_nuc_balanced.csv") %>%
-    rename(
-        "\\^[L*]H" = "^[L*]H",
-        "L*\\^[H]" = "L*^[H]",
-        "\\^[L*H]" = "^[L*H]",
-        "H\\*" = "H*",
-        "\\>H\\*" = ">H*"
-    ) %>%
+    spread(fin_phon, acc_count, is.na <- 0) %>%
+    write_csv("../output/modes_fin_phon_balanced_no_reg.csv") %>%
+    
     formattable()
 
 ```
@@ -311,9 +231,9 @@ mode_tokens_adjusted <- rbind(
   pivot_longer(
     # Get summary table of adjusted PAs per mode for female speakers.
     balancedData(
-      data_set = m_corpus_short ,
+      data_set = m_corpus ,
       treatment_col = stim,
-      response_col = acc_phon,
+      response_col = fin_phon,
       gender_filter = "F",
       num_speakers = 6,
       num_reps = 5,
@@ -323,14 +243,14 @@ mode_tokens_adjusted <- rbind(
       rename(mode = stim) %>%
       mutate(mode = substr(mode, 1, 3)) %>% group_by(mode),
     c(2:last_col()),
-    names_to = "acc_phon"
+    names_to = "fin_phon"
     ) %>%
     # Convert summary table for female speakers into a list of tokens.
-    group_by(mode, acc_phon) %>%
+    group_by(mode, fin_phon) %>%
     uncount(value) %>%
-    mutate(acc_phon = factor(
-      acc_phon,
-      levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+    mutate(fin_phon = factor(
+      fin_phon,
+      levels = unique(fin_phon)
       )) %>%
     # Add gender column
     mutate(gender = "F"),
@@ -339,9 +259,9 @@ mode_tokens_adjusted <- rbind(
   pivot_longer(
     # Get summary table of PAs per mode of balanced data for male speakers.
     balancedData(
-      data_set = m_corpus_short,
+      data_set = m_corpus,
       treatment_col = stim,
-      response_col = acc_phon,
+      response_col = fin_phon,
       gender_filter = "M",
       num_speakers = 5,
       num_reps = 5,
@@ -352,14 +272,14 @@ mode_tokens_adjusted <- rbind(
       rename(mode = stim) %>%
       mutate(mode = substr(mode, 1, 3)) %>% group_by(mode),
     c(2:last_col()),
-    names_to = "acc_phon"
+    names_to = "fin_phon"
     ) %>%
     # Convert summary table for female speakers into a list of tokens.
-    group_by(mode, acc_phon) %>%
+    group_by(mode, fin_phon) %>%
     uncount(value) %>%
-    mutate(acc_phon = factor(
-      acc_phon,
-      levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+    mutate(fin_phon = factor(
+      fin_phon,
+      levels = unique(fin_phon)
     )) %>%
     # Add gender column
     mutate(gender = "M")
@@ -369,31 +289,33 @@ mode_tokens_adjusted <- rbind(
 
 ```
 
-```{r, fig.height=7, fig.width=15, eval=FALSE}
+```{r, fig.height=7, fig.width=15}
 ggplot(mode_tokens_adjusted) +
     geom_bar(
-        mapping = aes(x = mode, fill = acc_phon),
+        mapping = aes(x = mode, fill = fin_phon),
         colour = "black",
         show.legend = FALSE,
         position = position_dodge2(preserve = "single")
     ) +
-    facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
-    ggtitle("Nuclear accents by sentence mode (adjusted)") +
+    facet_grid(rows = vars(gender), cols = vars(fin_phon)) +
+    ggtitle("Nuclear accents by sentence mode (adjusted, no register)") +
     scale_fill_manual(values = pitch_accent_colours) +
     labs(x = "mode and gender",
          y = "tokens (n)") +
     theme(panel.border = element_rect(fill = NA))
 ```
 
+It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this a general conclusion.
+
 ```{r fig.height=4, fig.width=10}
-ggplot(mode_tokens_adjusted %>% filter(acc_phon %notin%(c("H*", ">H*", "^[L*]H")))) +
+ggplot(mode_tokens_adjusted) +
     geom_bar(
-        mapping = aes(x = mode, fill = acc_phon),
+        mapping = aes(x = mode, fill = fin_phon),
         show.legend = FALSE,
         colour = "black",
         position = position_dodge2(preserve = "single")
     ) +
-    facet_grid(cols = vars(acc_phon)) +
+    facet_grid(cols = vars(fin_phon)) +
     theme(
         panel.border = element_rect(fill = NA),
         axis.text = element_text(size = 14),
@@ -411,18 +333,9 @@ ggplot(mode_tokens_adjusted %>% filter(acc_phon %notin%(c("H*", ">H*", "^[L*]H")
 ```{r}
 
 with(mode_tokens_adjusted,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
+     table(mode, fin_phon)) %>% chisq.test %>% print()
 
 ```
 
-
-#### Chi Squared test of association using adjusted data without outlier tokens
-
-```{r}
-
-with(
-  mode_tokens_adjusted %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
+The overall pattern suggest that L% is more common among YNQs and and DCQs.
+However, I don't think that the L% is used to signal a question. I think that, as with the A&H corpus, L% is used when the speaker indicates there is a conflict of expectation of shared knowledge between the speaker and listener. Thus in questions like "You live in the valley?" and "Do you live in the valley?", speaker can use the L% to indicate that the propositional content conflicts with what he or she had previously believed; i.e., it indicates surprise. In a reciprocal manner, in the declaratives of the A&H corpus (and here), the use of an L% indicates that the speaker is indicating surprise that the listener does not already share the knowledge. (i.e. "Where do you live?... "I live in the valley [L%] (and I assumed you already knew that / and you should know that already.") ... Perhaps the best way to think of this is as the surprise~redundancy strategy, with the conflict of expectations expressing redundancy in the declaratives ("This should not be news to you.") and surprise in the questions ("I did not know this at all!").
