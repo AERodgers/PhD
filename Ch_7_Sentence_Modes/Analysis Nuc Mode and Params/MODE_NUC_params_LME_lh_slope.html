@@ -372,8 +372,8 @@ Nuclear Contours: lh_slope</h1>
 
 <div id="lme-model-analysis-using-initial-model." class="section level3">
 <h3>LME model analysis using initial model.</h3>
-<p>Initial equation:
-<code>lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)</code></p>
+<p>Initial equation: lh_slope ~ mode + fin_phon + gender + (1 + mode |
+speaker) + (1 | prompt)</p>
 <p>Prompt is used as an intercepts only random effect since the model
 does not converge when intercept and slope effect are both included.</p>
 <p>NB: Gender caused singularity issues for another f0 parameter test
@@ -656,8 +656,8 @@ outliers.</li>
 </ul>
 </div>
 <div id="final-model-lh_slope-mode-fin_phon-1-mode-speaker-1-prompt" class="section level3">
-<h3>Final model:
-<code>lh_slope ~ mode + fin_phon + (1 + mode | speaker) + (1 | prompt)</code></h3>
+<h3>Final model: lh_slope ~ mode + fin_phon + (1 + mode | speaker) + (1
+| prompt)</h3>
 <div id="analysis-of-model" class="section level4">
 <h4>Analysis of model</h4>
 <table class="table table-condensed">
@@ -692,7 +692,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 </tr>
 </thead>
@@ -723,7 +723,7 @@ p.adjusted
 0.0029
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0173</span>
+<span style="color: green">0.0202</span>
 </td>
 </tr>
 <tr>
@@ -810,7 +810,7 @@ modeMDQ
 0.0017
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0102</span>
+<span style="color: green">0.0119</span>
 </td>
 </tr>
 <tr>
@@ -839,7 +839,7 @@ fin_phonL%
 0.0391
 </td>
 <td style="text-align:right;">
-<span style="color: red">0.2346</span>
+<span>NA </span>
 </td>
 </tr>
 </tbody>
@@ -896,7 +896,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 <th style="text-align:right;">
 signif. (adj.)
@@ -930,7 +930,7 @@ modeMDC
 0.0029
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0173</span>
+<span style="color: green">0.0202</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.05
@@ -962,7 +962,7 @@ modeMWH
 0.003
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0178</span>
+<span style="color: green">0.0208</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.05
@@ -994,7 +994,7 @@ modeMYN
 0.0029
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0175</span>
+<span style="color: green">0.0204</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.05
@@ -1026,10 +1026,10 @@ modeMDQ
 0.0016
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0097</span>
+<span style="color: green">0.0113</span>
 </td>
 <td style="text-align:right;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 </tbody>
@@ -1071,7 +1071,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 <th style="text-align:right;">
 signif. (adj.)
@@ -1176,7 +1176,7 @@ modeMDQ
 0.0017
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0102</span>
+<span style="color: green">0.0119</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.05
@@ -1245,7 +1245,7 @@ modeMDQ
 0.0132
 </td>
 <td style="text-align:right;">
-<span style="color: red">0.0793</span>
+<span style="color: red">0.0926</span>
 </td>
 <td style="text-align:right;">
 </td>
@@ -1279,7 +1279,7 @@ modeMDQ
 0.0011
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0066</span>
+<span style="color: green">0.0076</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.01

@@ -1,17 +1,14 @@
 ---
-title: "Chapter 7 - LME analysis of Nuclear Contours: l_f0"
+title: "Chapter 7 - LME Analysis of Utterance mean f0"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE)
-```
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -28,6 +25,7 @@ installMissingPackages(
     # Include packages for tidy output.
     "tidyverse",
     "broomExtra",
+    "janitor",
     "sjPlot",
     "formattable",
     "knitr",
@@ -43,58 +41,31 @@ theme_set(theme_minimal(base_size = 14))
 p_color <- all_models_tidy ~ style(color =
                                      if_else(as.double(all_models_tidy) < 0.05,
                                              "green",
-                                             "red")
-                                   )
+                                             "red"))
 
-
-```
-
-```{r}
 # Load Corpus
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
-
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = l_star_h_types
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
-  ) %>%
-  # Select only columns for analysis
-  select(
-    speaker,
-    gender,
-    mode,
-    prompt,
-    foot_syls,
-    acc_phon,
-    phr_phon,
-    fin_phon,
-    l_f0,
-    l_f0_z
-  ) %>% 
-  filter(acc_phon %in% l_star_h_types)
+  select(speaker,
+         gender,
+         mode,
+         prompt,
+         utt_mean_f0)
 
 ```
 
 
+### LME model analysis using initial model
 ```{r}
 # set current equation
-cur_equation <- "l_f0 ~ acc_phon + fin_phon + gender + (1 | speaker)"
-```
+cur_equation  <-
+  "utt_mean_f0 ~ mode + gender + (1 + mode | speaker) + (1 | prompt)"
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```
+### ``r cur_equation``
+
+Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 temp_mdl = lmer(
   formula(cur_equation),
   data = m_corpus,
@@ -108,8 +79,8 @@ temp_mdl = lmer(
     )
   )
 )
+model_after_step <- step(temp_mdl)
 ```
-
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl))
@@ -120,58 +91,9 @@ anova(temp_mdl) %>% print()
 
 cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_mdl, tolerance = 1e-05, "\n"))
 cat("\n")
-
-step(temp_mdl)
-```
-
-* Distribution of residuals is leptokurtic.
-
-### LME model analysis using reduced model and removing outliers (|residual|>3.1)
-
-Running new model again but trimming rows with |residual| > 3.1 (as per Baayen 2008: 279-282).
-
-NB a value of 3.1 was chosen as this removes the minimum number of outliers without leading to singularity errors while at the same time providing a more reasonably distribution or residuals.
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) < 3.1)
-
-temp_mdl.trimmed = lmer(
-  formula(cur_equation),
-  data = m_corpus.trimmed,
-  control = lmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
-```
-
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-print(summary(temp_mdl.trimmed))
-
-drawResiduals(temp_mdl.trimmed)
-
-anova(temp_mdl.trimmed) %>% print()
-
-cat("Check_singularity(temp_mdl.trimmed, tolerance = 1e-05 -->", check_singularity(temp_mdl.trimmed, tolerance = 1e-05, "\n"))
-cat("\n")
-
-
-removed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) >= 3.1) 
-removed %>% 
-  select(c(speaker, gender, mode, prompt, acc_phon, fin_phon, l_f0, l_f0_z)) %>% 
-  mutate(acc_phon = str_replace_all(acc_phon, "\\^", "\\\\^"),
-         acc_phon = str_replace_all(acc_phon, "\\*", "\\\\*")) %>% 
-  kable(caption = "Data trimmed from model")
+print(model_after_step)
 
 ```
-
-* Plots indicate better fit.
 
 ### Final model: ``r cur_equation``
 
@@ -180,19 +102,16 @@ removed %>%
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 13) %>%
+  bonferroniAdjust("", 2) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
-    df = round(df, 2)
-    
     
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
-  rename(t.value = statistic) %>% 
-    mutate(term = str_replace(term, "\\^\\[", "\\\\^\\\\["))
+  rename(t.value = statistic)
 
 # Get CIs of model using Wald method (fast, fixed effects only)
 ci_Wald <- confint(temp_mdl, method = "Wald") %>%
@@ -203,7 +122,7 @@ ci_Wald <- confint(temp_mdl, method = "Wald") %>%
   rename("2.5% CI" = "2.5 %",
          "97.5% CI" = "97.5 %")
 
-# Bind tidy model to...
+# Bind tidy model to CIs
 cbind(tidy_model, ci_Wald) %>%
   # re-order columns
   select(
@@ -217,10 +136,8 @@ cbind(tidy_model, ci_Wald) %>%
     "p.value",
     "p.adjusted"
   ) %>%
-  formattable(
-    caption = paste("Intercept and slopes of fixed effects:", cur_equation),
-    list(p.adjusted = formatter("span", style = p_color))
-  ) %>%
+  formattable(caption = "Intercept and lh_slopes of fixed effects",
+              list(p.adjusted = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
@@ -232,10 +149,9 @@ cbind(tidy_model, ci_Wald) %>%
       as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
-  )
-
+  ) %>%
+  sigCodesTidy()
 ```
-
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 kable(
@@ -246,7 +162,7 @@ kable(
   )
 
 do.call(rbind, r2_nakagawa(temp_mdl))[,1] %>% 
-  write.csv("../output/LME_PA_l_f0_r2.csv")
+  write.csv("../output/LME_utt_mean_f0_r2.csv")
 
 print(
   plot_model(
@@ -260,11 +176,10 @@ print(
 )
 ```
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-# Get intercepts and pairwise comparisons for each PA
 
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
-cur_levels <- levels(m_corpus.trimmed$acc_phon)
+cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
 num_levels <- length(cur_levels)
 all_models_tidy = tibble()
@@ -273,7 +188,7 @@ for (i in 1:(num_levels)) {
   # Test GLMM model on data.
   cur_model <- lmer(
     formula(cur_equation),
-    data = m_corpus.trimmed,
+    data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -284,23 +199,23 @@ for (i in 1:(num_levels)) {
       )
     )
   )
-  
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)",
            effect %notin% "ran_pars") %>%
     select(-c(group, effect))  %>%
     rename(t.value = statistic) %>%
-    bonferroniAdjust("", 13) %>%
+    bonferroniAdjust("", 2) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       t.value = round(t.value, 3),
       df = round(df, 2)
       
-      
+      p.adjusted = round(p.adjusted, 4)
     )
   
+    
   # Get CIs of model using Wald method (fast, fixed effects only)
   ci_Wald <- confint(cur_model, method = "Wald") %>%
     as_tibble() %>%
@@ -332,26 +247,28 @@ for (i in 1:(num_levels)) {
           term == "(Intercept)",
           "intercept",
           if_else(
-            term %notin% paste("acc_phon", cur_levels, sep = ""),
+            term %notin% c("modeMDC",
+                           "modeMWH",
+                           "modeMYN",
+                           "modeMDQ"),
             "N/A",
-            paste("acc_phon", cur_levels[1], sep = "")
+            paste("mode", cur_levels[1], sep = "") #???
           )
         ),
       # change 'term' so "intercept" states the target condition name.
       term =
-        if_else(
-          term == "(Intercept)",
-          paste("acc_phon", cur_levels[1], sep = ""),
-          term
-        )
+        if_else(term == "(Intercept)",
+                paste("mode", cur_levels[1], sep = ""),
+                term)
     )
+  
   
   # make list of pairwise comparisons to keeps
   keep = NULL
-  for (j in i:num_levels) {
-    keep <- c(keep, paste("acc_phon", orig_levels[j], sep = ""))
-    
+  for (j in i:4) {
+    keep <- c(keep, paste("mode", orig_levels[j], sep = ""))
   }
+  
   # remove pairwise comparisons which have already been done
   cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
   
@@ -360,15 +277,20 @@ for (i in 1:(num_levels)) {
   
   # restructure the order of levels for next LME cur_model.
   cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-  m_corpus.trimmed <- m_corpus.trimmed %>%
-    mutate(acc_phon = factor(acc_phon,
-                             levels = cur_levels))
+  m_corpus <- m_corpus %>%
+    mutate(mode = factor(mode,
+                         levels = cur_levels))
 }
 ```
 
 #### Summary of intercepts 
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# arrange tibble according to pairwise move it to first column position
+all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
+  relocate(pairwise) %>%
+  sigCodesTidy()
+
 # print b0 table
 filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
@@ -384,12 +306,10 @@ filter(all_models_tidy, pairwise == "intercept") %>%
       as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
-  )  %>%
-  mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
-  write_csv("../output/LME_PA_l_f0_b0.csv") %>%
-  mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
+  ) %>% 
+  write_csv("../output/LME_utt_mean_f0_b0.csv")  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)),
-              caption = paste("b0 for", cur_equation, sep = " "))
+              caption =paste("b0 for", cur_equation, sep = " "))
 ```
 
 #### Summary of pairwise comparisons
@@ -409,7 +329,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     p.value,
     p.adjusted
   ) %>%
-  rename(intercept = pairwise) %>%
+  rename(intercept = pairwise, lh_slope = term) %>%
   sigCodesTidy() %>% mutate(
     p.value = if_else(
       p.value < 0.001,
@@ -421,22 +341,9 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
-  ) %>%
-  mutate(
-    term = str_replace(term, "acc_phon", ""),
-    intercept = str_replace(intercept, "acc_phon", "")) %>% 
-  write_csv("../output/LME_PA_l_f0_b1.csv")  %>%
-  mutate(
-    term = str_replace(term, "\\^\\[", "\\\\^\\\\["),
-    intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
-    ) %>%  
-    rename(`est. (slope)` = estimate) %>% 
-formattable(list(p.adjusted = formatter("span", style = p_color)),
-            caption = paste("b1 for", cur_equation, sep = " "))
-
+  )  %>%
+  write_csv("../output/LME_utt_mean_f0_b1.csv") %>%
+  formattable(list(p.adjusted = formatter("span", style = p_color)),
+              caption = paste("b1 for", cur_equation, sep = " "))
 ```
-
-
-
-
 

@@ -130,39 +130,40 @@ drawResiduals <- function(myModel)
 }
 
 bonferroniAdjust <- function(myTibble,
-                             excludeTerms,
-                             bonferroniMultiplier)
+                             bonferroniMultiplier,
+                             exclude_terms = "")
 {
-  myTibble <- mutate(myTibble,
-                     p.adjusted = if_else(
-                       term %in% excludeTerms,
-                       p.value,
-                       if_else(
-                         p.value * bonferroniMultiplier >= 1,
-                         0.9999,
-                         p.value * bonferroniMultiplier
-                       )
-                     ))
 
+  myTibble <- mutate(myTibble,
+                     p.adj = if_else(term %in% exclude_terms,
+                                     NA_real_,
+                                     if_else(
+                                       p.value * bonferroniMultiplier >= 1,
+                                       0.9999,
+                                       p.value * bonferroniMultiplier))
+                       )
   return(myTibble)
 }
 
 
-sigCodesTidy <- function(my_tibble, incl_marginal_sig = FALSE)
+
+
+sigCodesTidy <- function(my_tibble, p.adjusted, incl_marginal_sig = FALSE)
   # Create significance column in tibble using Bonferroni adjusted p.
 {
+  p.adjusted <- enquo(p.adjusted)
   my_tibble <- mutate(my_tibble,
                       "signif. (adj.)" =
                         if_else(
-                          p.adjusted < 0.001,
+                          !!p.adjusted < 0.001,
                           'p<0.001',
                           if_else(
-                            p.adjusted < 0.01,
+                            !!p.adjusted < 0.01,
                             'p<0.01',
                             if_else(
-                              p.adjusted < 0.05,
+                              !!p.adjusted < 0.05,
                               'p<0.05',
-                              if_else(p.adjusted < 0.1 &
+                              if_else(!!p.adjusted < 0.1 &
                                         incl_marginal_sig,
                                       '(p<0.1)',
                                       '')

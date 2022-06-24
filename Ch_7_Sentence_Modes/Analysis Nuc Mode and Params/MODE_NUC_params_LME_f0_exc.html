@@ -372,8 +372,8 @@ Nuclear Contours: f0_exc</h1>
 
 <div id="lme-model-analysis-using-initial-model." class="section level3">
 <h3>LME model analysis using initial model.</h3>
-<p>Initial equation:
-<code>f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)</code></p>
+<p>Initial equation: f0_exc ~ mode + fin_phon + gender + (1 + mode |
+speaker) + (1 | prompt)</p>
 <p>Prompt is used as an intercepts only random effect since the model
 does not converge when intercept and slope effect are both included.</p>
 <p>NB: Gender caused singularity issues for another f0 parameter test
@@ -708,8 +708,7 @@ intercepts will not be used to plot stylized PAs contours.</p>
 </div>
 </div>
 <div id="final-model-f0_exc-mode-fin_phon-1-mode-speaker" class="section level3">
-<h3>Final model:
-<code>f0_exc ~ mode + fin_phon + (1 + mode | speaker)</code></h3>
+<h3>Final model: f0_exc ~ mode + fin_phon + (1 + mode | speaker)</h3>
 <div id="analysis-of-model" class="section level4">
 <h4>Analysis of model</h4>
 <table class="table table-condensed">
@@ -744,7 +743,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 </tr>
 </thead>
@@ -772,10 +771,10 @@ p.adjusted
 10.04
 </td>
 <td style="text-align:right;">
-0.0000e+00
+7.2912e-08
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span style="color: green">5.10e-07</span>
 </td>
 </tr>
 <tr>
@@ -801,7 +800,7 @@ modeMWH
 10.09
 </td>
 <td style="text-align:right;">
-0.3658
+3.66e-01
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999 </span>
@@ -830,7 +829,7 @@ modeMYN
 9.73
 </td>
 <td style="text-align:right;">
-0.7172
+7.17e-01
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999 </span>
@@ -859,10 +858,10 @@ modeMDQ
 9.26
 </td>
 <td style="text-align:right;">
-0.0019
+1.90e-03
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0114 </span>
+<span style="color: green">0.0133 </span>
 </td>
 </tr>
 <tr>
@@ -888,10 +887,10 @@ fin_phonL%
 608.94
 </td>
 <td style="text-align:right;">
-0.0000e+00
+3.4548e-17
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span>NA </span>
 </td>
 </tr>
 </tbody>
@@ -920,7 +919,7 @@ fin_phon + (1 + mode | speaker)</caption>
 <h4>Summary of intercepts</h4>
 <table class="table table-condensed">
 <caption>
-b0 for f0_exc ~ mode + fin_phon + (1 + mode | speaker)
+b1 for f0_exc ~ mode + fin_phon + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -949,7 +948,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 <th style="text-align:right;">
 signif. (adj.)
@@ -980,10 +979,10 @@ modeMDC
 10.04
 </td>
 <td style="text-align:right;">
-0.0000e+00
+7.29e-08
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span style="color: green">5.10e-07</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.001
@@ -1012,10 +1011,10 @@ modeMWH
 10.05
 </td>
 <td style="text-align:right;">
-0.0000e+00
+8.11e-08
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span style="color: green">5.68e-07</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.001
@@ -1044,10 +1043,10 @@ modeMYN
 10.05
 </td>
 <td style="text-align:right;">
-0.0000e+00
+4.95e-08
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span style="color: green">3.46e-07</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.001
@@ -1076,10 +1075,10 @@ modeMDQ
 10.03
 </td>
 <td style="text-align:right;">
-0.0000e+00
+3.56e-08
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0000e+00</span>
+<span style="color: green">2.49e-07</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.001
@@ -1124,7 +1123,7 @@ df
 p.value
 </th>
 <th style="text-align:right;">
-p.adjusted
+p.adj. (bf=7)
 </th>
 <th style="text-align:right;">
 signif. (adj.)
@@ -1158,7 +1157,7 @@ modeMWH
 10.09
 </td>
 <td style="text-align:right;">
-0.3658
+3.66e-01
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999</span>
@@ -1192,7 +1191,7 @@ modeMYN
 9.73
 </td>
 <td style="text-align:right;">
-0.7172
+7.17e-01
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999</span>
@@ -1226,10 +1225,10 @@ modeMDQ
 9.26
 </td>
 <td style="text-align:right;">
-0.0019
+1.90e-03
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0114</span>
+<span style="color: green">0.0133</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.05
@@ -1261,7 +1260,7 @@ modeMYN
 9.97
 </td>
 <td style="text-align:right;">
-0.6843
+6.84e-01
 </td>
 <td style="text-align:right;">
 <span style="color: red">0.9999</span>
@@ -1295,10 +1294,10 @@ modeMDQ
 9.72
 </td>
 <td style="text-align:right;">
-0.014
+1.40e-02
 </td>
 <td style="text-align:right;">
-<span style="color: red">0.0837</span>
+<span style="color: red">0.0977</span>
 </td>
 <td style="text-align:right;">
 </td>
@@ -1329,10 +1328,10 @@ modeMDQ
 9.45
 </td>
 <td style="text-align:right;">
-3.0000e-04
+2.51e-04
 </td>
 <td style="text-align:right;">
-<span style="color: green">0.0015</span>
+<span style="color: green">0.0018</span>
 </td>
 <td style="text-align:right;">
 p&lt;0.01

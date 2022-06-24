@@ -171,14 +171,14 @@ step(temp_mdl)
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 6) %>%
+  bonferroniAdjust("", 13) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
-    df = round(df, 2),
-    p.value = round(p.value, 4),
-    p.adjusted = round(p.adjusted, 4)
+    df = round(df, 2)
+    
+    
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
@@ -220,7 +220,7 @@ cbind(tidy_model, ci_Wald) %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   )
@@ -281,14 +281,14 @@ for (i in 1:(num_levels)) {
            effect %notin% "ran_pars") %>%
     select(-c(group, effect))  %>%
     rename(t.value = statistic) %>%
-    bonferroniAdjust("", 6) %>%
+    bonferroniAdjust("", 13) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       t.value = round(t.value, 3),
-      df = round(df, 2),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4)
+      df = round(df, 2)
+      
+      
     )
   
   # Get CIs of model using Wald method (fast, fixed effects only)
@@ -371,7 +371,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   )  %>%
@@ -408,7 +408,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   ) %>%

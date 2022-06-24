@@ -196,14 +196,15 @@ cat("Check_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(temp_
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 6) %>%
+    bonferroniAdjust(7, exclude_terms = c("fin_phonL%", "genderM")) %>%
+    rename(`p.adj. (bf=7)` = p.adj) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
-    df = round(df, 2),
-    p.value = round(p.value, 4),
-    p.adjusted = round(p.adjusted, 4)
+    df = round(df, 2)
+    
+    
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
@@ -230,11 +231,11 @@ cbind(tidy_model, ci_Wald) %>%
     "t.value",
     "df",
     "p.value",
-    "p.adjusted"
+    `p.adj. (bf=7)`
   ) %>%
   formattable(
     caption = paste("Intercept and slopes of fixed effects:", cur_equation),
-    list(p.adjusted = formatter("span", style = p_color))
+    list(`p.adj. (bf=7)` = formatter("span", style = p_color))
   ) %>%
   mutate(
     p.value = if_else(
@@ -242,10 +243,10 @@ cbind(tidy_model, ci_Wald) %>%
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
   )
 ```
@@ -301,14 +302,15 @@ for (i in 1:(num_levels)) {
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
-    bonferroniAdjust("", 6) %>%
+    bonferroniAdjust(7, exclude_terms = c("fin_phonL%", "genderM")) %>%
+    rename(`p.adj. (bf=7)` = p.adj) %>% 
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
-      df = round(df, 2),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4)
+      df = round(df, 2)
+      
+      
     ) %>%
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
@@ -335,7 +337,7 @@ for (i in 1:(num_levels)) {
       "t.value",
       "df",
       "p.value",
-      "p.adjusted"
+      `p.adj. (bf=7)`
     ) %>%
   # Prepare current model for pasting to all models output.
   # Make 'pairwise' column = intercept.
@@ -391,26 +393,27 @@ for (i in 1:(num_levels)) {
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
-  sigCodesTidy()
+  sigCodesTidy(`p.adj. (bf=7)`)
 
 # print b0 table
 filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
-  sigCodesTidy() %>% mutate(
+  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
-  ) %>% 
+  ) %>%
+  
   write_csv("../output/LME_h_t_b0.csv")  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)),
+  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
               caption =paste("b0 for", cur_equation, sep = " "))
 ```
 
@@ -429,23 +432,24 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     t.value,
     df,
     p.value,
-    p.adjusted
+    `p.adj. (bf=7)`
   ) %>%
   rename(intercept = pairwise, slope = term) %>%
-  sigCodesTidy() %>% mutate(
+  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
-  )  %>%
+  ) %>%
+  
   write_csv("../output/LME_h_t_b1.csv") %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)),
+  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
               caption = paste("b1 for", cur_equation, sep = " "))
 ```
 

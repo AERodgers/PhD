@@ -95,8 +95,6 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```
 
-
-
 ```{r}
 # set current equation
 cur_equation <-
@@ -106,7 +104,7 @@ cur_equation <-
 
 ### LME model analysis using initial model.
 
-Initial equation: ``r cur_equation``
+Initial equation: `r cur_equation`
 
 Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
 
@@ -129,7 +127,6 @@ temp_mdl = lmer(
 model_after_step <- step(temp_mdl)
 ```
 
-
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl))
 
@@ -143,14 +140,15 @@ print(model_after_step)
 
 ```
 
-* Model found from step regression: 
-    * `lh_slope ~ mode + fin_phon + (1 + mode | speaker) + (1 | prompt)`
-* Gender is non-significant.
-* Unlike the l_f0 and h_f0 models, prompt is significant here. This is because slope is a composite parameter f0 / time parameter.
-* Distribution of residuals is slightly leptokurtic.
+-   Model found from step regression:
+    -   `lh_slope ~ mode + fin_phon + (1 + mode | speaker) + (1 | prompt)`
+-   Gender is non-significant.
+-   Unlike the l_f0 and h_f0 models, prompt is significant here. This is because slope is a composite parameter f0 / time parameter.
+-   Distribution of residuals is slightly leptokurtic.
 
-### LME model analysis using reduced model and removing outliers (|residual|>=2.5)
-Running it again but trimming rows with |residual|>=2.5 (as per Baayen 2008: 279-282).
+### LME model analysis using reduced model and removing outliers (\|residual\|\>=2.5)
+
+Running it again but trimming rows with \|residual\|\>=2.5 (as per Baayen 2008: 279-282).
 
 ```{r}
 # set current equation
@@ -175,7 +173,6 @@ temp_mdl = lmer(
 )
 ```
 
-
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl))
 
@@ -187,10 +184,11 @@ cat("\n\nCheck_singularity(temp_mdl, tolerance = 1e-05 -->", check_singularity(t
 
 ```
 
-* Distribution of still residuals is leptokurtic.
+-   Distribution of still residuals is leptokurtic.
 
-### LME model analysis using reduced model and removing outliers (|residual|>2.5)
-Running new model again but trimming rows with |residual| > 2.5 (as per Baayen 2008: 279-282).
+### LME model analysis using reduced model and removing outliers (\|residual\|\>2.5)
+
+Running new model again but trimming rows with \|residual\| \> 2.5 (as per Baayen 2008: 279-282).
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) < 3)
@@ -209,7 +207,6 @@ temp_mdl.trimmed = lmer(
   )
 )
 ```
-
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl.trimmed))
@@ -230,26 +227,27 @@ removed %>%
   kable(caption = "Data trimmed from model")
 
 ```
-* Distribution of residuals is more reasonable after removing outliers.
 
-### Final model: ``r cur_equation``
+-   Distribution of residuals is more reasonable after removing outliers.
+
+### Final model: `r cur_equation`
 
 #### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
-  filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 6) %>%
+  filter(effect %notin% ("ran_pars")) %>%
+  select(-c(effect, group)) %>% 
+  bonferroniAdjust(7, exclude_terms = "fin_phonL%") %>%
+  rename(`p.adj. (bf=7)` = p.adj) %>% 
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
-    df = round(df, 2),
-    p.value = round(p.value, 4),
-    p.adjusted = round(p.adjusted, 4)
+    df = round(df, 2)
+    
+    
   ) %>%
-  filter(effect %notin% "ran_pars") %>%
-  select(-c(group, effect)) %>%
   rename(t.value = statistic)
 
 # Get CIs of model using Wald method (fast, fixed effects only)
@@ -273,11 +271,11 @@ cbind(tidy_model, ci_Wald) %>%
     "t.value",
     "df",
     "p.value",
-    "p.adjusted"
+    `p.adj. (bf=7)`
   ) %>%
   formattable(
     caption = paste("Intercept and slopes of fixed effects:", cur_equation),
-    list(p.adjusted = formatter("span", style = p_color))
+    list(`p.adj. (bf=7)` = formatter("span", style = p_color))
   ) %>%
   mutate(
     p.value = if_else(
@@ -285,10 +283,10 @@ cbind(tidy_model, ci_Wald) %>%
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
   )
 ```
@@ -316,7 +314,6 @@ print(
 )
 ```
 
-
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 cur_levels <- levels(m_corpus$mode)
 orig_levels <- cur_levels
@@ -342,19 +339,18 @@ for (i in 1:(num_levels)) {
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
-    bonferroniAdjust("", 6) %>%
+    bonferroniAdjust(7, exclude_terms = "fin_phonL%") %>%
+    rename(`p.adj. (bf=7)` = p.adj) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
-      df = round(df, 2),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4)
+      df = round(df, 2)
     ) %>%
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
     rename(t.value = statistic)
-
+  
   # Get CIs of model using Wald method (fast, fixed effects only)
   ci_Wald <- confint(cur_model, method = "Wald") %>%
     as_tibble() %>%
@@ -376,10 +372,10 @@ for (i in 1:(num_levels)) {
       "t.value",
       "df",
       "p.value",
-      "p.adjusted"
+      `p.adj. (bf=7)`
     ) %>%
-  # Prepare current model for pasting to all models output.
-  # Make 'pairwise' column = intercept.
+    # Prepare current model for pasting to all models output.
+    # Make 'pairwise' column = intercept.
     mutate(
       pairwise =
         if_else(
@@ -396,11 +392,9 @@ for (i in 1:(num_levels)) {
         ),
       # change 'term' so "intercept" states the target condition name.
       term =
-        if_else(
-          term == "(Intercept)",
-          paste("mode", cur_levels[1], sep = ""),
-          term
-        )
+        if_else(term == "(Intercept)",
+                paste("mode", cur_levels[1], sep = ""),
+                term)
     ) %>%
     # remove random effects detail
     filter(term != "sd__(Intercept)")
@@ -426,32 +420,32 @@ for (i in 1:(num_levels)) {
 }
 ```
 
-#### Summary of intercepts 
+#### Summary of intercepts
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
   relocate(pairwise) %>%
-  sigCodesTidy()
+  sigCodesTidy(`p.adj. (bf=7)`)
 
 # print b0 table
 filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
-  sigCodesTidy() %>% mutate(
+  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
   ) %>% 
   write_csv("../output/LME_lh_slope_b0.csv")  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)),
+  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
               caption =paste("b0 for", cur_equation, sep = " "))
 ```
 
@@ -470,27 +464,22 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     t.value,
     df,
     p.value,
-    p.adjusted
+    `p.adj. (bf=7)`
   ) %>%
   rename(intercept = pairwise, slope = term) %>%
-  sigCodesTidy() %>% mutate(
+  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    `p.adj. (bf=7)` = if_else(
+      `p.adj. (bf=7)` < 0.001,
+      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
+      as.character(round(`p.adj. (bf=7)`, 4))
     )
   )  %>%
   write_csv("../output/LME_lh_slope_b1.csv") %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)),
+  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
               caption = paste("b1 for", cur_equation, sep = " "))
 ```
-
-
-
-
-

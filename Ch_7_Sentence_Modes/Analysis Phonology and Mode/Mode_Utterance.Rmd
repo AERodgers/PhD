@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 07: Analysis of Function: Sentence Modes'
 output:
-  pdf_document: default
-  word_document: default
   html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 
@@ -28,11 +28,11 @@ theme_set(theme_minimal(base_size = 18))
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ## set colours
-mode_colours <- c("MDC" = "#5e3c99",
-                  "WHQ" = "#e66101",
-                  "MYN" = "#fdb863",
-                  "MDQ" = "#b2abd2")
 
+mode_colours <- c("MDC" = brewer.pal(4, "Dark2")[3],
+                  "MWH" = brewer.pal(4, "Dark2")[2],
+                  "MYN" = brewer.pal(4, "Dark2")[1],
+                  "MDQ" = brewer.pal(4, "Dark2")[4])
 p_color <- all_models_tidy ~ style(color =
                                      if_else(as.double(all_models_tidy) < 0.05,
                                              "green",
@@ -152,14 +152,16 @@ m_corpus %>%
       " of all tokens.",
       sep = ""
     ),
-    list(area(col = 3:6) ~ proportion_bar(color = c(
-      rep("#9e7cd9", 16),
-      rep("#ff8131", 16),
-      rep("#fdb863", 16),
-      rep("#d2cbf2", 16))),
+    list(
+      area(col = 3:6) ~ proportion_bar(color = c(
+        rep(brewer.pal(4, "Pastel2")[3], 16),
+        rep(brewer.pal(4, "Pastel2")[2], 16),
+        rep(brewer.pal(4, "Pastel2")[1], 16),
+        rep(brewer.pal(4, "Pastel2")[4], 16)
+        )),
       total = proportion_bar(color = "#aaaaaa")
     )
-    )
+  )
 ```
 
 
@@ -285,9 +287,10 @@ m_corpus %>%
       sep = ""
     ),
     list(area(col = 3:5) ~ proportion_bar(color = c(
-      rep("#9e7cd9", 12),
-      rep("#fdb863", 12),
-      rep("#d2cbf2", 12))),
+        rep(brewer.pal(4, "Pastel2")[3], 12),
+        rep(brewer.pal(4, "Pastel2")[1], 12),
+        rep(brewer.pal(4, "Pastel2")[4], 12)
+        )),
       total = proportion_bar(color = "#aaaaaa")
     )
     )

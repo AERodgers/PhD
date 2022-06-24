@@ -9,9 +9,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE)
-```
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -46,10 +43,6 @@ p_color <- all_models_tidy ~ style(color =
                                              "red")
                                    )
 
-
-```
-
-```{r}
 # Load Corpus
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
@@ -90,7 +83,6 @@ m_corpus[1,"acc_phon"] = "L*^[H]"
 
 ```
 
-
 ```{r}
 # set current equation
 cur_equation <- "f0_exc ~ acc_phon + fin_phon + gender + (1 | speaker)"
@@ -112,7 +104,6 @@ temp_mdl = lmer(
 )
 ```
 
-
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl))
 
@@ -126,11 +117,11 @@ cat("\n")
 step(temp_mdl)
 ```
 
-* Distribution of residuals has one extreme outlier.
+-   Distribution of residuals has one extreme outlier.
 
-### LME model analysis using reduced model and removing outliers (|residual|>3.5)
+### LME model analysis using reduced model and removing outliers (\|residual\|\>3.5)
 
-Running new model again but trimming rows with |residual| > 3.5 (as per Baayen 2008: 279-282).
+Running new model again but trimming rows with \|residual\| \> 3.5 (as per Baayen 2008: 279-282).
 
 NB a value of 3.5 was chosen as this removes the minimum number of outliers without leading to singularity errors while at the same time providing a more reasonably distribution or residuals.
 
@@ -152,7 +143,6 @@ temp_mdl.trimmed = lmer(
 )
 ```
 
-
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 print(summary(temp_mdl.trimmed))
 
@@ -166,30 +156,31 @@ cat("\n")
 
 removed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) >= 3.5) 
 removed %>% 
-  select(c(speaker, gender, mode, prompt, acc_phon, fin_phon, f0_exc, f0_exc_z)) %>% 
+  select(
+    c(speaker, gender, mode, prompt, acc_phon, fin_phon, f0_exc, f0_exc_z)) %>% 
   mutate(acc_phon = str_replace_all(acc_phon, "\\^", "\\\\^"),
          acc_phon = str_replace_all(acc_phon, "\\*", "\\\\*")) %>% 
   kable(caption = "Data trimmed from model")
 
 ```
 
-* Plots indicate better fit.
+-   Plots indicate better fit.
 
-### Final model: ``r cur_equation``
+### Final model: `r cur_equation`
 
 #### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust("", 6) %>%
+  bonferroniAdjust("", 13) %>%
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
     statistic = round(statistic, 3),
-    df = round(df, 2),
-    p.value = round(p.value, 4),
-    p.adjusted = round(p.adjusted, 4)
+    df = round(df, 2)
+    
+    
   ) %>%
   filter(effect %notin% "ran_pars") %>%
   select(-c(group, effect)) %>%
@@ -205,7 +196,7 @@ ci_Wald <- confint(temp_mdl, method = "Wald") %>%
   rename("2.5% CI" = "2.5 %",
          "97.5% CI" = "97.5 %")
 
-# Bind tidy model to...
+# Bind tidy model to CIs
 cbind(tidy_model, ci_Wald) %>%
   # re-order columns
   select(
@@ -231,12 +222,11 @@ cbind(tidy_model, ci_Wald) %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   )
 ```
-
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 kable(
@@ -260,6 +250,7 @@ print(
   )
 )
 ```
+
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get intercepts and pairwise comparisons for each PA
 
@@ -291,14 +282,14 @@ for (i in 1:(num_levels)) {
            effect %notin% "ran_pars") %>%
     select(-c(group, effect))  %>%
     rename(t.value = statistic) %>%
-    bonferroniAdjust("", 6) %>%
+    bonferroniAdjust("", 13) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       t.value = round(t.value, 3),
-      df = round(df, 2),
-      p.value = round(p.value, 4),
-      p.adjusted = round(p.adjusted, 4)
+      df = round(df, 2)
+      
+      
     )
   
   # Get CIs of model using Wald method (fast, fixed effects only)
@@ -366,7 +357,7 @@ for (i in 1:(num_levels)) {
 }
 ```
 
-#### Summary of intercepts 
+#### Summary of intercepts
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # print b0 table
@@ -381,7 +372,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   )  %>%
@@ -420,7 +411,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
+      as.character(scientific(p.adjusted, digits=2)),
       as.character(round(p.adjusted, 4))
     )
   ) %>%
@@ -437,8 +428,3 @@ formattable(list(p.adjusted = formatter("span", style = p_color)),
             caption = paste("b1 for", cur_equation, sep = " "))
 
 ```
-
-
-
-
-
