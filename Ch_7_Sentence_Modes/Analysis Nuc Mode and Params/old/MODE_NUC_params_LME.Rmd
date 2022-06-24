@@ -152,8 +152,8 @@ for (cur_equation in model_equation) {
     mutate(
       p.value = if_else(
         p.value < 0.001,
-        as.character(scientific(p.value)),
-        as.character(round(p.value, 4))
+        as.character(scientific(p.value), digits=2),
+        as.character(round(p.value, 4), digits=2)
       ),
       `p.adj. (bf=7)` = if_else(
         `p.adj. (bf=7)` < 0.001,
@@ -282,8 +282,8 @@ for (cur_equation in model_equation) {
     sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
         p.value = if_else(
           p.value < 0.001,
-          as.character(scientific(p.value)),
-          as.character(round(p.value, 4))
+          as.character(scientific(p.value), digits=2),
+          as.character(round(p.value, 4), digits=2)
         ),
         `p.adj. (bf=7)` = if_else(
           `p.adj. (bf=7)` < 0.001,
@@ -307,8 +307,8 @@ for (cur_equation in model_equation) {
     sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
         p.value = if_else(
           p.value < 0.001,
-          as.character(scientific(p.value)),
-          as.character(round(p.value, 4))
+          as.character(scientific(p.value), digits=2),
+          as.character(round(p.value, 4), digits=2)
         ),
         `p.adj. (bf=7)` = if_else(
           `p.adj. (bf=7)` < 0.001,

@@ -161,30 +161,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -215,30 +216,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -268,30 +270,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -321,30 +324,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -373,30 +377,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -425,30 +430,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```
@@ -477,30 +483,31 @@ ggplot(m_corpus_summary %>% filter(mode %in% compare),
 manova(cbind(mean_f0_z, mean_slope_z) ~ mode,
        data = m_corpus_summary %>% filter(mode %in% compare)) %>%
   tidy()  %>%
-  bonferroniAdjust("", 7) %>%
+  bonferroniAdjust(7) %>%
     mutate(
     df = round(df, 3),
     pillai = round(pillai, 2),
     statistic = round(statistic, 3),
     den.df = round(den.df),
     
-    p.adjusted = round(p.adjusted, 4)
+    p.adj = round(p.adj, 4)
   ) %>% 
   rename(`approx F` = statistic) %>% 
   formattable(caption = paste("Manova: (mean_f0_z, mean_slope_z) ~ mode, where mode = ",paste(compare, collapse=", "), sep = ""),
-              list(p.adjusted = formatter("span", style = p_color))) %>%
+              list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted, digits=2)),
-      as.character(round(p.adjusted, 4)),
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj, digits=2)),
+      as.character(round(p.adj, 4)),
     )
   ) %>%
+  rename(`p.val. adj. (bf=1)` = p.adj) %>% 
   mutate(across(everything(),  ~  replace(., is.na(.), "")))
 
 ```

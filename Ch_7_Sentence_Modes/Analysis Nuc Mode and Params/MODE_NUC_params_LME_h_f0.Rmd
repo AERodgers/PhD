@@ -240,8 +240,8 @@ cbind(tidy_model, ci_Wald) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(scientific(p.value), digits=2),
+      as.character(round(p.value, 4), digits=2)
     ),
     `p.adj. (bf=7)` = if_else(
       `p.adj. (bf=7)` < 0.001,
@@ -406,8 +406,8 @@ filter(all_models_tidy, pairwise == "intercept") %>%
   sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(scientific(p.value), digits=2),
+      as.character(round(p.value, 4), digits=2)
     ),
     `p.adj. (bf=7)` = if_else(
       `p.adj. (bf=7)` < 0.001,
@@ -441,8 +441,8 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
   sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(scientific(p.value), digits=2),
+      as.character(round(p.value, 4), digits=2)
     ),
     `p.adj. (bf=7)` = if_else(
       `p.adj. (bf=7)` < 0.001,

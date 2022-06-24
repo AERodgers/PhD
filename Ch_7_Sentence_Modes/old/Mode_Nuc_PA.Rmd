@@ -484,7 +484,7 @@ cur_model_tidy  %>%
   formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
-                    as.character(round(p.value, 4))),
+                    as.character(round(p.value, 4), digits=2)),
   p.adjusted = if_else(
     p.adjusted < 0.001,
     as.character(scientific(p.adjusted, digits=2)),
@@ -600,7 +600,7 @@ filter(all_models_tidy, pairwise == "intercept") %>%
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
@@ -632,7 +632,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
+      as.character(round(p.value, 4), digits=2)
     ),
     p.adjusted = if_else(
       p.adjusted < 0.001,
