@@ -129,21 +129,27 @@ drawResiduals <- function(myModel)
        main = "(c) Residual plot")
 }
 
-bonferroniAdjust <- function(myTibble,
-                             bonferroniMultiplier,
-                             exclude_terms = "")
-{
 
-  myTibble <- mutate(myTibble,
-                     p.adj = if_else(term %in% exclude_terms,
-                                     NA_real_,
-                                     if_else(
-                                       p.value * bonferroniMultiplier >= 1,
-                                       0.9999,
-                                       p.value * bonferroniMultiplier))
+bonferroniAdjust <- function(myTibble,
+                             bonferroniMultiplier=0,
+                             exclude_terms = "")
+  {
+  if (bonferroniMultiplier)
+    {
+    myTibble <- mutate(myTibble,
+                       p.adj = if_else(
+                         term %in% exclude_terms,
+                         NA_real_,
+                         if_else(
+                           p.value * bonferroniMultiplier >= 1,
+                           0.9999,
+                           p.value * bonferroniMultiplier
+                           )
+                         )
                        )
-  return(myTibble)
-}
+    }
+    return(myTibble)
+  }
 
 
 
@@ -378,3 +384,131 @@ get_m_corpus <- function(file_address) {
 
 }
 
+
+my_lme <- function(my_equation, my_data, show_results=TRUE, run_step=FALSE)
+  # short function to remove need for repetition of optimized used throughout.
+{
+  require(lme4, lmerTest, optimx, performance)
+
+  # run model
+  my_model <- lmer(
+    cur_equation,
+    data = my_data,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+        )
+      )
+    )
+
+  # output results
+  if(show_results)
+    {
+    drawResiduals(my_model)
+    cat(paste("\nModel Summary:", my_equation, "\n"))
+    print(summary(my_model))
+    cat("\nAnova of model\n")
+    anova(my_model) %>% print()
+    cat("\nCheck_singularity(temp_mdl, tolerance = 1e-05 -->",
+        check_singularity(my_model, tolerance = 1e-05, "\n"))
+    cat("\n")
+  }
+  if(run_step)
+    {
+    cat("\nResults of step().\n")
+    print(step(my_model))
+    }
+
+  return(my_model)
+}
+
+
+printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
+{
+  require(formattable, tidyverse, Mefa4)
+
+  p_adj_name = paste("p.adj (bf=", bf_adj, ")", sep="")
+  p_adj_name = enquo(p_adj_name)
+
+  tidy_model <- tidy(temp_mdl) %>%
+    filter(term != "sd__(Intercept)") %>%
+    bonferroniAdjust(7, exclude_terms) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
+      df = round(df, 2)
+    ) %>%
+    filter(effect %notin% "ran_pars") %>%
+    select(-c(group, effect)) %>%
+    rename(t.value = statistic)
+
+  # Get CIs of model using Wald method (fast, fixed effects only)
+  ci_Wald <- confint(temp_mdl, method = "Wald") %>%
+    as_tibble() %>%
+    filter(`2.5 %` != "NA") %>%
+    mutate(`2.5 %` = round(`2.5 %`, 3),
+           `97.5 %` = round(`97.5 %`, 3)) %>%
+    rename("2.5% CI" = "2.5 %",
+           "97.5% CI" = "97.5 %")
+
+  # Bind tidy model to...
+  cbind(tidy_model, ci_Wald) %>%
+    # re-order columns
+    select(
+      "term",
+      "estimate",
+      "std.error",
+      "2.5% CI",
+      "97.5% CI",
+      "t.value",
+      "df",
+      "p.value",
+      "p.adj"
+    ) %>%
+    formattable(
+      caption = paste("Intercept and slopes of fixed effects:", cur_equation),
+      list(p.adj = formatter("span", style = p_color))
+    ) %>%
+    mutate(
+      p.value = if_else(
+        p.value < 0.001,
+        as.character(scientific(p.value), digits = 2),
+        as.character(round(p.value, 4), digits = 2)
+      ),
+      p.adj = if_else(
+        p.adj < 0.001,
+        as.character(scientific(p.adj, digits = 2)),
+        as.character(round(p.adj, 4))
+      )
+    ) %>%
+    rename(!!p_adj_name := p.adj) %>%
+    print()
+
+  kable(
+    r2_nakagawa(temp_mdl),
+    caption = "Conditional and marginal R^2^ of model",
+    digits = 2,
+    align = "l"
+  )
+
+  if (write_r2 != "") {
+    do.call(rbind, r2_nakagawa(temp_mdl))[, 1] %>%
+      write.csv(write_r2)
+  }
+
+  print(
+    plot_model(
+      temp_mdl,
+      title = cur_equation,
+      show.intercept = FALSE,
+      show.values = TRUE,
+      vline.color = "red",
+      colors = "Black"
+    )
+  )
+}
