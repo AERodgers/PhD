@@ -22,7 +22,7 @@ installMissingPackages <- function (package_list)
 
 }
 
-
+################################################################################
 balancedData <- function(data_set,
                          treatment_col,
                          response_col,
@@ -97,7 +97,8 @@ balancedData <- function(data_set,
   # Arrange PA levels according to hypothesized hierarchy.
   if (use_pa_hierarchy) {
     balanced <- balanced %>%
-      mutate(acc_phon = factor(!!response_col, levels = c("(*)", "L*", "H*", ">H*", "L*H")))
+      mutate(acc_phon = factor(!!response_col,
+                               levels = c("(*)", "L*", "H*", ">H*", "L*H")))
   }
 
   balanced <- balanced %>%
@@ -112,6 +113,7 @@ balancedData <- function(data_set,
   return(balanced)
 }
 
+################################################################################
 drawResiduals <- function(myModel)
 {
   myResiduals <- residuals(myModel)
@@ -129,15 +131,18 @@ drawResiduals <- function(myModel)
        main = "(c) Residual plot")
 }
 
-
+################################################################################
 bonferroniAdjust <- function(myTibble,
                              bonferroniMultiplier=0,
-                             exclude_terms = "")
+                             exclude_terms = "",
+                             p.adj="p.adj")
   {
   if (bonferroniMultiplier)
     {
+    p.adj = enquo(p.adj)
+
     myTibble <- mutate(myTibble,
-                       p.adj = if_else(
+                       !!p.adj := if_else(
                          term %in% exclude_terms,
                          NA_real_,
                          if_else(
@@ -151,15 +156,17 @@ bonferroniAdjust <- function(myTibble,
     return(myTibble)
   }
 
-
-
-
-sigCodesTidy <- function(my_tibble, p.adjusted, incl_marginal_sig = FALSE)
+################################################################################
+sigCodesTidy <-
+  function(my_tibble,
+           p.adjusted = "p adj",
+           incl_marginal_sig = FALSE
+  )
   # Create significance column in tibble using Bonferroni adjusted p.
 {
   p.adjusted <- enquo(p.adjusted)
   my_tibble <- mutate(my_tibble,
-                      "signif. (adj.)" =
+                      `signif. ` =
                         if_else(
                           !!p.adjusted < 0.001,
                           'p<0.001',
@@ -175,7 +182,31 @@ sigCodesTidy <- function(my_tibble, p.adjusted, incl_marginal_sig = FALSE)
                                       '')
                             )
                           )
-                        ))
+                        )
+                      ) %>%
+    mutate(`signif. ` =
+             if_else(
+               !is.na(!!p.adjusted),
+               `signif. `,
+               if_else(p.value < 0.001,
+                       "p<0.001",
+                       if_else(p.value < 0.01,
+                               "p<0.01",
+                               if_else(p.value < 0.05,
+                                        "p<0.05",
+                                       if_else(p.value < 0.1 &
+                                                 incl_marginal_sig,
+                                               "(p<0.1)",
+                                               ""
+                                               )
+                                       )
+                               )
+                       )
+               )
+           )
+
+
+
   return(my_tibble)
 }
 
@@ -385,57 +416,41 @@ get_m_corpus <- function(file_address) {
 }
 
 
-my_lme <- function(my_equation, my_data, show_results=TRUE, run_step=FALSE)
+summarise_lme <- function(my_model, run_step=FALSE, my_tolerance=1e-05)
   # short function to remove need for repetition of optimized used throughout.
 {
   require(lme4, lmerTest, optimx, performance)
 
-  # run model
-  my_model <- lmer(
-    cur_equation,
-    data = my_data,
-    control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-        )
-      )
-    )
-
   # output results
-  if(show_results)
-    {
     drawResiduals(my_model)
-    cat(paste("\nModel Summary:", my_equation, "\n"))
     print(summary(my_model))
     cat("\nAnova of model\n")
     anova(my_model) %>% print()
-    cat("\nCheck_singularity(temp_mdl, tolerance = 1e-05 -->",
-        check_singularity(my_model, tolerance = 1e-05, "\n"))
+    cat("\nCheck_singularity(my_model, tolerance =", my_tolerance, "-->",
+        check_singularity(my_model, tolerance = my_tolerance, "\n"))
     cat("\n")
-  }
   if(run_step)
     {
     cat("\nResults of step().\n")
     print(step(my_model))
     }
 
-  return(my_model)
 }
 
-
-printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
+###############################################################################
+printTidyModel <-
+  function(my_model, bf_adj = 1, exclude_terms = "", write_r2 = "")
 {
   require(formattable, tidyverse, Mefa4)
 
-  p_adj_name = paste("p.adj (bf=", bf_adj, ")", sep="")
+  p_adj_name =paste("p.adj. (bf=", bf_adj, ")", sep="")
   p_adj_name = enquo(p_adj_name)
+  my_formula <- str_c(formula(my_model))
+  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
 
-  tidy_model <- tidy(temp_mdl) %>%
-    filter(term != "sd__(Intercept)") %>%
+  tidy_model <- tidy(my_model) %>%
+    filter(effect %notin% "ran_pars") %>%
+    select(-c(group, effect)) %>%
     bonferroniAdjust(7, exclude_terms) %>%
     mutate(
       estimate = round(estimate, 3),
@@ -443,12 +458,10 @@ printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
       statistic = round(statistic, 3),
       df = round(df, 2)
     ) %>%
-    filter(effect %notin% "ran_pars") %>%
-    select(-c(group, effect)) %>%
     rename(t.value = statistic)
 
   # Get CIs of model using Wald method (fast, fixed effects only)
-  ci_Wald <- confint(temp_mdl, method = "Wald") %>%
+  ci_Wald <- confint(my_model, method = "Wald") %>%
     as_tibble() %>%
     filter(`2.5 %` != "NA") %>%
     mutate(`2.5 %` = round(`2.5 %`, 3),
@@ -456,7 +469,8 @@ printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
     rename("2.5% CI" = "2.5 %",
            "97.5% CI" = "97.5 %")
 
-  # Bind tidy model to...
+  # Bind tidy model to CIs
+  tidy_model <-
   cbind(tidy_model, ci_Wald) %>%
     # re-order columns
     select(
@@ -471,9 +485,9 @@ printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
       "p.adj"
     ) %>%
     formattable(
-      caption = paste("Intercept and slopes of fixed effects:", cur_equation),
-      list(p.adj = formatter("span", style = p_color))
+      caption = paste("Intercept and slopes of fixed effects:", my_formula)
     ) %>%
+    sigCodesTidy(p.adj) %>%
     mutate(
       p.value = if_else(
         p.value < 0.001,
@@ -487,28 +501,305 @@ printTidyModel <- function(my_model, bf_adj=1, exclude_terms = "", write_r2="")
       )
     ) %>%
     rename(!!p_adj_name := p.adj) %>%
-    print()
+    mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"))
 
-  kable(
-    r2_nakagawa(temp_mdl),
+  r2_nakagawa <- kable(
+    r2_nakagawa(my_model),
     caption = "Conditional and marginal R^2^ of model",
     digits = 2,
     align = "l"
   )
 
   if (write_r2 != "") {
-    do.call(rbind, r2_nakagawa(temp_mdl))[, 1] %>%
-      write.csv(write_r2)
+    do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
+      write.csv(paste(write_r2, "_r2.csv", sep = ""))
   }
 
-  print(
+  my_plot <- print(
     plot_model(
-      temp_mdl,
-      title = cur_equation,
+      my_model,
+      title = my_formula,
       show.intercept = FALSE,
       show.values = TRUE,
       vline.color = "red",
       colors = "Black"
     )
   )
+return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
 }
+
+###############################################################################
+getLMEFixedFX <- function(my_equation,
+                       my_data,
+                       exclude_terms = "",
+                       bf_adj = 0,
+                       write="")
+{
+  require(formattable, performance, tidyverse, Mefa4)
+
+  # run base model.
+  base_model <- lmer(
+    my_equation,
+    data = my_data,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+
+  my_formula <- str_c(formula(base_model))
+  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+
+  # create list of fixed factors
+  fixed_factors <-
+    (str_replace_all(deparse(formula(base_model,fixed.only = TRUE)[3]),
+                     "[\\(|\\)|+ ]",
+                     " ") %>%
+       str_squish() %>%
+       str_split(" "))[[1]]
+
+  # make list of factors for intercepts and pairwise comparison tables.
+  keep_factors <- fixed_factors[fixed_factors %notin% exclude_terms]
+  # Ensure only factors representing my_data columns are included.
+  keep_factors <- keep_factors[keep_factors %in% colnames(my_data)]
+
+  # create empty tibble for fixed factor output
+  all_models_tidy = tibble()
+
+  # loop through each fixed factor of interest (keep_factors)
+  for (cur_factor in keep_factors)
+    {
+    # Get levels for current factor
+    cur_levels =  levels(my_data[[cur_factor]])
+    num_levels = length(cur_levels)
+
+    # Make list of terms to keep
+    keep_terms = NULL
+    for (level_name in cur_levels) {
+      keep_terms = c(keep_terms, paste(cur_factor, level_name, sep = ""))
+    }
+    # loop through dataframe, reordering levels of current factor each time.
+    for (cur_level in 1:(num_levels))
+    {
+      # Run current model.
+      cur_model <- lmer(
+        formula(my_equation),
+        data = my_data,
+        control = lmerControl(
+          optimizer = "optimx",
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
+        )
+      )
+
+
+      # Tidy the model.
+      cur_model_tidy <- tidy(cur_model) %>%
+        # Retain fixed factors only
+        filter(effect == "fixed") %>%
+        # remove unnecessary columns
+        select(-c(effect, group)) %>%
+        # add bonferroni adjusted p.values.
+        bonferroniAdjust(bf_adj, exclude_terms = c("genderM", "fin_phonL%")) %>%
+        ############# I KNOW I NEED TO FIX THIS! ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        # Tidy up numbers.
+        mutate(
+          estimate = round(estimate, 3),
+          std.error = round(std.error, 3),
+          statistic = round(statistic, 3),
+          df = round(df, 2)
+        ) %>%
+        rename(t.value = statistic)
+
+      # Get CIs of model using Wald method (fast, fixed effects only)
+      ci_Wald <- confint(cur_model, method = "Wald") %>%
+        as_tibble() %>%
+        filter(`2.5 %` != "NA") %>%
+        mutate(`2.5 %` = round(`2.5 %`, 3),
+               `97.5 %` = round(`97.5 %`, 3)) %>%
+        rename("2.5% CI" = "2.5 %",
+               "97.5% CI" = "97.5 %")
+
+      # Bind tidy model to CI intervals
+      cur_model_tidy <- cbind(cur_model_tidy, ci_Wald) %>%
+        # re-order columns
+        select(
+          "term",
+          "estimate",
+          "std.error",
+          "2.5% CI",
+          "97.5% CI",
+          "t.value",
+          "df",
+          "p.value",
+          "p.adj"
+        )
+
+      cur_model_tidy <-cur_model_tidy %>%
+        # Prepare current model for pasting to all models output.
+        # Make 'pairwise' column = intercept.
+        mutate(
+          pairwise =
+            if_else(
+              str_replace_all(term, "([\\*\\:])", "\\\\\\1") == "(Intercept)",
+              "intercept",
+              if_else(
+                term %notin% keep_terms,
+                "N/A",
+                keep_terms[cur_level])
+            ),
+          # change 'term' so "intercept" states the target condition name.
+          term =
+            if_else(str_replace_all(term, "([\\*\\:])", "\\\\\\1") == "(Intercept)",
+                    keep_terms[cur_level],
+                    term)
+        )
+
+
+      keep_comparisons = NULL
+      # make list of pairwise comparisons to keeps
+      for (j in cur_level:(num_levels))
+      {
+        keep_comparisons <- c(keep_comparisons, keep_terms[j])
+      }
+
+      # remove pairwise comparisons which have already been done
+      cur_model_tidy <-
+        filter(cur_model_tidy, term %in% keep_comparisons)
+
+
+      # add remaining pairwise comparisons to main tibble.
+      all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
+
+
+      # restructure the order of levels for next LME cur_model.
+      cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
+
+
+      factor_var <- sym(cur_factor)
+      factor_var_name <- quo_name(cur_factor)
+
+      my_data <- my_data %>%
+        mutate(!!factor_var := factor(!!factor_var,
+                                      levels = cur_levels))
+
+          }
+
+  }
+
+  # Get ready to chance p.adj column to show bonferroni adjustment.
+  p_adj_new = paste("p.adj. (bf=", bf_adj, ")", sep="")
+  p_adj_name = enquo(p_adj_new)
+
+
+  # Get intercepts and pairwise comparisons tables
+  all_models_tidy <- all_models_tidy %>%
+    relocate(pairwise) %>%
+    sigCodesTidy(p.adj)
+
+  my_intercepts <- tidyIntercepts(all_models_tidy) %>%
+    rename(!!p_adj_name := p.adj)
+  my_pairwise <- tidyPairwise(all_models_tidy)  %>%
+    rename(!!p_adj_name := p.adj)
+
+  # Write tables to file
+  if (write != "")
+  {
+    write_csv(my_intercepts,
+              paste(write, "_b0.csv", sep = ""))
+    write_csv(my_pairwise,
+              paste(write, "_b1.csv", sep = ""))
+
+  }
+
+  # Output formatted tables
+  my_intercepts <- my_intercepts %>%
+    mutate(
+      intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")
+      ) %>%
+    formattable(caption = paste("b0 for", my_formula, sep = " "))
+
+  my_pairwise <-  my_pairwise %>%
+    mutate(
+      intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
+      slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
+    ) %>%
+    formattable(caption = paste("b1 for", my_formula, sep = " "))
+
+  return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise))
+}
+
+################################################################################
+tidyIntercepts <- function(all_models_tidy)
+{
+  return(
+      filter(all_models_tidy, pairwise == "intercept") %>%
+      select(-pairwise) %>%
+      rename(intercept = term) %>%
+
+      mutate(
+        p.value = if_else(
+          p.value < 0.001,
+          as.character(scientific(p.value), digits = 2),
+          as.character(round(p.value, 4), digits = 2)
+        ),
+        p.adj = if_else(
+          p.adj < 0.001,
+          as.character(scientific(p.adj, digits = 2)),
+          as.character(round(p.adj, 4))
+        )
+      )
+  )
+}
+
+################################################################################
+tidyPairwise <- function(all_models_tidy)
+{
+  return(
+    filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
+      select(
+        pairwise,
+        term,
+        estimate,
+        std.error,
+        `2.5% CI`,
+        `97.5% CI`,
+        t.value,
+        df,
+        p.value,
+        p.adj,
+        `signif. `
+      ) %>%
+      rename(intercept = pairwise, slope = term) %>%
+      mutate(
+        p.value = if_else(
+          p.value < 0.001,
+          as.character(scientific(p.value), digits = 2),
+          as.character(round(p.value, 4), digits = 2)
+        ),
+        p.adj = if_else(
+          p.adj < 0.001,
+          as.character(scientific(p.adj, digits = 2)),
+          as.character(round(p.adj, 4))
+        )
+      )
+  )
+}
+
+
+
+
+
+
+
+
+

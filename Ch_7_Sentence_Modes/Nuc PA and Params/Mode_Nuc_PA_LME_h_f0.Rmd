@@ -91,7 +91,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```{r}
 # set current equation
-cur_equation <- "h_f0 ~ acc_phon + fin_phon + gender + (1 | speaker)"
+cur_equation <- "h_f0 ~ acc_phon + fin_phon + gender + (1 + acc_phon | speaker)"
 
 ```
 
@@ -135,8 +135,8 @@ step(temp_mdl)
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 tidy_model <- tidy(temp_mdl) %>%
   filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust(7, exclude_terms = c("fin_phonL%", "genderM")) %>%
-  rename(`p.val. adj. (bf=7)` = p.adj) %>% 
+  bonferroniAdjust(8, exclude_terms = c("fin_phonL%", "genderM")) %>%
+  rename(`p.val. adj. (bf=8)` = p.adj) %>% 
   mutate(
     estimate = round(estimate, 3),
     std.error = round(std.error, 3),
@@ -171,11 +171,11 @@ cbind(tidy_model, ci_Wald) %>%
     "t.value",
     "df",
     "p.value",
-    `p.val. adj. (bf=7)`
+    `p.val. adj. (bf=8)`
   ) %>%
   formattable(
     caption = paste("Intercept and slopes of fixed effects:", cur_equation),
-    list(`p.val. adj. (bf=7)` = formatter("span", style = p_color))
+    list(`p.val. adj. (bf=8)` = formatter("span", style = p_color))
   ) %>%
   mutate(
     p.value = if_else(
@@ -183,10 +183,10 @@ cbind(tidy_model, ci_Wald) %>%
       as.character(scientific(p.value, digits=2)),
       as.character(round(p.value, 4), digits=2)
     ),
-    `p.val. adj. (bf=7)` = if_else(
-      `p.val. adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.val. adj. (bf=7)`, digits=2)),
-      as.character(round(`p.val. adj. (bf=7)`, 4))
+    `p.val. adj. (bf=8)` = if_else(
+      `p.val. adj. (bf=8)` < 0.001,
+      as.character(scientific(`p.val. adj. (bf=8)`, digits=2)),
+      as.character(round(`p.val. adj. (bf=8)`, 4))
     )
   )
 ```
@@ -247,8 +247,8 @@ for (i in 1:(num_levels)) {
            effect %notin% "ran_pars") %>%
     select(-c(group, effect))  %>%
     rename(t.value = statistic) %>%
-    bonferroniAdjust(7, exclude_terms = c("fin_phonL%", "genderM")) %>%
-    rename(`p.val. adj. (bf=7)` = p.adj) %>% 
+    bonferroniAdjust(8, exclude_terms = c("fin_phonL%", "genderM")) %>%
+    rename(`p.val. adj. (bf=8)` = p.adj) %>% 
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -281,7 +281,7 @@ for (i in 1:(num_levels)) {
       "t.value",
       "df",
       "p.value",
-      `p.val. adj. (bf=7)`
+      `p.val. adj. (bf=8)`
     ) %>%
     # Prepare current model for pasting to all models output.
     # Make 'pairwise' column = intercept.
@@ -334,22 +334,22 @@ for (i in 1:(num_levels)) {
 filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
   rename(intercept = term) %>%
-  sigCodesTidy(`p.val. adj. (bf=7)`) %>% mutate(
+  sigCodesTidy(`p.val. adj. (bf=8)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value, digits=2)),
       as.character(round(p.value, 4), digits=2)
     ),
-    `p.val. adj. (bf=7)` = if_else(
-      `p.val. adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.val. adj. (bf=7)`, digits=2)),
-      as.character(round(`p.val. adj. (bf=7)`, 4))
+    `p.val. adj. (bf=8)` = if_else(
+      `p.val. adj. (bf=8)` < 0.001,
+      as.character(scientific(`p.val. adj. (bf=8)`, digits=2)),
+      as.character(round(`p.val. adj. (bf=8)`, 4))
     )
   )  %>%
   mutate(intercept = str_replace(intercept, "acc_phon", "")) %>% 
   write_csv("../output/LME_PA_h_f0_b0.csv") %>%
   mutate(intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")) %>%
-  formattable(list(`p.val. adj. (bf=7)` = formatter("span", style = p_color)),
+  formattable(list(`p.val. adj. (bf=8)` = formatter("span", style = p_color)),
               caption = paste("b0 for", cur_equation, sep = " "))
 
 ```
@@ -371,19 +371,19 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     t.value,
     df,
     p.value,
-    `p.val. adj. (bf=7)`
+    `p.val. adj. (bf=8)`
   ) %>%
   rename(intercept = pairwise) %>%
-  sigCodesTidy(`p.val. adj. (bf=7)`) %>% mutate(
+  sigCodesTidy(`p.val. adj. (bf=8)`) %>% mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value, digits=2)),
       as.character(round(p.value, 4), digits=2)
     ),
-    `p.val. adj. (bf=7)` = if_else(
-      `p.val. adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.val. adj. (bf=7)`, digits=2)),
-      as.character(round(`p.val. adj. (bf=7)`, 4))
+    `p.val. adj. (bf=8)` = if_else(
+      `p.val. adj. (bf=8)` < 0.001,
+      as.character(scientific(`p.val. adj. (bf=8)`, digits=2)),
+      as.character(round(`p.val. adj. (bf=8)`, 4))
     )
   ) %>%
   mutate(
@@ -396,7 +396,7 @@ filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
     intercept = str_replace(intercept, "\\^\\[", "\\\\^\\\\[")
   ) %>%
   rename(`est. (slope)` = estimate) %>%
-  formattable(list(`p.val. adj. (bf=7)` = formatter("span", style = p_color)),
+  formattable(list(`p.val. adj. (bf=8)` = formatter("span", style = p_color)),
               caption = paste("b1 for", cur_equation, sep = " "))
 
 ```

@@ -8,7 +8,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE)
+                      warning = TRUE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -36,24 +36,6 @@ installMissingPackages(
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
-
-mode_colours <- c("WHQ" = "#a6dba0",
-                  "MDC" = "#7b32942",
-                  "MYN" = "#008837",
-                  "MDQ" = "#c2a5cf")
-
-pitch_accent_colours <- c("H*"     = brewer.pal(6, "Spectral")[4],
-                          "L*H"    = brewer.pal(6, "Spectral")[6],
-                          ">H*"    = brewer.pal(6, "Spectral")[5],
-                          "^[L*]H" = brewer.pal(6, "Spectral")[3],
-                          "L*^[H]" = brewer.pal(6, "Spectral")[2],
-                          "^[L*H]" = brewer.pal(6, "Spectral")[1])
-
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
-                                             "green",
-                                             "red")
-                                   )
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
@@ -83,213 +65,91 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     acc_phon,
     fin_phon,
     l_t
-  )
-
+  ) %>%
+  filter(acc_phon %notin% c("H*", ">H*")) %>% 
+  mutate(acc_phon = factor(acc_phon,
+                           levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]"))
+         )
 ```
 
 The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
 
 
-```{r set equation,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-cur_equation <-
-  "l_t ~ mode + acc_phon + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)"
-```
-
-### LME model analysis using model: `r cur_equation`
-
-```{r check model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-temp_mdl <- my_lme(cur_equation, m_corpus, show_results=FALSE, run_step=FALSE)
-
-# pre-empt outlier
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(temp_mdl))) <= 3.5)
-temp_mdl <- my_lme(cur_equation, m_corpus.trimmed, run_step=TRUE)
+```{r run initial model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
-```
-
--   For timing, step() suggests Mode is not a significant factor. However, I can assume it will be a sig. factor for scaling, so it will be retained for the final analysis. 
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-printTidyModel(
-  temp_mdl,
-  bf_adj = 7,
-  exclude_terms = "",
-  write_r2 = "../output/LME_PHonetic_PA_l_t_r2.csv"
-)
-
-```
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-# Get number of levels in target treatment variable.
-cur_levels <- levels(m_corpus.trimmed$mode)
-orig_levels <- cur_levels
-num_levels <- length(cur_levels)
-all_models_tidy = tibble()
-
-for (i in 1:(num_levels)) {
-  cur_model <- lmer(
-    formula(cur_equation),
-    data = m_corpus,
-    control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
-    )
-  )
-  
-  # Convert the model output into a more readable format.
-  cur_model_tidy <- tidy(cur_model) %>%
-    filter(term != "sd__(Intercept)") %>%
-  bonferroniAdjust(7, exclude_terms = c("GenderM", "fin_phonL%")) %>%
-  rename(`p.adj. (bf=7)` = p.adj) %>% 
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      df = round(df, 2)
-      
-      
-    ) %>%
-    filter(effect %notin% "ran_pars") %>%
-    select(-c(group, effect)) %>%
-    rename(t.value = statistic)
-
-  # Get CIs of model using Wald method (fast, fixed effects only)
-  ci_Wald <- confint(cur_model, method = "Wald") %>%
-    as_tibble() %>%
-    filter(`2.5 %` != "NA") %>%
-    mutate(`2.5 %` = round(`2.5 %`, 3),
-           `97.5 %` = round(`97.5 %`, 3)) %>%
-    rename("2.5% CI" = "2.5 %",
-           "97.5% CI" = "97.5 %")
-  
-  # Bind tidy model to...
-  cur_model_tidy <- cbind(cur_model_tidy, ci_Wald) %>%
-    # re-order columns
-    select(
-      "term",
-      "estimate",
-      "std.error",
-      "2.5% CI",
-      "97.5% CI",
-      "t.value",
-      "df",
-      "p.value",
-      `p.adj. (bf=7)`
-    ) %>%
-  # Prepare current model for pasting to all models output.
-  # Make 'pairwise' column = intercept.
-    mutate(
-      pairwise =
-        if_else(
-          term == "(Intercept)",
-          "intercept",
-          if_else(
-            term %notin% c("modeMDC",
-                           "modeMWH",
-                           "modeMYN",
-                           "modeMDQ"),
-            "N/A",
-            paste("mode", cur_levels[1], sep = "") #???
+# run model
+l_t_model <-
+  lmer(l_t ~  mode*acc_phon + fin_phon + gender + (1 + acc_phon | speaker) + (1| prompt),
+       data = m_corpus,
+        control = lmerControl(
+          optimizer = "optimx",
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
           )
-        ),
-      # change 'term' so "intercept" states the target condition name.
-      term =
-        if_else(
-          term == "(Intercept)",
-          paste("mode", cur_levels[1], sep = ""),
-          term
         )
-    ) %>%
-    # remove random effects detail
-    filter(term != "sd__(Intercept)")
-  
-  
-  # make list of pairwise comparisons to keeps
-  keep = NULL
-  for (j in i:4) {
-    keep <- c(keep, paste("mode", orig_levels[j], sep = ""))
-  }
-  
-  # remove pairwise comparisons which have already been done
-  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
-  
-  # add remaining pairwise comparisons to main tibble.
-  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
-  
-  # restructure the order of levels for next LME cur_model.
-  cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-  m_corpus <- m_corpus %>%
-    mutate(mode = factor(mode,
-                         levels = cur_levels))
-}
+      )
+
+
+summarise_lme(l_t_model, run_step=TRUE)
+
 ```
 
-#### Summary of intercepts
+-   Initial model is unreliable.
+-   Re-running model using suggested model from step(), which removes (1|prompt) and fin_phon, the removal of both of which makes sense as they are likely to affect the timing of h_t rather than l_t. 
+-   The data was trimmed to remove the outlier.
+-  The removing random slopes also avoids the convergence problem and brings it slightly closer to the h_t model. 
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-# arrange tibble according to pairwise move it to first column position
-all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
-  relocate(pairwise) %>%
-  sigCodesTidy(`p.adj. (bf=7)`)
+```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+# pre-empt outlier
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_t_model))) <= 3.5)
 
-# print b0 table
-filter(all_models_tidy, pairwise == "intercept") %>%
-  select(-pairwise) %>%
-  rename(intercept = term) %>%
-  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value), digits=2),
-      as.character(round(p.value, 4), digits=2)
-    ),
-    `p.adj. (bf=7)` = if_else(
-      `p.adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
-      as.character(round(`p.adj. (bf=7)`, 4))
-    )
-  ) %>% 
-  write_csv("../output/LME_PHonetic_PA_l_t_b0.csv")  %>%
-  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
-              caption =paste("b0 for", cur_equation, sep = " "))
+l_t_model.trimmed <- lmer(l_t ~  mode*acc_phon + gender + (1 | speaker),
+       data = m_corpus.trimmed,
+        control = lmerControl(
+          optimizer = "optimx",
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
+        )
+      )
+
+summarise_lme(l_t_model.trimmed , run_step=FALSE)
+
 ```
 
-#### Summary of pairwise comparisons
+-   Model works.
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-# print pairwise comparisons of (B1 table)
-filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
-  select(
-    pairwise,
-    term,
-    estimate,
-    std.error,
-    `2.5% CI`,
-    `97.5% CI`,
-    t.value,
-    df,
-    p.value,
-    `p.adj. (bf=7)`
-  ) %>%
-  rename(intercept = pairwise, slope = term) %>%
-  sigCodesTidy(`p.adj. (bf=7)`) %>% mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value), digits=2),
-      as.character(round(p.value, 4), digits=2)
-    ),
-    `p.adj. (bf=7)` = if_else(
-      `p.adj. (bf=7)` < 0.001,
-      as.character(scientific(`p.adj. (bf=7)`, digits=2)),
-      as.character(round(`p.adj. (bf=7)`, 4))
-    )
-  )  %>%
-  rename(`p.adj. (bf=7)` = `p.adj. (bf=7)`) %>%
-  write_csv("../output/LME_PHonetic_PA_l_t_b1.csv") %>%
-  formattable(list(`p.adj. (bf=7)` = formatter("span", style = p_color)),
-              caption = paste("b1 for", cur_equation, sep = " "))
+- 
+```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+l_t_model.tidy <- printTidyModel(l_t_model.trimmed,
+                                bf_adj = 8,
+                                exclude_terms = c("fin_phonL%", "genderM"),
+                                write_r2 = "LME_PHonetic_PA_l_t"
+                                )
+l_t_model.tidy$table
+l_t_model.tidy$r2
+
+```
+
+```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+charts <- getLMEFixedFX(
+  my_equation =  l_t ~  mode*acc_phon + gender + (1 | speaker),
+  my_data = m_corpus.trimmed,
+  exclude_terms = c("gender", "fin_phon"),
+  bf_adj = 8,
+  write = "LME_Phonetic_PA_l_t"
+)
+charts$intercepts
+charts$pairwise
+
+
 ```

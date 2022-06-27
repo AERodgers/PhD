@@ -1,4 +1,4 @@
-intercept,slope,estimate,std.error,2.5% CI,97.5% CI,t.value,df,p.value,p.adj. (bf=7),signif. (adj.)
+intercept,slope,estimate,std.error,2.5% CI,97.5% CI,t.value,df,p.value,p.adj. (bf=7),signif. 
 modeMDC,modeMWH,0.403,0.374,-0.331,1.136,1.076,10.37,0.3063,0.9999,
 modeMDC,modeMYN,1.85,0.34,1.183,2.516,5.436,10.4,2.4957e-04,0.0017,p<0.01
 modeMDC,modeMDQ,5.003,0.683,3.663,6.343,7.32,10.07,2.4453e-05,1.71e-04,p<0.001
