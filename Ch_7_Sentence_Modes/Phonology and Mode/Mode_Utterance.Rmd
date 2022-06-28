@@ -44,7 +44,10 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
                           ">H*"    = brewer.pal(6, "Set2")[4],
                           "L*^[H]" = brewer.pal(6, "Set2")[2],
                           "^[L*H]" = brewer.pal(6, "Set2")[1])
+```
 
+
+```{r load and process corpus, include=FALSE}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
@@ -98,7 +101,8 @@ m_corpus_short <- m_corpus %>%
 # **__Raw Data__**
 
 ## Utterance level intonational phonology
-```{r warning=FALSE}
+```{r list utterence level phonology, warning=FALSE}
+#set lower limit for list: more than 8 tokens in the corpus
 tot_rows = nrow(m_corpus)
 threshold = 8
 
@@ -108,6 +112,7 @@ keep_list <- m_corpus %>%
   summarise(phon_count = n()) %>% 
   filter(phon_count >= 8)
 
+# List utterances phonology with 8+ tokens
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
@@ -127,6 +132,7 @@ m_corpus %>%
     )
   )
 
+# List utterances phonology by mode with 8+ tokens in the corpus
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
@@ -165,92 +171,8 @@ m_corpus %>%
 ```
 
 
-```{r warning=FALSE, eval=FALSE}
-# Couldn't figure out how to make formattable to work from inside a loop.
 
-cur_mode = "MDC"
-m_corpus %>%
-  filter(mode == cur_mode) %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  filter(phon_count >= threshold) %>%
-  formattable(
-    caption = paste(
-      "Utterance level intonational phonology ",
-      "for tokens in ", cur_mode,
-      " with a count of at least ", threshold, ".",
-      sep = ""
-    )
-  )
-
-cur_mode = "MWH"
-m_corpus %>%
-  filter(mode == cur_mode) %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  filter(phon_count >= threshold) %>%
-  formattable(
-    caption = paste(
-      "Utterance level intonational phonology ",
-      "for tokens in ", cur_mode,
-      " with a count of at least ", threshold, ".",
-      sep = ""
-    )
-  )
-
-cur_mode = "MYN"
-m_corpus %>%
-  filter(mode == cur_mode) %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  filter(phon_count >= threshold) %>%
-  formattable(
-    caption = paste(
-      "Utterance level intonational phonology ",
-      "for tokens in ", cur_mode,
-      " with a count of at least ", threshold, ".",
-      sep = ""
-    )
-  )
-
-cur_mode = "MDQ"
-m_corpus %>%
-  filter(mode == cur_mode) %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  filter(phon_count >= threshold) %>%
-  formattable(
-    caption = paste(
-      "Utterance level intonational phonology ",
-      "for tokens in ", cur_mode,
-      " with a count of at least ", threshold, ".",
-      sep = ""
-    )
-  )
-```
-
-
-```{r warning=FALSE}
+```{r utterance phonology by mode, exlcuding MWH, warning=FALSE}
 tot_rows = nrow(m_corpus %>% filter(mode != "MWH"))
 threshold = round(tot_rows / 3 / 20,0)
 keep_list <- m_corpus %>% filter(mode != "MWH") %>% 
@@ -300,7 +222,7 @@ m_corpus %>%
 ## Nuclear Pitch Accent data
 
 ### Nuclear Pitch Accent by Speaker
-```{r warning=FALSE}
+```{r summarise PA by speaker, warning=FALSE}
 # Create summary table of Pitch Accent by Speaker.
 
 
@@ -331,23 +253,19 @@ m_corpus_short %>%
 
 #### Chi Squared test of association using raw data
 
-```{r}
-
-with(m_corpus_short,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
-
+```{r chi squared of raw data}
+m_corpus_short %>% tabyl(mode, acc_phon) %>% chisq.test()
 ```
 
 #### Chi Squared test of association using raw data without outlier tokens
 
 ```{r}
 
-with(
-  m_corpus_short %>%
+    
+m_corpus_short %>%
     filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
+    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
+    tabyl(mode, acc_phon) %>% chisq.test()
 
 ```
 
@@ -649,21 +567,20 @@ ggplot(pa_by_mode_adj_list %>%
 #### Chi Squared test of association using adjusted data
 
 ```{r}
-with(pa_by_mode_adj_list,
-     table(mode, acc_phon)) %>% chisq.test %>% print()
+pa_by_mode_adj_list %>%
+    tabyl(mode, acc_phon) %>%
+    chisq.test()
 ```
 
 
 #### Chi Squared test of association using adjusted data without outlier tokens
 
 ```{r}
-
-with(
-  pa_by_mode_adj_list %>%
+pa_by_mode_adj_list %>%
     filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
-  table(mode, acc_phon)
-)  %>% chisq.test %>% print()
+    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
+    tabyl(mode, acc_phon) %>%
+    chisq.test()
 ```
 
 

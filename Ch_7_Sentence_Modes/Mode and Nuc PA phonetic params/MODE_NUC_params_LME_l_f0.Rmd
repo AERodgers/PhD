@@ -82,19 +82,21 @@ There are a few outlier residuals here, but the overall model is good.
 
 ```{r run initial models,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 l_f0_model <-
-  lmer(l_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
-       data = m_corpus_rises,
-        control = lmerControl(
-          optimizer = "optimx",
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
+  lmer(
+    l_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon |
+                                                                    speaker),
+    data = m_corpus_rises,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
       )
-summarise_lme(l_f0_model, run_step=TRUE)
+    )
+  )
+summarise_lme(l_f0_model, run_step = TRUE)
 ```
 
 
