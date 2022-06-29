@@ -162,9 +162,9 @@ summarise_lme(lh_slope_model_trimmed , run_step = FALSE)
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model_trimmed,
-                                bf_adj = 8,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_lh_slope"
+                                write_r2 = "lh_slope"
                                 )
 lh_slope_model.tidy$table
 lh_slope_model.tidy$r2
@@ -177,8 +177,8 @@ charts <- getLMEFixedFX(
   my_equation = lh_slope ~ mode + acc_phon + (1 + acc_phon | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_lh_slope"
+  bf_adj = 16,
+  write = "lh_slope"
 )
 charts$intercepts
 charts$pairwise

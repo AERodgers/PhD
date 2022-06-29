@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of h_f0 ~ Mode and Nuclear pitch accents: "
+title: "Chapter 7 - LME analysis of h_f0 ~ Nuclear pitch accents: "
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -40,11 +40,6 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
-
-Give the sparsity of \^[L\*]H(n=6), H*(n=2) and \>H*(n=5), and considering that they are limited to a single speaker, I wanted to exclude then from the analysis.
-
-They should be analysed independently for M8 alone.
 
 ```{r load corpus}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
@@ -83,13 +78,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-The initial model is: `h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`
 
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE, include=FALSE}
+*    Initial model threw up singularity issue with `(1|prompt)`, which `step()` suggests is non-significant. Removing it, as in other cases
+*    step() suggests that `fin_phon` is non-significant. Keeping it as it is in other models of h_f0.
+
+```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 h_f0_model <-
-  lmer(h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
+  lmer(h_f0 ~ acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -107,43 +104,13 @@ summarise_lme(h_f0_model, run_step=TRUE)
 
 ```
 
--   Neither prompt nor the (acc_phon:mode \| speaker) interaction appear significant as a random effects.
--   Slopes only random effect of speaker seems odd... will keep it in reduced model
--   Model with (mode + acc_phon \| speaker) and (1 + mode + acc_phon \| speaker) both fail to converge; however, (1 + acc_phon \| speaker) does not fail. Therefore, I will opt for random intercepts and slope re acc_phon per speaker: (1 + acc_phon \| speaker))
-
-#### `h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`
-
--   This model works well. Moreover, it still includes (acc_phon \| speaker) random slopes, which will help answer the question:
-    -   "To what extent does the apparent paralinguist difference between Modes disappear once acc_phon is included in the analysis?"
-
-```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-
-h_f0_model_reduced <-
-    lmer(h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-    )
-
-summarise_lme(h_f0_model_reduced , run_step = TRUE)
-
-```
-
--   Model works.
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-h_f0_model.tidy <- printTidyModel(h_f0_model_reduced,
-                                bf_adj = 8,
+h_f0_model.tidy <- printTidyModel(h_f0_model,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_h_f0"
+                                write_r2 = "h_f0"
                                 )
 h_f0_model.tidy$table
 h_f0_model.tidy$r2
@@ -156,8 +123,8 @@ charts <- getLMEFixedFX(
   my_equation = h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_h_f0"
+  bf_adj = 16,
+  write = "h_f0"
 )
 charts$intercepts
 charts$pairwise

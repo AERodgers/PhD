@@ -83,7 +83,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 The initial model `lh_slope ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`---as with the models for other phonetic parameters---has singularity issues, making it unreliable. Therefore, the by-speaker random effects were simplified to `(1 + acc_phon | speaker)`, leading to:
 
--   `og_lh_slope ~  mode + fin_phon + gender + (1 + mode | speaker)`
+-   `log_lh_slope ~  mode + fin_phon + gender + (1 + mode | speaker)`
 
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
@@ -93,8 +93,7 @@ m_corpus <- m_corpus %>%
 
 lh_slope_model <-
     lmer(
-        log_lh_slope ~  mode + fin_phon + gender +
-            (1 + mode | speaker),
+        log_lh_slope ~  mode + fin_phon + gender + (1 + mode | speaker),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",

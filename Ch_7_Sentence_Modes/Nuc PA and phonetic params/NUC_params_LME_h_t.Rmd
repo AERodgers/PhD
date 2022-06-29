@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of h_t ~ Mode and Nuclear pitch accents: "
+title: "Chapter 7 - LME analysis of h_t ~ Nuclear pitch accents: "
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -72,21 +72,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                            levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parameters  disappear.
-
-Following on from the H_f0 tests, the following model has been chosen:
-`h_t ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker) + (1 | prompt)`
-
-It differs from the f0 models only in that it assumes that prompt will be a significant timing factor.
-That is, the timing of the tonal target will depend on the length of the foot.
-There are a few outlier residuals here, but the overall model is good.
-
+*    Initial model included random effects for intercept and slope of speaker.
+*    This threw out convergence errors.
+*    Removing speaker slope fixes issue.
 
 ```{r run initial model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 # run model
 h_t_model <-
-  lmer(h_t ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker) + (1 | prompt),
+  lmer(h_t ~ acc_phon + fin_phon + gender + (1  | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -104,38 +98,12 @@ summarise_lme(h_t_model, run_step=TRUE)
 
 ```
 
--   Model is good.
--   step suggests that there is no acc_phon:mode interaction, and that a random intercepts only model is best. 
-
-```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-
-h_t_model_reduced <-  lmer(h_t ~ mode*acc_phon + fin_phon + gender + (1 | speaker) + (1| prompt),
-       data = m_corpus,
-        control = lmerControl(
-          optimizer = "optimx",
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
-      )
-
-summarise_lme(h_t_model_reduced , run_step=TRUE)
-
-```
-
--   Model works.
--   Intercepts only it is.
-
-- 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-h_t_model.tidy <- printTidyModel(h_t_model_reduced,
-                                bf_adj = 8,
+h_t_model.tidy <- printTidyModel(h_t_model,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_h_t"
+                                write_r2 = "h_t"
                                 )
 h_t_model.tidy$table
 h_t_model.tidy$r2
@@ -145,11 +113,11 @@ h_t_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getLMEFixedFX(
-  my_equation = h_t ~ mode + acc_phon + fin_phon + gender + (1 | speaker) + (1| prompt),
+  my_equation = h_t ~ acc_phon + fin_phon + gender + (1  | speaker) + (1 | prompt),
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_h_t"
+  bf_adj = 16,
+  write = "h_t"
 )
 charts$intercepts
 charts$pairwise

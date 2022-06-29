@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of f0_exc ~ Mode and Nuclear pitch accents: "
+title: "Chapter 7 - LME analysis of f0_exc ~ Nuclear pitch accents: "
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -39,8 +39,6 @@ installMissingPackages(
 theme_set(theme_minimal(base_size = 14))
 
 ```
-
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
 
 Give the sparsity of \^[L\*]H (n=6), H\* (n=2) and \>H \*(n=5), and considering that they are limited to a single speaker, I wanted to exclude then from the analysis.
 
@@ -83,16 +81,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-The initial model `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`---as with the models for other phonetic parameters---has singularity issues, making it unreliable. Therefore, the by-speaker random effects were simplified to `(1 + acc_phon | speaker)`, leading to:
-
--   `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`
-
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 f0_exc_model <-
     lmer(
-        f0_exc ~ mode*acc_phon + fin_phon + gender +
+        f0_exc ~ acc_phon + fin_phon + gender +
             (1 + acc_phon | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
@@ -106,21 +100,21 @@ f0_exc_model <-
         )
       )
 
-
 summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
 
 -   `(1 | prompt)` appears non-significant as a random effect.
--   `acc_phon:mode` does not appear appear significant as a fixed effect.
--   Using model found from step()
+-   `gender` also appears non-significant, and planned to keep it as it is significant in other f0_exc models.
+-   However, it throws up singularities in the pairwise comparison, and when removed as a fixed factor r^2^m only shifts from 0.32 to 0,31
 
-#### `f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker)`
+
+#### `f0_exc ~ acc_phon + fin_phon + (1 + acc_phon | speaker)`
 
 ```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 f0_exc_model_reduced <-
-    lmer(f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker),
+    lmer(f0_exc ~ acc_phon + fin_phon + (1 + acc_phon | speaker),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -136,15 +130,15 @@ f0_exc_model_reduced <-
 summarise_lme(f0_exc_model_reduced , run_step = FALSE)
 
 ```
-
+*    Note, that step() still predicts gender to be non-significant, but retaining it as it does not lead to any signularity or convergence issues
 -   Model works.
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 f0_exc_model.tidy <- printTidyModel(f0_exc_model_reduced,
-                                bf_adj = 8,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_f0_exc"
+                                write_r2 = "f0_exc"
                                 )
 f0_exc_model.tidy$table
 f0_exc_model.tidy$r2
@@ -154,11 +148,11 @@ f0_exc_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getLMEFixedFX(
-  my_equation = f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker),
+  my_equation = f0_exc ~ acc_phon + fin_phon + (1 + acc_phon | speaker),
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_f0_exc"
+  bf_adj = 16,
+  write = "f0_exc"
 )
 charts$intercepts
 charts$pairwise

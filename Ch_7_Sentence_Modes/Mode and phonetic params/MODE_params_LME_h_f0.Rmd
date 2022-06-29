@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of h_f0 ~ Mode and Nuclear pitch accents: "
+title: "Chapter 7 - LME analysis of h_f0 ~ Mode"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
