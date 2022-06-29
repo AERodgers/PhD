@@ -451,7 +451,7 @@ printTidyModel <-
   tidy_model <- tidy(my_model) %>%
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
-    bonferroniAdjust(7, exclude_terms) %>%
+    bonferroniAdjust(bf_adj, exclude_terms) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),

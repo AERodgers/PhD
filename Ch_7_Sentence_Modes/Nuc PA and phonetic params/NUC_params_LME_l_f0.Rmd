@@ -1,0 +1,130 @@
+---
+title: "Chapter 7 - LME analysis of l_f0 ~ Mode and Nuclear pitch accents: "
+author: "Antoin Rodgers"
+date: "5.6.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
+
+# Load Functions.
+source("../../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+# Load Corpus
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    nuc_contour =
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      ),
+    acc_phon =
+      factor(
+        str_replace(nuc_contour,
+                    "\\s%$|\\sL%$",
+                    ""),
+        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+      ),
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+  ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         prompt,
+         acc_phon,
+         fin_phon,
+         l_f0) %>%
+  # keep only explicitly LH pitch accents.
+  filter(acc_phon %notin% c("H*", ">H*")) %>%
+  mutate(acc_phon = factor(acc_phon,
+                           levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
+
+m_corpus_rises <-  m_corpus
+```
+
+
+The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parameters  disappear.
+
+Following on from the H_f0 tests, the following model has been chosen:
+`l_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`
+
+There are a few outlier residuals here, but the overall model is good.
+
+```{r run initial models,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+l_f0_model <-
+  lmer(
+    l_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon |
+                                                                    speaker),
+    data = m_corpus_rises,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+summarise_lme(l_f0_model, run_step = TRUE)
+```
+
+
+```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+l_f0_model.tidy <- printTidyModel(l_f0_model,
+                                bf_adj = 8,
+                                exclude_terms = c("fin_phonL%", "genderM"),
+                                write_r2 = "LME_Phonetic_PA_l_f0"
+                                )
+l_f0_model.tidy$table
+l_f0_model.tidy$r2
+
+```
+
+```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+# Get number of levels in target treatment variable.
+
+charts <- getLMEFixedFX(
+  my_equation = l_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
+  my_data = m_corpus_rises,
+  exclude_terms = c("gender", "fin_phon"),
+  bf_adj = 8,
+  write = "LME_Phonetic_PA_l_f0"
+)
+charts$intercepts
+charts$pairwise
+
+
+```
+
