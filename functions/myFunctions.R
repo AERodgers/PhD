@@ -160,7 +160,7 @@ bonferroniAdjust <- function(myTibble,
 sigCodesTidy <-
   function(my_tibble,
            p.adjusted = "p adj",
-           incl_marginal_sig = FALSE
+           incl_marginal_sig = TRUE
   )
   # Create significance column in tibble using Bonferroni adjusted p.
 {

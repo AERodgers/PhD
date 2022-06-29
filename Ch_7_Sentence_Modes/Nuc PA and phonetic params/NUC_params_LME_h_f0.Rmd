@@ -110,7 +110,7 @@ summarise_lme(h_f0_model, run_step=TRUE)
 h_f0_model.tidy <- printTidyModel(h_f0_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "h_f0"
+                                write_r2 = "PA_h_f0"
                                 )
 h_f0_model.tidy$table
 h_f0_model.tidy$r2
@@ -124,7 +124,7 @@ charts <- getLMEFixedFX(
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
   bf_adj = 16,
-  write = "h_f0"
+  write = "PA_h_f0"
 )
 charts$intercepts
 charts$pairwise
