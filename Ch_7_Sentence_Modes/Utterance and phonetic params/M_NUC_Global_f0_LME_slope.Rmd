@@ -71,8 +71,10 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```
 
+Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-utt_slope_mdl = lmer(lh_slope ~ mode + starts_with_H + (1 + starts_with | speaker),
+# set recommended equation
+utt_slope_mdl = lmer(lh_slope ~ mode + starts_with_H + (1 + mode | speaker),
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
@@ -86,7 +88,7 @@ utt_slope_mdl = lmer(lh_slope ~ mode + starts_with_H + (1 + starts_with | speake
 )
 
 
-summarise_lme(utt_slope_mdl , run_step = FALSE)
+summarise_lme(utt_slope_mdl , run_step = TRUE)
 ```
 
 
@@ -114,7 +116,7 @@ charts <- getLMEFixedFX(
   exclude_terms = c("fin_phon",
                     "gender",
                     "starts_with_H"),
-  bf_adj = 4,
+  bf_adj = 8,
   write = "slope"
 )
 charts$intercepts
