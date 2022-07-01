@@ -261,14 +261,12 @@ m_corpus_short %>% tabyl(mode, acc_phon) %>% chisq.test()
 
 ```{r}
 
-    
 m_corpus_short %>%
     filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
     mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
     tabyl(mode, acc_phon) %>% chisq.test()
 
 ```
-
 
 # **__Adjusted Data__**
 
