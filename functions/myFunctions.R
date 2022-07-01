@@ -577,7 +577,6 @@ getLMEFixedFX <- function(my_equation,
     # Get levels for current factor
     cur_levels =  levels(my_data[[cur_factor]])
     num_levels = length(cur_levels)
-
     # Make list of terms to keep
     keep_terms = NULL
     for (level_name in cur_levels) {
@@ -600,7 +599,6 @@ getLMEFixedFX <- function(my_equation,
           )
         )
       )
-
 
       # Tidy the model.
       cur_model_tidy <- tidy(cur_model) %>%
@@ -643,27 +641,26 @@ getLMEFixedFX <- function(my_equation,
           "p.value",
           "p.adj"
         )
-
-      cur_model_tidy <-cur_model_tidy %>%
+      cur_model_tidy <- cur_model_tidy %>%
+        filter((term %in% c(keep_terms, "(Intercept)"))) %>%
         # Prepare current model for pasting to all models output.
         # Make 'pairwise' column = intercept.
         mutate(
           pairwise =
             if_else(
-              str_replace_all(term, "([\\*\\:])", "\\\\\\1") == "(Intercept)",
+              term == "(Intercept)",
               "intercept",
-              if_else(
-                term %notin% keep_terms,
-                "N/A",
-                keep_terms[cur_level])
+              if_else(term %notin% keep_terms,
+                      "N/A",
+                      keep_terms[cur_level])
             ),
           # change 'term' so "intercept" states the target condition name.
           term =
-            if_else(str_replace_all(term, "([\\*\\:])", "\\\\\\1") == "(Intercept)",
+            if_else(term == "(Intercept)",
                     keep_terms[cur_level],
                     term)
-        )
 
+        )
 
       keep_comparisons = NULL
       # make list of pairwise comparisons to keeps
