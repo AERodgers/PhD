@@ -43,7 +43,10 @@ p_color <- all_models_tidy ~ style(color =
                                      if_else(as.double(all_models_tidy) < 0.05,
                                              "green",
                                              "red"))
+```
 
+
+```{r load corpus, message=FALSE, warning=FALSE, include=FALSE}
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
@@ -75,7 +78,7 @@ cur_equation  <-
 Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
 
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
-temp_mdl = lmer(
+utt_mean_f0 = lmer(
   formula(cur_equation),
   data = m_corpus,
   control = lmerControl(
@@ -92,8 +95,7 @@ temp_mdl = lmer(
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-
-summarise_lme(temp_mdl , run_step = TRUE)
+summarise_lme(utt_mean_f0 , run_step = TRUE)
 ```
 
 
@@ -101,9 +103,9 @@ summarise_lme(temp_mdl , run_step = TRUE)
 
 # set current equation
 cur_equation  <-
-  "utt_mean_f0 ~ mode + (1|gender) + (1 + mode | speaker)"
+  "utt_mean_f0 ~ mode + (1 + mode | speaker)"
 
-temp_mdl = lmer(
+utt_mean_f0 = lmer(
   formula(cur_equation),
   data = m_corpus,
   control = lmerControl(
@@ -116,7 +118,7 @@ temp_mdl = lmer(
     )
   )
 )
-summarise_lme(temp_mdl , run_step = TRUE)
+summarise_lme(utt_mean_f0 , run_step = TRUE)
 ```
 
 ### Final model: ``r cur_equation``
@@ -124,14 +126,14 @@ summarise_lme(temp_mdl , run_step = TRUE)
 #### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-utt_lh_slope.tidy <- printTidyModel(
-  temp_mdl,
+utt_mean_f0.tidy <- printTidyModel(
+  utt_mean_f0,
   bf_adj = 4,
   exclude_terms = "genderM",
-  write_r2 = "slope"
+  write_r2 = "f0"
 )
-utt_lh_slope.tidy$table
-utt_lh_slope.tidy$r2
+utt_mean_f0.tidy$table
+utt_mean_f0.tidy$r2
 ```
 
 
@@ -139,12 +141,13 @@ utt_lh_slope.tidy$r2
 # Get number of levels in target treatment variable.
 
 charts <- getLMEFixedFX(
-  my_equation = cur_equation,
+  my_equation = utt_mean_f0 ~ mode + (1 + mode | speaker),
   my_data = m_corpus,
   exclude_terms = c("gender"),
   bf_adj = 4,
-  write = "slope"
+  write = "f0"
 )
 charts$intercepts
 charts$pairwise
+
 ```
