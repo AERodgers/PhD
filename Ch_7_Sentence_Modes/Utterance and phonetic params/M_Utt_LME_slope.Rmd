@@ -121,7 +121,7 @@ utt_utt_slope.tidy$r2
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 
-charts <- getLMEFixedFX(
+charts <- getModelFixedFX(
   my_equation = utt_slope ~ mode  + (1 + mode | speaker),
   my_data = m_corpus.trimmed,
   exclude_terms = c("fin_phon",

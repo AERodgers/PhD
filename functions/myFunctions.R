@@ -2,6 +2,15 @@
 # date: '2022-05-06'
 # Bank of personal functions
 
+
+# formatter
+
+p_color <- . ~ style(color =
+                       if_else(. < 0.05,
+                               "green",
+                               if_else(. < 0.01,
+                                       "orange",
+                                       "red")))
 installMissingPackages <- function (package_list)
 {
   # installs packages from  package_list which are not already installed in.
@@ -159,56 +168,55 @@ bonferroniAdjust <- function(myTibble,
 ################################################################################
 sigCodesTidy <-
   function(my_tibble,
-           p.adjusted = "p adj",
-           incl_marginal_sig = TRUE
-  )
-  # Create significance column in tibble using Bonferroni adjusted p.
-{
-  p.adjusted <- enquo(p.adjusted)
-  my_tibble <- mutate(my_tibble,
-                      `signif. ` =
-                        if_else(
-                          !!p.adjusted < 0.001,
-                          'p<0.001',
+           p.adjusted = "p.adj",
+           incl_marginal_sig = TRUE)
+    # Create significance column in tibble using Bonferroni adjusted p.
+  {
+    p.adjusted <- enquo(p.adjusted)
+    my_tibble <- mutate(my_tibble,
+                        `signif.` =
                           if_else(
-                            !!p.adjusted < 0.01,
-                            'p<0.01',
+                            !!p.adjusted < 0.001,
+                            'p<0.001',
                             if_else(
-                              !!p.adjusted < 0.05,
-                              'p<0.05',
-                              if_else(!!p.adjusted < 0.1 &
-                                        incl_marginal_sig,
-                                      '(p<0.1)',
-                                      '')
+                              !!p.adjusted < 0.01,
+                              'p<0.01',
+                              if_else(
+                                !!p.adjusted < 0.05,
+                                'p<0.05',
+                                if_else(!!p.adjusted < 0.1 &
+                                          incl_marginal_sig,
+                                        '(p<0.1)',
+                                        '')
+                              )
                             )
-                          )
-                        )
-                      ) %>%
-    mutate(`signif. ` =
-             if_else(
-               !is.na(!!p.adjusted),
-               `signif. `,
-               if_else(p.value < 0.001,
-                       "p<0.001",
-                       if_else(p.value < 0.01,
-                               "p<0.01",
-                               if_else(p.value < 0.05,
-                                        "p<0.05",
-                                       if_else(p.value < 0.1 &
-                                                 incl_marginal_sig,
-                                               "(p<0.1)",
-                                               ""
-                                               )
-                                       )
-                               )
-                       )
-               )
-           )
+                          )) %>%
+      mutate(`signif.` =
+               if_else(
+                 !is.na(!!p.adjusted),
+                 `signif.`,
+                 if_else(
+                   p.value < 0.001,
+                   "p<0.001",
+                   if_else(
+                     p.value < 0.01,
+                     "p<0.01",
+                     if_else(
+                       p.value < 0.05,
+                       "p<0.05",
+                       if_else(p.value < 0.1 &
+                                 incl_marginal_sig,
+                               "(p<0.1)",
+                               "")
+                     )
+                   )
+                 )
+               ))
 
 
 
-  return(my_tibble)
-}
+    return(my_tibble)
+  }
 
 param_summary <-
   function(df, treatment, phonology, is_nucleus = FALSE)
@@ -285,8 +293,9 @@ param_means <-
     )
   }
 
-get_m_corpus <- function(file_address) {
+get_m_corpus <- function(file_address)
   # Include package for %in% / %notin% syntactic notation
+  {
   installMissingPackages(c("mefa4"))
   return(
     as_tibble(read.csv(file_address)) %>%
@@ -415,33 +424,64 @@ get_m_corpus <- function(file_address) {
 
 }
 
+summarise_lme <-
+  function(my_model, run_step = FALSE, my_tolerance = 1e-05)
+    # short function to remove need for repetition of optimized used throughout.
+  {
+    require("lme4", "lmerTest", "optimx", "performance")
 
-summarise_lme <- function(my_model, run_step=FALSE, my_tolerance=1e-05)
-  # short function to remove need for repetition of optimized used throughout.
-{
-  require(lme4, lmerTest, optimx, performance)
-
-  # output results
+    # output results
     drawResiduals(my_model)
     print(summary(my_model))
     cat("\nAnova of model\n")
     anova(my_model) %>% print()
-    cat("\nCheck_singularity(my_model, tolerance =", my_tolerance, "-->",
-        check_singularity(my_model, tolerance = my_tolerance, "\n"))
+    cat("\nCheck_singularity(my_model, tolerance =",
+        my_tolerance,
+        "-->",
+        check_singularity(my_model, tolerance=my_tolerance),
+        "\n"
+    )
+
     cat("\n")
-  if(run_step)
+
+    if (run_step)
     {
-    cat("\nResults of step().\n")
-    print(step(my_model))
+      cat("\nResults of step().\n")
+      print(step(my_model))
     }
 
-}
+  }
 
 ###############################################################################
 printTidyModel <-
-  function(my_model, bf_adj = 1, exclude_terms = "", write_r2 = "")
-{
-  require(formattable, tidyverse, Mefa4)
+  function(my_model,
+           bf_adj = 1,
+           exclude_terms = "",
+           write_r2 = "",
+           is_GLM = FALSE)
+  {
+  require("formattable", "tidyverse", "Mefa4")
+    require("performance")
+
+  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+
+  my_headers <- c(
+    "term",
+    "estimate",
+    "std.error",
+    "2.5% CI",
+    "97.5% CI",
+    eval(my_stat),
+    "df",
+    "p.value",
+    "p.adj"
+  )
+
+  my_stat = enquo(my_stat)
+
+  if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
+  my_headers = enquos(my_headers)
+
 
   p_adj_name =paste("p.adj. (bf=", bf_adj, ")", sep="")
   p_adj_name = enquo(p_adj_name)
@@ -455,10 +495,14 @@ printTidyModel <-
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      df = round(df, 2)
+      statistic = round(statistic, 3)
     ) %>%
-    rename(t.value = statistic)
+    rename(!!my_stat := statistic)
+
+  if (!is_GLM){
+    tidy_model <- tidy_model %>%
+    mutate(df = round(df, 2))
+    }
 
   # Get CIs of model using Wald method (fast, fixed effects only)
   ci_Wald <- confint(my_model, method = "Wald") %>%
@@ -473,17 +517,7 @@ printTidyModel <-
   tidy_model <-
   cbind(tidy_model, ci_Wald) %>%
     # re-order columns
-    select(
-      "term",
-      "estimate",
-      "std.error",
-      "2.5% CI",
-      "97.5% CI",
-      "t.value",
-      "df",
-      "p.value",
-      "p.adj"
-    ) %>%
+    select(!!!my_headers) %>%
     formattable(
       caption = paste("Intercept and slopes of fixed effects:", my_formula)
     ) %>%
@@ -529,28 +563,68 @@ return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
 }
 
 ###############################################################################
-getLMEFixedFX <- function(my_equation,
+getModelFixedFX <- function(my_equation,
                        my_data,
                        exclude_terms = "",
                        bf_adj = 0,
-                       write="")
+                       write="",
+                       is_GLM=TRUE)
 {
-  require(formattable, performance, tidyverse, Mefa4)
+  require("formattable", "performance", "tidyverse", "Mefa4")
+
+  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+
+  my_headers <- c(
+    "term",
+    "estimate",
+    "std.error",
+    "2.5% CI",
+    "97.5% CI",
+    eval(my_stat),
+    "df",
+    "p.value",
+    "p.adj"
+  )
+
+  my_stat = enquo(my_stat)
+
+  if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
+  my_headers = enquos(my_headers)
+
 
   # run base model.
-  base_model <- lmer(
-    my_equation,
-    data = my_data,
-    control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
+  if (is_GLM) {
+    base_model <- glmer(
+      my_equation,
+      data = my_data,
+      family = binomial(link = "logit"),
+      # Change optimizer to avoid convergence errors/
+      control = glmerControl(
+        optimizer = "optimx",
+        calc.derivs = FALSE,
+        optCtrl = list(
+          method = "nlminb",
+          starttests = FALSE,
+          kkt = FALSE
+        )
       )
     )
-  )
+  }
+  else {
+    base_model <- lmer(
+      my_equation,
+      data = my_data,
+      control = lmerControl(
+        optimizer = "optimx",
+        calc.derivs = FALSE,
+        optCtrl = list(
+          method = "nlminb",
+          starttests = FALSE,
+          kkt = FALSE
+        )
+      )
+    )
+  }
 
   my_formula <- str_c(formula(base_model))
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
@@ -586,19 +660,38 @@ getLMEFixedFX <- function(my_equation,
     for (cur_level in 1:(num_levels))
     {
       # Run current model.
-      cur_model <- lmer(
-        formula(my_equation),
-        data = my_data,
-        control = lmerControl(
-          optimizer = "optimx",
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
+      if (is_GLM) {
+        cur_model <- glmer(
+          my_equation,
+          data = my_data,
+          family = binomial(link = "logit"),
+          # Change optimizer to avoid convergence errors/
+          control = glmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+              method = "nlminb",
+              starttests = FALSE,
+              kkt = FALSE
+            )
           )
         )
-      )
+      }
+      else {
+        cur_model <- lmer(
+          my_equation,
+          data = my_data,
+          control = lmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+              method = "nlminb",
+              starttests = FALSE,
+              kkt = FALSE
+            )
+          )
+        )
+      }
 
       # Tidy the model.
       cur_model_tidy <- tidy(cur_model) %>%
@@ -613,10 +706,14 @@ getLMEFixedFX <- function(my_equation,
         mutate(
           estimate = round(estimate, 3),
           std.error = round(std.error, 3),
-          statistic = round(statistic, 3),
-          df = round(df, 2)
+          statistic = round(statistic, 3)
         ) %>%
-        rename(t.value = statistic)
+        rename(!!my_stat := statistic)
+
+      if (!is_GLM){
+        cur_model_tidy <- cur_model_tidy %>%
+          mutate(df = round(df, 2))
+      }
 
       # Get CIs of model using Wald method (fast, fixed effects only)
       ci_Wald <- confint(cur_model, method = "Wald") %>%
@@ -630,17 +727,8 @@ getLMEFixedFX <- function(my_equation,
       # Bind tidy model to CI intervals
       cur_model_tidy <- cbind(cur_model_tidy, ci_Wald) %>%
         # re-order columns
-        select(
-          "term",
-          "estimate",
-          "std.error",
-          "2.5% CI",
-          "97.5% CI",
-          "t.value",
-          "df",
-          "p.value",
-          "p.adj"
-        )
+        select(!!!my_headers)
+
       cur_model_tidy <- cur_model_tidy %>%
         filter((term %in% c(keep_terms, "(Intercept)"))) %>%
         # Prepare current model for pasting to all models output.
@@ -705,7 +793,7 @@ getLMEFixedFX <- function(my_equation,
 
   my_intercepts <- tidyIntercepts(all_models_tidy) %>%
     rename(!!p_adj_name := p.adj)
-  my_pairwise <- tidyPairwise(all_models_tidy)  %>%
+  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)  %>%
     rename(!!p_adj_name := p.adj)
 
   # Write tables to file
@@ -759,23 +847,30 @@ tidyIntercepts <- function(all_models_tidy)
 }
 
 ################################################################################
-tidyPairwise <- function(all_models_tidy)
+tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 {
-  return(
+
+  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+
+  my_headers <- c(
+    "pairwise",
+    "term",
+    "estimate",
+    "std.error",
+    "2.5% CI",
+    "97.5% CI",
+    eval(my_stat),
+    "df",
+    "p.value",
+    "p.adj",
+    "signif."
+  )
+print(all_models_tidy)
+  if (is_GLM){my_headers <- my_headers [my_headers != "df"]}
+  my_headers = enquos(my_headers)
+    return(
     filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
-      select(
-        pairwise,
-        term,
-        estimate,
-        std.error,
-        `2.5% CI`,
-        `97.5% CI`,
-        t.value,
-        df,
-        p.value,
-        p.adj,
-        `signif. `
-      ) %>%
+      select(!!!my_headers) %>%
       rename(intercept = pairwise, slope = term) %>%
       mutate(
         p.value = if_else(
@@ -796,8 +891,7 @@ tidyPairwise <- function(all_models_tidy)
 kable_chi_sq <- function(chi_sq_test)
     {
     # returns a kable() object of the chi_sq_test input.
-    require(knitr,)
-    require(janitor)
+    require("knitr", "janitor")
 
     x2d <- round(chi_sq_test$statistic[1],10)
     names(x2d) <- NULL
@@ -816,11 +910,3 @@ kable_chi_sq <- function(chi_sq_test)
 
 
 }
-
-
-
-
-
-
-
-

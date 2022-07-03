@@ -1,0 +1,186 @@
+---
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+
+
+# Load Functions.
+source("../../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    
+    # Include packages for tidy output.
+    "broomExtra",
+    "formattable",
+    "janitor",
+    "knitr",
+    "RColorBrewer",
+    "sjPlot",
+    "tidyverse",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 18))
+
+# Change this as required
+options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
+
+## set colours
+
+mode_colours <- c("MDC" = brewer.pal(4, "Dark2")[3],
+                  "MWH" = brewer.pal(4, "Dark2")[2],
+                  "MYN" = brewer.pal(4, "Dark2")[1],
+                  "MDQ" = brewer.pal(4, "Dark2")[4])
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
+                          "L*H"    = brewer.pal(6, "Set2")[3],
+                          "^[L*]H" = brewer.pal(6, "Set2")[6],
+                          ">H*"    = brewer.pal(6, "Set2")[4],
+                          "L*^[H]" = brewer.pal(6, "Set2")[2],
+                          "^[L*H]" = brewer.pal(6, "Set2")[1])
+```
+
+
+```{r load and process corpus, include=FALSE}
+# Get  Data.
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    nuc_contour =
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      ),
+    acc_phon =
+      factor(
+        str_replace(nuc_contour,
+                    "\\s%$|\\sL%$",
+                    ""),
+        levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")
+      )
+  ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         prompt,
+         stim,
+         phr_phon,
+         acc_phon,
+         nuc_contour) %>% 
+  mutate(is_question = factor(mode != "MDC",
+                              levels = c("FALSE", "TRUE"))
+  )
+
+# consolidate contour types.
+m_corpus_short <- m_corpus %>%
+  mutate(
+    nuc_contour = factor(
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      )
+    ),
+    acc_phon =
+      factor(
+        str_replace(nuc_contour,
+                    "\\s%$|\\sL%$",
+                    ""),
+        levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")
+      )
+  )
+
+```
+
+#### GLMM test of difference between acc_phon as a fn of question type.
+
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+m_corpus_short_q  <- m_corpus_short  %>% filter (mode != "MDC") %>% 
+  mutate(mode = factor(mode, levels = c("MWH", "MYN", "MDQ")))
+
+question_type_model <- glmer(
+  acc_phon ~ mode + gender + (1 | speaker),
+  data = m_corpus_short_q,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+question_type_model_null = 
+  cur_model <- glmer(
+  acc_phon ~ 1 + (1  | speaker),
+  data = m_corpus_short_q,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+anova(question_type_model, question_type_model_null, test="Chisq")
+
+x <- printTidyModel(question_type_model,
+                    bf_adj = 3,
+                    exclude_terms = c("genderM"),
+                    write_r2 = "question_type_model",
+                    is_GLM = TRUE
+                    )
+x$r2
+x$table
+require("gridExtra")
+library(ggeffects)
+```
+
+## Pairwise comparisons
+```{r echo=FALSE, paged.print=FALSE}
+
+charts <- getModelFixedFX(
+  my_equation = acc_phon ~ mode + gender + (1 | speaker),
+  my_data = m_corpus_short_q,
+  exclude_terms = c("gender", "fin_phon"),
+  bf_adj = 4,
+  write = "GLMtest"
+)
+charts$intercepts
+charts$pairwise
+```

@@ -56,11 +56,12 @@ pn_foot <- select(pn_foot,
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
-                                             "green",
-                                             "red")
-                                   )
+p_color <- . ~ style(color =
+                       if_else(. < 0.05,
+                               "green",
+                               if_else(. < 0.01,
+                                       "orange",
+                                       "red")))
 
 rm(nuc_foot, nuc_pre, pn_lex, pn_ana, corpus, nuc, pn)
 
@@ -117,13 +118,13 @@ kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional 
 # Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
-   bonferroniAdjust("", 10) %>%
+   bonferroniAdjust(10, "") %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
       p.value = round(p.value, 8),
-      p.adjusted = round(p.adjusted, 8)
+      p.adj = round(p.adj, 8)
     ) %>%
   select(-c(group, effect)) %>%
   rename(z.value = statistic)
@@ -141,16 +142,16 @@ plot_model(
   font_size(title = 12)
 
 cur_model_tidy  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
-  p.value = if_else(p.value < 0.001,
-                    as.character(scientific(p.value)),
-                    as.character(round(p.value, 4))),
-  p.adjusted = if_else(
-    p.adjusted < 0.001,
-    as.character(scientific(p.adjusted)),
-    as.character(round(p.adjusted, 4))
+  formattable(list(p.adj = formatter("span", style = p_color))) %>% mutate(
+    p.value = if_else(
+      p.value < 0.001,
+      as.character(scientific(p.value)),
+      as.character(round(p.value, 4))
+    ),
+    p.adj = if_else(p.adj < 0.001,
+                    as.character(scientific(p.adj)),
+                    as.character(round(p.adj, 4)))
   )
-)
 
 
 
@@ -207,13 +208,13 @@ kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional 
 # Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%
     filter(term != "sd__(Intercept)") %>%
-   bonferroniAdjust("", 10) %>%
+   bonferroniAdjust(10, "") %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
       p.value = round(p.value, 8),
-      p.adjusted = round(p.adjusted, 8)
+      p.adj = round(p.adj, 8)
     ) %>%
   select(-c(group, effect)) %>%
   rename(z.value = statistic)
@@ -231,17 +232,17 @@ plot_model(
   font_size(title = 12)
 
 cur_model_tidy  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color))) %>%
+  formattable(list(p.adj = formatter("span", style = p_color))) %>%
   mutate(
     p.value = if_else(
       p.value < 0.001,
       as.character(scientific(p.value)),
       as.character(round(p.value, 4))
     ),
-    p.adjusted = if_else(
-      p.adjusted < 0.001,
-      as.character(scientific(p.adjusted)),
-      as.character(round(p.adjusted, 4))
+    p.adj = if_else(
+      p.adj < 0.001,
+      as.character(scientific(p.adj)),
+      as.character(round(p.adj, 4))
     )
   )
 
@@ -278,13 +279,13 @@ for (i in 1:(numLevels)) {
   
   # Convert the model output into a more readable format.
   cur_model_tidy <- tidy(cur_model) %>%
-   bonferroniAdjust("", 10) %>%
+   bonferroniAdjust(10,) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
       p.value = round(p.value, 8),
-      p.adjusted = round(p.adjusted, 8)
+      p.adj = round(p.adj, 8)
     )
   
   # Prepare current model for pasting to all models output.
@@ -339,14 +340,12 @@ for (i in 1:(numLevels)) {
 
 # arrange tibble according to pairwise move it to first column position
 all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
-  relocate(pairwise) %>%
-  sigCodesTidy()
+  relocate(pairwise)
 
 
 b0_footSize  <- filter(all_models_tidy, pairwise == "intercept") %>%
   select(-pairwise) %>%
-  rename(intercept = term) %>%
-  sigCodesTidy()
+  rename(intercept = term)
 
 
 b1_footSize  <-
@@ -357,9 +356,8 @@ b1_footSize  <-
          std.error,
          z.value,
          p.value,
-         p.adjusted) %>%
-  rename(intercept = pairwise, lh_slope = term) %>%
-  sigCodesTidy()
+         p.adj) %>%
+  rename(intercept = pairwise, lh_slope = term)
 
 ```
 
@@ -368,13 +366,13 @@ b1_footSize  <-
 
 ```{r echo=FALSE, warning=FALSE}
 b0_footSize  %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  formattable(list(p.adj = formatter("span", style = p_color)))%>% mutate(
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
                     as.character(round(p.value, 4))),
-  p.adjusted = if_else(p.adjusted < 0.001,
-                       as.character(scientific(p.adjusted)),
-                       as.character(round(p.adjusted, 4))
+  p.adj = if_else(p.adj < 0.001,
+                       as.character(scientific(p.adj)),
+                       as.character(round(p.adj, 4))
                        )
   ) 
 
@@ -387,13 +385,13 @@ b0_footSize  %>%
 
 ```{r echo=FALSE, warning=FALSE}
 b1_footSize %>%
-  formattable(list(p.adjusted = formatter("span", style = p_color)))%>% mutate(
+  formattable(list(p.adj = formatter("span", style = p_color)))%>% mutate(
   p.value = if_else(p.value < 0.001,
                     as.character(scientific(p.value)),
                     as.character(round(p.value, 4))),
-  p.adjusted = if_else(p.adjusted < 0.001,
-                       as.character(scientific(p.adjusted)),
-                       as.character(round(p.adjusted, 4))
+  p.adj = if_else(p.adj < 0.001,
+                       as.character(scientific(p.adj)),
+                       as.character(round(p.adj, 4))
                        )
   ) 
 ```

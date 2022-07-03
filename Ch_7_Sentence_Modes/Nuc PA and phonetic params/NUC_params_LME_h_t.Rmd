@@ -112,7 +112,7 @@ h_t_model.tidy$r2
 
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-charts <- getLMEFixedFX(
+charts <- getModelFixedFX(
   my_equation = h_t ~ acc_phon + fin_phon + gender + (1  | speaker) + (1 | prompt),
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),

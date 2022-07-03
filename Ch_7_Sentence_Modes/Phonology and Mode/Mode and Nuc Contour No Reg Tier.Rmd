@@ -28,11 +28,6 @@ theme_set(theme_minimal(base_size = 18))
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ## set colours
-mode_colours <- c("MDC" = "#5e3c99",
-                  "WHQ" = "#e66101",
-                  "MYN" = "#fdb863",
-                  "MDQ" = "#b2abd2")
-
 p_color <- all_models_tidy ~ style(color =
                                      if_else(as.double(all_models_tidy) < 0.05,
                                              "green",

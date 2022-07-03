@@ -123,7 +123,7 @@ l_f0_model_trimmed.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 
-charts <- getLMEFixedFX(
+charts <- getModelFixedFX(
   my_equation = l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
   my_data = m_corpus.trimmed,
   exclude_terms = c("gender", "fin_phon"),
