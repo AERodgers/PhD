@@ -13,7 +13,15 @@ form
     natural Base_line_width 6
     boolean Line_border 1
 
-    optionmenu Line_colour 2
+    optionmenu Line_colour 1
+        option MDC
+        option MWH
+        option MYN
+        option MDQ
+        option MDC light
+        option MWH light
+        option MYN light
+        option MDQ light
         option Dark Orange
         option Light Orange
         option Lilac
@@ -24,14 +32,22 @@ endform
 
 base_line_width
 # Colour scheme: ColorBrewer2.org, photocopy, print friendy, colorblind safe
-line_colour$# = {
-             ... "{0.902, 0.380, 0.004}",
-             ... "{0.992, 0.722, 0.388}",
-             ... "{0.698, 0.671, 0.824}",
-             ... "{0.369, 0.235, 0.600}",
-             ... "{0.000, 0.000, 0.000}",
-             ... "{0.500, 0.500, 0.500}"
-             ... }
+line_colour$# = {"{0.458823529, 0.439215686, 0.701960784}",
+             ... "{0.850980392, 0.37254902, 0.007843137}",
+             ... "{0.105882353, 0.619607843, 0.466666667}",
+             ... "{0.905882353, 0.160784314, 0.541176471}",
+             ... "{0.708823529, 0.689215686, 0.951960784}",
+             ... "{1,           0.62254902,  0.257843137}",
+             ... "{0.255882353, 0.869607843, 0.716666667}",
+             ... "{1, 0.510784314, 0.891176471}",
+             ... "{0.902,       0.380,       0.004}",
+             ... "{0.992,       0.722,       0.388}",
+             ... "{0.698,       0.671,       0.824}",
+             ... "{0.369,       0.235,       0.600}",
+             ... "{0.000,       0.000,       0.000}",
+             ... "{0.500,       0.500,       0.500}"}
+
+
 smoothing# = {0, 19, 10, 3}
 
 @drawDecs: f0_floor, f0_ceiling, smoothing#[smoothing],
@@ -45,7 +61,7 @@ procedure drawDecs: .f0_min, .f0_max, .smoothing,
     if .erase_all
         # reset Praat Picture Window
         Erase all
-        Times
+        Helvetica
         Select outer viewport: 0, 6, 0, 3.5
         'font_size'
         Black
