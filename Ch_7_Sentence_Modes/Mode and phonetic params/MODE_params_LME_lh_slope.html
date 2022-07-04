@@ -434,7 +434,8 @@ simplified to <code>(1 + acc_phon | speaker)</code>, leading to:</p>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE
+## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE 
+## 
 ## 
 ## Results of step().
 ## Backward reduced random-effect table:
@@ -507,7 +508,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -732,6 +733,20 @@ NA
 </tr>
 </tbody>
 </table>
+<pre><code>## # A tibble: 10 × 11
+##    pairwise term  estimate std.error `2.5% CI` `97.5% CI` z.value    df  p.value
+##    &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+##  1 interce… mode…    3.42      0.112     3.20       3.64   30.6   11.7  1.52e-12
+##  2 modeMDC  mode…    0.057     0.052    -0.044      0.159   1.11   9.92 2.94e- 1
+##  3 modeMDC  mode…    0.051     0.056    -0.058      0.16    0.914  9.81 3.82e- 1
+##  4 modeMDC  mode…    0.294     0.063     0.172      0.417   4.70   8.5  1.30e- 3
+##  5 interce… mode…    3.48      0.108     3.26       3.69   32.1   10.3  1.24e-11
+##  6 modeMWH  mode…   -0.007     0.077    -0.157      0.144  -0.085  9.93 9.34e- 1
+##  7 modeMWH  mode…    0.237     0.075     0.09       0.383   3.17   9.02 1.13e- 2
+##  8 interce… mode…    3.47      0.105     3.26       3.67   33.2   10.8  2.95e-12
+##  9 modeMYN  mode…    0.243     0.059     0.128      0.359   4.15   9.67 2.14e- 3
+## 10 interce… mode…    3.71      0.093     3.53       3.89   39.9    9.5  6.72e-12
+## # … with 2 more variables: p.adj &lt;dbl&gt;, signif. &lt;chr&gt;</code></pre>
 <table class="table table-condensed">
 <caption>
 b0 for log_lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker)
@@ -754,7 +769,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -926,7 +941,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df

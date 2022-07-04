@@ -162,7 +162,7 @@ anova(question_type_model, question_type_model_null, test="Chisq")
 x <- printTidyModel(question_type_model,
                     bf_adj = 3,
                     exclude_terms = c("genderM"),
-                    write_r2 = "question_type_model",
+                    write_r2="../output/question_type_model",
                     is_GLM = TRUE
                     )
 x$r2
@@ -179,7 +179,7 @@ charts <- getModelFixedFX(
   my_data = m_corpus_short_q,
   exclude_terms = c("gender", "fin_phon"),
   bf_adj = 4,
-  write = "GLMtest"
+  write="../output/GLMtest"
 )
 charts$intercepts
 charts$pairwise

@@ -138,7 +138,7 @@ summarise_lme(f0_exc_model_reduced , run_step = FALSE)
 f0_exc_model.tidy <- printTidyModel(f0_exc_model_reduced,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "PA_f0_exc"
+                                write_r2="../output/PA_f0_exc"
                                 )
 f0_exc_model.tidy$table
 f0_exc_model.tidy$r2
@@ -152,7 +152,7 @@ charts <- getModelFixedFX(
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
   bf_adj = 16,
-  write = "PA_f0_exc"
+  write="../output/PA_f0_exc"
 )
 charts$intercepts
 charts$pairwise

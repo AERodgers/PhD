@@ -11,6 +11,8 @@ p_color <- . ~ style(color =
                                if_else(. < 0.01,
                                        "orange",
                                        "red")))
+
+###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
 {
   # installs packages from  package_list which are not already installed in.
@@ -31,7 +33,9 @@ installMissingPackages <- function (package_list)
 
 }
 
-################################################################################
+
+
+###  Balance data  #############################################################
 balancedData <- function(data_set,
                          treatment_col,
                          response_col,
@@ -122,7 +126,9 @@ balancedData <- function(data_set,
   return(balanced)
 }
 
-################################################################################
+
+
+###  Draw Residuals  #########################################################
 drawResiduals <- function(myModel)
 {
   myResiduals <- residuals(myModel)
@@ -140,7 +146,8 @@ drawResiduals <- function(myModel)
        main = "(c) Residual plot")
 }
 
-################################################################################
+
+###  Bonferonni Adjustment  ####################################################
 bonferroniAdjust <- function(myTibble,
                              bonferroniMultiplier=0,
                              exclude_terms = "",
@@ -165,7 +172,8 @@ bonferroniAdjust <- function(myTibble,
     return(myTibble)
   }
 
-################################################################################
+
+###  Significance Code Tidy  ###################################################
 sigCodesTidy <-
   function(my_tibble,
            p.adjusted = "p.adj",
@@ -424,17 +432,28 @@ get_m_corpus <- function(file_address)
 
 }
 
+###  Summarise LME  ############################################################
 summarise_lme <-
   function(my_model, run_step = FALSE, my_tolerance = 1e-05)
     # short function to remove need for repetition of optimized used throughout.
   {
     require("lme4", "lmerTest", "optimx", "performance")
 
+    my_formula <- str_c(formula(my_model))
+    my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+
     # output results
     drawResiduals(my_model)
     print(summary(my_model))
-    cat("\nAnova of model\n")
-    anova(my_model) %>% print()
+
+    anova <- anova(my_model) %>%
+      tidy() %>%
+      formattable(caption=paste("Anova of model:", my_formula)) %>%
+      sigCodesTidy(p.value, FALSE) %>%
+      rename(`F value` = statistic) %>%
+      print()
+
+
     cat("\nCheck_singularity(my_model, tolerance =",
         my_tolerance,
         "-->",
@@ -450,9 +469,12 @@ summarise_lme <-
       print(step(my_model))
     }
 
+    return(anova)
+
   }
 
-###############################################################################
+
+###  Print Tidy Model  #########################################################
 printTidyModel <-
   function(my_model,
            bf_adj = 1,
@@ -562,13 +584,15 @@ printTidyModel <-
 return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
 }
 
-###############################################################################
+
+
+###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
                        my_data,
                        exclude_terms = "",
                        bf_adj = 0,
                        write="",
-                       is_GLM=TRUE)
+                       is_GLM=FALSE)
 {
   require("formattable", "performance", "tidyverse", "Mefa4")
 
@@ -823,7 +847,11 @@ getModelFixedFX <- function(my_equation,
   return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise))
 }
 
-################################################################################
+
+
+
+
+###  Tidy Intercepts of multiple analyses  #####################################
 tidyIntercepts <- function(all_models_tidy)
 {
   return(
@@ -846,7 +874,8 @@ tidyIntercepts <- function(all_models_tidy)
   )
 }
 
-################################################################################
+
+###  Tidy Pairwise Tables of multiple analyses  ################################
 tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 {
 
@@ -865,7 +894,7 @@ tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
     "p.adj",
     "signif."
   )
-print(all_models_tidy)
+
   if (is_GLM){my_headers <- my_headers [my_headers != "df"]}
   my_headers = enquos(my_headers)
     return(
@@ -887,7 +916,8 @@ print(all_models_tidy)
   )
 }
 
-################################################################################
+
+###  Kable Chi Squared  ########################################################
 kable_chi_sq <- function(chi_sq_test)
     {
     # returns a kable() object of the chi_sq_test input.

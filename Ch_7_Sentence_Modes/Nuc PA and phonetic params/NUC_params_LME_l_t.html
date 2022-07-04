@@ -430,7 +430,8 @@ error.</li>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE
+## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE 
+## 
 ## 
 ## Results of step().
 ## Backward reduced random-effect table:
@@ -478,7 +479,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -704,6 +705,20 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
+<pre><code>## # A tibble: 10 × 11
+##    pairwise       term    estimate std.error `2.5% CI` `97.5% CI` z.value     df
+##    &lt;chr&gt;          &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+##  1 intercept      acc_ph…    93.5       5.70      82.3     105.    16.4     9.94
+##  2 acc_phonL*H    acc_ph…   -11.3       8.28     -27.5       4.91  -1.37  620.  
+##  3 acc_phonL*H    acc_ph…   -20.8       3.54     -27.7     -13.9   -5.87  618.  
+##  4 acc_phonL*H    acc_ph…   -23.5       1.98     -27.4     -19.6  -11.9   618.  
+##  5 intercept      acc_ph…    82.2      10.1       62.4     102.     8.13   90.3 
+##  6 acc_phon^[L*]H acc_ph…    -9.49      9.00     -27.1       8.14  -1.06  619.  
+##  7 acc_phon^[L*]H acc_ph…   -12.2       8.32     -28.5       4.13  -1.46  620.  
+##  8 intercept      acc_ph…    72.7       6.56      59.8      85.6   11.1    17.4 
+##  9 acc_phonL*^[H] acc_ph…    -2.68      3.92     -10.4       5.00  -0.684 619.  
+## 10 intercept      acc_ph…    70.0       5.96      58.3      81.7   11.8    11.9 
+## # … with 3 more variables: p.value &lt;dbl&gt;, p.adj &lt;dbl&gt;, signif. &lt;chr&gt;</code></pre>
 <table class="table table-condensed">
 <caption>
 b0 for l_t ~ acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
@@ -726,7 +741,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -898,7 +913,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df

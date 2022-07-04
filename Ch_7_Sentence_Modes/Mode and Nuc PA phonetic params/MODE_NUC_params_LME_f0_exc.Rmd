@@ -83,17 +83,17 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-The initial model `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`---as with the models for other phonetic parameters---has singularity issues, making it unreliable. Therefore, the by-speaker random effects were simplified to `(1 + acc_phon | speaker)`, leading to:
+The initial model `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + (1 | gender) + (1 + acc_phon | speaker)`---as with the models for other phonetic parameters---has singularity issues, making it unreliable. Therefore, the by-speaker random effects were simplified to `(1 + acc_phon | speaker)`, leading to:
 
--   `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + gender + (1 + acc_phon | speaker)`
+-   `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + (1 | gender) + (1 + acc_phon | speaker)`
 
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 f0_exc_model <-
     lmer(
-        f0_exc ~ mode*acc_phon + fin_phon + gender +
-            (1 + acc_phon | speaker) + (1 | prompt),
+        f0_exc ~ mode*acc_phon + fin_phon + (1 | gender) +
+            (1 + mode + acc_phon | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -111,16 +111,15 @@ summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
 
--   `(1 | prompt)` appears non-significant as a random effect.
--   `acc_phon:mode` does not appear appear significant as a fixed effect.
+-   `(1 | prompt)` and `(1 | gender)` appear non-significant as a random effect.
 -   Using model found from step()
 
-#### `f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker)`
-
-```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+#### `f0_exc ~ mode*acc_phon + fin_phon + (1 + mode + acc_phon | speaker)`
+ 
+```{r run reduced model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 f0_exc_model_reduced <-
-    lmer(f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker),
+    lmer(f0_exc ~ mode*acc_phon + fin_phon + (1 + mode + acc_phon | speaker),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -137,14 +136,35 @@ summarise_lme(f0_exc_model_reduced , run_step = FALSE)
 
 ```
 
--   Model works.
+-   Singularity.
+- running intercepts only model
+```{r run reduced model intercepts only ,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+
+f0_exc_model_reduced_2 <-
+    lmer(f0_exc ~ mode*acc_phon + fin_phon + (1 | speaker),
+        data = m_corpus,
+        control = lmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+            )
+        )
+    )
+
+summarise_lme(f0_exc_model_reduced , run_step = FALSE)
+
+```
+-    model works
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-f0_exc_model.tidy <- printTidyModel(f0_exc_model_reduced,
-                                bf_adj = 8,
+f0_exc_model.tidy <- printTidyModel(f0_exc_model_reduced_2,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_f0_exc"
+                                write_r2 = "../output/Mode_PA_f0_exc"
                                 )
 f0_exc_model.tidy$table
 f0_exc_model.tidy$r2
@@ -154,11 +174,11 @@ f0_exc_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = f0_exc ~ mode + acc_phon + fin_phon + (1 + acc_phon | speaker),
+  my_equation = f0_exc ~ mode*acc_phon + fin_phon + (1 | speaker),
   my_data = m_corpus,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_f0_exc"
+  bf_adj = 16,
+  write="../output/Mode_PA_f0_exc"
 )
 charts$intercepts
 charts$pairwise

@@ -74,13 +74,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
 
+The initial model is based on the best h_t model:
+--> `l_t ~ mode + acc_phon + fin_phon + (1 | prompt) + (1 | speaker)`
 
 ```{r run initial model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
 # run model
 l_t_model <-
-  lmer(l_t ~  mode*acc_phon + fin_phon + gender + (1 + acc_phon | speaker) + (1| prompt),
+  lmer(l_t ~ mode + acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -98,16 +100,14 @@ summarise_lme(l_t_model, run_step=TRUE)
 
 ```
 
--   Initial model is unreliable.
--   Re-running model using suggested model from step(), which removes (1|prompt) and fin_phon, the removal of both of which makes sense as they are likely to affect the timing of h_t rather than l_t. 
--   The data was trimmed to remove the outlier.
--  The removing random slopes also avoids the convergence problem and brings it slightly closer to the h_t model. 
+-   Model works, though (1 | prompt) appears non-sig as a random slope. However, retaining for sake of parity with h_t. 
+-   One extreme outlier - needs trimming
 
 ```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 # pre-empt outlier
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_t_model))) <= 3.5)
 
-l_t_model.trimmed <- lmer(l_t ~  mode*acc_phon + gender + (1 | speaker),
+l_t_model.trimmed <- lmer(l_t ~ mode + acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
        data = m_corpus.trimmed,
         control = lmerControl(
           optimizer = "optimx",
@@ -120,19 +120,18 @@ l_t_model.trimmed <- lmer(l_t ~  mode*acc_phon + gender + (1 | speaker),
         )
       )
 
-summarise_lme(l_t_model.trimmed , run_step=FALSE)
+summarise_lme(l_t_model.trimmed , run_step=TRUE)
 
 ```
 
 -   Model works.
 
-- 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 l_t_model.tidy <- printTidyModel(l_t_model.trimmed,
-                                bf_adj = 8,
+                                bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2 = "LME_PHonetic_PA_l_t"
+                                write_r2="../output/Mode_PA_l_t"
                                 )
 l_t_model.tidy$table
 l_t_model.tidy$r2
@@ -142,11 +141,11 @@ l_t_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation =  l_t ~  mode*acc_phon + gender + (1 | speaker),
+  my_equation =  l_t ~ mode + acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 8,
-  write = "LME_Phonetic_PA_l_t"
+  bf_adj = 16,
+  write="../output/Mode_PA_l_t"
 )
 charts$intercepts
 charts$pairwise

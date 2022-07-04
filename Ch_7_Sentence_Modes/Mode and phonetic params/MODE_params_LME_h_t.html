@@ -396,7 +396,7 @@ pre code {
 ## (Intercept) 319.9277    25.9415   2.9762  12.333  0.00119 ** 
 ## modeMWH      -0.2768     3.0345 615.0349  -0.091  0.92735    
 ## modeMYN      -4.0145     3.0395 615.0248  -1.321  0.18707    
-## modeMDQ     -20.5696     3.0962 615.1634  -6.643 6.75e-11 ***
+## modeMDQ     -20.5696     3.0962 615.1633  -6.643 6.75e-11 ***
 ## fin_phonL%  -55.4937     3.8569 621.9137 -14.388  &lt; 2e-16 ***
 ## genderM     -60.4886    16.3744   8.9941  -3.694  0.00497 ** 
 ## ---
@@ -419,7 +419,8 @@ pre code {
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE
+## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE 
+## 
 ## 
 ## Results of step().
 ## Backward reduced random-effect table:
@@ -468,7 +469,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -695,6 +696,20 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
+<pre><code>## # A tibble: 10 × 11
+##    pairwise  term    estimate std.error `2.5% CI` `97.5% CI` z.value     df
+##    &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+##  1 intercept modeMDC  320.        25.9     269.       371.    12.3     2.98
+##  2 modeMDC   modeMWH   -0.277      3.04     -6.22       5.67  -0.091 615.  
+##  3 modeMDC   modeMYN   -4.01       3.04     -9.97       1.94  -1.32  615.  
+##  4 modeMDC   modeMDQ  -20.6        3.10    -26.6      -14.5   -6.64  615.  
+##  5 intercept modeMWH  320.        25.9     269.       370.    12.3     2.98
+##  6 modeMWH   modeMYN   -3.74       3.03     -9.68       2.21  -1.23  615.  
+##  7 modeMWH   modeMDQ  -20.3        3.10    -26.4      -14.2   -6.56  615.  
+##  8 intercept modeMYN  316.        25.9     265.       367.    12.2     2.98
+##  9 modeMYN   modeMDQ  -16.6        3.08    -22.6      -10.5   -5.37  615.  
+## 10 intercept modeMDQ  299.        26.0     248.       350.    11.5     2.98
+## # … with 3 more variables: p.value &lt;dbl&gt;, p.adj &lt;dbl&gt;, signif. &lt;chr&gt;</code></pre>
 <table class="table table-condensed">
 <caption>
 b0 for h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
@@ -717,7 +732,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df
@@ -889,7 +904,7 @@ std.error
 97.5% CI
 </th>
 <th style="text-align:right;">
-t.value
+z.value
 </th>
 <th style="text-align:right;">
 df

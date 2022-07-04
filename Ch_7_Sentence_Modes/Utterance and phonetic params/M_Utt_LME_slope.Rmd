@@ -112,7 +112,7 @@ utt_utt_slope.tidy <- printTidyModel(
   exclude_terms = c("fin_phonL%",
                     "genderM",
                     "starts_with_HTRUE"),
-                                write_r2 = "slope"
+                                write_r2="../output/slope"
                                 )
 utt_utt_slope.tidy$table
 utt_utt_slope.tidy$r2
@@ -128,7 +128,7 @@ charts <- getModelFixedFX(
                     "gender",
                     "starts_with_H"),
   bf_adj = 4,
-  write = "slope"
+  write="../output/slope"
 )
 charts$intercepts
 charts$pairwise
