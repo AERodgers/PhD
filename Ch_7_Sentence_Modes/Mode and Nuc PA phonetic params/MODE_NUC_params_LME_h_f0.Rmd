@@ -89,7 +89,7 @@ The initial model is: `h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon + (1 | 
 
 # run model
 h_f0_model <-
-  lmer(h_f0 ~ mode + acc_phon + mode:acc_phon + fin_phon +
+  lmer(h_f0 ~ mode*acc_phon + fin_phon +
          (1 | gender) + (1 + mode + acc_phon | speaker),
        data = m_corpus,
         control = lmerControl(
