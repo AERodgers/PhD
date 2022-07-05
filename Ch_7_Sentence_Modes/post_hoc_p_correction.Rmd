@@ -1,0 +1,20 @@
+---
+title: "Post Hoc P value adjustment"
+author: "AER"
+date: '2022-07-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load functions, include=FALSE}
+source("../functions/myFunctions.R") 
+```
+
+Adjust all p values using false discovery rate (FDR). c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
+
+```{r}
+adjustP_posthoc("output/", p.value)
+```

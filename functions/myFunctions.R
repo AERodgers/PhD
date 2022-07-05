@@ -176,23 +176,23 @@ bonferroniAdjust <- function(myTibble,
 ###  Significance Code Tidy  ###################################################
 sigCodesTidy <-
   function(my_tibble,
-           p.adjusted = "p.adj",
+           p_value = "p.adj",
            incl_marginal_sig = TRUE)
-    # Create significance column in tibble using Bonferroni adjusted p.
+    # Create significance column in tibble using p_value
   {
-    p.adjusted <- enquo(p.adjusted)
+    p_value <- enquo(p_value)
     my_tibble <- mutate(my_tibble,
                         `signif.` =
                           if_else(
-                            !!p.adjusted < 0.001,
+                            !!p_value < 0.001,
                             'p<0.001',
                             if_else(
-                              !!p.adjusted < 0.01,
+                              !!p_value < 0.01,
                               'p<0.01',
                               if_else(
-                                !!p.adjusted < 0.05,
+                                !!p_value < 0.05,
                                 'p<0.05',
-                                if_else(!!p.adjusted < 0.1 &
+                                if_else(!!p_value < 0.1 &
                                           incl_marginal_sig,
                                         '(p<0.1)',
                                         '')
@@ -201,7 +201,7 @@ sigCodesTidy <-
                           )) %>%
       mutate(`signif.` =
                if_else(
-                 !is.na(!!p.adjusted),
+                 !is.na(!!p_value),
                  `signif.`,
                  if_else(
                    p.value < 0.001,
@@ -495,8 +495,7 @@ printTidyModel <-
     "97.5% CI",
     eval(my_stat),
     "df",
-    "p.value",
-    "p.adj"
+    "p.value"
   )
 
   my_stat = enquo(my_stat)
@@ -505,15 +504,12 @@ printTidyModel <-
   my_headers = enquos(my_headers)
 
 
-  p_adj_name =paste("p.adj. (bf=", bf_adj, ")", sep="")
-  p_adj_name = enquo(p_adj_name)
   my_formula <- str_c(formula(my_model))
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
 
   tidy_model <- tidy(my_model) %>%
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
-    bonferroniAdjust(bf_adj, exclude_terms) %>%
     mutate(
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
@@ -543,20 +539,6 @@ printTidyModel <-
     formattable(
       caption = paste("Intercept and slopes of fixed effects:", my_formula)
     ) %>%
-    sigCodesTidy(p.adj) %>%
-    mutate(
-      p.value = if_else(
-        p.value < 0.001,
-        as.character(scientific(p.value), digits = 2),
-        as.character(round(p.value, 4), digits = 2)
-      ),
-      p.adj = if_else(
-        p.adj < 0.001,
-        as.character(scientific(p.adj, digits = 2)),
-        as.character(round(p.adj, 4))
-      )
-    ) %>%
-    rename(!!p_adj_name := p.adj) %>%
     mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"))
 
   r2_nakagawa <- kable(
@@ -606,8 +588,7 @@ getModelFixedFX <- function(my_equation,
     "97.5% CI",
     eval(my_stat),
     "df",
-    "p.value",
-    "p.adj"
+    "p.value"
   )
 
   my_stat = enquo(my_stat)
@@ -723,9 +704,6 @@ getModelFixedFX <- function(my_equation,
         filter(effect == "fixed") %>%
         # remove unnecessary columns
         select(-c(effect, group)) %>%
-        # add bonferroni adjusted p.values.
-        bonferroniAdjust(bf_adj, exclude_terms = c("genderM", "fin_phonL%")) %>%
-        ############# I KNOW I NEED TO FIX THIS! ^^^^^^^^^^^^^^^^^^^^^^^^^^
         # Tidy up numbers.
         mutate(
           estimate = round(estimate, 3),
@@ -805,20 +783,12 @@ getModelFixedFX <- function(my_equation,
 
   }
 
-  # Get ready to chance p.adj column to show bonferroni adjustment.
-  p_adj_new = paste("p.adj. (bf=", bf_adj, ")", sep="")
-  p_adj_name = enquo(p_adj_new)
-
-
   # Get intercepts and pairwise comparisons tables
   all_models_tidy <- all_models_tidy %>%
-    relocate(pairwise) %>%
-    sigCodesTidy(p.adj)
+    relocate(pairwise)
 
-  my_intercepts <- tidyIntercepts(all_models_tidy) %>%
-    rename(!!p_adj_name := p.adj)
-  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)  %>%
-    rename(!!p_adj_name := p.adj)
+  my_intercepts <- tidyIntercepts(all_models_tidy)
+  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
 
   # Write tables to file
   if (write != "")
@@ -847,33 +817,15 @@ getModelFixedFX <- function(my_equation,
   return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise))
 }
 
-
-
-
-
 ###  Tidy Intercepts of multiple analyses  #####################################
 tidyIntercepts <- function(all_models_tidy)
-{
+  {
   return(
       filter(all_models_tidy, pairwise == "intercept") %>%
       select(-pairwise) %>%
-      rename(intercept = term) %>%
-
-      mutate(
-        p.value = if_else(
-          p.value < 0.001,
-          as.character(scientific(p.value), digits = 2),
-          as.character(round(p.value, 4), digits = 2)
-        ),
-        p.adj = if_else(
-          p.adj < 0.001,
-          as.character(scientific(p.adj, digits = 2)),
-          as.character(round(p.adj, 4))
-        )
+      rename(intercept = term)
       )
-  )
-}
-
+  }
 
 ###  Tidy Pairwise Tables of multiple analyses  ################################
 tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
@@ -890,9 +842,7 @@ tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
     "97.5% CI",
     eval(my_stat),
     "df",
-    "p.value",
-    "p.adj",
-    "signif."
+    "p.value"
   )
 
   if (is_GLM){my_headers <- my_headers [my_headers != "df"]}
@@ -900,26 +850,14 @@ tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
     return(
     filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
       select(!!!my_headers) %>%
-      rename(intercept = pairwise, slope = term) %>%
-      mutate(
-        p.value = if_else(
-          p.value < 0.001,
-          as.character(scientific(p.value), digits = 2),
-          as.character(round(p.value, 4), digits = 2)
-        ),
-        p.adj = if_else(
-          p.adj < 0.001,
-          as.character(scientific(p.adj, digits = 2)),
-          as.character(round(p.adj, 4))
-        )
-      )
-  )
+      rename(intercept = pairwise, slope = term)
+    )
 }
 
 
 ###  Kable Chi Squared  ########################################################
 kable_chi_sq <- function(chi_sq_test)
-    {
+  {
     # returns a kable() object of the chi_sq_test input.
     require("knitr", "janitor")
 
@@ -940,3 +878,84 @@ kable_chi_sq <- function(chi_sq_test)
 
 
 }
+
+
+###   Bulk Adjust p Value   ####################################################
+adjustP_posthoc <-
+  function(my_folder, p_column, my_method = "BH", marginal = TRUE)
+    {
+
+    # Load required packages
+    require("dplyr")
+    require("readr")
+    require("mefa4")
+
+    # Abbreviate my_method where necessary.
+    if(my_method %in% c("hochberg", "hommel", "bonferroni"))
+      {
+      my_meth <- switch(my_method,
+                        "hochberg" = "hoch",
+                        "hommel" = "homm",
+                        "bonferroni" = "bonf")
+      }
+    else
+      {
+      my_meth <- my_method
+      }
+
+    # enquote variables which whose values will be evaluated as variables.
+    p_column = enquo(p_column)
+    new_adj_col = paste("p.adj (", my_method, ")", sep="")
+    new_adj_col = enquo(new_adj_col)
+
+    # Get tibble of all b0 and b1 files to be adjusted.
+    file_tibble <-
+      list.files(my_folder, "*_b0.csv", full.names = TRUE) %>%
+      read_csv(id = "file_name",
+               col_names = TRUE,
+               show_col_types = FALSE) %>%
+      # Create dummy slope column for b0 files.
+      mutate(slope = NA, .before = intercept) %>%
+      rbind(
+        list.files(my_folder, "*_b1.csv", full.names = TRUE) %>%
+          read_csv(
+            id = "file_name",
+            col_names = TRUE,
+            show_col_types = FALSE
+          )
+      ) %>%
+      select(-any_of(c(!!new_adj_col, "p.adj. (BF=16)"))) %>%
+      mutate(
+        # Add p.adjusted column using my_method
+        p.adj = p.adjust(!!p_column, method = my_method), .after = !!p_column,
+        # Add significance column.
+        signif. = if_else(
+          p.adj < 0.0001, "p<0.0001", if_else(
+            p.adj < 0.001, "p<0.001", if_else(
+              p.adj < 0.01, "p<0.01", if_else(
+                p.adj < 0.05, "p<0.05", if_else(
+                  p.adj < 0.1 & marginal, "(p<0.1)",""))))),
+        # Change p.adj and p_column to more readable format.
+        p.adj = if_else(p.adj < 0.001,
+          as.character(formatC(p.adj, format="e", digits = 2)),
+          as.character(round(p.adj, 4), digits = 2)),
+        !!p_column := if_else(
+          !!p_column < 0.001,
+          as.character(formatC(!!p_column, format="e", digits = 2)),
+          as.character(round(!!p_column, 4), digits = 2))
+        ) %>%
+      # Change name of p.adj to indicate adjustment method
+      rename(!!new_adj_col := p.adj)
+
+    # Re-save updated tables as original file name.
+    for (cur_file in unique(file_tibble$file_name))
+      {
+      cur_set <- file_tibble %>%
+        filter(file_name == cur_file) %>%
+        select(-file_name)
+      if(is.na(cur_set$slope[1])){cur_set <- cur_set %>% select(-slope)
+      }
+
+      write_csv(cur_set, cur_file)
+      }
+    }

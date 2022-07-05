@@ -162,7 +162,7 @@ summarise_lme(lh_slope_model_trimmed , run_step = FALSE)
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model_trimmed,
-                                bf_adj = 16,
+                                bf_adj = 0,
                                 exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_lh_slope"
                                 )
@@ -198,7 +198,7 @@ summarise_lme(lh_slope_model_trimmed , run_step = FALSE)
 
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model_trimmed,
-                                bf_adj = 16,
+                                bf_adj = 0,
                                 exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_lh_slope"
                                 )
@@ -213,7 +213,7 @@ charts <- getModelFixedFX(
             (1 | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
   exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
+  bf_adj = 0,
   write="../output/Mode_PA_lh_slope"
 )
 charts$intercepts

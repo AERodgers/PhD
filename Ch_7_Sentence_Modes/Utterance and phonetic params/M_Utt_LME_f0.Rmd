@@ -130,7 +130,7 @@ utt_mean_f0.tidy <- printTidyModel(
   utt_mean_f0,
   bf_adj = 4,
   exclude_terms = "genderM",
-  write_r2="../output/f0"
+  write_r2="utt_f0"
 )
 utt_mean_f0.tidy$table
 utt_mean_f0.tidy$r2
@@ -145,7 +145,7 @@ charts <- getModelFixedFX(
   my_data = m_corpus,
   exclude_terms = c("gender"),
   bf_adj = 4,
-  write="../output/f0"
+  write="utt_f0"
 )
 charts$intercepts
 charts$pairwise
