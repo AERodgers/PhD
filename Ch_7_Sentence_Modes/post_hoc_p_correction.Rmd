@@ -13,8 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 source("../functions/myFunctions.R") 
 ```
 
-Adjust all p values using false discovery rate (FDR). c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
+Adjust all p values using false discovery rate (FDR).
+
+c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
 
 ```{r}
-adjustP_posthoc("output/", p.value)
+adjustP_posthoc("output/", p.value) %>% formattable(caption="Changes in number of statistically significant p values.")
 ```

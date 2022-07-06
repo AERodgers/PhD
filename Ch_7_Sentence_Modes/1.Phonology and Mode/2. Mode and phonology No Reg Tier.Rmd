@@ -1,5 +1,5 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes'
+title: 'Chapter 07: Analysis of Function: Sentence Modes and Phonology, IP and nuclear PA phonology (No Register Tier)'
 output:
   html_document: default
   word_document: default
@@ -44,25 +44,30 @@ pitch_accent_colours <- c(
   ">H*" = brewer.pal(6, "Set2")[4]
 )
 
-nuc_contour_colours <- c(
-  "L*H %"   = brewer.pal(6, "Set2")[3],
-  "L* H L%" = brewer.pal(8, "Set2")[7],
-  ">H* L%"  = brewer.pal(6, "Set2")[4],
-  "H* L%"   = brewer.pal(6, "Set2")[5]
-)
-
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
     mutate(
-    phr_phon = factor(str_replace_all(phr_phon, "\\^|\\[|\\]", ""),
-                         levels = unique(phr_phon)),
-    acc_phon = factor(str_replace_all(acc_phon, "\\^|\\[|\\]", ""),
-                      levels = unique(acc_phon)),
-    nuc_contour = factor(str_replace_all(nuc_contour, "\\^|\\[|\\]", ""),
-                      levels = unique(nuc_contour)),
-    fin_phon = factor(str_replace_all(fin_phon, "]", ""),
-                      levels = unique(fin_phon))
+      # replace L*^[H] % with L*H H% and L*^[H] L% with L*H HL%
+      fin_phon = if_else(
+        acc_phon == "L*^[H]" & fin_phon != "L%", "H%", if_else(
+          acc_phon == "L*^[H]" & fin_phon == "L%", "HL%",fin_phon)
+        ),
+      acc_phon = if_else(
+        acc_phon == "L*^[H]" & (fin_phon == "H%" | fin_phon == "HL%"),
+        "L*H",
+        acc_phon),
+      nuc_contour = paste(acc_phon, fin_phon, sep=" "),
+      phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] %", "L\\*H H%"),
+      phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] L%", "L\\*H HL%"),
+      # remove register tier
+      phr_phon = factor(str_replace_all(phr_phon, "\\^|\\[|\\]", ""),
+                        levels = unique(phr_phon)),
+      acc_phon = factor(str_replace_all(acc_phon, "\\^|\\[|\\]", ""),
+                        levels = unique(acc_phon)),
+      nuc_contour = factor(str_replace_all(nuc_contour, "\\^|\\[|\\]", ""),
+                           levels = unique(nuc_contour)),
+      fin_phon = factor(str_replace_all(fin_phon, "]", ""),
+                        levels = unique(fin_phon))
   )%>%
   # Select only columns for analysis
   select(speaker,
@@ -79,7 +84,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 # **__Raw Data__**
 
-## Utterance level intonational phonology
+## Utterance level intonational phonology (raw data)
 ```{r warning=FALSE}
 tot_rows = nrow(m_corpus)
 threshold = 8
@@ -182,16 +187,16 @@ m_corpus %>%
       sep = ""
     ),
     list(area(col = 3:5) ~ proportion_bar(color = c(
-      rep("#9e7cd9", 8),
-      rep("#fdb863", 8),
-      rep("#d2cbf2", 8))),
+      rep("#9e7cd9", 9),
+      rep("#fdb863", 9),
+      rep("#d2cbf2", 9))),
       total = proportion_bar(color = "#aaaaaa")
     )
     )
 
 ```
 
-## Nuclear Pitch Accent data
+## Nuclear Pitch Accent data (raw data)
 
 ### Nuclear Pitch Accent by Speaker
 ```{r warning=FALSE}
@@ -345,7 +350,7 @@ pa_by_gender_adj <- pa_adj %>%
   write_csv("modes_nuc_gender_adj_no_reg.csv")
 
 ```
-## Nuclear Pitch accent
+## Nuclear Pitch accent (adjusted data)
 
 ### Nuclear Pitch Accent by Speaker
 ```{r warning=FALSE}

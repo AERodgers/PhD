@@ -4,7 +4,6 @@
 
 
 # formatter
-
 p_color <- . ~ style(color =
                        if_else(. < 0.05,
                                "green",
@@ -882,30 +881,25 @@ kable_chi_sq <- function(chi_sq_test)
 
 ###   Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
-  function(my_folder, p_column, my_method = "BH", marginal = TRUE)
+  function(my_folder, p_column, method = "BH", marginal = TRUE, write=TRUE)
     {
-
     # Load required packages
     require("dplyr")
     require("readr")
     require("mefa4")
 
-    # Abbreviate my_method where necessary.
-    if(my_method %in% c("hochberg", "hommel", "bonferroni"))
-      {
-      my_meth <- switch(my_method,
+    # Abbreviate method where necessary.
+    if(method %in% c("hochberg", "hommel", "bonferroni")) {
+      my_meth <- switch(method,
                         "hochberg" = "hoch",
                         "hommel" = "homm",
                         "bonferroni" = "bonf")
       }
-    else
-      {
-      my_meth <- my_method
-      }
+    else{my_meth <- method}
 
-    # enquote variables which whose values will be evaluated as variables.
+    # Enquote variables which whose values will be evaluated as variables.
     p_column = enquo(p_column)
-    new_adj_col = paste("p.adj (", my_method, ")", sep="")
+    new_adj_col = paste("p.adj (", method, ")", sep="")
     new_adj_col = enquo(new_adj_col)
 
     # Get tibble of all b0 and b1 files to be adjusted.
@@ -918,16 +912,23 @@ adjustP_posthoc <-
       mutate(slope = NA, .before = intercept) %>%
       rbind(
         list.files(my_folder, "*_b1.csv", full.names = TRUE) %>%
-          read_csv(
-            id = "file_name",
-            col_names = TRUE,
-            show_col_types = FALSE
-          )
+          read_csv(id = "file_name", col_names = TRUE, show_col_types = FALSE)
       ) %>%
-      select(-any_of(c(!!new_adj_col, "p.adj. (BF=16)"))) %>%
+      # avoid reduplication of current method column
+      select(-any_of(!!new_adj_col)) %>%
+      # Add p.adjusted column using method.
+      mutate(p.adj = p.adjust(!!p_column,
+                              method = method),
+             .after = !!p_column)
+
+    # Get summary info about p values.
+    p_values <- file_tibble %>% nrow()
+    sig_p_values <- file_tibble %>% filter(!!p_column < 0.05) %>% nrow()
+    sig_p_values_adj  <- file_tibble %>% filter(p.adj < 0.05) %>% nrow()
+    p_counts <- tibble(p_values, sig_p_values, sig_p_values_adj)
+
+    file_tibble <- file_tibble %>%
       mutate(
-        # Add p.adjusted column using my_method
-        p.adj = p.adjust(!!p_column, method = my_method), .after = !!p_column,
         # Add significance column.
         signif. = if_else(
           p.adj < 0.0001, "p<0.0001", if_else(
@@ -944,18 +945,21 @@ adjustP_posthoc <-
           as.character(formatC(!!p_column, format="e", digits = 2)),
           as.character(round(!!p_column, 4), digits = 2))
         ) %>%
-      # Change name of p.adj to indicate adjustment method
+      # Change name of p.adj to indicate adjustment method.
       rename(!!new_adj_col := p.adj)
 
     # Re-save updated tables as original file name.
-    for (cur_file in unique(file_tibble$file_name))
+    if (write) {
+      for (cur_file in unique(file_tibble$file_name))
       {
-      cur_set <- file_tibble %>%
-        filter(file_name == cur_file) %>%
-        select(-file_name)
-      if(is.na(cur_set$slope[1])){cur_set <- cur_set %>% select(-slope)
-      }
-
-      write_csv(cur_set, cur_file)
+        cur_set <- file_tibble %>%
+          filter(file_name == cur_file) %>%
+          select(-file_name)
+        if (is.na(cur_set$slope[1])) {
+          cur_set <- cur_set %>% select(-slope)
+        }
+        write_csv(cur_set, cur_file)
       }
     }
+    return(p_counts)
+  }

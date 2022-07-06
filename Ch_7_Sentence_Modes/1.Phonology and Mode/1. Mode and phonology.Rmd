@@ -1,11 +1,10 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes'
+title: 'Chapter 07: Analysis of Function: Sentence Modes and Phonology (Register Tier)'
 output:
   html_document: default
   word_document: default
   pdf_document: default
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -45,7 +44,6 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
                           "L*^[H]" = brewer.pal(6, "Set2")[2],
                           "^[L*H]" = brewer.pal(6, "Set2")[1])
 ```
-
 
 ```{r load and process corpus, include=FALSE}
 # Get  Data.
@@ -98,9 +96,10 @@ m_corpus_short <- m_corpus %>%
 
 ```
 
-# **__Raw Data__**
+# **Raw Data**
 
-## Utterance level intonational phonology
+## Utterance level intonational phonology (raw data)
+
 ```{r list utterence level phonology, warning=FALSE}
 #set lower limit for list: more than 8 tokens in the corpus
 tot_rows = nrow(m_corpus)
@@ -137,7 +136,7 @@ m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
   group_by(mode, phr_phon) %>%
-  summarise(phon_count = n()) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
   mutate(phr_phon = str_replace_all(phr_phon,
                                     "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
@@ -170,8 +169,6 @@ m_corpus %>%
   )
 ```
 
-
-
 ```{r utterance phonology by mode, exlcuding MWH, warning=FALSE}
 tot_rows = nrow(m_corpus %>% filter(mode != "MWH"))
 threshold = round(tot_rows / 3 / 20,0)
@@ -186,7 +183,7 @@ m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
   group_by(mode, phr_phon) %>%
-  summarise(phon_count = n()) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
   mutate(
     phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
@@ -219,9 +216,10 @@ m_corpus %>%
 
 ```
 
-## Nuclear Pitch Accent data
+## Nuclear Pitch Accent data (raw data)
 
 ### Nuclear Pitch Accent by Speaker
+
 ```{r summarise PA by speaker, warning=FALSE}
 # Create summary table of Pitch Accent by Speaker.
 
@@ -268,7 +266,7 @@ m_corpus_short %>%
 
 ```
 
-# **__Adjusted Data__**
+# **Adjusted Data**
 
 The raw data is unbalanced since there number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
 
@@ -277,25 +275,24 @@ Firstly a tibble is created summarising the proportion of pitch accents per mode
     1. Count the number of phonological tokens per stimulus per speaker.
     2. Convert the counts to proportion per stimulus per speaker.
     3. Convert the proportion per stimulus per speaker proportion per stimulus per mode.
-    
+
 From this table to summary tables are created:
 
     1. pitch accents per speaker (adjusted)
-    
+
         a. Calculate the sum all proproations per token per speaker.
         b. Convert proportions to an integer based on an ideal total number of tokens per speaker.
 
     2. pitch accents per speaker (adjusted):
-    
+
         a. Calculate the sum all proproations per token per mode.
         b. Convert proportions to an integer based on an ideal total number of tokens per mode
         
     3. pitch accents by gender and mode (adjusted):
-    
+
         a. Calculate the sum all proproations per token by mode and gender.
         b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
-    
-    
+
 ```{r warning=FALSE}
 # Create tibble summarising  proportion of pitch accents per mode per speaker
 pa_adj <- m_corpus_short %>%
@@ -383,9 +380,11 @@ pa_by_gender_adj <- pa_adj %>%
   write_csv("modes_nuc_gender_adj.csv")
 
 ```
-## Nuclear Pitch accent
+
+## Nuclear Pitch accent (adjusted data)
 
 ### Nuclear Pitch Accent by Speaker
+
 ```{r warning=FALSE}
 pa_by_speaker_adj %>%
   write_csv("nuc_by_speaker_adj.csv")  %>%
@@ -403,7 +402,6 @@ pa_by_speaker_adj %>%
       )))
     )
 ```
-
 
 ```{r warning=FALSE}
 pa_by_speaker_adj_uncount <- pa_by_speaker_adj %>%
@@ -454,7 +452,6 @@ ggplot(data = pa_by_speaker_adj_uncount,
       )))
     )
 ```
-
 
 ```{r warning=FALSE}
 pa_by_mode_adj %>%
@@ -570,7 +567,6 @@ pa_by_mode_adj_list %>%
     chisq.test()
 ```
 
-
 #### Chi Squared test of association using adjusted data without outlier tokens
 
 ```{r}
@@ -580,8 +576,3 @@ pa_by_mode_adj_list %>%
     tabyl(mode, acc_phon) %>%
     chisq.test()
 ```
-
-
-
-
-
