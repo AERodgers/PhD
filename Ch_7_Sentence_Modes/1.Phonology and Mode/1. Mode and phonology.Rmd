@@ -268,29 +268,29 @@ m_corpus_short %>%
 
 # **Adjusted Data**
 
-The raw data is unbalanced since there number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
+The raw data is unbalanced since the number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
 
 Firstly a tibble is created summarising the proportion of pitch accents per mode per speaker. This is done in three initial stages:
 
     1. Count the number of phonological tokens per stimulus per speaker.
     2. Convert the counts to proportion per stimulus per speaker.
-    3. Convert the proportion per stimulus per speaker proportion per stimulus per mode.
+    3. 3.	Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
 
-From this table to summary tables are created:
+From this table summary tables are created:
 
     1. pitch accents per speaker (adjusted)
 
-        a. Calculate the sum all proproations per token per speaker.
+        a. Calculate the sum all proportions per token per speaker.
         b. Convert proportions to an integer based on an ideal total number of tokens per speaker.
 
-    2. pitch accents per speaker (adjusted):
+    2. pitch accents per mode (adjusted):
 
-        a. Calculate the sum all proproations per token per mode.
+        a. Calculate the sum all proportions per token per mode.
         b. Convert proportions to an integer based on an ideal total number of tokens per mode
         
     3. pitch accents by gender and mode (adjusted):
 
-        a. Calculate the sum all proproations per token by mode and gender.
+        a. Calculate the sum all proportions per token by mode and gender.
         b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
 
 ```{r warning=FALSE}

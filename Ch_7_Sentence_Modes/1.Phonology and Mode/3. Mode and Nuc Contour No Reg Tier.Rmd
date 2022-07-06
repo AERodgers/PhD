@@ -179,16 +179,17 @@ nuc_contour_by_gender_adj <- nuc_contour_adj %>%
   write_csv("nuc_contour_by_mode_and_gender_adj.csv")
 
 ```
-## Nuclear nuclear contour
+## Nuclear contour
 
-### Nuclear nuclear contour by Speaker
+### Nuclear contour by Speaker
 ```{r warning=FALSE}
 nuc_contour_by_speaker_adj %>%
   write_csv("nuc_by_speaker_adj.csv")  %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
   formattable(
-    caption="Distibution by speaker of nuclear nuclear contours in M-corpus (adjusted)",
+    caption="Distibution by speaker of nuclear contours in M-corpus (adjusted)",
+    align="r",
     list(area(col = 2:6, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(8, "Pastel2")[3], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[7], nrow(.)-1),
@@ -230,7 +231,7 @@ ggplot(data = nuc_contour_by_speaker_adj_uncount %>%
   scale_y_continuous(sec.axis = sec_axis(~ . * 3 + 4))
 ```
 
-### Nuclear nuclear contour by Sentence Mode
+### Nuclear contour by Sentence Mode
 
 ```{r warning=FALSE}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
@@ -241,7 +242,7 @@ nuc_contour_by_mode_adj %>%
   rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
   adorn_totals("row") %>%
   formattable(caption =
-                "Distibution by mode of nuclear nuclear contours in M-corpus (adjusted)",
+                "Distibution by mode of nuclear contours in M-corpus (adjusted)",
     list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(8, "Pastel2")[3], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[7], nrow(.)-1),
@@ -278,13 +279,13 @@ ggplot(nuc_contour_by_gender_adj_list) +
   ) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
   facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuclear nuclear contours by sentence mode and gender (adjusted)") +
+  ggtitle("Nuclear contours by sentence mode and gender (adjusted)") +
   theme(
     panel.border = element_rect(fill = NA),
     axis.text = element_text(size = 14),
     axis.title = element_text(size = 16)
   ) +
-  ggtitle("Nuclear nuclear contours by sentence mode (adjusted)") +
+  ggtitle("nuclear contours by sentence mode (adjusted)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -324,7 +325,7 @@ ggplot(nuc_contour_by_mode_adj_list) +
     axis.text = element_text(size = 14),
     axis.title = element_text(size = 16)
   ) +
-  ggtitle("Nuclear nuclear contours by sentence mode (adjusted)") +
+  ggtitle("nuclear contours by sentence mode (adjusted)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -514,6 +515,7 @@ with(fin_phon_by_mode_adj_list  %>%
        filter(fin_phon %in% c("%","H%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
      table(mode, fin_phon)) %>% chisq.test %>% print()
+
 ```
 
 However, if we run this again, using only the female data...
@@ -523,6 +525,7 @@ with(fin_phon_by_gender_adj_list %>%
        filter(fin_phon %in% c("%","H%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
      table(mode, fin_phon)) %>% chisq.test %>% print()
+
 ```
 
 ... compared with the male data...
@@ -532,7 +535,8 @@ with(fin_phon_by_gender_adj_list %>%
        filter(gender == "M") %>% 
        filter(fin_phon %in% c("%","H%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
+     table(mode, fin_phon)) %>% chisq.test() %>% print()
+
 ```
 
 The data suggest that there is statistically significant correlation between H% and sentence mode.
@@ -542,10 +546,12 @@ The data suggest that there is statistically significant correlation between H% 
 #### Chi Squared test of association using adjusted data only for L% versus %.
 
 ```{r}
+cat("Using Adjusted Data and Montecarlo simulation:\n")
 with(fin_phon_by_mode_adj_list  %>% 
        filter(fin_phon %in% c("%","L%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
      table(mode, fin_phon)) %>% chisq.test %>% print()
+
 ```
 
 However, if we run this again, using only the female data...
@@ -555,6 +561,7 @@ with(fin_phon_by_gender_adj_list %>%
        filter(fin_phon %in% c("%","L%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
      table(mode, fin_phon)) %>% chisq.test %>% print()
+
 ```
 
 ... compared with the male data...
@@ -565,5 +572,6 @@ with(fin_phon_by_gender_adj_list %>%
        filter(fin_phon %in% c("%","L%")) %>% 
        mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
      table(mode, fin_phon)) %>% chisq.test %>% print()
+
 ```
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
