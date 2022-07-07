@@ -18,7 +18,25 @@ source("../../functions/myFunctions.R")
 
 # Load packages.
 installMissingPackages(
-  c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer")
+  c(
+    # Include statistical packages.
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    
+    # Include packages for tidy output.
+    "broomExtra",
+    "formattable",
+    "janitor",
+    "knitr",
+    "RColorBrewer",
+    "sjPlot",
+    "tidyverse",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
 )
 
 # Set themes and colour schemes.
@@ -339,7 +357,7 @@ ggplot(nuc_contour_by_mode_adj_list) +
 
 ```
 
-#### Chi Squared test of association using adjusted data for fin_phon
+#### Chi Squared test of association using adjusted data for nuc_contour
 
 ```{r}
 with(nuc_contour_by_mode_adj_list,
@@ -575,3 +593,72 @@ with(fin_phon_by_gender_adj_list %>%
 
 ```
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
+
+
+#### GLMM test of difference between nuc_contour as a fn of mode.
+```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+nuc_contour_model <- glmer(
+  nuc_contour ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+nuc_contour_model_null = 
+  cur_model <- glmer(
+  nuc_contour ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(nuc_contour_model)
+
+anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
+  formattable(caption="ANOVA of model and null model")
+
+x <- printTidyModel(nuc_contour_model,
+                    write_r2="Mode_PA_Mode_PA_No_Reg_GLMM",
+                    is_GLM = TRUE
+                    )
+
+
+x$r2
+x$table
+```
+
+
+## Intercepts and Pairwise comparisons
+```{r echo=FALSE, paged.print=FALSE}
+
+charts <- getModelFixedFX(
+  my_equation = nuc_contour ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write="Mode_PA_Mode_PA_No_Reg_GLMM",
+  is_GLM=TRUE
+)
+
+charts$intercepts
+charts$pairwise
+
+
+```

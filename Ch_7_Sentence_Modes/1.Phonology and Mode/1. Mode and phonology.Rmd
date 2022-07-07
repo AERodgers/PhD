@@ -46,7 +46,6 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
 ```
 
 ```{r load and process corpus, include=FALSE}
-# Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
@@ -56,12 +55,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
         "^[L*H] %",
         if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
       ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")
+    acc_phon = factor(str_replace(nuc_contour, "\\s%$|\\sL%$", ""),
+                      levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")),
+    acc_phon = factor(acc_phon, levels = unique(acc_phon)
       )
   ) %>%
   # Select only columns for analysis
@@ -74,25 +70,6 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          acc_phon,
          nuc_contour)
 
-# consolidate contour types.
-
-m_corpus_short <- m_corpus %>%
-  mutate(
-    nuc_contour = factor(
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      )
-    ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")
-      )
-  )
 
 ```
 
@@ -224,7 +201,7 @@ m_corpus %>%
 # Create summary table of Pitch Accent by Speaker.
 
 
-m_corpus_short %>%
+m_corpus %>%
   group_by(speaker, acc_phon) %>%
   summarise(acc_count = n(), .groups = "keep") %>%
   pivot_wider(names_from = acc_phon,
@@ -252,14 +229,14 @@ m_corpus_short %>%
 #### Chi Squared test of association using raw data
 
 ```{r chi squared of raw data}
-m_corpus_short %>% tabyl(mode, acc_phon) %>% chisq.test()
+m_corpus %>% tabyl(mode, acc_phon) %>% chisq.test()
 ```
 
 #### Chi Squared test of association using raw data without outlier tokens
 
 ```{r}
 
-m_corpus_short %>%
+m_corpus %>%
     filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
     mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
     tabyl(mode, acc_phon) %>% chisq.test()
@@ -295,7 +272,7 @@ From this table summary tables are created:
 
 ```{r warning=FALSE}
 # Create tibble summarising  proportion of pitch accents per mode per speaker
-pa_adj <- m_corpus_short %>%
+pa_adj <- m_corpus %>%
     # Count the number of acc_phon by speaker and mode
     group_by(speaker, stim, acc_phon) %>%
     summarise(nuc_count = n(), .groups = "keep") %>%
@@ -565,14 +542,3 @@ ggplot(pa_by_mode_adj_list %>%
 pa_by_mode_adj_list %>%
     tabyl(mode, acc_phon) %>%
     chisq.test()
-```
-
-#### Chi Squared test of association using adjusted data without outlier tokens
-
-```{r}
-pa_by_mode_adj_list %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
-    tabyl(mode, acc_phon) %>%
-    chisq.test()
-```

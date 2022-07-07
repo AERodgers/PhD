@@ -1,4 +1,0 @@
-intercept,slope,estimate,std.error,2.5% CI,97.5% CI,z.value,p.value
-modeMWH,modeMYN,5.075,1.127,2.867,7.283,4.505,6.647806032971901e-6
-modeMWH,modeMDQ,8.231,1.179,5.92,10.543,6.98,2.9459599947601054e-12
-modeMYN,modeMDQ,3.157,0.408,2.358,3.956,7.742,9.815399844198708e-15

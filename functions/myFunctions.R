@@ -481,8 +481,11 @@ printTidyModel <-
            write_r2 = "",
            is_GLM = FALSE)
   {
-  require("formattable", "tidyverse", "Mefa4")
+    require("formattable")
+    require("tidyverse")
+    require("Mefa4")
     require("performance")
+    require("kableExtra")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -540,12 +543,13 @@ printTidyModel <-
     ) %>%
     mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"))
 
-  r2_nakagawa <- kable(
+  r2_nakagawa <-  knitr::kable(
     r2_nakagawa(my_model),
     caption = "Conditional and marginal R^2^ of model",
     digits = 2,
     align = "l"
-  )
+  )  %>% kable_styling(full_width = FALSE, position="left")
+
 
   if (write_r2 != "") {
     do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
@@ -881,7 +885,13 @@ kable_chi_sq <- function(chi_sq_test)
 
 ###   Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
-  function(my_folder, p_column, method = "BH", marginal = TRUE, write=TRUE)
+  function(my_folder,
+           p_column,
+           method = "BH",
+           marginal = TRUE,
+           write = TRUE,
+           report = FALSE
+  )
     {
     # Load required packages
     require("dplyr")
@@ -919,7 +929,8 @@ adjustP_posthoc <-
       # Add p.adjusted column using method.
       mutate(p.adj = p.adjust(!!p_column,
                               method = method),
-             .after = !!p_column)
+             .after = !!p_column) %>%
+      relocate(intercept)
 
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()
@@ -961,5 +972,5 @@ adjustP_posthoc <-
         write_csv(cur_set, cur_file)
       }
     }
-    return(p_counts)
+        if(report){return(p_counts)}
   }

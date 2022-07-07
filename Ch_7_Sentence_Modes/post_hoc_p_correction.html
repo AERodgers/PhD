@@ -370,25 +370,797 @@ pre code {
 </div>
 
 
-<p>Adjust all p values using false discovery rate (FDR). c.f. Benjamini,
-Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a
-practical and powerful approach to multiple testing. Journal of the
-<em>Royal Statistical Society Series B, <strong>57</strong></em>,
-289–300. <a href="doi:10.1111/j.2517-6161.1995.tb02031.x" class="uri">doi:10.1111/j.2517-6161.1995.tb02031.x</a>. <a href="https://www.jstor.org/stable/2346101" class="uri">https://www.jstor.org/stable/2346101</a>.</p>
-<pre class="r"><code>adjustP_posthoc(&quot;output/&quot;, p.value)</code></pre>
-<pre><code>## Loading required package: dplyr</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre><code>## Loading required package: readr</code></pre>
-<pre><code>## Loading required package: mefa4</code></pre>
-<pre><code>## Loading required package: Matrix</code></pre>
-<pre><code>## mefa4 0.3-8   2021-10-06</code></pre>
+<p>Adjust all p values using false discovery rate (FDR).</p>
+<p>c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false
+discovery rate: a practical and powerful approach to multiple testing.
+Journal of the <em>Royal Statistical Society Series B,
+<strong>57</strong></em>, 289–300. <a href="doi:10.1111/j.2517-6161.1995.tb02031.x" class="uri">doi:10.1111/j.2517-6161.1995.tb02031.x</a>. <a href="https://www.jstor.org/stable/2346101" class="uri">https://www.jstor.org/stable/2346101</a>.</p>
+<div id="mode-and-phonology" class="section level2">
+<h2>Mode and Phonology</h2>
+<div id="acc_phon-as-a-function-of-mode-register-tier-hypothesis." class="section level3">
+<h3>acc_phon as a function of mode, register tier hypothesis.</h3>
+<table class="table table-condensed">
+<caption>
+b0 for acc_phon ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+<th style="text-align:right;">
+p.adj (BH)
+</th>
+<th style="text-align:right;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+-5.342
+</td>
+<td style="text-align:right;">
+0.898
+</td>
+<td style="text-align:right;">
+-7.103
+</td>
+<td style="text-align:right;">
+-3.582
+</td>
+<td style="text-align:right;">
+-5.949
+</td>
+<td style="text-align:right;">
+2.70e-09
+</td>
+<td style="text-align:right;">
+9.00e-09
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+-6.795
+</td>
+<td style="text-align:right;">
+1.282
+</td>
+<td style="text-align:right;">
+-9.307
+</td>
+<td style="text-align:right;">
+-4.283
+</td>
+<td style="text-align:right;">
+-5.301
+</td>
+<td style="text-align:right;">
+1.15e-07
+</td>
+<td style="text-align:right;">
+2.87e-07
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+-1.479
+</td>
+<td style="text-align:right;">
+0.673
+</td>
+<td style="text-align:right;">
+-2.798
+</td>
+<td style="text-align:right;">
+-0.161
+</td>
+<td style="text-align:right;">
+-2.199
+</td>
+<td style="text-align:right;">
+2.79e-02
+</td>
+<td style="text-align:right;">
+3.28e-02
+</td>
+<td style="text-align:right;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+1.709
+</td>
+<td style="text-align:right;">
+0.677
+</td>
+<td style="text-align:right;">
+0.381
+</td>
+<td style="text-align:right;">
+3.036
+</td>
+<td style="text-align:right;">
+2.523
+</td>
+<td style="text-align:right;">
+1.16e-02
+</td>
+<td style="text-align:right;">
+1.55e-02
+</td>
+<td style="text-align:right;">
+p&lt;0.05
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b1 for acc_phon ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+slope
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+<th style="text-align:right;">
+p.adj (BH)
+</th>
+<th style="text-align:right;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+-1.453
+</td>
+<td style="text-align:right;">
+1.193
+</td>
+<td style="text-align:right;">
+-3.790
+</td>
+<td style="text-align:right;">
+0.885
+</td>
+<td style="text-align:right;">
+-1.218
+</td>
+<td style="text-align:right;">
+2.232e-01
+</td>
+<td style="text-align:right;">
+2.48e-01
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+3.863
+</td>
+<td style="text-align:right;">
+0.672
+</td>
+<td style="text-align:right;">
+2.547
+</td>
+<td style="text-align:right;">
+5.179
+</td>
+<td style="text-align:right;">
+5.752
+</td>
+<td style="text-align:right;">
+8.800e-09
+</td>
+<td style="text-align:right;">
+2.51e-08
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+7.051
+</td>
+<td style="text-align:right;">
+0.753
+</td>
+<td style="text-align:right;">
+5.575
+</td>
+<td style="text-align:right;">
+8.527
+</td>
+<td style="text-align:right;">
+9.363
+</td>
+<td style="text-align:right;">
+7.740e-21
+</td>
+<td style="text-align:right;">
+1.55e-19
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+5.316
+</td>
+<td style="text-align:right;">
+1.135
+</td>
+<td style="text-align:right;">
+3.091
+</td>
+<td style="text-align:right;">
+7.540
+</td>
+<td style="text-align:right;">
+4.684
+</td>
+<td style="text-align:right;">
+2.810e-06
+</td>
+<td style="text-align:right;">
+5.11e-06
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+8.504
+</td>
+<td style="text-align:right;">
+1.185
+</td>
+<td style="text-align:right;">
+6.180
+</td>
+<td style="text-align:right;">
+10.827
+</td>
+<td style="text-align:right;">
+7.174
+</td>
+<td style="text-align:right;">
+7.310e-13
+</td>
+<td style="text-align:right;">
+4.87e-12
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+3.188
+</td>
+<td style="text-align:right;">
+0.411
+</td>
+<td style="text-align:right;">
+2.382
+</td>
+<td style="text-align:right;">
+3.994
+</td>
+<td style="text-align:right;">
+7.750
+</td>
+<td style="text-align:right;">
+9.220e-15
+</td>
+<td style="text-align:right;">
+9.22e-14
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="nuc_contour-as-a-function-of-mode-no-register-tier-hypothesis." class="section level3">
+<h3>nuc_contour as a function of mode, NO register tier hypothesis.</h3>
+<table class="table table-condensed">
+<caption>
+b0 for nuc_contour ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+<th style="text-align:right;">
+p.adj (BH)
+</th>
+<th style="text-align:right;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+-2.691
+</td>
+<td style="text-align:right;">
+0.591
+</td>
+<td style="text-align:right;">
+-3.849
+</td>
+<td style="text-align:right;">
+-1.532
+</td>
+<td style="text-align:right;">
+-4.552
+</td>
+<td style="text-align:right;">
+5.300e-06
+</td>
+<td style="text-align:right;">
+8.840e-06
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+-2.977
+</td>
+<td style="text-align:right;">
+0.601
+</td>
+<td style="text-align:right;">
+-4.155
+</td>
+<td style="text-align:right;">
+-1.799
+</td>
+<td style="text-align:right;">
+-4.952
+</td>
+<td style="text-align:right;">
+7.350e-07
+</td>
+<td style="text-align:right;">
+1.630e-06
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+-1.931
+</td>
+<td style="text-align:right;">
+0.573
+</td>
+<td style="text-align:right;">
+-3.054
+</td>
+<td style="text-align:right;">
+-0.808
+</td>
+<td style="text-align:right;">
+-3.369
+</td>
+<td style="text-align:right;">
+7.540e-04
+</td>
+<td style="text-align:right;">
+1.200e-03
+</td>
+<td style="text-align:right;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+-0.463
+</td>
+<td style="text-align:right;">
+0.559
+</td>
+<td style="text-align:right;">
+-1.559
+</td>
+<td style="text-align:right;">
+0.634
+</td>
+<td style="text-align:right;">
+-0.827
+</td>
+<td style="text-align:right;">
+4.082e-01
+</td>
+<td style="text-align:right;">
+4.297e-01
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b1 for nuc_contour ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+slope
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+2.5% CI
+</th>
+<th style="text-align:right;">
+97.5% CI
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+<th style="text-align:right;">
+p.adj (BH)
+</th>
+<th style="text-align:right;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+-0.286
+</td>
+<td style="text-align:right;">
+0.375
+</td>
+<td style="text-align:right;">
+-1.020
+</td>
+<td style="text-align:right;">
+0.448
+</td>
+<td style="text-align:right;">
+-0.764
+</td>
+<td style="text-align:right;">
+4.451e-01
+</td>
+<td style="text-align:right;">
+4.451e-01
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+0.760
+</td>
+<td style="text-align:right;">
+0.339
+</td>
+<td style="text-align:right;">
+0.096
+</td>
+<td style="text-align:right;">
+1.424
+</td>
+<td style="text-align:right;">
+2.243
+</td>
+<td style="text-align:right;">
+2.490e-02
+</td>
+<td style="text-align:right;">
+3.110e-02
+</td>
+<td style="text-align:right;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+2.228
+</td>
+<td style="text-align:right;">
+0.343
+</td>
+<td style="text-align:right;">
+1.556
+</td>
+<td style="text-align:right;">
+2.900
+</td>
+<td style="text-align:right;">
+6.498
+</td>
+<td style="text-align:right;">
+8.160e-11
+</td>
+<td style="text-align:right;">
+3.270e-10
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+1.046
+</td>
+<td style="text-align:right;">
+0.355
+</td>
+<td style="text-align:right;">
+0.351
+</td>
+<td style="text-align:right;">
+1.741
+</td>
+<td style="text-align:right;">
+2.949
+</td>
+<td style="text-align:right;">
+3.200e-03
+</td>
+<td style="text-align:right;">
+4.600e-03
+</td>
+<td style="text-align:right;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+2.514
+</td>
+<td style="text-align:right;">
+0.361
+</td>
+<td style="text-align:right;">
+1.807
+</td>
+<td style="text-align:right;">
+3.221
+</td>
+<td style="text-align:right;">
+6.969
+</td>
+<td style="text-align:right;">
+3.190e-12
+</td>
+<td style="text-align:right;">
+1.590e-11
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+1.468
+</td>
+<td style="text-align:right;">
+0.310
+</td>
+<td style="text-align:right;">
+0.860
+</td>
+<td style="text-align:right;">
+2.076
+</td>
+<td style="text-align:right;">
+4.734
+</td>
+<td style="text-align:right;">
+2.200e-06
+</td>
+<td style="text-align:right;">
+4.390e-06
+</td>
+<td style="text-align:right;">
+p&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="mode-acc_phon-and-phonetic-parameters" class="section level2">
+<h2>Mode, acc_phon, and phonetic parameters</h2>
+</div>
 
 
 

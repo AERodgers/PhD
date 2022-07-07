@@ -6,17 +6,55 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 ```{r load functions, include=FALSE}
 source("../functions/myFunctions.R") 
+
+installMissingPackages(
+  c("tidyverse",
+    "formattable")
+)
 ```
 
 Adjust all p values using false discovery rate (FDR).
 
 c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
 
+
+## Mode and Phonology
+
+### acc_phon as a function of mode, register tier hypothesis.
 ```{r}
-adjustP_posthoc("output/", p.value) %>% formattable(caption="Changes in number of statistically significant p values.")
+adjustP_posthoc("1.Phonology and Mode/", p.value, marginal=FALSE)
+
+
+my_formula <- "acc_phon ~ mode + (1 | speaker)"
+
+read_csv("1.Phonology and Mode/Mode_PA_GLMM_b0.csv",
+         show_col_types = FALSE) %>%
+  formattable(caption = paste("b0 for", my_formula, sep = " "))
+
+read_csv("1.Phonology and Mode/Mode_PA_GLMM_b1.csv",
+         show_col_types = FALSE) %>%
+  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```
+
+### nuc_contour as a function of mode, NO register tier hypothesis.
+```{r}
+my_formula <- "nuc_contour ~ mode + (1 | speaker)"
+
+read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b0.csv",
+         show_col_types = FALSE) %>%
+  formattable(caption = paste("b0 for", my_formula, sep = " "))
+
+read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b1.csv",
+         show_col_types = FALSE) %>%
+  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```
+
+## Mode, acc_phon, and phonetic parameters
+```{r}
+adjustP_posthoc("output/", p.value)
 ```
