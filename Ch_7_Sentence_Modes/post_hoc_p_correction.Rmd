@@ -54,6 +54,53 @@ read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b1.csv",
   formattable(caption = paste("b1 for", my_formula, sep = " "))
 ```
 
+## Mode and Global Parameters (IP mean f0 and slope)
+
+### IP and f0
+```{r}
+adjustP_posthoc("2.Utterance and phonetic params/", p.value, marginal=FALSE)
+
+
+my_formula <- "utt_mean_f0 ~  ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
+
+read_csv(
+  "2.Utterance and phonetic params/utt_f0_b0.csv", show_col_types = FALSE) %>%
+  formattable(caption = paste("b0 for", my_formula, sep = " "))
+
+read_csv(
+  "2.Utterance and phonetic params/utt_f0_b1.csv", show_col_types = FALSE) %>%
+  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```
+
+### IP and Slope
+```{r}
+
+
+my_formula <- "utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
+
+read_csv(
+  "2.Utterance and phonetic params/utt_slope_b0.csv", show_col_types = FALSE) %>%
+  formattable(caption = paste("b0 for", my_formula, sep = " "))
+
+read_csv(
+  "2.Utterance and phonetic params/utt_slope_b1.csv", show_col_types = FALSE) %>%
+  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Mode, acc_phon, and phonetic parameters
 ```{r}
 adjustP_posthoc("output/", p.value)

@@ -98,29 +98,6 @@ utt_mean_f0 = lmer(
 summarise_lme(utt_mean_f0 , run_step = TRUE)
 ```
 
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-
-# set current equation
-cur_equation  <-
-  "utt_mean_f0 ~ mode + (1 + mode | speaker)"
-
-utt_mean_f0 = lmer(
-  formula(cur_equation),
-  data = m_corpus,
-  control = lmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
-summarise_lme(utt_mean_f0 , run_step = TRUE)
-```
-
 ### Final model: ``r cur_equation``
 
 #### Analysis of model

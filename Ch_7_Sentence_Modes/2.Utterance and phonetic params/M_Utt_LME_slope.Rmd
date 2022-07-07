@@ -55,7 +55,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          gender,
          mode,
          phr_phon,
-         utt_slope) %>%
+         utt_slope,
+         prompt) %>%
   mutate(starts_with_H =
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
@@ -68,7 +69,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 # set recommended equation
-utt_slope_mdl  <-  lmer(utt_slope ~ mode  + (1 + mode | speaker),
+utt_slope_mdl  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
@@ -83,10 +84,10 @@ utt_slope_mdl  <-  lmer(utt_slope ~ mode  + (1 + mode | speaker),
 
 
 # model needs trimming
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 3)
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 2.5)
 
 
-utt_slope_mdl.trimmed  <-  lmer(utt_slope ~ mode  + (1 + mode | speaker),
+utt_slope_mdl.trimmed  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
   data = m_corpus.trimmed,
   control = lmerControl(
     optimizer = "optimx",
@@ -99,7 +100,7 @@ utt_slope_mdl.trimmed  <-  lmer(utt_slope ~ mode  + (1 + mode | speaker),
   )
 )
 
-summarise_lme(utt_slope_mdl.trimmed , run_step = TRUE)
+summarise_lme(utt_slope_mdl.trimmed, run_step = TRUE)
 ```
 
 
@@ -122,7 +123,7 @@ utt_utt_slope.tidy$r2
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = utt_slope ~ mode  + (1 + mode | speaker),
+  my_equation = utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
   exclude_terms = c("fin_phon",
                     "gender",
