@@ -22,10 +22,10 @@ Adjust all p values using false discovery rate (FDR).
 
 c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
 
-
 ## Mode and Phonology
 
 ### acc_phon as a function of mode, register tier hypothesis.
+
 ```{r}
 adjustP_posthoc("1.Phonology and Mode/", p.value, marginal=FALSE)
 
@@ -42,6 +42,7 @@ read_csv("1.Phonology and Mode/Mode_PA_GLMM_b1.csv",
 ```
 
 ### nuc_contour as a function of mode, NO register tier hypothesis.
+
 ```{r}
 my_formula <- "nuc_contour ~ mode + (1 | speaker)"
 
@@ -57,6 +58,7 @@ read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b1.csv",
 ## Mode and Global Parameters (IP mean f0 and slope)
 
 ### IP and f0
+
 ```{r}
 adjustP_posthoc("2.Utterance and phonetic params/", p.value, marginal=FALSE)
 
@@ -73,6 +75,7 @@ read_csv(
 ```
 
 ### IP and Slope
+
 ```{r}
 
 
@@ -87,21 +90,8 @@ read_csv(
   formattable(caption = paste("b1 for", my_formula, sep = " "))
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Mode, acc_phon, and phonetic parameters
+
 ```{r}
 adjustP_posthoc("output/", p.value)
 ```

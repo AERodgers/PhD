@@ -33,7 +33,6 @@ installMissingPackages <- function (package_list)
 }
 
 
-
 ###  Balance data  #############################################################
 balancedData <- function(data_set,
                          treatment_col,
@@ -278,6 +277,7 @@ param_summary <-
 
   }
 
+###  Get Parameter Means  ######################################################
 param_means <-
   function(df,
            phonet_param,
@@ -300,10 +300,12 @@ param_means <-
     )
   }
 
+###  Get M_Corpus #############################################################
 get_m_corpus <- function(file_address)
+
   # Include package for %in% / %notin% syntactic notation
   {
-  installMissingPackages(c("mefa4"))
+  require("mefa4")
   return(
     as_tibble(read.csv(file_address)) %>%
       # Only keep pertinent columns!
@@ -460,16 +462,15 @@ summarise_lme <-
         "\n"
     )
 
-    cat("\n")
 
     if (run_step)
     {
+      cat("\n")
       cat("\nResults of step().\n")
-      print(step(my_model))
+      step(my_model) %>% print()
     }
 
-    return(anova)
-
+  return(anova)
   }
 
 
@@ -483,7 +484,7 @@ printTidyModel <-
   {
     require("formattable")
     require("tidyverse")
-    require("Mefa4")
+    require("mefa4")
     require("performance")
     require("kableExtra")
 
@@ -577,9 +578,10 @@ getModelFixedFX <- function(my_equation,
                        exclude_terms = "",
                        bf_adj = 0,
                        write="",
-                       is_GLM=FALSE)
+                       is_GLM=FALSE,
+                       optimizer = "optimx")
 {
-  require("formattable", "performance", "tidyverse", "Mefa4")
+  require("formattable", "performance", "tidyverse", "mefa4")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -608,7 +610,7 @@ getModelFixedFX <- function(my_equation,
       family = binomial(link = "logit"),
       # Change optimizer to avoid convergence errors/
       control = glmerControl(
-        optimizer = "optimx",
+        optimizer = optimizer,
         calc.derivs = FALSE,
         optCtrl = list(
           method = "nlminb",
@@ -623,7 +625,7 @@ getModelFixedFX <- function(my_equation,
       my_equation,
       data = my_data,
       control = lmerControl(
-        optimizer = "optimx",
+        optimizer = optimizer,
         calc.derivs = FALSE,
         optCtrl = list(
           method = "nlminb",
@@ -675,7 +677,7 @@ getModelFixedFX <- function(my_equation,
           family = binomial(link = "logit"),
           # Change optimizer to avoid convergence errors/
           control = glmerControl(
-            optimizer = "optimx",
+            optimizer = optimizer,
             calc.derivs = FALSE,
             optCtrl = list(
               method = "nlminb",
@@ -690,7 +692,7 @@ getModelFixedFX <- function(my_equation,
           my_equation,
           data = my_data,
           control = lmerControl(
-            optimizer = "optimx",
+            optimizer = optimizer,
             calc.derivs = FALSE,
             optCtrl = list(
               method = "nlminb",
@@ -829,7 +831,6 @@ tidyIntercepts <- function(all_models_tidy)
       rename(intercept = term)
       )
   }
-
 ###  Tidy Pairwise Tables of multiple analyses  ################################
 tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 {

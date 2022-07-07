@@ -7,8 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -69,23 +68,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   mutate(acc_phon = factor(acc_phon,
                            levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
 
-m_corpus_rises <-  m_corpus
 ```
 
 
 The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parameters  disappear.
 
-Following on from the H_f0 tests, the following model has been chosen:
-`l_f0 ~ mode + acc_phon + fin_phon + (1 + mode + acc_phon | speaker)`
 
-There are a few outlier residuals here, but the overall model is good.
-
-```{r run initial models,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+```{r run initial models,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode + acc_phon +
-         (1 + mode + acc_phon | speaker),
-    data = m_corpus_rises,
+    l_f0 ~ acc_phon * mode + fin_phon + prompt +
+      (1 + acc_phon + mode | speaker) + (1 | gender),
+    data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -98,14 +92,75 @@ l_f0_model <-
   )
 summarise_lme(l_f0_model, run_step = TRUE)
 ```
--    Having tried several versions of the model, it only resolves properly as follows:
+-    Convergence and singularity issues.
+-    Trying model suggested by step()
 
-    - `l_f0 ~ mode + acc_phon + (1 + mode + acc_phon | speaker)`
-    
--   fin_phon was removed, as it was least likely in principle have an effect on l_f0
+```{r run step() models,  fig.height=3, fig.width=9, ,  message = TRUE, warning = TRUE, tidy = TRUE}
+l_f0_model <-
+  lmer(
+    l_f0 ~ acc_phon * mode + fin_phon + (1 + acc_phon + mode | speaker),
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+summarise_lme(l_f0_model, run_step = FALSE)
+```
+-    Optimization issue persist.
+-    changing to intercepts only model. 
 
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r run intercepts only model, fig.height=3, fig.width=9, ,  message = TRUE, warning = TRUE, tidy = TRUE}
+l_f0_model <-
+  lmer(
+    l_f0 ~ acc_phon * mode + fin_phon + prompt +
+      (1 | speaker) + (1 | gender),
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+summarise_lme(l_f0_model, run_step = TRUE)
+```
 
+-   model works but a few outliers
+-   trimming data
+
+```{r trim model, fig.height=3, fig.width=9, ,  tidy = TRUE}
+m_corpus.trim <- m_corpus %>% filter(abs(scale(resid(l_f0_model))) <= 3)
+
+l_f0_model <-
+  lmer(
+    l_f0 ~ acc_phon * mode + fin_phon + prompt +
+      (1 | speaker) + (1 | gender),
+    data = m_corpus.trim,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+summarise_lme(l_f0_model, run_step = FALSE)
+
+```
+-  Model all good.
+
+```{r make tidy model, fig.height=3, fig.width=9, ,  tidy = TRUE}
 l_f0_model.tidy <- printTidyModel(l_f0_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
@@ -116,12 +171,13 @@ l_f0_model.tidy$r2
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = l_f0 ~ mode + acc_phon + (1 + mode + acc_phon | speaker),
-  my_data = m_corpus_rises,
+  my_equation = l_f0 ~ acc_phon * mode + fin_phon + prompt +
+      (1 | speaker) + (1 | gender),
+  my_data = m_corpus.trim,
   exclude_terms = c("gender", "fin_phon"),
   bf_adj = 16,
   write="../output/Mode_PA_l_f0"
