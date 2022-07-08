@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 
@@ -67,7 +67,7 @@ theme_set(theme_minimal(base_size = 14))
 rm(pn, corpus, nuc)
 ```
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Summarise continuous PN data: parameter means per speaker per condition.
 pn_foot_param_sum <- param_summary(pn_foot, foot_syls, acc_phon) %>%
   mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)),
@@ -138,7 +138,7 @@ ggplot() +
 
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # PROCESS PN DATA
 # 
 #get summary of each target parameter per pa per pre_syl condition
@@ -175,7 +175,7 @@ param_means(pn_ana_param_sum, lh_slope, ana_syls, acc_phon) %>%
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # PROCESS NUCLEAR DATA
 # 
 # Get summary of each target parameter per pa per pre_syl condition

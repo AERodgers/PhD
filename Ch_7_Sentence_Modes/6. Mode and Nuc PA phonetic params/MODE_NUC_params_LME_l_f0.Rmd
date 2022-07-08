@@ -53,7 +53,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                     ""),
         levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
       ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
+    fin_phon = factor(fin_phon, levels=unique(fin_phon))
   ) %>%
   # Select only columns for analysis
   select(speaker,
@@ -155,7 +156,8 @@ l_f0_model <-
       )
     )
   )
-summarise_lme(l_f0_model, run_step = FALSE)
+summarise_lme(l_f0_model, run_step = FALSE,
+              write="../output_model_anovas/Mode_PA_l_f0_anova.csv")
 
 ```
 -  Model all good.
@@ -163,10 +165,10 @@ summarise_lme(l_f0_model, run_step = FALSE)
 ```{r make tidy model, fig.height=3, fig.width=9, ,  tidy = TRUE}
 l_f0_model.tidy <- printTidyModel(l_f0_model,
                                 bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_l_f0"
                                 )
-l_f0_model.tidy$table
+l_f0_model.tidy$table %>% 
+  write_csv("../output_2_level_slope/Mode_PA_l_f0_2_level.csv") %>% print() 
 l_f0_model.tidy$r2
 
 ```

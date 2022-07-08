@@ -66,7 +66,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                     ""),
         levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
       ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
+    fin_phon = factor(fin_phon, levels=unique(fin_phon))
   ) %>%
   # Select only columns for analysis
   select(
@@ -156,7 +157,8 @@ lh_slope_model.trimmed <-
         )
     )
 
-summarise_lme(lh_slope_model.trimmed, run_step = FALSE)
+summarise_lme(lh_slope_model.trimmed, run_step = FALSE,
+              write="../output_model_anovas/Mode_PA_lh_slope_anova.csv")
 ```
 -    Model works.
 
@@ -164,10 +166,11 @@ summarise_lme(lh_slope_model.trimmed, run_step = FALSE)
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model.trimmed,
                                 bf_adj = 0,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_lh_slope"
                                 )
-lh_slope_model.tidy$table
+lh_slope_model.tidy$table %>% 
+  filter(term %in% c("fin_phonL%","genderM")) %>% 
+  write_csv("../output_2_level_slope/Mode_PA_lh_slope_2_level.csv") %>% print() 
 lh_slope_model.tidy$r2
 
 ```

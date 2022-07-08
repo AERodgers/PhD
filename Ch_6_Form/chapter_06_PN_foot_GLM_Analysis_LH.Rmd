@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 
@@ -113,7 +113,7 @@ kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional 
 ```
 
 ### Visualisation and tidy representation of the model **isLH ~ foot size + speech_rate + gender + (1 | speaker)**.
-```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
+```{r echo=FALSE, warning=TRUE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
 
 # Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%
@@ -203,7 +203,7 @@ kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional 
 ```
 
 ### Visualisation and tidy representation of the model **isLH ~ foot size + (1 | speaker)**.
-```{r echo=FALSE, warning=FALSE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
+```{r echo=FALSE, warning=TRUE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
 
 # Tidy up model.
 cur_model_tidy <- tidy(cur_model) %>%

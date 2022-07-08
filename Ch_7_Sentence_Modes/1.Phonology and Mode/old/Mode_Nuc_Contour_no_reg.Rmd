@@ -6,7 +6,7 @@ output:
 ---
 
 
-```{r setup, warning=FALSE, include=FALSE}
+```{r setup, warning=TRUE, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       message = FALSE)
@@ -171,7 +171,7 @@ pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
 ```
 
 
-```{r warning=FALSE, fig.width = 10, fig.height = 4}
+```{r warning=TRUE, fig.width = 10, fig.height = 4}
 # Percentage Stacked bar
 
 ggplot(data = pa_by_speaker_pc_uncount,

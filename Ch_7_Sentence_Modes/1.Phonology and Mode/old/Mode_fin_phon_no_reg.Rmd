@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 ```
 
-```{r warning=FALSE, message=FALSE}
+```{r warning=TRUE, message=FALSE}
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -65,7 +65,7 @@ pitch_accent_colours <- c("%"  = brewer.pal(6, "Spectral")[6],
                           "L%" = brewer.pal(6, "Spectral")[2])
 ```
 
-```{r warning=FALSE, message=FALSE}
+```{r warning=TRUE, message=FALSE}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
@@ -173,7 +173,7 @@ pa_by_speaker_pc_uncount <- pa_by_speaker_pc %>%
 ```
 
 
-```{r warning=FALSE, fig.width = 10, fig.height = 4}
+```{r warning=TRUE, fig.width = 10, fig.height = 4}
 # Percentage Stacked bar
 
 ggplot(data = pa_by_speaker_pc_uncount,

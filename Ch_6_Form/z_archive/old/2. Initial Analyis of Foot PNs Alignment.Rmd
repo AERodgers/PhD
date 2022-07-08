@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Get packages from library.
 require("tidyverse")
 require("broom")

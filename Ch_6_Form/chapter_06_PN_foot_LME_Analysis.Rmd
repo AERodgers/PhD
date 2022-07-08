@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 

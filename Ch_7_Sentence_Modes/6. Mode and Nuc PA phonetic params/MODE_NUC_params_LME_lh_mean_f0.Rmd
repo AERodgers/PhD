@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=FALSE,
-                      message=FALSE)
+                      warning=TRUE,
+                      message=TRUE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -66,7 +66,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                     ""),
         levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
       ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
+    fin_phon = factor(fin_phon, levels=unique(fin_phon))
   ) %>%
   # Select only columns for analysis
   select(
@@ -156,22 +157,24 @@ lh_mean_f0_model_intercepts_only <-
         )
     )
 
-summarise_lme(lh_mean_f0_model_intercepts_only , run_step = TRUE)
+summarise_lme(lh_mean_f0_model_intercepts_only,
+              run_step = TRUE,
+              write="../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
+  
 ```
 
 -   Singularity issue gone.
--   Step() suggests that fin_phon is non-significant.
 
-### Final Model: `lh_mean_f0 ~ mode * acc_phon + fin_phon + prompt + (1 | speaker) + (1 | gender)`
 
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
 lh_mean_f0_model.tidy <- printTidyModel(lh_mean_f0_model_intercepts_only,
                                 bf_adj = 0,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_lh_mean_f0"
                                 )
-lh_mean_f0_model.tidy$table
+lh_mean_f0_model.tidy$table %>% 
+  filter(term %in% c("fin_phonL%")) %>% 
+  write_csv("../output_2_level_slope/Mode_PA_lh_mean_f0_2_level.csv")
 lh_mean_f0_model.tidy$r2
 
 ```

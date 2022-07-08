@@ -14,7 +14,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 
 Get packages from library.
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 source('../functions/drawResiduals.R', echo=TRUE)
 
 require("tidyverse")
@@ -51,7 +51,7 @@ theme_set(
 
 
 Create data tbls
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 
 # Get PN ANAC data
 pn_anac <- read_csv("../data/a_corpus.csv") %>%

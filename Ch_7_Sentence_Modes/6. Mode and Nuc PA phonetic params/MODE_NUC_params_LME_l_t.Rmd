@@ -54,7 +54,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                     ""),
         levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
       ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%")
+    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
+    fin_phon = factor(fin_phon, levels=unique(fin_phon))
   ) %>%
   # Select only columns for analysis
   select(
@@ -145,7 +146,8 @@ l_t_model.trimmed <- lmer(l_t ~ acc_phon + mode + prompt + fin_phon +
         )
       )
 
-summarise_lme(l_t_model.trimmed , run_step=TRUE)
+summarise_lme(l_t_model.trimmed , run_step=TRUE,
+              write="../output_model_anovas/Mode_PA_l_t_anova.csv")
 
 ```
 
@@ -155,10 +157,11 @@ summarise_lme(l_t_model.trimmed , run_step=TRUE)
 
 l_t_model.tidy <- printTidyModel(l_t_model.trimmed,
                                 bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_PA_l_t"
                                 )
-l_t_model.tidy$table
+l_t_model.tidy$table %>% 
+  filter(term %in% c("fin_phonL%","genderM")) %>% 
+  write_csv("../output_2_level_slope/Mode_PA_l_t_2_level.csv") %>% print() 
 l_t_model.tidy$r2
 
 ```

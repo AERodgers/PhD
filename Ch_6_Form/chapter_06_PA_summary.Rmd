@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 ```
 
-```{r warning=FALSE, message=FALSE}
+```{r warning=TRUE, message=FALSE}
 # Load functions and packages
 source("../../functions/myFunctions.R") 
 installMissingPackages(c("tidyverse",
@@ -241,7 +241,7 @@ rm(mean_speech_rate)
 ```
 
 #### By speaker correlation between PN pitch accents per speaker and average speech rate 
-```{r warning=FALSE, fig.width = 8, fig.height = 4}
+```{r warning=TRUE, fig.width = 8, fig.height = 4}
 # Percentage Stacked bar
 
 # 
@@ -261,7 +261,7 @@ ggplot(data = pn_by_speaker_ratio_uncount,
 ```
 
 
-```{r warning=FALSE, fig.width = 4, fig.height = 4}
+```{r warning=TRUE, fig.width = 4, fig.height = 4}
 ggplot(pn_by_speaker_ratio,
        aes(y = mean_speech_rate, x = speaker)) +
   geom_boxplot()

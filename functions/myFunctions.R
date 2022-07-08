@@ -148,7 +148,7 @@ drawResiduals <- function(myModel)
 ###  Bonferonni Adjustment  ####################################################
 bonferroniAdjust <- function(myTibble,
                              bonferroniMultiplier=0,
-                             exclude_terms = "",
+                             exclude_terms = NULL,
                              p.adj="p.adj")
   {
   if (bonferroniMultiplier)
@@ -157,7 +157,7 @@ bonferroniAdjust <- function(myTibble,
 
     myTibble <- mutate(myTibble,
                        !!p.adj := if_else(
-                         term %in% exclude_terms,
+                         !is_null(exclude_terms) & term %in% exclude_terms,
                          NA_real_,
                          if_else(
                            p.value * bonferroniMultiplier >= 1,
@@ -378,6 +378,7 @@ get_m_corpus <- function(file_address)
         # Ensure factor variables are interpreted as factors
         foot_syls = factor(foot_syls, levels = unique(foot_syls)),
         gender = factor(gender, levels = unique(gender)),
+        fin_phon = factor(fin_phon, levels = unique(fin_phon)),
 
         # create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3), levels = c("MDC", "MWH", "MYN", "MDQ")),
@@ -427,18 +428,21 @@ get_m_corpus <- function(file_address)
         unlist(gregexpr('[[]', nuc_contour)) == -1
         & unlist(gregexpr('[]]', nuc_contour)) > -1,
         paste("^[", nuc_contour, sep = ""),
-        nuc_contour
-      ))
+        nuc_contour)
+        )
   )
 
 }
 
 ###  Summarise LME  ############################################################
 summarise_lme <-
-  function(my_model, run_step = FALSE, my_tolerance = 1e-05)
+  function(my_model, run_step = FALSE, my_tolerance = 1e-05, write=NULL)
     # short function to remove need for repetition of optimized used throughout.
   {
-    require("lme4", "lmerTest", "optimx", "performance")
+    require("lme4")
+    require("lmerTest")
+    require("optimx")
+    require("performance")
 
     my_formula <- str_c(formula(my_model))
     my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
@@ -451,8 +455,10 @@ summarise_lme <-
       tidy() %>%
       formattable(caption=paste("Anova of model:", my_formula)) %>%
       sigCodesTidy(p.value, FALSE) %>%
-      rename(`F value` = statistic) %>%
-      print()
+      rename(`F value` = statistic)
+    if(!is_null(write)){
+      write_csv(anova, write)
+    }
 
 
     cat("\nCheck_singularity(my_model, tolerance =",
@@ -478,7 +484,6 @@ summarise_lme <-
 printTidyModel <-
   function(my_model,
            bf_adj = 1,
-           exclude_terms = "",
            write_r2 = "",
            is_GLM = FALSE)
   {
@@ -540,7 +545,7 @@ printTidyModel <-
     # re-order columns
     select(!!!my_headers) %>%
     formattable(
-      caption = paste("Intercept and slopes of fixed effects:", my_formula)
+      caption = paste(my_formula)
     ) %>%
     mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"))
 
@@ -575,7 +580,7 @@ return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
 ###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
                        my_data,
-                       exclude_terms = "",
+                       exclude_terms = NULL,
                        bf_adj = 0,
                        write="",
                        is_GLM=FALSE,
@@ -646,11 +651,16 @@ getModelFixedFX <- function(my_equation,
                      " ") %>%
        str_squish() %>%
        str_split(" "))[[1]]
-
   # make list of factors for intercepts and pairwise comparison tables.
-  keep_factors <- fixed_factors[fixed_factors %notin% exclude_terms]
+  if (!is_null(exclude_terms)) {
+    keep_factors <- fixed_factors[fixed_factors %notin% exclude_terms]
   # Ensure only factors representing my_data columns are included.
-  keep_factors <- keep_factors[keep_factors %in% colnames(my_data)]
+
+    keep_factors <- keep_factors[keep_factors %in% colnames(my_data)]
+  }
+  else{
+    keep_factors <- fixed_factors[fixed_factors %in% colnames(my_data)]
+  }
 
   # create empty tibble for fixed factor output
   all_models_tidy = tibble()
@@ -659,10 +669,10 @@ getModelFixedFX <- function(my_equation,
   for (cur_factor in keep_factors)
     {
     # Get levels for current factor
-    cur_levels =  levels(my_data[[cur_factor]])
+    cur_levels = levels(my_data[[cur_factor]])
     num_levels = length(cur_levels)
     # Make list of terms to keep
-    keep_terms = NULL
+    keep_terms = character()
     for (level_name in cur_levels) {
       keep_terms = c(keep_terms, paste(cur_factor, level_name, sep = ""))
     }
@@ -884,7 +894,7 @@ kable_chi_sq <- function(chi_sq_test)
 }
 
 
-###   Bulk Adjust p Value   ####################################################
+###  Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
   function(my_folder,
            p_column,

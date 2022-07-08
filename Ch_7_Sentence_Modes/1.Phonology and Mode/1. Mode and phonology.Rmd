@@ -387,7 +387,7 @@ pa_by_speaker_adj_uncount <- pa_by_speaker_adj %>%
 
 ```
 
-```{r warning=FALSE, fig.width = 10, fig.height = 4}
+```{r warning=TRUE, fig.width = 10, fig.height = 4}
 # Percentage Stacked bar
 
 ggplot(data = pa_by_speaker_adj_uncount,

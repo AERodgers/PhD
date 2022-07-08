@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 
@@ -98,7 +98,7 @@ y <- tidy(test) %>%
 ```
 
 
-```{r echo=FALSE, warning=FALSE, eval=FALSE}
+```{r echo=FALSE, warning=TRUE, eval=FALSE}
 plot_model(test,
            show.zeroinf = FALSE,
            show.intercept = TRUE,
@@ -119,7 +119,7 @@ formattable(y,
 ```
 
 ## pairwise comparisons
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=TRUE, paged.print=FALSE}
 # Get intercepts and pairwise comparisons for each foot size condition.
  
 # Get number of levels in target treatment variable.

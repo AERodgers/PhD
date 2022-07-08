@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 Get packages from library.
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 source('drawResiduals.R', echo=TRUE)
 
 require("tidyverse")

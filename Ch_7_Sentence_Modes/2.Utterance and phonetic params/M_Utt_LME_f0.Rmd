@@ -6,7 +6,7 @@ output:
   html_document: default
 ---
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE)
 
@@ -46,7 +46,7 @@ p_color <- all_models_tidy ~ style(color =
 ```
 
 
-```{r load corpus, message=FALSE, warning=FALSE, include=FALSE}
+```{r load corpus, message=FALSE, warning=TRUE, include=FALSE}
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
