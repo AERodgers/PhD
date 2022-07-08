@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=TRUE,
-                      message=TRUE)
+                      warning=FALSE,
+                      message=FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -40,13 +40,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
-
-Give the sparsity of \^[L\*]H (n=6), H\* (n=2) and \>H \*(n=5), and considering that they are limited to a single speaker, I wanted to exclude then from the analysis.
-
-They should be analysed independently for M8 alone.
-
-```{r load corpus}
+```{r load corpus, include=FALSE}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
@@ -86,13 +80,13 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 As with other models, excluding gender.
 
-```{r run initial model,  fig.height=3, fig.width=9, ,  tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 # run model
 lh_slope_model <-
     lmer(
-        lh_slope ~ acc_phon * mode + fin_phon + prompt +
-      (1 + acc_phon + mode | speaker) + (1 | gender),
+        lh_slope ~ mode * acc_phon + fin_phon +
+          (1 + acc_phon + mode | speaker) + (1 | gender) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -113,12 +107,11 @@ summarise_lme(lh_slope_model, run_step=TRUE)
 -   Singularity and convergence  issues.
 -   Testing reduced model
 
-
-
-```{r run reduced step() only model,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+```{r run reduced step() only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 lh_slope_model <-
-    lmer(lh_slope ~ acc_phon + mode + prompt + (1 + acc_phon + mode | speaker) + acc_phon:mode,
+    lmer(lh_slope ~ mode * acc_phon + 
+          (1 + acc_phon + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -136,15 +129,33 @@ summarise_lme(lh_slope_model , run_step = TRUE)
 ```
 
 -   Singularity and convergence issues persist.
--   Trying intercepts only mode (and pre-empting outlier)
--   Not changing model, but trimming outliers.
+-   Trying intercepts only mode and re-introducing gender and fin_phon.
+-   This model works.
+-   Trimming model for observations with model residual of > 3 standard deviations.
 
-```{r trimmed data on intercepts only model tested, fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+## `lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt)`
+```{r intercepts only model tested, fig.height=3, fig.width=9, tidy = TRUE}
+
+
+lh_slope_model <-
+    lmer(lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
+        data = m_corpus,
+        control = lmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+            )
+        )
+    )
+
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_slope_model))) <= 3)
 
 lh_slope_model.trimmed <-
-    lmer(lh_slope ~ acc_phon * mode + fin_phon + prompt +
-      (1 | speaker) + (1 | gender),
+    lmer(lh_slope ~ mode * acc_phon + fin_phon +
+           (1 | speaker) + (1 | prompt),
         data = m_corpus.trimmed,
         control = lmerControl(
             optimizer = "optimx",
@@ -157,36 +168,25 @@ lh_slope_model.trimmed <-
         )
     )
 
-summarise_lme(lh_slope_model.trimmed, run_step = FALSE,
+summarise_lme(lh_slope_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_PA_lh_slope_anova.csv")
 ```
--    Model works.
 
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model.trimmed,
-                                bf_adj = 0,
                                 write_r2="../output/Mode_PA_lh_slope"
                                 )
-lh_slope_model.tidy$table %>% 
-  filter(term %in% c("fin_phonL%","genderM")) %>% 
-  write_csv("../output_2_level_slope/Mode_PA_lh_slope_2_level.csv") %>% print() 
 lh_slope_model.tidy$r2
 
 ```
 
-Results suggest that indeed, unreliable effect of interactions dur to high variance and ovlap with 0.
-Dropping interaction from model.
-
-
-```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_slope ~ acc_phon * mode + fin_phon + prompt +
-      (1 | speaker) + (1 | gender),
+  my_equation =
+    lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 0,
   write="../output/Mode_PA_lh_slope"
 )
 charts$intercepts

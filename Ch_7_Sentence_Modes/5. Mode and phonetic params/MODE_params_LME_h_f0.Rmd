@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=TRUE,
-                      message=TRUE)
+                      warning=FALSE,
+                      message=FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -40,7 +40,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-```{r load corpus}
+```{r load corpus, include=FALSE}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
@@ -78,11 +78,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
+- initial model raises a singularity issue warning, but check_singularity() with tolerance set to 1e-05 does returns false for singularity.
+- Retaining initial model.
 
+### `h_f0 ~  mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender)`
+
+```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 # run model
 h_f0_model <-
-  lmer(h_f0 ~  mode + fin_phon + gender + (1 + mode | speaker),
+  lmer(h_f0 ~  mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -94,35 +98,16 @@ h_f0_model <-
           )
         )
       )
-m_corpus <- m_corpus %>% filter(abs(scale(resid(h_f0_model))) <= 3.5)
-
-h_f0_model <-
-  lmer(h_f0 ~  mode + fin_phon + gender + (1 + mode | speaker),
-       data = m_corpus,
-        control = lmerControl(
-          optimizer = "optimx",
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
-      )
-summarise_lme(h_f0_model, run_step=TRUE)
 
 
-
+summarise_lme(h_f0_model, run_step=TRUE,
+              write="../output_model_anovas/Mode_h_f0_anova.csv")
 ```
-
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
 h_f0_model.tidy <- printTidyModel(h_f0_model,
-                                bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_h_f0"
                                 )
-h_f0_model.tidy$table
 h_f0_model.tidy$r2
 
 ```
@@ -130,10 +115,9 @@ h_f0_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation =h_f0 ~  mode + fin_phon + gender + (1 + mode | speaker),
+  my_equation = h_f0 ~  mode + fin_phon + prompt +
+    (1 + mode | speaker) + (1 | gender),
   my_data = m_corpus,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
   write="../output/Mode_h_f0"
 )
 charts$intercepts

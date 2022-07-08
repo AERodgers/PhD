@@ -8,7 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = TRUE)
+                      warning = FALSE,
+                      message = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -73,14 +74,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                            levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parameters disappear.
-
-```{r run initial model,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE,  message = FALSE, tidy = TRUE}
 
 # run model
 h_t_model <-
-  lmer(h_t ~  acc_phon * mode + fin_phon + prompt +
-      (1 + acc_phon + mode | speaker) + (1 | gender),
+  lmer(h_t ~ mode * acc_phon + fin_phon + gender +
+         (1 + acc_phon + mode | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -98,14 +97,16 @@ summarise_lme(h_t_model, run_step=TRUE)
 
 ```
 
--   Singularity and convergence issues.
--   Step suggests no interactions and intercepts only model.
--   Running Step model excluding interactions. (No difference in R2 with or without interactions)
+-   Singularity and convergence issues on initial model.
+-   Running intercepts only model based on l_t analysis.
+-   This model works.
+-   Interaction effects minimal. (Do not effect R2.)
 
-```{r run intercepts only model,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+#### `h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)`
+```{r run intercepts only model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
-h_t_model_reduced <-  lmer(h_t ~ acc_phon + mode + fin_phon + prompt +
-                             (1 | gender) + (1 | speaker),
+h_t_model_reduced <- 
+  lmer(h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -118,40 +119,32 @@ h_t_model_reduced <-  lmer(h_t ~ acc_phon + mode + fin_phon + prompt +
         )
       )
 
-summarise_lme(h_t_model_reduced , run_step=TRUE,
+summarise_lme(h_t_model_reduced, run_step=TRUE,
               write="../output_model_anovas/Mode_PA_h_t_anova.csv")
 
 ```
 
--   Model works.
--   Interaction effects minimal. (Do not effect R2.)
--   Intercepts only it is.
-
-
-```{r make tidy model, fig.height=3, fig.width=9, ,  tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
 h_t_model.tidy <- printTidyModel(h_t_model_reduced,
-                                bf_adj = 16,
                                 write_r2="../output/Mode_PA_h_t"
                                 )
-h_t_model.tidy$table %>% 
-  write_csv("../output_2_level_slope/Mode_PA_h_t_2_level.csv") %>% print() 
 h_t_model.tidy$r2
+
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9,warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = h_t ~ acc_phon + mode + fin_phon + prompt +
-                             (1 | gender) + (1 | speaker),
+  my_equation =
+    h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
   write="../output/Mode_PA_h_t"
 )
 charts$intercepts
 charts$pairwise
+
 
 
 ```

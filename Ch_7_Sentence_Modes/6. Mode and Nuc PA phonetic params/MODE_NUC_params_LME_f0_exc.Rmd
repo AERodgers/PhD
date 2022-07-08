@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=TRUE,
-                      message=TRUE)
+                      warning=FALSE,
+                      message=FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -40,13 +40,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
-
-Give the sparsity of \^[L\*]H (n=6), H\* (n=2) and \>H \*(n=5), and considering that they are limited to a single speaker, I wanted to exclude then from the analysis.
-
-They should be analysed independently for M8 alone.
-
-```{r load corpus}
+```{r load corpus, include=FALSE}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
@@ -84,15 +78,13 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-The initial model `f0_exc ~ mode + acc_phon + mode:acc_phon + fin_phon + (1 | gender) + (1 + acc_phon | speaker)`---as with the models for other phonetic parameters---has singularity issues, making it unreliable. Therefore, the by-speaker random effects were simplified to `(1 + acc_phon | speaker)`, leading to:
+```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
-```{r run initial model,  fig.height=3, fig.width=9, ,  tidy = TRUE}
-
-# run model
 f0_exc_model <-
   lmer(
-    f0_exc ~ acc_phon * mode + fin_phon + prompt +
-      (1 +  acc_phon + mode | speaker) + (1 | gender),
+    f0_exc ~ mode * acc_phon + fin_phon + 
+      (1 + acc_phon + mode | speaker) + (1 | gender) + (1 | prompt),
+
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
@@ -110,16 +102,41 @@ summarise_lme(f0_exc_model, run_step=TRUE)
 
 ```
 
--  Convergence and singularity issues
--  Following other models, going straight for intercepts only.
+-  Convergence and singularity issues in initial model.
+-  step() suggests dropping (1 | gender) + (1 | prompt).
 
-```{r run intercepts only model,  fig.height=3, fig.width=9, ,  tidy = TRUE}
+```{r run step() model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
-# run model
 f0_exc_model <-
   lmer(
-    f0_exc ~ acc_phon * mode + fin_phon + prompt +
-      (1 | speaker) + (1 | gender),
+    f0_exc ~ mode * acc_phon + fin_phon + 
+      (1 + acc_phon + mode | speaker),
+
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+
+summarise_lme(f0_exc_model, run_step=TRUE) 
+
+```
+
+-  Convergence and singularity issues remain.
+-  reintroducing (1 | gender) + (1 | prompt) but using intercepts only model for speaker.
+
+```{r intercepts-only model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
+
+f0_exc_model <-
+  lmer(
+    f0_exc ~ mode * acc_phon + fin_phon + 
+      (1 | speaker) + (1 | gender) + (1 | prompt),
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
@@ -133,19 +150,34 @@ f0_exc_model <-
   )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE) 
-
+summarise_lme(f0_exc_model, run_step=TRUE)
 ```
--    model works
--    trimming outlier.
+- singularity remains in random intercepts only model.
+- Running model with only speaker and gender as random effect.
+- Model works.
+- Trimming model: removing observation with model residual of > 3 standard deviations
 
-```{r trim model,  fig.height=3, fig.width=9, ,  tidy = TRUE}
+#### `f0_exc ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender)`
+```{r reduced intercepts-only model,  fig.height=3, fig.width=9, tidy = TRUE}
+
+f0_exc_model <-
+  lmer(f0_exc ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(f0_exc_model))) <= 3)
 
 f0_exc_model.trimmed <-
-  lmer(
-    f0_exc ~ acc_phon * mode + fin_phon + prompt +
-      (1 | speaker) + (1 | gender),
+  lmer(f0_exc ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
     data = m_corpus.trimmed,
     control = lmerControl(
       optimizer = "optimx",
@@ -161,20 +193,13 @@ f0_exc_model.trimmed <-
 
 summarise_lme(f0_exc_model.trimmed, run_step=TRUE,
               write="../output_model_anovas/Mode_PA_f0_exc_anova.csv")
-
-
-
 ```
-
 
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
 f0_exc_model.tidy <- printTidyModel(f0_exc_model.trimmed,
-                                bf_adj = 16,
                                 write_r2 = "../output/Mode_PA_f0_exc"
                                 )
-f0_exc_model.tidy$table %>% 
-  write_csv("../output_2_level_slope/Mode_PA_f0_exc_2_level.csv") %>% print() 
 f0_exc_model.tidy$r2
 
 ```
@@ -182,10 +207,9 @@ f0_exc_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = f0_exc ~ acc_phon * mode + fin_phon + prompt + (1 | speaker) + (1 | gender),
-  my_data = m_corpus,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
+  my_equation =
+    f0_exc ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
+  my_data = m_corpus.trimmed,
   write="../output/Mode_PA_f0_exc"
 )
 charts$intercepts

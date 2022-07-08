@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=TRUE,
-                      message=TRUE)
+                      warning=FALSE,
+                      message=FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -40,13 +40,8 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-The aims of this set of analyses is to see if, once we account for assumed speaker-motivated use of pitch accent, the apparent "paralinguistic" differences in scaling (and possibly time) of phonetic parametics disappear disappear.
 
-Give the sparsity of \^[L\*]H (n=6), H\* (n=2) and \>H \*(n=5), and considering that they are limited to a single speaker, I wanted to exclude then from the analysis.
-
-They should be analysed independently for M8 alone.
-
-```{r load corpus}
+```{r load corpus,include=FALSE}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
@@ -84,15 +79,13 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-As with other models, excluding gender.
-
-```{r run initial model,  fig.height=3, fig.width=9, ,  tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 # run model
 lh_mean_f0_model <-
     lmer(
-        lh_mean_f0 ~ mode * acc_phon + fin_phon + prompt +
-            (1 + mode + acc_phon | speaker) + (1 | gender),
+        lh_mean_f0 ~ mode * acc_phon + fin_phon +
+          (1 + acc_phon + mode | speaker) + (1 | gender) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -111,14 +104,12 @@ summarise_lme(lh_mean_f0_model, run_step=TRUE) %>% print()
 ```
 
 -   Singularity issues.
--   Using reduced model suggested by step()
+-   removing random factors suggested by step()
 
-#### `lh_mean_f0 ~ mode + acc_phon + (1 + mode + acc_phon | speaker)`
-
-```{r run intercepts only model,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+```{r run intercepts only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 lh_mean_f0_model_reduced <-
-    lmer(lh_mean_f0 ~ mode + acc_phon + (1 + mode + acc_phon | speaker),
+    lmer(lh_mean_f0 ~  mode * acc_phon + fin_phon + (1 + acc_phon + mode | speaker),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -136,15 +127,15 @@ summarise_lme(lh_mean_f0_model_reduced , run_step = TRUE)
 ```
 
 - Model still returns singularity.
-- Rerunning model, intercepts only, but re-introducing other complexities
+- Rerunning model, intercepts only, but re-introducing gender.
+- This removes singularity issues.
 
-
-```{r trimmed model tested,  fig.height=3, fig.width=9, ,  message = FALSE, tidy = TRUE}
+#### `lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender)`
+```{r trimmed model tested,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
 lh_mean_f0_model_intercepts_only <-
-    lmer(lh_mean_f0 ~ mode * acc_phon + fin_phon + prompt +
-           (1 | speaker) + (1 | gender),
+    lmer(lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -163,32 +154,21 @@ summarise_lme(lh_mean_f0_model_intercepts_only,
   
 ```
 
--   Singularity issue gone.
-
-
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
 lh_mean_f0_model.tidy <- printTidyModel(lh_mean_f0_model_intercepts_only,
-                                bf_adj = 0,
                                 write_r2="../output/Mode_PA_lh_mean_f0"
                                 )
-lh_mean_f0_model.tidy$table %>% 
-  filter(term %in% c("fin_phonL%")) %>% 
-  write_csv("../output_2_level_slope/Mode_PA_lh_mean_f0_2_level.csv")
 lh_mean_f0_model.tidy$r2
 
 ```
 
-
-
-```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_mean_f0 ~ mode * acc_phon + fin_phon + prompt +
-           (1 | speaker) + (1 | gender),
+  my_equation =
+    lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
   my_data = m_corpus,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 0,
   write="../output/Mode_PA_lh_mean_f0"
 )
 charts$intercepts

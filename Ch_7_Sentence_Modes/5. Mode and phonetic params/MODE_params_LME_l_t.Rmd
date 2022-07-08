@@ -8,7 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = TRUE)
+                      warning = FALSE,
+                      message = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -73,12 +74,16 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
+- Initial model works well, but trimming observation where residual standard deviation > 3.5
+
+## `l_t ~ mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender)`
+
 ```{r run initial model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
 # run model
 l_t_model <-
-  lmer(l_t ~ mode + fin_phon + gender + (1 + mode | speaker),
+  lmer(l_t ~ mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -93,7 +98,7 @@ l_t_model <-
 
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_t_model))) <= 3.5)
 
-l_t_model.trimmed <- lmer(l_t ~ mode + fin_phon + gender + (1 + mode | speaker),
+l_t_model.trimmed <- lmer(l_t ~ mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender),
        data = m_corpus.trimmed,
         control = lmerControl(
           optimizer = "optimx",
@@ -106,18 +111,16 @@ l_t_model.trimmed <- lmer(l_t ~ mode + fin_phon + gender + (1 + mode | speaker),
         )
       )
 
-summarise_lme(l_t_model.trimmed , run_step=TRUE)
+summarise_lme(l_t_model.trimmed , run_step=TRUE,
+              write="../output_model_anovas/Mode_l_t_anova.csv")
 
 ```
  
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 l_t_model.tidy <- printTidyModel(l_t_model.trimmed,
-                                bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_l_t"
                                 )
-l_t_model.tidy$table
 l_t_model.tidy$r2
 
 ```
@@ -125,10 +128,8 @@ l_t_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = l_t ~ mode + fin_phon + gender + (1 + mode | speaker),
+  my_equation = l_t ~ mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender),
   my_data = m_corpus.trimmed,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
   write="../output/Mode_l_t"
 )
 charts$intercepts

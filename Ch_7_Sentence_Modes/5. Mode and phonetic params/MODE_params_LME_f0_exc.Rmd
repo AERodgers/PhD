@@ -8,8 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE,
-                      warning=TRUE,
-                      message=TRUE)
+                      warning=FALSE,
+                      message=FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -79,13 +79,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, include=FALSE, tidy = TRUE}
 
 # run model
 f0_exc_model <-
     lmer(
-        f0_exc ~ mode + fin_phon + prompt +
-          (1 + mode | speaker) + (1 | gender),
+        f0_exc ~ mode + fin_phon + (1 + mode | speaker) + (1 | gender),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -103,7 +102,10 @@ summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
 -   Convergence and singularity issues.
--   Running model again without (1|gender)
+-   Running model again without (1|gender).
+-   This model works.
+
+### `f0_exc ~ mode + fin_phon + prompt + (1 + mode | speaker)`
 
 ```{r run model w/o gender,  fig.height=3, fig.width=9, tidy = TRUE}
 
@@ -125,22 +127,17 @@ f0_exc_model <-
       )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
+summarise_lme(f0_exc_model, run_step=TRUE,
+              write="../output_model_anovas/Mode_f0_exc_anova.csv")
 
 ```
--    model works.
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 f0_exc_model.tidy <- printTidyModel(f0_exc_model,
-                                bf_adj = 16,
                                 write_r2="../output/Mode_f0_exc"
                                 )
 
-# print and save factors with two levels
-f0_exc_model.tidy$table %>% 
-  filter(term=="fin_phonL%") %>% 
-  write_csv("../output/Mode_f0_exc_2_level.csv") %>% print() 
 f0_exc_model.tidy$r2
 
 ```
@@ -150,8 +147,6 @@ f0_exc_model.tidy$r2
 charts <- getModelFixedFX(
   my_equation = f0_exc ~ mode + fin_phon + prompt + (1 + mode | speaker),
   my_data = m_corpus,
-  exclude_terms="fin_phon",
-  bf_adj = 16,
   write="../output/Mode_f0_exc"
 )
 charts$intercepts

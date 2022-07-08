@@ -483,8 +483,7 @@ summarise_lme <-
 ###  Print Tidy Model  #########################################################
 printTidyModel <-
   function(my_model,
-           bf_adj = 1,
-           write_r2 = "",
+           write_r2 = NULL,
            is_GLM = FALSE)
   {
     require("formattable")
@@ -557,7 +556,7 @@ printTidyModel <-
   )  %>% kable_styling(full_width = FALSE, position="left")
 
 
-  if (write_r2 != "") {
+  if (!is.null(write_r2)) {
     do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
       write.csv(paste(write_r2, "_r2.csv", sep = ""))
   }
@@ -580,8 +579,6 @@ return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
 ###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
                        my_data,
-                       exclude_terms = NULL,
-                       bf_adj = 0,
                        write="",
                        is_GLM=FALSE,
                        optimizer = "optimx")
@@ -651,22 +648,32 @@ getModelFixedFX <- function(my_equation,
                      " ") %>%
        str_squish() %>%
        str_split(" "))[[1]]
-  # make list of factors for intercepts and pairwise comparison tables.
-  if (!is_null(exclude_terms)) {
-    keep_factors <- fixed_factors[fixed_factors %notin% exclude_terms]
-  # Ensure only factors representing my_data columns are included.
 
-    keep_factors <- keep_factors[keep_factors %in% colnames(my_data)]
-  }
-  else{
-    keep_factors <- fixed_factors[fixed_factors %in% colnames(my_data)]
-  }
+  # Get list of non-interaction factors
+  multilevel_factors <- fixed_factors[fixed_factors %in% colnames(my_data)]
+
+  # Get list of 2-level fixed factors.
+  two_level_factors <- character()
+  two_level_terms <- character()
+  for (cur_factor in multilevel_factors){
+    if(levels(m_corpus[[cur_factor]]) %>% length() == 2){
+      two_level_factors <-c(two_level_factors, cur_factor)
+      two_level_terms <- c(two_level_terms,
+                           paste(cur_factor,
+                                 levels(m_corpus[[cur_factor]])[2],
+                                 sep=""))
+      }
+    }
+
+  # remove 2-level factors from list of multilevel_factors
+  multilevel_factors <-
+    multilevel_factors[multilevel_factors %notin% two_level_factors]
 
   # create empty tibble for fixed factor output
   all_models_tidy = tibble()
 
-  # loop through each fixed factor of interest (keep_factors)
-  for (cur_factor in keep_factors)
+  # loop through each multievel fixed factor of interest (multilevel_factors)
+  for (cur_factor in multilevel_factors)
     {
     # Get levels for current factor
     cur_levels = levels(my_data[[cur_factor]])
@@ -805,6 +812,34 @@ getModelFixedFX <- function(my_equation,
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
 
+
+  # Get tibble of 2-level factor slopes from base model
+  ci_Wald <- confint(base_model, method = "Wald") %>%
+    as_tibble() %>%
+    filter(`2.5 %` != "NA") %>%
+    mutate(`2.5 %` = round(`2.5 %`, 3),
+           `97.5 %` = round(`97.5 %`, 3)) %>%
+    rename("2.5% CI" = "2.5 %",
+           "97.5% CI" = "97.5 %")
+
+  two_level_factor_slopes <- tidy(base_model) %>%
+    filter(effect %notin% "ran_pars") %>%
+    cbind(ci_Wald) %>%
+    filter(term %in% two_level_terms) %>%
+    select(-c(group, effect)) %>%
+    mutate(estimate = round(estimate, 3),
+           std.error = round(std.error, 3),
+           statistic = round(statistic, 3),
+    ) %>%
+    mutate(intercept = "intercept", .before=term
+    )  %>%
+    relocate(`97.5% CI`, .after="std.error") %>%
+    relocate(`2.5% CI`, .after="std.error") %>%
+    rename(!!my_stat := statistic,
+           slope=term)
+  # bind two-level factor stats to my_pairwise
+  my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
+
   # Write tables to file
   if (write != "")
   {
@@ -829,7 +864,8 @@ getModelFixedFX <- function(my_equation,
     ) %>%
     formattable(caption = paste("b1 for", my_formula, sep = " "))
 
-  return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise))
+    return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise,
+              "model" = base_model))
 }
 
 ###  Tidy Intercepts of multiple analyses  #####################################
@@ -882,7 +918,6 @@ kable_chi_sq <- function(chi_sq_test)
     names(df) <- NULL
 
     p <-chi_sq_test$p.value[1]
-
 
     df <- data.frame(term=c("Chi-squared", "df", "p.value"),
                     value=c(x2d, df, p))
