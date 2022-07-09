@@ -11,6 +11,7 @@ p_color <- . ~ style(color =
                                        "orange",
                                        "red")))
 
+
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
 {
@@ -125,7 +126,6 @@ balancedData <- function(data_set,
 }
 
 
-
 ###  Draw Residuals  #########################################################
 drawResiduals <- function(myModel)
 {
@@ -224,6 +224,8 @@ sigCodesTidy <-
     return(my_tibble)
   }
 
+
+### Parameter Summary ##########################################################
 param_summary <-
   function(df, treatment, phonology, is_nucleus = FALSE)
   {
@@ -277,6 +279,7 @@ param_summary <-
 
   }
 
+
 ###  Get Parameter Means  ######################################################
 param_means <-
   function(df,
@@ -299,6 +302,7 @@ param_means <-
         pivot_wider(names_from = !!hor_param, values_from = new_means)
     )
   }
+
 
 ###  Get M_Corpus #############################################################
 get_m_corpus <- function(file_address)
@@ -345,8 +349,7 @@ get_m_corpus <- function(file_address)
         utt_mean_f0,
         utt_slope_z,
         spkr_f0_mean,
-        spkr_f0_SD,
-
+        spkr_f0_SD
       ) %>%
       mutate(
         # create composite parameters for continuous data.
@@ -434,6 +437,7 @@ get_m_corpus <- function(file_address)
 
 }
 
+
 ###  Summarise LME  ############################################################
 summarise_lme <-
   function(my_model, run_step = FALSE, my_tolerance = 1e-05, write=NULL)
@@ -460,14 +464,12 @@ summarise_lme <-
       write_csv(anova, write)
     }
 
-
     cat("\nCheck_singularity(my_model, tolerance =",
         my_tolerance,
         "-->",
         check_singularity(my_model, tolerance=my_tolerance),
         "\n"
     )
-
 
     if (run_step)
     {
@@ -508,9 +510,8 @@ printTidyModel <-
   my_stat = enquo(my_stat)
 
   if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
+
   my_headers = enquos(my_headers)
-
-
   my_formula <- str_c(formula(my_model))
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
 
@@ -554,7 +555,6 @@ printTidyModel <-
     digits = 2,
     align = "l"
   )  %>% kable_styling(full_width = FALSE, position="left")
-
 
   if (!is.null(write_r2)) {
     do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
@@ -602,7 +602,6 @@ getModelFixedFX <- function(my_equation,
 
   if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
   my_headers = enquos(my_headers)
-
 
   # run base model.
   if (is_GLM) {
@@ -672,7 +671,7 @@ getModelFixedFX <- function(my_equation,
   # create empty tibble for fixed factor output
   all_models_tidy = tibble()
 
-  # loop through each multievel fixed factor of interest (multilevel_factors)
+  # loop through each multilevel fixed factor of interest (multilevel_factors)
   for (cur_factor in multilevel_factors)
     {
     # Get levels for current factor
@@ -719,6 +718,8 @@ getModelFixedFX <- function(my_equation,
           )
         )
       }
+
+      #check_singularity(cur_model) %>% print()
 
       # Tidy the model.
       cur_model_tidy <- tidy(cur_model) %>%
@@ -785,14 +786,11 @@ getModelFixedFX <- function(my_equation,
       cur_model_tidy <-
         filter(cur_model_tidy, term %in% keep_comparisons)
 
-
       # add remaining pairwise comparisons to main tibble.
       all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
 
-
       # restructure the order of levels for next LME cur_model.
       cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-
 
       factor_var <- sym(cur_factor)
       factor_var_name <- quo_name(cur_factor)
@@ -800,9 +798,7 @@ getModelFixedFX <- function(my_equation,
       my_data <- my_data %>%
         mutate(!!factor_var := factor(!!factor_var,
                                       levels = cur_levels))
-
           }
-
   }
 
   # Get intercepts and pairwise comparisons tables
@@ -811,7 +807,6 @@ getModelFixedFX <- function(my_equation,
 
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
-
 
   # Get tibble of 2-level factor slopes from base model
   ci_Wald <- confint(base_model, method = "Wald") %>%
@@ -847,7 +842,6 @@ getModelFixedFX <- function(my_equation,
               paste(write, "_b0.csv", sep = ""))
     write_csv(my_pairwise,
               paste(write, "_b1.csv", sep = ""))
-
   }
 
   # Output formatted tables
@@ -868,6 +862,7 @@ getModelFixedFX <- function(my_equation,
               "model" = base_model))
 }
 
+
 ###  Tidy Intercepts of multiple analyses  #####################################
 tidyIntercepts <- function(all_models_tidy)
   {
@@ -876,13 +871,14 @@ tidyIntercepts <- function(all_models_tidy)
       select(-pairwise) %>%
       rename(intercept = term)
       )
-  }
+}
+
+
 ###  Tidy Pairwise Tables of multiple analyses  ################################
 tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 {
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
-
   my_headers <- c(
     "pairwise",
     "term",
@@ -924,8 +920,6 @@ kable_chi_sq <- function(chi_sq_test)
 
     names(df) <- NULL
     return(kable(df, caption="Pearson's Chi-squared test"))
-
-
 }
 
 
@@ -1020,3 +1014,4 @@ adjustP_posthoc <-
     }
         if(report){return(p_counts)}
   }
+

@@ -8,7 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE)
+                      warning = FALSE,
+                      message = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -71,11 +72,10 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                            levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
 ```
 
-
-```{r run initial models,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+```{r run initial model,  fig.height=3, include=FALSE, fig.width=9, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
+    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
@@ -88,11 +88,22 @@ l_f0_model <-
     )
   )
 
+summarise_lme(l_f0_model, run_step = TRUE)
+```
+
+-   Model works.
+-   Trimming model to remove observations with residual > 3 standard deviations.
+-   Trimmed model creates singularity issue!
+-   Using same model as for h_f0, i.e., intercepts-only without (1|promt)
+
+#### `l_f0 ~ mode + fin_phon + gender + (1 | speaker)`
+
+```{r run trimmed models,  fig.height=3, fig.width=9, include=FALSE, tidy = TRUE}
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_f0_model))) <= 3)
 
-l_f0_model_trimmed <-
+l_f0_model.trimmed <-
   lmer(
-    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
+    l_f0 ~ mode + fin_phon + gender + (1 | speaker),
     data = m_corpus.trimmed,
     control = lmerControl(
       optimizer = "optimx",
@@ -105,35 +116,29 @@ l_f0_model_trimmed <-
     )
   )
 
-summarise_lme(l_f0_model_trimmed, run_step = TRUE)
+summarise_lme(l_f0_model.trimmed, run_step = TRUE,
+              write="../output_model_anovas/Mode_l_f0_anova.csv")
 ```
 
 
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
-l_f0_model_trimmed.tidy <- printTidyModel(l_f0_model_trimmed,
-                                bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
+l_f0_model_trimmed.tidy <- printTidyModel(l_f0_model.trimmed,
                                 write_r2="../output/Mode_l_f0"
                                 )
-l_f0_model_trimmed.tidy$table
 l_f0_model_trimmed.tidy$r2
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
+  my_equation =
+    l_f0 ~ mode + fin_phon + gender + (1 | speaker),
   my_data = m_corpus.trimmed,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
   write="../output/Mode_l_f0"
 )
 charts$intercepts
 charts$pairwise
-
-
 ```
-

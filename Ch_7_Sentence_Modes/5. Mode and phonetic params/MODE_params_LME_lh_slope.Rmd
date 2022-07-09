@@ -78,13 +78,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE, include=FALSE}
+- Maximal model works well.
+- Slightly leptokurtic, but not worth trimming.
+
+#### `lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)`
+
+```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 lh_slope_model <-
     lmer(
-        lh_slope ~  mode + fin_phon + prompt +
-          (1 + mode | speaker) + (1 | gender),
+        lh_slope ~
+          mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -96,42 +101,14 @@ lh_slope_model <-
             )
         )
       )
-
-
-summarise_lme(lh_slope_model, run_step=TRUE) %>% print()
-
-```
-- Singularity issue with maximal model.
-- Running model without gender as a random intercept.
-- This fixes the issue.
-
-### `lh_slope ~  mode + fin_phon + prompt + (1 + mode | speaker)`
-
-```{r run reduced model,  fig.height=3, fig.width=9, tidy = TRUE}
-
-# run model
-lh_slope_model <-
-    lmer(
-        lh_slope ~  mode + fin_phon + prompt + (1 + mode | speaker),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-      )
-
 
 summarise_lme(lh_slope_model, run_step=TRUE,
               write="../output_model_anovas/Mode_lh_slope_anova.csv")
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
 lh_slope_model.tidy <- printTidyModel(lh_slope_model,
                                 write_r2="../output/Mode_lh_slope"
@@ -140,10 +117,11 @@ lh_slope_model.tidy$r2
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_slope ~  mode + fin_phon + prompt + (1 + mode | speaker),
+  my_equation =
+    lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
   my_data = m_corpus,
   write="../output/Mode_lh_slope"
 )

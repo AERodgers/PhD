@@ -10,11 +10,15 @@
   ~~3. Overwrite previous p.adj columns using the same p.adj method~~
   ~~4. Remove any previous signif. columns and insert a new one as a last column.~~
 
-    $\rightarrow$ Alternative solution: getModelFixedFX now automatically distinguishes two-level factors from multilevel factors and adds the slope statistics of the two-level factros them to the pairwise analysis. Also, p values of ANOVAs of models need to be assessed separately as they already incorporate statistics and p.values from the terns in the model.
+    **Alternative solution**
+    
+    getModelFixedFX now automatically distinguishes two-level factors from multilevel factors and adds the slope statistics of the two-level factros them to the pairwise analysis.
+    
+    Also, p values of ANOVAs of models need to be assessed separately as they already incorporate statistics and p.values from the terns in the model.
 
 
 #### 2022.07.08
 
-* Correct errors in composite models files `mode and acc_phon` files
-* Correct errors in composite models files `mode and acc_phon` files
-* Update Excel workbooks to include
+* ~~Correct errors in composite models in mode and acc_phon folder~~
+* ~~Correct errors in all models in mode only folder~~
+* Update Excel workbooks to include 2-level fixed effect factors.

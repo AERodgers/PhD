@@ -78,15 +78,16 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-- Initial model works.
+- Maximal model works.
 
-## `lh_mean_f0 ~  mode + fin_phon + (1 + mode | speaker) + (1 | gender)`
+## `lh_mean_f0 ~  mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)`
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 lh_mean_f0_model <-
     lmer(
-        lh_mean_f0 ~  mode + fin_phon + (1 + mode | speaker) + (1 | gender),
+        lh_mean_f0 ~  mode + fin_phon + gender +
+          (1 + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -117,8 +118,9 @@ lh_mean_f0_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_mean_f0 ~  mode + fin_phon +
-    (1 + mode | speaker) + (1 | gender),
+  my_equation = lh_mean_f0 ~  mode + fin_phon + gender +
+    (1 + mode | speaker) + (1 | prompt),
+
   my_data = m_corpus,
   write="../output/Mode_lh_mean_f0"
 )

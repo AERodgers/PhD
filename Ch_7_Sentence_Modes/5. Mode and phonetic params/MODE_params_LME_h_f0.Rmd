@@ -78,15 +78,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-- initial model raises a singularity issue warning, but check_singularity() with tolerance set to 1e-05 does returns false for singularity.
-- Retaining initial model.
+- initial model raises a singularity issue warning.
+- Singularity only disappears in intercepts-only model without (1|prompt)
 
-### `h_f0 ~  mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender)`
+### `h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)`
 
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 # run model
 h_f0_model <-
-  lmer(h_f0 ~  mode + fin_phon + prompt + (1 + mode | speaker) + (1 | gender),
+  lmer(h_f0 ~ mode + fin_phon + gender + (1 | speaker),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -98,11 +98,11 @@ h_f0_model <-
           )
         )
       )
-
-
-summarise_lme(h_f0_model, run_step=TRUE,
-              write="../output_model_anovas/Mode_h_f0_anova.csv")
+summarise_lme(h_f0_model, run_step = TRUE,
+              write = "../output_model_anovas/Mode_h_f0_anova.csv")
+#              
 ```
+
 ```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
 h_f0_model.tidy <- printTidyModel(h_f0_model,
@@ -115,8 +115,7 @@ h_f0_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = h_f0 ~  mode + fin_phon + prompt +
-    (1 + mode | speaker) + (1 | gender),
+  my_equation = h_f0 ~ mode + fin_phon + gender + (1 | speaker),
   my_data = m_corpus,
   write="../output/Mode_h_f0"
 )

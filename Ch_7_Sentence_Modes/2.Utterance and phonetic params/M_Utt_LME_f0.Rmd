@@ -73,9 +73,8 @@ cur_equation  <-
   "utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
 
 ```
-### ``r cur_equation``
 
-Prompt is used as an intercepts only random effect since the model does not converge when intercept and slope effect are both included.
+#### ``r cur_equation``
 
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 utt_mean_f0 = lmer(
@@ -91,25 +90,16 @@ utt_mean_f0 = lmer(
     )
   )
 )
+
+summarise_lme(utt_mean_f0 , run_step = TRUE,
+              write="anova/utt_f0.csv")
 ```
-
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-
-summarise_lme(utt_mean_f0 , run_step = TRUE)
-```
-
-### Final model: ``r cur_equation``
-
-#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 utt_mean_f0.tidy <- printTidyModel(
   utt_mean_f0,
-  bf_adj = 4,
-  exclude_terms = "genderM",
   write_r2="utt_f0"
 )
-utt_mean_f0.tidy$table
 utt_mean_f0.tidy$r2
 ```
 
@@ -118,10 +108,9 @@ utt_mean_f0.tidy$r2
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = utt_mean_f0 ~ mode + (1 + mode | speaker),
+  my_equation = utt_mean_f0 ~ mode + gender + starts_with_H +
+    (1 + mode | speaker) + (1 | prompt),
   my_data = m_corpus,
-  exclude_terms = c("gender"),
-  bf_adj = 4,
   write="utt_f0"
 )
 charts$intercepts

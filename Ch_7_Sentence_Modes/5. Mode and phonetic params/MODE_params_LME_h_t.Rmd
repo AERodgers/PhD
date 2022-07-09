@@ -8,7 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = TRUE)
+                      warning = FALSE,
+                      message = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R") 
@@ -73,8 +74,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                            levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
 ```
 
-
-```{r run initial model,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+- Maximal model creates singularity issue.
+- This disappears wtih an random intercepts-only model.
+```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 h_t_model <-
@@ -92,18 +94,16 @@ h_t_model <-
       )
 
 
-summarise_lme(h_t_model, run_step=TRUE)
+summarise_lme(h_t_model, run_step=TRUE,
+              write = "../output_model_anovas/Mode_h_t_anova.csv")
 
 ```
 - 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 h_t_model.tidy <- printTidyModel(h_t_model,
-                                bf_adj = 16,
-                                exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/Mode_h_t"
                                 )
-h_t_model.tidy$table
 h_t_model.tidy$r2
 
 ```
@@ -113,8 +113,6 @@ h_t_model.tidy$r2
 charts <- getModelFixedFX(
   my_equation = h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
-  exclude_terms = c("gender", "fin_phon"),
-  bf_adj = 16,
   write="../output/Mode_h_t"
 )
 charts$intercepts

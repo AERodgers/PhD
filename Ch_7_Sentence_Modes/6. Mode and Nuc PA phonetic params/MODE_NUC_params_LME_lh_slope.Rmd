@@ -84,9 +84,8 @@ As with other models, excluding gender.
 
 # run model
 lh_slope_model <-
-    lmer(
-        lh_slope ~ mode * acc_phon + fin_phon +
-          (1 + acc_phon + mode | speaker) + (1 | gender) + (1 | prompt),
+    lmer(lh_slope ~ mode * acc_phon + fin_phon + gender + 
+           (1 + acc_phon + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -99,7 +98,6 @@ lh_slope_model <-
         )
       )
 
-
 summarise_lme(lh_slope_model, run_step=TRUE)
 
 ```
@@ -110,8 +108,7 @@ summarise_lme(lh_slope_model, run_step=TRUE)
 ```{r run reduced step() only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 lh_slope_model <-
-    lmer(lh_slope ~ mode * acc_phon + 
-          (1 + acc_phon + mode | speaker) + (1 | prompt),
+    lmer(lh_slope ~ mode*acc_phon + (1 + acc_phon + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -129,16 +126,16 @@ summarise_lme(lh_slope_model , run_step = TRUE)
 ```
 
 -   Singularity and convergence issues persist.
--   Trying intercepts only mode and re-introducing gender and fin_phon.
+-   Trying intercepts only mode but reintroducing original factors.
 -   This model works.
 -   Trimming model for observations with model residual of > 3 standard deviations.
 
-## `lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt)`
+#### `lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)`
 ```{r intercepts only model tested, fig.height=3, fig.width=9, tidy = TRUE}
 
-
 lh_slope_model <-
-    lmer(lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
+    lmer(lh_slope ~
+           mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -154,8 +151,8 @@ lh_slope_model <-
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_slope_model))) <= 3)
 
 lh_slope_model.trimmed <-
-    lmer(lh_slope ~ mode * acc_phon + fin_phon +
-           (1 | speaker) + (1 | prompt),
+    lmer(lh_slope ~
+           mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),
         data = m_corpus.trimmed,
         control = lmerControl(
             optimizer = "optimx",
@@ -184,8 +181,8 @@ lh_slope_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation =
-    lh_slope ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | prompt),
+  my_equation = lh_slope ~ mode * acc_phon + fin_phon + gender +
+    (1 | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
   write="../output/Mode_PA_lh_slope"
 )

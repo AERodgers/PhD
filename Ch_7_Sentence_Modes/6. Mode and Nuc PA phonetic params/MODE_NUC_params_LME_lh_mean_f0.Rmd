@@ -84,8 +84,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 # run model
 lh_mean_f0_model <-
     lmer(
-        lh_mean_f0 ~ mode * acc_phon + fin_phon +
-          (1 + acc_phon + mode | speaker) + (1 | gender) + (1 | prompt),
+        lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + 
+          (1 + acc_phon + mode | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -103,13 +103,13 @@ summarise_lme(lh_mean_f0_model, run_step=TRUE) %>% print()
 
 ```
 
--   Singularity issues.
--   removing random factors suggested by step()
+-   Singularity & convergence issues in maximal model.
+-   Running model suggested by step()
 
 ```{r run intercepts only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 lh_mean_f0_model_reduced <-
-    lmer(lh_mean_f0 ~  mode * acc_phon + fin_phon + (1 + acc_phon + mode | speaker),
+    lmer(lh_mean_f0 ~  mode + acc_phon + (1 + mode + acc_phon | speaker),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -127,15 +127,17 @@ summarise_lme(lh_mean_f0_model_reduced , run_step = TRUE)
 ```
 
 - Model still returns singularity.
-- Rerunning model, intercepts only, but re-introducing gender.
+- Rerunning model, intercepts only with original factors.
 - This removes singularity issues.
 
-#### `lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender)`
+#### `lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),)`
+
 ```{r trimmed model tested,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
 lh_mean_f0_model_intercepts_only <-
-    lmer(lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
+    lmer(lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + 
+          (1 | speaker) + (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -167,7 +169,8 @@ lh_mean_f0_model.tidy$r2
 
 charts <- getModelFixedFX(
   my_equation =
-    lh_mean_f0 ~ mode * acc_phon + fin_phon + (1 | speaker) + (1 | gender),
+    lh_mean_f0 ~ mode * acc_phon + fin_phon + gender +
+    (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
   write="../output/Mode_PA_lh_mean_f0"
 )

@@ -61,15 +61,17 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
              TRUE,
-             FALSE)
+             FALSE),
+         starts_with_H = factor(starts_with_H, levels = unique(starts_with_H))
 )
 
 ```
 
 Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
-```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+```{r fig.height=3, fig.width=9, tidy = TRUE}
 # set recommended equation
-utt_slope_mdl  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
+utt_slope_mdl  <-  lmer(utt_slope ~  mode + gender + starts_with_H +
+    (1 + mode | speaker) + (1 | prompt),
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
@@ -82,12 +84,13 @@ utt_slope_mdl  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 + mode | 
   )
 )
 
-
 # model needs trimming
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 2.5)
 
 
-utt_slope_mdl.trimmed  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
+utt_slope_mdl.trimmed  <-  lmer(
+  utt_slope ~ mode + gender + starts_with_H +
+    (1 + mode | speaker) + (1 | prompt),
   data = m_corpus.trimmed,
   control = lmerControl(
     optimizer = "optimx",
@@ -100,35 +103,25 @@ utt_slope_mdl.trimmed  <-  lmer(utt_slope ~ mode + gender + starts_with_H + (1 +
   )
 )
 
-summarise_lme(utt_slope_mdl.trimmed, run_step = TRUE)
+summarise_lme(utt_slope_mdl.trimmed, run_step = TRUE,
+              write="anova/utt_slope.csv")
 ```
-
-
-#### Analysis of model
 
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 utt_utt_slope.tidy <- printTidyModel(
   utt_slope_mdl.trimmed,
-  bf_adj = 4,
-  exclude_terms = c("fin_phonL%",
-                    "genderM",
-                    "starts_with_HTRUE"),
-                                write_r2="utt_slope"
-                                )
-utt_utt_slope.tidy$table
+  write_r2="utt_slope"
+  )
 utt_utt_slope.tidy$r2
 ```
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r fig.height=3, fig.width=9, tidy = TRUE}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt),
+  my_equation = utt_slope ~ mode + gender + starts_with_H +
+    (1 + mode | speaker) + (1 | prompt),
   my_data = m_corpus.trimmed,
-  exclude_terms = c("fin_phon",
-                    "gender",
-                    "starts_with_H"),
-  bf_adj = 4,
   write="utt_slope"
 )
 charts$intercepts
