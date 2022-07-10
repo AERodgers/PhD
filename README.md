@@ -21,4 +21,13 @@
 
 * ~~Correct errors in composite models in mode and acc_phon folder~~
 * ~~Correct errors in all models in mode only folder~~
-* Update Excel workbooks to include 2-level fixed effect factors.
+* ~~Update Excel workbooks to include 2-level fixed effect factors.~~
+
+#### 2022.07.10
+
+* Have done:
+    * Added ability to print tables with adjusted p.values to post_hoc_p_adj.
+    * Save formula to anova folder and to output folder
+* to do
+    * Get post_hoc_p_correction to use formula as caption in print output. 
+

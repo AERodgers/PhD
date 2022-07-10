@@ -89,7 +89,7 @@ l_f0_model <-
       )
     )
   )
-summarise_lme(l_f0_model, run_step = TRUE)
+summariseLME(l_f0_model, run_step = TRUE)
 ```
 -    Convergence and singularity issues.
 -    Trying model suggested by step()
@@ -110,7 +110,7 @@ l_f0_model <-
       )
     )
   )
-summarise_lme(l_f0_model, run_step = TRUE)
+summariseLME(l_f0_model, run_step = TRUE)
 ```
 -    Optimization issue persist.
 -    changing to intercepts only model. 
@@ -130,7 +130,7 @@ l_f0_model <-
       )
     )
   )
-summarise_lme(l_f0_model, run_step = TRUE)
+summariseLME(l_f0_model, run_step = TRUE)
 ```
 
 -   Model works but a few outliers.
@@ -153,7 +153,7 @@ l_f0_model.trimmed <-
       )
     )
   )
-summarise_lme(l_f0_model.trimmed, run_step = TRUE,
+summariseLME(l_f0_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_PA_l_f0_anova.csv")
 
 ```

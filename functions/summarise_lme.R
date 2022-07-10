@@ -1,7 +1,7 @@
 # author: "Antoin Eoin Rodgers"
 # date: '2022-05-06'
 ###  Summarise LME  ############################################################
-summarise_lme <-
+summariseLME <-
   function(my_model, run_step = FALSE, my_tolerance = 1e-05, write=NULL)
     # short function to remove need for repetition of optimized used throughout.
   {

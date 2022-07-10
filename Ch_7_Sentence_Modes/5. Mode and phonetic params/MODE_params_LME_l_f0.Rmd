@@ -88,7 +88,7 @@ l_f0_model <-
     )
   )
 
-summarise_lme(l_f0_model, run_step = TRUE)
+summariseLME(l_f0_model, run_step = TRUE)
 ```
 
 -   Model works.
@@ -116,7 +116,7 @@ l_f0_model.trimmed <-
     )
   )
 
-summarise_lme(l_f0_model.trimmed, run_step = TRUE,
+summariseLME(l_f0_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_l_f0_anova.csv")
 ```
 

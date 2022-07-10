@@ -98,7 +98,7 @@ f0_exc_model <-
       )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
+summariseLME(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
 -   Convergence and singularity issues.
@@ -126,7 +126,7 @@ f0_exc_model <-
       )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE,
+summariseLME(f0_exc_model, run_step=TRUE,
               write="../output_model_anovas/Mode_f0_exc_anova.csv")
 
 ```

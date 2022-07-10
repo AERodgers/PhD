@@ -2,14 +2,17 @@
 # date: '2022-05-06'
 ###  Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
-  function(my_folder,
-           p_column,
-           method = "BH",
-           marginal = TRUE,
-           write = TRUE,
-           report = FALSE
+  function(my_folder,            # source folder with .csv files to be updated.
+           p_column="p,value",   # name of p.column
+           method = "BH",        # p. adjustment method
+           marginal = TRUE,      # include marginal significance flag.
+           write = TRUE,         # write results to file flag.
+           report = FALSE,       # flag to report total number of tests and
+                                 # p.values<0.05 before and after adjustment.
+           suffix_id="b0b1"      # suffix ID for files for analysis
+                                 # (b0b1 = all files ending in "_b0" and "_b1")
   )
-    {
+  {
     # Load required packages
     require("dplyr")
     require("readr")
@@ -21,7 +24,7 @@ adjustP_posthoc <-
                         "hochberg" = "hoch",
                         "hommel" = "homm",
                         "bonferroni" = "bonf")
-      }
+    }
     else{my_meth <- method}
 
     # Enquote variables which whose values will be evaluated as variables.
@@ -29,25 +32,45 @@ adjustP_posthoc <-
     new_adj_col = paste("p.adj (", method, ")", sep="")
     new_adj_col = enquo(new_adj_col)
 
-    # Get tibble of all b0 and b1 files to be adjusted.
-    file_tibble <-
-      list.files(my_folder, "*_b0.csv", full.names = TRUE) %>%
-      read_csv(id = "file_name",
-               col_names = TRUE,
-               show_col_types = FALSE) %>%
-      # Create dummy slope column for b0 files.
-      mutate(slope = NA, .before = intercept) %>%
-      rbind(
-        list.files(my_folder, "*_b1.csv", full.names = TRUE) %>%
-          read_csv(id = "file_name", col_names = TRUE, show_col_types = FALSE)
-      ) %>%
-      # avoid reduplication of current method column
-      select(-any_of(!!new_adj_col)) %>%
-      # Add p.adjusted column using method.
-      mutate(p.adj = p.adjust(!!p_column,
-                              method = method),
-             .after = !!p_column) %>%
-      relocate(intercept)
+    if(suffix_id=="b0b1"){
+      # Get tibble of all b0 and b1 files to be adjusted.
+      file_tibble <-
+        list.files(my_folder, "*_b0.csv", full.names = TRUE) %>%
+        read_csv(id = "file_name",
+                 col_names = TRUE,
+                 show_col_types = FALSE) %>%
+        # Create dummy slope column for b0 files.
+        mutate(slope = NA, .before = intercept) %>%
+        rbind(
+          list.files(my_folder, "*_b1.csv", full.names = TRUE) %>%
+            read_csv(id = "file_name", col_names = TRUE, show_col_types = FALSE)
+        ) %>%
+        # avoid reduplication of current method column
+        select(-any_of(!!new_adj_col)) %>%
+        # Add p.adjusted column using method.
+        mutate(p.adj = p.adjust(!!p_column,
+                                method = method),
+               .after = !!p_column) %>%
+        relocate(intercept)}
+    else {
+      # Get tibble of files to be adjusted
+      file_tibble <-
+        list.files(my_folder,
+                   paste("*", suffix_id, ".csv", sep=""),
+                   full.names = TRUE) %>%
+        read_csv(id = "file_name",
+                 col_names = TRUE,
+                 show_col_types = FALSE) %>%
+
+        # avoid reduplication of current method column
+        select(-any_of(c(!!new_adj_col, signif.))) %>%
+        # Add p.adjusted column using method.
+        mutate(p.adj = p.adjust(!!p_column,
+                                method = method),
+               .after = !!p_column) %>%
+        relocate(intercept)
+
+    }
 
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()
@@ -66,13 +89,13 @@ adjustP_posthoc <-
                   p.adj < 0.1 & marginal, "(p<0.1)",""))))),
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
-          as.character(formatC(p.adj, format="e", digits = 2)),
-          as.character(round(p.adj, 4), digits = 2)),
+                        as.character(formatC(p.adj, format="e", digits = 2)),
+                        as.character(round(p.adj, 4), digits = 2)),
         !!p_column := if_else(
           !!p_column < 0.001,
           as.character(formatC(!!p_column, format="e", digits = 2)),
           as.character(round(!!p_column, 4), digits = 2))
-        ) %>%
+      ) %>%
       # Change name of p.adj to indicate adjustment method.
       rename(!!new_adj_col := p.adj)
 
@@ -89,5 +112,5 @@ adjustP_posthoc <-
         write_csv(cur_set, cur_file)
       }
     }
-        if(report){return(p_counts)}
+    if(report){return(p_counts)}
   }

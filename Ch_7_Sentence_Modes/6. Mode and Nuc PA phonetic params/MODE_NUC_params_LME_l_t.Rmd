@@ -90,7 +90,7 @@ l_t_model <-
         )
       )
 
-summarise_lme(l_t_model, run_step=TRUE)
+summariseLME(l_t_model, run_step=TRUE)
 
 ```
 
@@ -112,7 +112,7 @@ l_t_model <- lmer(l_t ~ mode * acc_phon + fin_phon + gender +
         )
       )
 
-summarise_lme(l_t_model , run_step=TRUE)
+summariseLME(l_t_model , run_step=TRUE)
 
 ```
 
@@ -156,7 +156,7 @@ l_t_model.trimmed <- lmer(l_t ~ mode * acc_phon + fin_phon + gender +
         )
       )
 
-summarise_lme(l_t_model.trimmed, run_step=TRUE,
+summariseLME(l_t_model.trimmed, run_step=TRUE,
               write="../output_model_anovas/Mode_PA_l_t_anova.csv")
 
 ```

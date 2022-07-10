@@ -11,7 +11,6 @@ p_color <- . ~ style(color =
                                        "orange",
                                        "red")))
 
-
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
 {
@@ -438,8 +437,16 @@ get_m_corpus <- function(file_address)
 }
 
 
+###  Get Formula as String from LME/GLM model ##################################
+getModelFormula <-function(my_model) {
+  require("stringr")
+  my_formula <- str_c(formula(my_model))
+  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+  return(my_formula)
+}
+
 ###  Summarise LME  ############################################################
-summarise_lme <-
+summariseLME <-
   function(my_model, run_step = FALSE, my_tolerance = 1e-05, write=NULL)
     # short function to remove need for repetition of optimized used throughout.
   {
@@ -447,9 +454,9 @@ summarise_lme <-
     require("lmerTest")
     require("optimx")
     require("performance")
+    require("stringr")
 
-    my_formula <- str_c(formula(my_model))
-    my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+    my_formula <- getModelFormula(my_model)
 
     # output results
     drawResiduals(my_model)
@@ -462,6 +469,9 @@ summarise_lme <-
       rename(`F value` = statistic)
     if(!is_null(write)){
       write_csv(anova, write)
+      formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
+        str_replace(".csv", ".txt")
+      write(my_formula, formula_save)
     }
 
     cat("\nCheck_singularity(my_model, tolerance =",
@@ -512,8 +522,7 @@ printTidyModel <-
   if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
 
   my_headers = enquos(my_headers)
-  my_formula <- str_c(formula(my_model))
-  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+  my_formula <- getModelFormula(my_model)
 
   tidy_model <- tidy(my_model) %>%
     filter(effect %notin% "ran_pars") %>%
@@ -637,8 +646,8 @@ getModelFixedFX <- function(my_equation,
     )
   }
 
-  my_formula <- str_c(formula(base_model))
-  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
+  my_formula <- getModelFormula(base_model)
+  write(my_formula, paste(write, "_formula.txt", sep = ""))
 
   # create list of fixed factors
   fixed_factors <-
@@ -925,18 +934,25 @@ kable_chi_sq <- function(chi_sq_test)
 
 ###  Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
-  function(my_folder,
-           p_column,
-           method = "BH",
-           marginal = TRUE,
-           write = TRUE,
-           report = FALSE
+  function(my_folder,            # source folder with .csv files to be updated.
+           p_column,             # name of p.column
+           method = "BH",        # p. adjustment method
+           marginal = TRUE,      # include marginal significance flag.
+           write = TRUE,         # write results to file flag.
+           report = FALSE,       # flag to report total number of tests and
+                                 # p.values < 0.05 before and after adjustment.
+           print = FALSE,        # Print output or not
+           suffix_id="b0b1"      # suffix ID for files for analysis
+                                 # (b0b1 = all files ending in "_b0" and "_b1")
   )
-    {
+  {
     # Load required packages
     require("dplyr")
+    require("formattable")
     require("readr")
     require("mefa4")
+    require("knitr")
+    require("kableExtra")
 
     # Abbreviate method where necessary.
     if(method %in% c("hochberg", "hommel", "bonferroni")) {
@@ -952,6 +968,7 @@ adjustP_posthoc <-
     new_adj_col = paste("p.adj (", method, ")", sep="")
     new_adj_col = enquo(new_adj_col)
 
+    if(suffix_id=="b0b1"){
     # Get tibble of all b0 and b1 files to be adjusted.
     file_tibble <-
       list.files(my_folder, "*_b0.csv", full.names = TRUE) %>%
@@ -970,7 +987,25 @@ adjustP_posthoc <-
       mutate(p.adj = p.adjust(!!p_column,
                               method = method),
              .after = !!p_column) %>%
-      relocate(intercept)
+      relocate(intercept)}
+    else {
+      # Get tibble of files to be adjusted
+      file_tibble <-
+        list.files(my_folder,
+                   paste("*", suffix_id, ".csv", sep=""),
+                   full.names = TRUE) %>%
+        read_csv(id = "file_name",
+                 col_names = TRUE,
+                 show_col_types = FALSE) %>%
+
+        # avoid reduplication of current method column
+        select(-any_of(c(!!new_adj_col, "signif."))) %>%
+        # Add p.adjusted column using method.
+        mutate(p.adj = p.adjust(!!p_column,
+                                method = method),
+               .after = !!p_column)
+
+    }
 
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()
@@ -999,19 +1034,35 @@ adjustP_posthoc <-
       # Change name of p.adj to indicate adjustment method.
       rename(!!new_adj_col := p.adj)
 
-    # Re-save updated tables as original file name.
-    if (write) {
+
       for (cur_file in unique(file_tibble$file_name))
       {
         cur_set <- file_tibble %>%
           filter(file_name == cur_file) %>%
           select(-file_name)
-        if (is.na(cur_set$slope[1])) {
-          cur_set <- cur_set %>% select(-slope)
+        # Remove dummy slope column from b0 files.
+        if (suffix_id == "b0b1") {
+          if (is.na(cur_set$slope[1])) {
+            cur_set <- cur_set %>% select(-slope)
+          }
         }
-        write_csv(cur_set, cur_file)
+        # Re-save updated tables as original file name.
+        if (write) {
+          write_csv(cur_set, cur_file)
+        }
+
+        # print table.
+        if (print) {
+          knitr::kable(cur_set,
+                       caption = cur_file,
+                       align = "l")  %>% kable_styling(full_width = FALSE, position =
+                                                         "left") %>% print()
+        }
       }
+
+
+    if (report) {
+      return(p_counts)
     }
-        if(report){return(p_counts)}
   }
 

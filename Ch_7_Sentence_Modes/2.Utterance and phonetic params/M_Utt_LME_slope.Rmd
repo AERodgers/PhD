@@ -103,7 +103,7 @@ utt_slope_mdl.trimmed  <-  lmer(
   )
 )
 
-summarise_lme(utt_slope_mdl.trimmed, run_step = TRUE,
+summariseLME(utt_slope_mdl.trimmed, run_step = TRUE,
               write="anova/utt_slope.csv")
 ```
 

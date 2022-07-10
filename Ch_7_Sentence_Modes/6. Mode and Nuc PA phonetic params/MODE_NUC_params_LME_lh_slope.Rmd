@@ -98,7 +98,7 @@ lh_slope_model <-
         )
       )
 
-summarise_lme(lh_slope_model, run_step=TRUE)
+summariseLME(lh_slope_model, run_step=TRUE)
 
 ```
 
@@ -121,7 +121,7 @@ lh_slope_model <-
         )
     )
 
-summarise_lme(lh_slope_model , run_step = TRUE)
+summariseLME(lh_slope_model , run_step = TRUE)
 
 ```
 
@@ -165,7 +165,7 @@ lh_slope_model.trimmed <-
         )
     )
 
-summarise_lme(lh_slope_model.trimmed, run_step = TRUE,
+summariseLME(lh_slope_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_PA_lh_slope_anova.csv")
 ```
 

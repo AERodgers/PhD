@@ -98,7 +98,7 @@ f0_exc_model <-
   )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE) 
+summariseLME(f0_exc_model, run_step=TRUE) 
 
 ```
 
@@ -122,7 +122,7 @@ f0_exc_model <-
     )
   )
 
-summarise_lme(f0_exc_model, run_step=TRUE) 
+summariseLME(f0_exc_model, run_step=TRUE) 
 
 ```
 
@@ -148,7 +148,7 @@ f0_exc_model <-
   )
 
 
-summarise_lme(f0_exc_model, run_step=TRUE)
+summariseLME(f0_exc_model, run_step=TRUE)
 ```
 - singularity remains in random intercepts only model.
 - Running model with only speaker as random effect.
@@ -189,7 +189,7 @@ f0_exc_model.trimmed <-
   )
 
 
-summarise_lme(f0_exc_model.trimmed, run_step=TRUE,
+summariseLME(f0_exc_model.trimmed, run_step=TRUE,
               write="../output_model_anovas/Mode_PA_f0_exc_anova.csv")
 ```
 

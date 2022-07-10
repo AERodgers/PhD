@@ -101,7 +101,7 @@ lh_mean_f0_model <-
       )
 
 
-summarise_lme(lh_mean_f0_model, run_step=TRUE,
+summariseLME(lh_mean_f0_model, run_step=TRUE,
               write="../output_model_anovas/Mode_lh_mean_f0_anova.csv")
 
 ```

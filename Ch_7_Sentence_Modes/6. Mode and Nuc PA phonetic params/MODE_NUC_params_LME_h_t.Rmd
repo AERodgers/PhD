@@ -93,7 +93,7 @@ h_t_model <-
       )
 
 
-summarise_lme(h_t_model, run_step=TRUE)
+summariseLME(h_t_model, run_step=TRUE)
 
 ```
 
@@ -119,7 +119,7 @@ h_t_model_reduced <-
         )
       )
 
-summarise_lme(h_t_model_reduced, run_step=TRUE,
+summariseLME(h_t_model_reduced, run_step=TRUE,
               write="../output_model_anovas/Mode_PA_h_t_anova.csv")
 
 ```

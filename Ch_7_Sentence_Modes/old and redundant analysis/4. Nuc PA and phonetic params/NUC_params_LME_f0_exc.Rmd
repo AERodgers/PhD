@@ -101,7 +101,7 @@ f0_exc_model <-
         )
       )
 
-summarise_lme(f0_exc_model, run_step=TRUE) %>% print()
+summariseLME(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
 
@@ -128,7 +128,7 @@ f0_exc_model_reduced <-
         )
     )
 
-summarise_lme(f0_exc_model_reduced , run_step = FALSE)
+summariseLME(f0_exc_model_reduced , run_step = FALSE)
 
 ```
 *    Note, that step() still predicts gender to be non-significant, but retaining it as it does not lead to any signularity or convergence issues

@@ -95,3 +95,9 @@ read_csv(
 ```{r}
 adjustP_posthoc("output/", p.value)
 ```
+
+
+```{r, results="asis"}
+adjustP_posthoc("output_model_anovas/", p.value, marginal=FALSE, suffix_id="_anova",
+                print=TRUE)
+```

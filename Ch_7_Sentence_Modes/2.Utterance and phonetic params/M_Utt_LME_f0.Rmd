@@ -91,7 +91,7 @@ utt_mean_f0 = lmer(
   )
 )
 
-summarise_lme(utt_mean_f0 , run_step = TRUE,
+summariseLME(utt_mean_f0 , run_step = TRUE,
               write="anova/utt_f0.csv")
 ```
 

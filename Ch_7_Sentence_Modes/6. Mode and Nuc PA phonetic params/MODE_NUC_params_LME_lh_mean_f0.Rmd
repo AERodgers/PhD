@@ -99,7 +99,7 @@ lh_mean_f0_model <-
       )
 
 
-summarise_lme(lh_mean_f0_model, run_step=TRUE) %>% print()
+summariseLME(lh_mean_f0_model, run_step=TRUE) %>% print()
 
 ```
 
@@ -122,7 +122,7 @@ lh_mean_f0_model_reduced <-
         )
     )
 
-summarise_lme(lh_mean_f0_model_reduced , run_step = TRUE)
+summariseLME(lh_mean_f0_model_reduced , run_step = TRUE)
 
 ```
 
@@ -150,7 +150,7 @@ lh_mean_f0_model_intercepts_only <-
         )
     )
 
-summarise_lme(lh_mean_f0_model_intercepts_only,
+summariseLME(lh_mean_f0_model_intercepts_only,
               run_step = TRUE,
               write="../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
   

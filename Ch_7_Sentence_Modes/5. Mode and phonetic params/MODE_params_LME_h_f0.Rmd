@@ -98,7 +98,7 @@ h_f0_model <-
           )
         )
       )
-summarise_lme(h_f0_model, run_step = TRUE,
+summariseLME(h_f0_model, run_step = TRUE,
               write = "../output_model_anovas/Mode_h_f0_anova.csv")
 #              
 ```

@@ -116,7 +116,7 @@ lh_slope_model <-
         )
     )
 
-summarise_lme(lh_slope_model, run_step=TRUE) %>% print()
+summariseLME(lh_slope_model, run_step=TRUE) %>% print()
 
 ```
 

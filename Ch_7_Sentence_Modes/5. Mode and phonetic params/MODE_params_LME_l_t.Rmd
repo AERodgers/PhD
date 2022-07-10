@@ -113,7 +113,7 @@ l_t_model.trimmed <- lmer(
         )
       )
 
-summarise_lme(l_t_model.trimmed , run_step=TRUE,
+summariseLME(l_t_model.trimmed , run_step=TRUE,
               write="../output_model_anovas/Mode_l_t_anova.csv")
 
 ```

@@ -97,7 +97,7 @@ h_f0_model <-
         )
       )
 
-summarise_lme(h_f0_model, run_step=TRUE)
+summariseLME(h_f0_model, run_step=TRUE)
 ```
 
 -   Convergence and singularity issues.
@@ -120,7 +120,7 @@ h_f0_model_reduced <-
         )
     )
 
-summarise_lme(h_f0_model_reduced , run_step = TRUE)
+summariseLME(h_f0_model_reduced , run_step = TRUE)
 
 ```
 -   convergence and singularity issues remain.
@@ -145,7 +145,7 @@ h_f0_model_reduced <-
         )
     )
 
-summarise_lme(h_f0_model_reduced , run_step = TRUE,
+summariseLME(h_f0_model_reduced , run_step = TRUE,
               write="../output_model_anovas/Mode_PA_h_f0_anova.csv")
 
 ```

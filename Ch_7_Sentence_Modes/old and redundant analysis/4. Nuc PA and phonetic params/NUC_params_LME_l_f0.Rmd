@@ -105,7 +105,7 @@ l_f0_model <-
       )
     )
   )
-summarise_lme(l_f0_model, run_step = TRUE)
+summariseLME(l_f0_model, run_step = TRUE)
 ```
 
 

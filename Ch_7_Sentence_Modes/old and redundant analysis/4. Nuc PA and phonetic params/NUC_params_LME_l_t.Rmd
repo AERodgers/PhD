@@ -114,7 +114,7 @@ l_t_model <-
       )
 
 
-summarise_lme(l_t_model, run_step=TRUE)
+summariseLME(l_t_model, run_step=TRUE)
 
 ```
 

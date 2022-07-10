@@ -102,7 +102,7 @@ lh_slope_model <-
         )
       )
 
-summarise_lme(lh_slope_model, run_step=TRUE,
+summariseLME(lh_slope_model, run_step=TRUE,
               write="../output_model_anovas/Mode_lh_slope_anova.csv")
 
 ```
