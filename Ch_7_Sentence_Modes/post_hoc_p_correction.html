@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="AER" />
+<meta name="author" content="Antoin Eoin Rodgers" />
 
 <meta name="date" content="2022-07-05" />
 
-<title>Post Hoc P value adjustment</title>
+<title>Chapter 7. Analysis of Function: Sentence modes</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -363,8 +363,10 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Post Hoc P value adjustment</h1>
-<h4 class="author">AER</h4>
+<h1 class="title toc-ignore">Chapter 7. Analysis of Function: Sentence
+modes</h1>
+<h3 class="subtitle">Appendix: Posthoc p value adjustment</h3>
+<h4 class="author">Antoin Eoin Rodgers</h4>
 <h4 class="date">2022-07-05</h4>
 
 </div>
@@ -379,9 +381,9 @@ Journal of the <em>Royal Statistical Society Series B,
 <h2>Mode and Phonology</h2>
 <div id="acc_phon-as-a-function-of-mode-register-tier-hypothesis." class="section level3">
 <h3>acc_phon as a function of mode, register tier hypothesis.</h3>
-<table class="table" style="width: auto !important; ">
-<caption>
-acc_phon ~ mode + (1 | speaker), assuming presence of register tier
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+1. acc_phon ~ mode + (1 | speaker), assuming presence of register tier
 </caption>
 <thead>
 <tr>
@@ -533,9 +535,9 @@ p&lt;0.05
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-nuc_contour ~ mode + (1 | speaker), assuming no register tier.
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+2. nuc_contour ~ mode + (1 | speaker), assuming no register tier.
 </caption>
 <thead>
 <tr>
@@ -686,9 +688,9 @@ modeMDQ
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-acc_phon ~ mode + (1 | speaker), assuming presence of register tier
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+3. acc_phon ~ mode + (1 | speaker), assuming presence of register tier
 </caption>
 <thead>
 <tr>
@@ -918,9 +920,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-nuc_contour ~ mode + (1 | speaker), assuming no register tier.
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+4. nuc_contour ~ mode + (1 | speaker), assuming no register tier.
 </caption>
 <thead>
 <tr>
@@ -1153,10 +1155,10 @@ p&lt;0.0001
 </div>
 <div id="ip-and-f0" class="section level3">
 <h3>IP and f0</h3>
-<table class="table" style="width: auto !important; ">
-<caption>
-utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1
-| prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+1. utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) +
+(1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -1323,10 +1325,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+2. utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1
+| prompt)
 </caption>
 <thead>
 <tr>
@@ -1492,10 +1494,10 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1
-| prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+3. utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) +
+(1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -1814,10 +1816,10 @@ starts_with_HFALSE
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+4. utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1
+| prompt)
 </caption>
 <thead>
 <tr>
@@ -2142,9 +2144,9 @@ p&lt;0.001
 </div>
 <div id="mode-acc_phon-and-phonetic-parameters" class="section level2">
 <h2>Mode, acc_phon, and phonetic parameters</h2>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+1. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -2311,9 +2313,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+2. h_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -2480,9 +2482,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+3. h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -2649,9 +2651,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+4. l_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -2818,9 +2820,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+5. l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -2987,9 +2989,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+6. lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -3157,9 +3159,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+7. lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -3327,9 +3329,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+8. f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -3624,9 +3626,9 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+9. h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -3921,9 +3923,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+10. h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -4218,9 +4221,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+11. l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -4515,9 +4518,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+12. l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -4812,10 +4816,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+13. lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) +
+(1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -5110,10 +5114,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+14. lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1
+| prompt)
 </caption>
 <thead>
 <tr>
@@ -5407,9 +5411,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+15. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -5727,9 +5731,9 @@ genderM
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+16. h_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -6050,9 +6054,9 @@ p&lt;0.05
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+17. h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -6371,9 +6375,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+18. l_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -6693,9 +6697,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+19. l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -7013,9 +7017,9 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+20. lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -7336,9 +7340,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+21. lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -7656,9 +7660,9 @@ genderM
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+22. f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -8186,9 +8190,9 @@ genderM
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+23. h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -8715,9 +8719,10 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+24. h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -9243,9 +9248,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+25. l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -9772,9 +9777,10 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+26. l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -10298,10 +10304,10 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+27. lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) +
+(1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -10828,10 +10834,10 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+28. lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1
+| prompt)
 </caption>
 <thead>
 <tr>
@@ -11361,9 +11367,9 @@ genderM
 </table>
 <div id="anovas-of-models-for-mode-acc_phon-and-phonetic-parameters" class="section level3">
 <h3>ANOVAs of models for mode, acc_phon, and phonetic parameters</h3>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+1. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -11485,9 +11491,9 @@ gender
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+2. h_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -11610,9 +11616,9 @@ p&lt;0.05
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+3. h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -11735,9 +11741,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+4. l_f0 ~ mode + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -11859,9 +11865,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+5. l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -11983,9 +11989,9 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+6. lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -12108,9 +12114,9 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+7. lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -12232,9 +12238,9 @@ gender
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+8. f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -12413,9 +12419,9 @@ mode:acc_phon
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+9. h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -12595,9 +12601,10 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+10. h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -12776,9 +12783,9 @@ mode:acc_phon
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+11. l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -12958,9 +12965,10 @@ p&lt;0.001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+12. l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+prompt)
 </caption>
 <thead>
 <tr>
@@ -13139,10 +13147,10 @@ mode:acc_phon
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+13. lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) +
+(1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -13322,10 +13330,10 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
-<table class="table" style="width: auto !important; ">
-<caption>
-lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
-prompt)
+<table class="table" style="font-size: 9px; width: auto !important; ">
+<caption style="font-size: initial !important;">
+14. lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1
+| prompt)
 </caption>
 <thead>
 <tr>

@@ -1065,7 +1065,7 @@ adjustP_posthoc <-
       # Change name of p.adj to indicate adjustment method.
       rename(!!new_adj_col := p.adj)
 
-
+      i = 0
       for (cur_file in unique(file_tibble$file_name))
       {
         cur_set <- file_tibble %>%
@@ -1085,13 +1085,16 @@ adjustP_posthoc <-
 
         # print table.
         if (print) {
+          i = i + 1
           formula_file <- cur_file %>%
             str_replace("_b0.csv|_b1.csv|_anova.csv", "_formula.txt")
           if (file.exists(formula_file)) {
-            my_caption <- read_lines(formula_file)
+            my_caption <-
+              paste(i, "\\. ", read_lines(formula_file), sep = "")
           }
           else{
-            my_caption = str_replace(cur_file, ".csv", "")
+            my_caption  <-
+              paste(i, ". ", str_replace(cur_file, ".csv", ""), sep = "")
           }
 
           cur_set %>%
@@ -1099,8 +1102,8 @@ adjustP_posthoc <-
               everything(),
               ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
               )) %>%
-            knitr::kable(caption = my_caption, align = "l") %>%
-            kable_styling(full_width = FALSE, position = "left") %>%
+            knitr::kable(caption = my_caption) %>%
+            kable_styling(full_width = FALSE, position="left", font_size=9) %>%
             print()
         }
       }

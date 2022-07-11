@@ -251,7 +251,7 @@ Firstly a tibble is created summarising the proportion of pitch accents per mode
 
     1. Count the number of phonological tokens per stimulus per speaker.
     2. Convert the counts to proportion per stimulus per speaker.
-    3. 3.	Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
+    3. 3.   Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
 
 From this table summary tables are created:
 
@@ -538,7 +538,4 @@ ggplot(pa_by_mode_adj_list %>%
 
 #### Chi Squared test of association using adjusted data
 
-```{r}
-pa_by_mode_adj_list %>%
-    tabyl(mode, acc_phon) %>%
-    chisq.test()
+\`\`\`{r} pa_by_mode_adj_list %\>% tabyl(mode, acc_phon) %\>% chisq.test()
