@@ -1,1 +1,1 @@
-acc_phon ~ mode + (1 | speaker), assuming presence of register tier
+acc_phon ~ mode + gender + (1 | speaker), assuming presence of register tier

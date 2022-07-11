@@ -1,1 +1,1 @@
-nuc_contour ~ mode + (1 | speaker), assuming no register tier.
+nuc_contour ~ mode + gender + (1 | speaker), assuming no register tier.

@@ -599,7 +599,7 @@ The results give the impression that this is a feature of male rather than femal
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 nuc_contour_model <- glmer(
-  nuc_contour ~ mode + (1 | speaker),
+  nuc_contour ~ mode + gender + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -638,6 +638,8 @@ anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
     caption="ANOVA of model and null model, assuming no register tier."
     )
 
+cat("isSingular(nuc_contour_model) =", isSingular(nuc_contour_model))
+
 x <- printTidyModel(nuc_contour_model,
                     write_r2="Mode_PA_Mode_PA_No_Reg_GLMM",
                     is_GLM = TRUE
@@ -653,7 +655,7 @@ x$table
 ```{r echo=FALSE, paged.print=FALSE}
 
 charts <- getModelFixedFX(
-  my_equation = nuc_contour ~ mode + (1 | speaker),
+  my_equation =  nuc_contour ~ mode + gender + (1 | speaker),
   my_data = m_corpus,
   write="Mode_PA_Mode_PA_No_Reg_GLMM",
   is_GLM=TRUE,
