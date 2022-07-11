@@ -108,7 +108,9 @@ acc_phon_model_null =
 summary(acc_phon_model)
 
 anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
-  formattable(caption="ANOVA of model and null model")
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
 
 x <- printTidyModel(acc_phon_model,
                     write_r2="Mode_PA_GLMM",
@@ -127,10 +129,9 @@ x$table
 charts <- getModelFixedFX(
   my_equation = acc_phon ~ mode + (1 | speaker),
   my_data = m_corpus,
-  exclude_terms = "gender",
-  bf_adj = 4,
   write="Mode_PA_GLMM",
-  is_GLM=TRUE
+  is_GLM=TRUE,
+  extra_text = ", assuming presence of register tier"
 )
 
 

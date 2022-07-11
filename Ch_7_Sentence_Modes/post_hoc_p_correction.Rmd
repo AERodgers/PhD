@@ -26,78 +26,23 @@ c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rat
 
 ### acc_phon as a function of mode, register tier hypothesis.
 
-```{r}
-adjustP_posthoc("1.Phonology and Mode/", p.value, marginal=FALSE)
-
-
-my_formula <- "acc_phon ~ mode + (1 | speaker)"
-
-read_csv("1.Phonology and Mode/Mode_PA_GLMM_b0.csv",
-         show_col_types = FALSE) %>%
-  formattable(caption = paste("b0 for", my_formula, sep = " "))
-
-read_csv("1.Phonology and Mode/Mode_PA_GLMM_b1.csv",
-         show_col_types = FALSE) %>%
-  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```{r Phonology and Mode, results="asis"}
+adjustP_posthoc("1.Phonology and Mode/", p.value, marginal=FALSE, print=TRUE)
 ```
-
-### nuc_contour as a function of mode, NO register tier hypothesis.
-
-```{r}
-my_formula <- "nuc_contour ~ mode + (1 | speaker)"
-
-read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b0.csv",
-         show_col_types = FALSE) %>%
-  formattable(caption = paste("b0 for", my_formula, sep = " "))
-
-read_csv("1.Phonology and Mode/Mode_PA_Mode_PA_No_Reg_GLMM_b1.csv",
-         show_col_types = FALSE) %>%
-  formattable(caption = paste("b1 for", my_formula, sep = " "))
-```
-
-## Mode and Global Parameters (IP mean f0 and slope)
-
 ### IP and f0
 
-```{r}
-adjustP_posthoc("2.Utterance and phonetic params/", p.value, marginal=FALSE)
-
-
-my_formula <- "utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
-
-read_csv(
-  "2.Utterance and phonetic params/utt_f0_b0.csv", show_col_types = FALSE) %>%
-  formattable(caption = paste("b0 for", my_formula, sep = " "))
-
-read_csv(
-  "2.Utterance and phonetic params/utt_f0_b1.csv", show_col_types = FALSE) %>%
-  formattable(caption = paste("b1 for", my_formula, sep = " "))
+```{r Utterance Phonetic Parameters and Mode, results="asis"}
+adjustP_posthoc("2.Utterance and phonetic params/",
+                p.value, marginal=FALSE, print=TRUE)
 ```
-
-### IP and Slope
-
-```{r}
-
-
-my_formula <- "utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
-
-read_csv(
-  "2.Utterance and phonetic params/utt_slope_b0.csv", show_col_types = FALSE) %>%
-  formattable(caption = paste("b0 for", my_formula, sep = " "))
-
-read_csv(
-  "2.Utterance and phonetic params/utt_slope_b1.csv", show_col_types = FALSE) %>%
-  formattable(caption = paste("b1 for", my_formula, sep = " "))
-```
-
 ## Mode, acc_phon, and phonetic parameters
 
-```{r}
-adjustP_posthoc("output/", p.value)
+```{r Mode Nuc PA and Phonetic Parameters, results="asis"}
+adjustP_posthoc("output/", p.value, print=TRUE, marginal=FALSE)
 ```
+### ANOVAs of models for mode, acc_phon, and phonetic parameters
 
-
-```{r, results="asis"}
+```{r PA and Phonetic Parameters ANOVAs, results="asis"}
 adjustP_posthoc("output_model_anovas/", p.value, marginal=FALSE, suffix_id="_anova",
                 print=TRUE)
 ```

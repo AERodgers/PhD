@@ -224,7 +224,7 @@ sigCodesTidy <-
   }
 
 
-### Parameter Summary ##########################################################
+###  Parameter Summary ##########################################################
 param_summary <-
   function(df, treatment, phonology, is_nucleus = FALSE)
   {
@@ -380,7 +380,6 @@ get_m_corpus <- function(file_address)
         # Ensure factor variables are interpreted as factors
         foot_syls = factor(foot_syls, levels = unique(foot_syls)),
         gender = factor(gender, levels = unique(gender)),
-        fin_phon = factor(fin_phon, levels = unique(fin_phon)),
 
         # create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3), levels = c("MDC", "MWH", "MYN", "MDQ")),
@@ -445,9 +444,18 @@ getModelFormula <-function(my_model) {
   return(my_formula)
 }
 
+###  Get Data as String from LME/GLM model ##################################
+getModelDataName <-function(my_model) {
+  return(my_model@call[["data"]])
+}
+
 ###  Summarise LME  ############################################################
 summariseLME <-
-  function(my_model, run_step = FALSE, my_tolerance = 1e-05, write=NULL)
+  function(my_model,
+           run_step = FALSE,
+           my_tolerance = 1e-05,
+           write=NULL,
+           extra_text="")
     # short function to remove need for repetition of optimized used throughout.
   {
     require("lme4")
@@ -457,6 +465,7 @@ summariseLME <-
     require("stringr")
 
     my_formula <- getModelFormula(my_model)
+    my_data_name <- getModelDataName(my_model)
 
     # output results
     drawResiduals(my_model)
@@ -464,14 +473,19 @@ summariseLME <-
 
     anova <- anova(my_model) %>%
       tidy() %>%
-      formattable(caption=paste("Anova of model:", my_formula)) %>%
+      mutate(across(`sumsq`:`statistic`, ~ round(., 3))) %>%
+      formattable(
+        caption=paste(
+          "Anova of model", my_formula, sep=": ")
+        ) %>%
       sigCodesTidy(p.value, FALSE) %>%
       rename(`F value` = statistic)
     if(!is_null(write)){
-      write_csv(anova, write)
+      anova %>%
+      write_csv(write)
       formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
         str_replace(".csv", ".txt")
-      write(my_formula, formula_save)
+      write(paste(my_formula, extra_text, sep=""), formula_save)
     }
 
     cat("\nCheck_singularity(my_model, tolerance =",
@@ -590,7 +604,8 @@ getModelFixedFX <- function(my_equation,
                        my_data,
                        write="",
                        is_GLM=FALSE,
-                       optimizer = "optimx")
+                       optimizer = "optimx",
+                       extra_text="")
 {
   require("formattable", "performance", "tidyverse", "mefa4")
 
@@ -646,8 +661,11 @@ getModelFixedFX <- function(my_equation,
     )
   }
 
+  # write text file for model info
   my_formula <- getModelFormula(base_model)
-  write(my_formula, paste(write, "_formula.txt", sep = ""))
+
+  write(paste(my_formula, extra_text, sep=""),
+        paste(write, "_formula.txt", sep = ""))
 
   # create list of fixed factors
   fixed_factors <-
@@ -828,9 +846,22 @@ getModelFixedFX <- function(my_equation,
 
   two_level_factor_slopes <- tidy(base_model) %>%
     filter(effect %notin% "ran_pars") %>%
-    cbind(ci_Wald) %>%
-    filter(term %in% two_level_terms) %>%
-    select(-c(group, effect)) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3)
+    )
+
+  if (!is_GLM){
+    two_level_factor_slopes <- two_level_factor_slopes %>%
+      mutate(df = round(df, 2))
+    }
+
+
+    two_level_factor_slopes <- two_level_factor_slopes %>%
+      cbind(ci_Wald) %>%
+      filter(term %in% two_level_terms) %>%
+      select(-c(group, effect)) %>%
     mutate(estimate = round(estimate, 3),
            std.error = round(std.error, 3),
            statistic = round(statistic, 3),
@@ -1051,12 +1082,26 @@ adjustP_posthoc <-
           write_csv(cur_set, cur_file)
         }
 
+
         # print table.
         if (print) {
-          knitr::kable(cur_set,
-                       caption = cur_file,
-                       align = "l")  %>% kable_styling(full_width = FALSE, position =
-                                                         "left") %>% print()
+          formula_file <- cur_file %>%
+            str_replace("_b0.csv|_b1.csv|_anova.csv", "_formula.txt")
+          if (file.exists(formula_file)) {
+            my_caption <- read_lines(formula_file)
+          }
+          else{
+            my_caption = str_replace(cur_file, ".csv", "")
+          }
+
+          cur_set %>%
+            mutate(across(
+              everything(),
+              ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
+              )) %>%
+            knitr::kable(caption = my_caption, align = "l") %>%
+            kable_styling(full_width = FALSE, position = "left") %>%
+            print()
         }
       }
 

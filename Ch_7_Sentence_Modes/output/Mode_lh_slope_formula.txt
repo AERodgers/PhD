@@ -1,0 +1,1 @@
+lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)

@@ -29,5 +29,5 @@
     * Added ability to print tables with adjusted p.values to post_hoc_p_adj.
     * Save formula to anova folder and to output folder
 * to do
-    * Get post_hoc_p_correction to use formula as caption in print output. 
+    * ~~Get post_hoc_p_correction to use formula as caption in print output.~~ 
 
