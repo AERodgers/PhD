@@ -461,7 +461,6 @@ summariseLME <-
     require("lme4")
     require("lmerTest")
     require("optimx")
-    require("performance")
     require("stringr")
 
     my_formula <- getModelFormula(my_model)
@@ -488,10 +487,10 @@ summariseLME <-
       write(paste(my_formula, extra_text, sep=""), formula_save)
     }
 
-    cat("\nCheck_singularity(my_model, tolerance =",
+    cat("\nisSingular(my_model, tol =",
         my_tolerance,
-        "-->",
-        check_singularity(my_model, tolerance=my_tolerance),
+        ") -->",
+        isSingular(my_model, tol=my_tolerance),
         "\n"
     )
 
@@ -515,8 +514,8 @@ printTidyModel <-
     require("formattable")
     require("tidyverse")
     require("mefa4")
-    require("performance")
     require("kableExtra")
+    require("performance")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -607,7 +606,9 @@ getModelFixedFX <- function(my_equation,
                        optimizer = "optimx",
                        extra_text="")
 {
-  require("formattable", "performance", "tidyverse", "mefa4")
+  require("formattable")
+  require("tidyverse")
+  require("mefa4")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -745,8 +746,6 @@ getModelFixedFX <- function(my_equation,
           )
         )
       }
-
-      #check_singularity(cur_model) %>% print()
 
       # Tidy the model.
       cur_model_tidy <- tidy(cur_model) %>%
@@ -984,6 +983,7 @@ adjustP_posthoc <-
     require("mefa4")
     require("knitr")
     require("kableExtra")
+    require("performance")
 
     # Abbreviate method where necessary.
     if(method %in% c("hochberg", "hommel", "bonferroni")) {

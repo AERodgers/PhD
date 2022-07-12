@@ -75,7 +75,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r run initial model,  fig.height=3, include=FALSE, fig.width=9, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
+    l_f0 ~ mode + fin_phon + (1 + mode | speaker) + gender + (1 | prompt),
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
@@ -94,28 +94,24 @@ summariseLME(l_f0_model, run_step = TRUE)
 -   Model works.
 -   Trimming model to remove observations with residual > 3 standard deviations.
 -   Trimmed model creates singularity issue!
--   Using same model as for h_f0, i.e., intercepts-only without (1|promt)
+-   removing (1 | prompt), as suggested by step() resolved the singularity issue.
 
 #### `l_f0 ~ mode + fin_phon + gender + (1 | speaker)`
 
-```{r run trimmed models,  fig.height=3, fig.width=9, include=FALSE, tidy = TRUE}
+```{r run trimmed models,  fig.height=3, fig.width=9, tidy = TRUE}
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_f0_model))) <= 3)
+optimizer = "bobyqa"
 
 l_f0_model.trimmed <-
   lmer(
-    l_f0 ~ mode + fin_phon + gender + (1 | speaker),
+    l_f0 ~ mode + fin_phon + (1 + mode | speaker) + gender,
     data = m_corpus.trimmed,
     control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
+      optimizer = "bobyqa",
+      calc.derivs = FALSE
+
     )
   )
-
 summariseLME(l_f0_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_l_f0_anova.csv")
 ```
@@ -135,8 +131,9 @@ l_f0_model_trimmed.tidy$r2
 
 charts <- getModelFixedFX(
   my_equation =
-    l_f0 ~ mode + fin_phon + gender + (1 | speaker),
+    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
   my_data = m_corpus.trimmed,
+  optimizer = "bobyqa",
   write="../output/Mode_l_f0"
 )
 charts$intercepts

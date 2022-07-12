@@ -155,7 +155,7 @@ summariseLME(f0_exc_model, run_step=TRUE)
 - Model works.
 - Trimming model: removing observation with model residual of > 3 standard deviations
 
-#### `f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker),`
+#### `f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)`
 ```{r reduced intercepts-only model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 f0_exc_model <-

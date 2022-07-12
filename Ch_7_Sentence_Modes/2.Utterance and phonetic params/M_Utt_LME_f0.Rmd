@@ -54,14 +54,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          mode,
          prompt,
          phr_phon,
+         fin_phon,
          utt_mean_f0) %>%
-  mutate(starts_with_H =
+  mutate(h_start =
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
-             TRUE,
-             FALSE),
-         starts_with_H = factor(starts_with_H, levels = unique(starts_with_H))
-  )
+             T,
+             F),
+         h_start = factor(h_start, levels = unique(h_start)),
+         # Remove register tier identifier from fin_phon.
+         fin_phon = str_replace_all(fin_phon, "\\]", ""),
+         fin_phon = factor(fin_phon, levels = unique(fin_phon))
+)
 
 ```
 
@@ -70,7 +74,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r}
 # set current equation
 cur_equation  <-
-  "utt_mean_f0 ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)"
+  "utt_mean_f0 ~ mode + gender + h_start + fin_phon + (1 + mode | speaker) + (1 | prompt)"
 
 ```
 
@@ -108,7 +112,7 @@ utt_mean_f0.tidy$r2
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = utt_mean_f0 ~ mode + gender + starts_with_H +
+  my_equation = utt_mean_f0 ~ mode + gender + h_start + fin_phon +
     (1 + mode | speaker) + (1 | prompt),
   my_data = m_corpus,
   write="utt_f0"

@@ -538,4 +538,4 @@ ggplot(pa_by_mode_adj_list %>%
 
 #### Chi Squared test of association using adjusted data
 
-\`\`\`{r} pa_by_mode_adj_list %\>% tabyl(mode, acc_phon) %\>% chisq.test()
+```{r} pa_by_mode_adj_list %\>% tabyl(mode, acc_phon) %\>% chisq.test()```

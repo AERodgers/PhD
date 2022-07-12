@@ -595,8 +595,8 @@ pre code {
 
 <ul>
 <li>Maximal model works well, but …</li>
-<li>For consistency with h_t, running random intercepts-only model.
--trimming observation where residual standard deviation &gt; 3.5</li>
+<li>For consistency with h_t, running random intercepts-only model.</li>
+<li>Trimming observation where residual standard deviation &gt; 3.5</li>
 </ul>
 <div id="l_t-mode-fin_phon-gender-1-speaker-1-prompt" class="section level4">
 <h4>l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)</h4>
@@ -641,7 +641,7 @@ pre code {
 ## fin_phonL% -0.050  0.014 -0.032 -0.091       
 ## genderM    -0.651 -0.003 -0.001  0.003  0.005
 ## 
-## Check_singularity(my_model, tolerance = 1e-05 --&gt; FALSE 
+## isSingular(my_model, tol = 1e-05 ) --&gt; FALSE 
 ## 
 ## 
 ## Results of step().

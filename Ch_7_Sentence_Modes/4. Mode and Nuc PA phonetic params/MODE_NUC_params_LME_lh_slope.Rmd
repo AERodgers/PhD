@@ -78,7 +78,6 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-As with other models, excluding gender.
 
 ```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
@@ -103,7 +102,7 @@ summariseLME(lh_slope_model, run_step=TRUE)
 ```
 
 -   Singularity and convergence  issues.
--   Testing reduced model
+-   Testing reduced model suggested by step(). Dropping gender
 
 ```{r run reduced step() only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 

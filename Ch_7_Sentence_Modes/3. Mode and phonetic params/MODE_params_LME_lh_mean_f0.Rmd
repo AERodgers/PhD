@@ -80,7 +80,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 - Maximal model works.
 
-## `lh_mean_f0 ~  mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)`
+#### `lh_mean_f0 ~  mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)`
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model

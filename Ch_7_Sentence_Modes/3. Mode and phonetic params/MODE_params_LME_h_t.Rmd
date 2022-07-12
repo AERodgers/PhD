@@ -75,7 +75,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```
 
 - Maximal model creates singularity issue.
-- This disappears wtih an random intercepts-only model.
+- This disappears with an random intercepts-only model.
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model

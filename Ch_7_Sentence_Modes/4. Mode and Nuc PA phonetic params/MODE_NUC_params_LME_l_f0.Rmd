@@ -98,7 +98,7 @@ summariseLME(l_f0_model, run_step = TRUE)
 ```{r run step() models,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode*acc_phon + fin_phon + gender + (1 + acc_phon + mode | speaker),
+    l_f0 ~ mode*acc_phon + fin_phon + (1 + acc_phon + mode | speaker),
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",

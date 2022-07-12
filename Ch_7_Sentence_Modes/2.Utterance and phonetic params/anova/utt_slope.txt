@@ -1,1 +1,1 @@
-utt_slope ~ mode + gender + starts_with_H + (1 + mode | speaker) + (1 | prompt)
+utt_slope ~ mode + gender + h_start + fin_phon + (1 + mode | speaker) + (1 | prompt)

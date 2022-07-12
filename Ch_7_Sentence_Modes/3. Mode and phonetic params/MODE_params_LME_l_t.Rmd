@@ -76,7 +76,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 - Maximal model works well, but ...
 - For consistency with h_t, running random intercepts-only model.
--trimming observation where residual standard deviation > 3.5
+- Trimming observation where residual standard deviation > 3.5
 
 #### l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 
@@ -84,7 +84,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 # run model
 l_t_model <-
-  lmer(l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt),
+  lmer(l_t ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",

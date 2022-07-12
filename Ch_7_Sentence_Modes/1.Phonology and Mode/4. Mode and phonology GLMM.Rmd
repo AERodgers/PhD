@@ -71,10 +71,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```
 
 #### GLMM test of difference between acc_phon as a fn of mode.
+
+* models with random slopes generate singularity issues.
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 acc_phon_model <- glmer(
-  acc_phon ~ mode + gender + (1 | speaker),
+  acc_phon ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -108,12 +110,16 @@ acc_phon_model_null =
 
 summary(acc_phon_model)
 
+cat(
+  "isSingular(acc_phon_model, tol=1e-5) -->",
+  isSingular(acc_phon_model, tol = 1e-5),
+  "\n"
+)
+
 anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
-
-cat("isSingular(acc_phon_model) =", isSingular(acc_phon_model))
 
 x <- printTidyModel(acc_phon_model,
                     write_r2="Mode_PA_GLMM",
@@ -133,7 +139,7 @@ x$table
 ```{r echo=FALSE, paged.print=FALSE}
 
 charts <- getModelFixedFX(
-  my_equation = acc_phon ~ mode + gender + (1 | speaker),
+  my_equation = acc_phon ~ mode + (1 | speaker),
   my_data = m_corpus,
   write="Mode_PA_GLMM",
   is_GLM=TRUE,

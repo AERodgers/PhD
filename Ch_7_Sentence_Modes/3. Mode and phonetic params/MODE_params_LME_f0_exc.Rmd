@@ -101,11 +101,11 @@ f0_exc_model <-
 summariseLME(f0_exc_model, run_step=TRUE) %>% print()
 
 ```
--   Convergence and singularity issues.
+-   Convergence and singularity issues (with bobyqa and omptimx).
 -   Running model again without (1|prompt).
 -   This model works.
 
-### `f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)`
+#### `f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)`
 
 ```{r run model w/o gender,  fig.height=3, fig.width=9, tidy = TRUE}
 
@@ -121,9 +121,9 @@ f0_exc_model <-
                 method = "nlminb",
                 starttests = FALSE,
                 kkt = FALSE
+                )
             )
         )
-      )
 
 
 summariseLME(f0_exc_model, run_step=TRUE,

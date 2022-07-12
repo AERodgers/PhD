@@ -121,12 +121,10 @@ summariseLME(l_t_model , run_step=TRUE)
 -   Model works.
 -   Trimming mode to remove residuals from model with standard deviation > 4
 
-## `l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)`
+#### `l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt)`
 ```{r run intercepts only model,  fig.height=3, fig.width=9,  tidy = TRUE}
-
-
 l_t_model <- lmer(l_t ~ mode * acc_phon + fin_phon + gender +
-         (1 | speaker) + (1 | prompt),
+                    (1 | speaker) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -138,7 +136,6 @@ l_t_model <- lmer(l_t ~ mode * acc_phon + fin_phon + gender +
           )
         )
       )
-
 
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_t_model))) <= 4)
 
