@@ -1103,7 +1103,7 @@ adjustP_posthoc <-
               ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
               )) %>%
             knitr::kable(caption = my_caption) %>%
-            kable_styling(full_width = FALSE, position="left", font_size=9) %>%
+            kable_styling(full_width = FALSE, position="left") %>%
             print()
         }
       }

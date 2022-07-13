@@ -14,10 +14,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```{r load functions, include=FALSE}
 source("../functions/myFunctions.R") 
 
-installMissingPackages(
-  c("tidyverse",
-    "formattable")
-)
+installMissingPackages("tidyverse")
 ```
 
 Adjust all p values using false discovery rate (FDR).
