@@ -462,6 +462,7 @@ summariseLME <-
     require("lmerTest")
     require("optimx")
     require("stringr")
+    require("broomExtra")
 
     my_formula <- getModelFormula(my_model)
     my_data_name <- getModelDataName(my_model)
@@ -516,6 +517,11 @@ printTidyModel <-
     require("mefa4")
     require("kableExtra")
     require("performance")
+    require("broom")
+    require("broomExtra")
+    require("broom.mixed")
+    require("sjPlot")
+    require("lmerTest")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
