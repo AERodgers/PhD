@@ -85,6 +85,7 @@ form c3pogram
         option H1-H2 of differentiated glottal pulse (LPC-IF)
         option Harmonicity (Praat function)
         option F0 only
+    boolean Superimpose 0
     comment CPP appears to reflect more intuitive expectations of contour.
     comment Residual of linear regression of intensity used to compensate for global declination.
     comment H1-H2 estimation is very basic. It also emphasises very tense / creaky stretches
@@ -144,7 +145,9 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     endif
 
     # reset draw space
-    Erase all
+    if (!superimpose) and (parameter_two == 5)
+        Erase all
+    endif
     Black
     10
     Line width: 1
@@ -153,7 +156,7 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     Select outer viewport: 0, .vpWidth, 0, 3.35
 
     # draw spectrogram
-    if .paintSpect
+    if (.paintSpect) and (!superimpose)
         selectObject: .sound
         specky = To Spectrogram: 0.005, 5000, 0.002, 20, "Gaussian"
         Paint: .minT, .maxT, 0, 0, 100, "yes", 50, .vpWidth, 0, "no"
@@ -216,8 +219,10 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     #intensity hack
     if .param2 = 5
         if .pitch_two
-            @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-            ... .vpWidth, pitch.obj, .smoothing, "Silver"
+            if !superimpose
+                @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
+                ... .vpWidth, pitch.obj, .smoothing, "Silver"
+            endif
             @uninterpolate: .sound, .pitch_two, .minF0, .maxF0
             @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
             ... .vpWidth, uninterpolate.obj, .smoothing, "Blue"
@@ -784,13 +789,15 @@ procedure draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
          .foreground_pitch = pitch.obj
     endif
     White
-    Line width: 9
+    .bg_line_width = (!superimpose * 2) + 5
+    .fg_line_width = (!superimpose * 2) + 3
+    Line width: .bg_line_width
     selectObject: .foreground_pitch
     .smooth_pitch = Smooth: .smoothing
     if .hz_ST = 1
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
         '.colour$'
-        Line width: 7
+        Line width: .fg_line_width
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
     else
         Draw semitones (re 100 Hz):
