@@ -1,1 +1,1 @@
-one_star ~ mode + (1 | speaker), assuming presence of register tier
+mode ~ one_star + h_reg + (1 | speaker), assuming presence of register tier

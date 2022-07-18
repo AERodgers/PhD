@@ -59,7 +59,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                       levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")),
     acc_phon = factor(acc_phon, levels = unique(acc_phon)),
     # remove non-accentuation from phr_phon
-    phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", "")
+    phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
+    one_star = str_count(phr_phon, "\\*")==1,
+    one_star = factor(one_star, levels=unique(one_star)),
+    h_reg = str_detect(phr_phon, "\\^"),
+    h_reg =  factor(h_reg, levels=unique(h_reg)),
+    mode =  factor(mode, levels=unique(mode))
   ) %>%
   # Select only columns for analysis
   select(speaker,
@@ -69,7 +74,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          stim,
          phr_phon,
          acc_phon,
-         nuc_contour)
+         nuc_contour,
+         one_star, 
+         h_reg)
 
 
 ```
@@ -119,7 +126,6 @@ total_counts <- m_corpus %>%
   select(MDC, MWH, MYN, MDQ, total) 
 
 nuc_only <- m_corpus %>%
-  mutate(one_star = str_count(phr_phon, "\\*")==1) %>% 
   filter(one_star == TRUE) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
@@ -130,8 +136,16 @@ nuc_only <- m_corpus %>%
   mutate(total = sum(c_across())) %>%
   select(MDC, MWH, MYN, MDQ, total)
 
+
+nuc_only %>% 
+  rbind(round((nuc_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
+  mutate("info" =c("count", "percentage"), .before=1) %>%
+  kable(
+  caption = "Utterance level intonational phonology by mode for tokens with only one PA")%>% 
+  kable_styling(full_width = FALSE, position="left")
+
 uses_h_reg <- m_corpus %>%
-  filter(str_detect(phr_phon, "\\^")) %>%
+  filter(h_reg == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -141,19 +155,32 @@ uses_h_reg <- m_corpus %>%
   mutate(total = sum(c_across())) %>%
   select(MDC, MWH, MYN, MDQ, total)
 
-nuc_only %>% 
-  rbind(round((nuc_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
-  mutate("info" =c("count", "percentage"), .before=1) %>%
-  kable(
-  caption = "Utterance level intonational phonology by mode for tokens with only one PA")%>% 
-  kable_styling(full_width = FALSE, position="left")
-
-nuc_only %>% 
+uses_h_reg %>% 
   rbind(round((uses_h_reg / total_counts*100),1) %>% paste("%", sep="")) %>% 
   mutate("info" =c("count", "percentage"), .before=1) %>%
   kable(
-  caption = "Utterance level intonational phonology by mode for with high register")%>% 
+  caption = "Utterance level intonational phonology by mode with high register")%>% 
   kable_styling(full_width = FALSE, position="left")
+
+uses_h_reg_or <- m_corpus %>%
+  filter(h_reg == T | one_star == T) %>%
+  group_by(mode) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>% 
+  mutate(total = sum(c_across())) %>%
+  select(MDC, MWH, MYN, MDQ, total)
+
+uses_h_reg_or %>% 
+  rbind(round((uses_h_reg_or / total_counts*100),1) %>% paste("%", sep="")) %>% 
+  mutate("info" =c("count", "percentage"), .before=1) %>%
+  kable(
+  caption = "Utterance level intonational phonology by mode with high register or nuclear PA only")%>% 
+  kable_styling(full_width = FALSE, position="left")
+
+
 
 # List utterances phonology by mode with 8+ tokens in the corpus
 m_corpus %>%
@@ -183,10 +210,10 @@ m_corpus %>%
     ),
     list(
       area(col = 3:6) ~ proportion_bar(color = c(
-        rep(brewer.pal(4, "Pastel2")[3], 16),
-        rep(brewer.pal(4, "Pastel2")[2], 16),
-        rep(brewer.pal(4, "Pastel2")[1], 16),
-        rep(brewer.pal(4, "Pastel2")[4], 16)
+        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[2], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
         )),
       total = proportion_bar(color = "#aaaaaa")
     )
@@ -230,9 +257,9 @@ m_corpus %>%
       sep = ""
     ),
     list(area(col = 3:5) ~ proportion_bar(color = c(
-        rep(brewer.pal(4, "Pastel2")[3], 12),
-        rep(brewer.pal(4, "Pastel2")[1], 12),
-        rep(brewer.pal(4, "Pastel2")[4], 12)
+        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
         )),
       total = proportion_bar(color = "#aaaaaa")
     )
@@ -262,12 +289,12 @@ m_corpus %>%
     caption =
       "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
     list(area(col = 2:7, row= 1:nrow(.)-1) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], 11),
-      rep(brewer.pal(6, "Pastel2")[3], 11),
-      rep(brewer.pal(6, "Pastel2")[6], 11),
-      rep(brewer.pal(6, "Pastel2")[4], 11),
-      rep(brewer.pal(6, "Pastel2")[2], 11),
-      rep(brewer.pal(6, "Pastel2")[1], 11)
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
       )))
     )
 
@@ -467,12 +494,12 @@ ggplot(data = pa_by_speaker_adj_uncount,
     caption=
       "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col=2:7, row=1:4) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], 4),
-      rep(brewer.pal(6, "Pastel2")[3], 4),
-      rep(brewer.pal(6, "Pastel2")[6], 4),
-      rep(brewer.pal(6, "Pastel2")[4], 4),
-      rep(brewer.pal(6, "Pastel2")[2], 4),
-      rep(brewer.pal(6, "Pastel2")[1], 4)
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
       )))
     )
 ```

@@ -104,10 +104,13 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 * models with random slopes generate singularity issues.
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+m_corpus_no_MWH <- m_corpus %>%
+    filter(mode %notin% c("MWH")) %>%
+    mutate(mode = factor(mode, levels = c("MDC", "MYN", "MDQ")))
 
 utt_phon_model <- glmer(
-  one_star ~ mode + (1 | speaker),
-  data = m_corpus,
+  mode ~ one_star + h_reg + (1 | speaker),
+  data = m_corpus_no_MWH,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -123,8 +126,8 @@ utt_phon_model <- glmer(
 
 utt_phon_model_null = 
   cur_model <- glmer(
-  one_star ~ 1 + (1 | speaker),
-  data = m_corpus,
+  mode ~ 1 + (1 | speaker),
+  data = m_corpus_no_MWH,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -138,7 +141,7 @@ utt_phon_model_null =
   )
 )
 
-summary(utt_phon_model)
+summary(utt_phon_model) 
 
 cat(
   "isSingular(utt_phon_model, tol=1e-5) -->",
@@ -150,6 +153,7 @@ anova(utt_phon_model, utt_phon_model_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
+
 
 x <- printTidyModel(utt_phon_model,
                     write_r2="utt_mode_GLMM",
@@ -169,8 +173,8 @@ x$table
 ```{r echo=FALSE, paged.print=FALSE}
 
 charts <- getModelFixedFX(
-  my_equation = one_star ~ mode + (1 | speaker),
-  my_data = m_corpus,
+  my_equation = mode ~ one_star + h_reg + (1 | speaker),
+  my_data = m_corpus_no_MWH,
   write="utt_mode_GLMM",
   is_GLM=TRUE,
   extra_text = ", assuming presence of register tier"
