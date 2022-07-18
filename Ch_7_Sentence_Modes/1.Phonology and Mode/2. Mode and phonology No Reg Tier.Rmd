@@ -140,10 +140,10 @@ m_corpus %>%
       sep = ""
     ),
     list(area(col = 3:6) ~ proportion_bar(color = c(
-      rep("#9e7cd9", 13),
-      rep("#ff8131", 13),
-      rep("#fdb863", 13),
-      rep("#d2cbf2", 13))),
+      rep("#9e7cd9", 15),
+      rep("#ff8131", 15),
+      rep("#fdb863", 15),
+      rep("#d2cbf2", 15))),
       total = proportion_bar(color = "#aaaaaa")
     )
     )
