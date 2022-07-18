@@ -60,8 +60,8 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     acc_phon = factor(acc_phon, levels = unique(acc_phon)),
     # remove non-accentuation from phr_phon
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
-    one_star = str_count(phr_phon, "\\*")==1,
-    one_star = factor(one_star, levels=unique(one_star)),
+    one_PA = str_count(phr_phon, "\\*")==1,
+    one_PA = factor(one_PA, levels=unique(one_PA)),
     h_reg = str_detect(phr_phon, "\\^"),
     h_reg =  factor(h_reg, levels=unique(h_reg)),
     mode =  factor(mode, levels=unique(mode))
@@ -75,7 +75,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          phr_phon,
          acc_phon,
          nuc_contour,
-         one_star, 
+         one_PA, 
          h_reg)
 
 
@@ -126,7 +126,7 @@ total_counts <- m_corpus %>%
   select(MDC, MWH, MYN, MDQ, total) 
 
 nuc_only <- m_corpus %>%
-  filter(one_star == TRUE) %>%
+  filter(one_PA == TRUE) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -163,7 +163,7 @@ uses_h_reg %>%
   kable_styling(full_width = FALSE, position="left")
 
 uses_h_reg_or <- m_corpus %>%
-  filter(h_reg == T | one_star == T) %>%
+  filter(h_reg == T | one_PA == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%

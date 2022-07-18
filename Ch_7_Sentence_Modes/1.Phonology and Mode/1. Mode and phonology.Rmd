@@ -19,17 +19,19 @@ source("../../functions/myFunctions.R")
 # Load packages.
 installMissingPackages(
   c(
-    "lmerTest",
-    "lme4",
-    "optimx",
-    "MuMIn",
-    "tidyverse",
+    "broom",
+    "broomExtra",
     "formattable",
     "janitor",
+    "kableExtra",
     "knitr",
-    "RColorBrewer",
-    "broom",
-    "broomExtra"
+    "lmerTest",
+    "MuMIn",
+    "optimx",
+    "performance",
+    "sjPlot",
+    "tidyverse"
+
   )
 )
 
@@ -39,23 +41,7 @@ theme_set(theme_minimal(base_size = 18))
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
-## set colours
 
-mode_colours <- c("MDC" = brewer.pal(4, "Dark2")[3],
-                  "MWH" = brewer.pal(4, "Dark2")[2],
-                  "MYN" = brewer.pal(4, "Dark2")[1],
-                  "MDQ" = brewer.pal(4, "Dark2")[4])
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
-                                             "green",
-                                             "red")
-                                   )
-pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
-                          "L*H"    = brewer.pal(6, "Set2")[3],
-                          "^[L*]H" = brewer.pal(6, "Set2")[6],
-                          ">H*"    = brewer.pal(6, "Set2")[4],
-                          "L*^[H]" = brewer.pal(6, "Set2")[2],
-                          "^[L*H]" = brewer.pal(6, "Set2")[1])
 ```
 
 ```{r load and process corpus, include=FALSE}
@@ -63,54 +49,32 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
 
   mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon = factor(str_replace(nuc_contour, "\\s%$|\\sL%$", ""),
-                      levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")),
-    acc_phon = factor(acc_phon, levels = unique(acc_phon)
-      ),
     # remove non-accentuation from phr_phon
-   
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)\\s", ""),
     phr_phon = str_replace_all(phr_phon, "\\s\\s", "\\s"),
     phr_phon = factor(phr_phon, levels=unique(phr_phon)),
-    one_star = str_count(phr_phon, "\\*")==1,
-    one_star = factor(one_star, levels=unique(one_star)),
+    one_pa = str_count(phr_phon, "\\*")==1,
+    one_pa = factor(one_pa, levels=unique(one_pa)),
     h_reg = str_detect(phr_phon, "\\^"),
     h_reg =  factor(h_reg, levels=unique(h_reg)),
-    mode =  factor(mode, levels=unique(mode))
-    
+    mode =  factor(mode, levels=c("MDC", "MWH", "MYN", "MDQ"))
     ) %>%
 
   # Select only columns for analysis
   select(speaker,
-         gender,
          mode,
-         prompt,
-         stim,
          phr_phon,
-         acc_phon,
-         nuc_contour,
-         one_star,
+         one_pa,
          h_reg)
 
 
 ```
 
 
-* models with random slopes generate singularity issues.
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-m_corpus_no_MWH <- m_corpus %>%
-    filter(mode %notin% c("MWH")) %>%
-    mutate(mode = factor(mode, levels = c("MDC", "MYN", "MDQ")))
-
-utt_phon_model <- glmer(
-  mode ~ one_star + h_reg + (1 | speaker),
-  data = m_corpus_no_MWH,
+```{r one_pa_model test}
+one_pa_model <- glmer(
+  one_pa ~ mode + (1 | speaker),
+  data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -124,10 +88,10 @@ utt_phon_model <- glmer(
   )
 )
 
-utt_phon_model_null = 
+one_pa_model_null = 
   cur_model <- glmer(
-  mode ~ 1 + (1 | speaker),
-  data = m_corpus_no_MWH,
+  one_pa ~ 1 + (1 | speaker),
+  data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -141,46 +105,113 @@ utt_phon_model_null =
   )
 )
 
-summary(utt_phon_model) 
+summary(one_pa_model)
 
 cat(
-  "isSingular(utt_phon_model, tol=1e-5) -->",
-  isSingular(utt_phon_model, tol = 1e-5),
+  "isSingular(one_pa_model, tol=1e-5) -->",
+  isSingular(one_pa_model, tol = 1e-5),
   "\n"
 )
 
-anova(utt_phon_model, utt_phon_model_null, test="Chisq") %>%
+anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-
-x <- printTidyModel(utt_phon_model,
-                    write_r2="utt_mode_GLMM",
-                    is_GLM = TRUE)
+x <- printTidyModel(one_pa_model,
+                    write_r2="Utt_one_pa_GLMM",
+                    is_GLM = TRUE
+                    )
 
 
 
 x$r2
 x$table
-
-
 ```
 
 
-
-## Intercepts and Pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
-
-charts <- getModelFixedFX(
-  my_equation = mode ~ one_star + h_reg + (1 | speaker),
-  my_data = m_corpus_no_MWH,
-  write="utt_mode_GLMM",
-  is_GLM=TRUE,
-  extra_text = ", assuming presence of register tier"
+```{r test one_pa pairwise}
+one_pa_charts <- getModelFixedFX(
+  my_equation = one_pa ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_one_pa_GLMM",
+  is_GLM = TRUE
 )
 
 
-charts$intercepts
-charts$pairwise
+one_pa_charts$intercepts
+
+one_pa_charts$pairwise
 ```
+
+
+```{r}
+h_reg_model <- glmer(
+  h_reg ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+h_reg_model_null = 
+  cur_model <- glmer(
+  h_reg ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(h_reg_model)
+
+cat(
+  "isSingular(h_reg_model, tol=1e-5) -->",
+  isSingular(h_reg_model, tol = 1e-5),
+  "\n"
+)
+
+anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(h_reg_model,
+                    write_r2="Utt_h_reg_GLMM",
+                    is_GLM = TRUE
+                    )
+
+x$r2
+x$table
+```
+
+
+```{r test h_reg pairwise}
+h_reg_charts <- getModelFixedFX(
+  my_equation = h_reg ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_h_reg_GLMM",
+  is_GLM = TRUE
+)
+
+h_reg_charts$intercepts
+h_reg_charts$pairwise
+
+```
+

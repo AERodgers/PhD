@@ -123,7 +123,8 @@ anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
 
 x <- printTidyModel(acc_phon_model,
                     write_r2="Mode_PA_GLMM",
-                    is_GLM = TRUE
+                    is_GLM = TRUE,
+                    axis.lim = c(-10, 10)
                     )
 
 

@@ -11,6 +11,11 @@ p_color <- . ~ style(color =
                                        "orange",
                                        "red")))
 
+sig_color <- x ~ style(color = if_else(
+  x == "p<0.001" | x == "p<0.05" | x == "p<0.01",
+  "green",
+  "orange"))
+
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
 {
@@ -159,8 +164,8 @@ bonferroniAdjust <- function(myTibble,
                          !is_null(exclude_terms) & term %in% exclude_terms,
                          NA_real_,
                          if_else(
-                           p.value * bonferroniMultiplier >= 1,
-                           0.9999,
+                           p.value * bonferroniMultiplier > 1,
+                           1,
                            p.value * bonferroniMultiplier
                            )
                          )
@@ -510,7 +515,8 @@ summariseLME <-
 printTidyModel <-
   function(my_model,
            write_r2 = NULL,
-           is_GLM = FALSE)
+           is_GLM = FALSE,
+           axis.lim = NULL)
   {
     require("formattable")
     require("tidyverse")
@@ -575,7 +581,11 @@ printTidyModel <-
     formattable(
       caption = paste(my_formula)
     ) %>%
-    mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"))
+    mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
+           p.value = if_else(
+             p.value < 0.001,
+             as.character(formatC(p.value, format="e", digits = 2)),
+             as.character(round(p.value, 4), digits = 2)))
 
   r2_nakagawa <-  knitr::kable(
     r2_nakagawa(my_model),
@@ -596,7 +606,9 @@ printTidyModel <-
       show.intercept = FALSE,
       show.values = TRUE,
       vline.color = "red",
-      colors = "Black"
+      colors = "Black",
+      transform = NULL,
+      axis.lim = axis.lim
     )
   )
 return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
@@ -894,14 +906,23 @@ getModelFixedFX <- function(my_equation,
     mutate(
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")
       ) %>%
-    formattable(caption = paste("b0 for", my_formula, sep = " "))
+    formattable(caption = paste("b0 for", my_formula, sep = " ")) %>%
+    mutate(p.value = if_else(
+      p.value < 0.001,
+      as.character(formatC(p.value, format="e", digits = 2)),
+      as.character(round(p.value, 4), digits = 2)))
+
 
   my_pairwise <-  my_pairwise %>%
     mutate(
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
     ) %>%
-    formattable(caption = paste("b1 for", my_formula, sep = " "))
+    formattable(caption = paste("b1 for", my_formula, sep = " ")) %>%
+    mutate(p.value = if_else(
+      p.value < 0.001,
+      as.character(formatC(p.value, format="e", digits = 2)),
+      as.character(round(p.value, 4), digits = 2)))
 
     return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise,
               "model" = base_model))
@@ -978,8 +999,8 @@ adjustP_posthoc <-
            report = FALSE,       # flag to report total number of tests and
                                  # p.values < 0.05 before and after adjustment.
            print = FALSE,        # Print output or not
-           suffix_id="b0b1"      # suffix ID for files for analysis
-                                 # (b0b1 = all files ending in "_b0" and "_b1")
+           suffix_id=""          # suffix ID for files for analysis
+
   )
   {
     # Load required packages
@@ -1005,27 +1026,6 @@ adjustP_posthoc <-
     new_adj_col = paste("p.adj (", method, ")", sep="")
     new_adj_col = enquo(new_adj_col)
 
-    if(suffix_id=="b0b1"){
-    # Get tibble of all b0 and b1 files to be adjusted.
-    file_tibble <-
-      list.files(my_folder, "*_b0.csv", full.names = TRUE) %>%
-      read_csv(id = "file_name",
-               col_names = TRUE,
-               show_col_types = FALSE) %>%
-      # Create dummy slope column for b0 files.
-      mutate(slope = NA, .before = intercept) %>%
-      rbind(
-        list.files(my_folder, "*_b1.csv", full.names = TRUE) %>%
-          read_csv(id = "file_name", col_names = TRUE, show_col_types = FALSE)
-      ) %>%
-      # avoid reduplication of current method column
-      select(-any_of(!!new_adj_col)) %>%
-      # Add p.adjusted column using method.
-      mutate(p.adj = p.adjust(!!p_column,
-                              method = method),
-             .after = !!p_column) %>%
-      relocate(intercept)}
-    else {
       # Get tibble of files to be adjusted
       file_tibble <-
         list.files(my_folder,
@@ -1041,8 +1041,6 @@ adjustP_posthoc <-
         mutate(p.adj = p.adjust(!!p_column,
                                 method = method),
                .after = !!p_column)
-
-    }
 
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()

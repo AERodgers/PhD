@@ -129,56 +129,59 @@ temp_table = nowarn Extract rows where column (text):
 short_table =  nowarn Extract rows where: "self[""cur_foot""]=1"
 num_rows = Get number of rows
 removeObject: {batch_data, temp_table}
-previous_grid$ = "XKCD_is_a_highly_unlikely_name"
+
 
 
 # write all indices and grid names in info window
-writeInfoLine: "Indices & File Codes'newline$'===================='newline$'"
-appendInfoLine:
+my_text$ =  "Indices & File Codes'newline$'===================='newline$'"
+my_text$ += newline$ +
     ... "+-----------------------+-----------------------+-------------------"
-appendInfoLine: "|index", tab$, "file",
-            ... tab$, tab$, "| index", tab$, "file",
-            ... tab$, tab$, "|index", tab$, "file"
-appendInfo:
+my_text$ += newline$ +  "|index" + tab$ + "file" +
+            ... tab$ + tab$ + "| index" + tab$ + "file" +
+            ... tab$ + tab$ + "|index" + tab$ + "file"
+my_text$ += newline$ +
     ... "+-----------------------+-----------------------+-------------------"
 
 i = 0
 while i < num_rows
     i += 1
     cur_code$ = Get value: i, "code"
-    appendInfo: newline$, "| ", i, tab$, cur_code$
+    my_text$ += newline$ + "| " + string$(i) + tab$ + cur_code$
     i += 1
     if i <= num_rows
         cur_code$ = Get value: i, "code"
-        appendInfo: tab$, "| ", i, tab$, cur_code$
+        my_text$ += tab$ + "| " + string$(i) + tab$ + cur_code$
     endif
     i += 1
     if i <= num_rows
         cur_code$ = Get value: i, "code"
-        appendInfo: tab$, "| ", i, tab$, cur_code$
+        my_text$ += tab$ + "| " + string$(i) + tab$ + cur_code$
     endif
 endwhile
 
-appendInfoLine: "'newline$''newline$'Looking for each " + field$#[field] +
+
+my_text$ += "'newline$''newline$''newline$'Looking for each " + field$#[field] +
             ... " which " + search_type$[search_type] + " ""'target_text$'""."
-duplicates = 0
+
+writeInfoLine: my_text$
 
 # MAIN LOOP
 
 # Menu Response Choices
 edit_choice = 0
-.choice$[6] = "Save >"
-.choice$[5] = ">"
-.choice$[4] = "Save"
-.choice$[3] = "Undo"
-.choice$[2] = "<"
-.choice$[1] = "Exit"
-
+choice$[7] = "Save >"
+choice$[6] = ">"
+choice$[5] = "Retain >"
+choice$[4] = "Save"
+choice$[3] = "Undo"
+choice$[2] = "<"
+choice$[1] = "Exit"
+choice$[0] = "Null"
+edit_choice = 0
 i = 0
-while i < num_rows
+
+while i < num_rows and choice$[edit_choice] != "Exit"
     i += 1
-    i_adjust = 0
-    duplicates += 1
 
     selectObject: short_table
     cur_location$ = Get value: i, "location"
@@ -191,13 +194,11 @@ while i < num_rows
                         ... )
     cur_grid$ = Get value: i, "code"
     # avoid loading duplicate sounds and textgrids
-    if cur_grid$ != previous_grid$
         Read from file: cur_location$ + cur_grid$ + ".TextGrid"
         cur_grid = selected ()
 
         Read from file: cur_location$ + cur_grid$ + ".wav"
         Scale intensity: 70
-        previous_grid$ = cur_grid$
         cur_sound = selected ()
         appendInfo: newline$, "Looking at: ", cur_grid$
         # remove tiers for temporary textgrid, if any have been specified
@@ -216,7 +217,7 @@ while i < num_rows
         beginPause: pauseText$
             natural: "Jump to", i + 1
         edit_choice = endPause:
-                    ... "Exit", "<", "Undo", "Save", ">", "Save >", 5, 0
+        ... "Exit", "<", "Undo", "Save", "Retain >" , ">", "Save >", 6, 0
 
         # Merge textgrid tiers.
         if length(hide_tiers$) != 0
@@ -224,39 +225,35 @@ while i < num_rows
         endif
 
         # Process Edit Choices
-        if .choice$[edit_choice] = "Save >"
+        if choice$[edit_choice] = "Save >"
             selectObject: cur_grid
             Save as text file: cur_location$ + cur_grid$ + ".TextGrid"
-            i_adjust = jump_to - 1 - i
-        elsif .choice$[edit_choice] = ">"
-            i_adjust = jump_to - 1 - i
-        elsif .choice$[edit_choice] = "Save"
+            i = jump_to - 1
+        elsif choice$[edit_choice] = ">"
+            i = jump_to - 1
+        elsif choice$[edit_choice] = "Retain >"
+            selectObject: cur_grid
+            retain_name$ = selected$("TextGrid")
+            Copy: retain_name$
+            selectObject: cur_sound
+            Copy: retain_name$
+            i = jump_to - 1
+        elsif choice$[edit_choice] = "Save"
             selectObject: cur_grid
             Save as text file: cur_location$ + cur_grid$ + ".TextGrid"
-            i_adjust = -1
-        elsif .choice$[edit_choice] = "Undo"
-            i_adjust = -1
-        elsif .choice$[edit_choice] = "<"
-            i_adjust = -2
-            if (jump_to != i + 1)
-                i_adjust = jump_to - 1 - i
-            endif
+            i -= 1
+        elsif choice$[edit_choice] = "Undo"
+            i -= 1
+        elsif choice$[edit_choice] = "<"
+            i -= 2
         endif
 
-        # Adjust i.
-        i += i_adjust
-        if i > num_rows
-            i = num_rows - 1
-        elsif i < 0
+        if i < 0
             i = 0
         endif
 
         #Remove Current Objects
-        duplicates = 0
         removeObject: {cur_grid, cur_sound}
-
-        # Check for exit script
-        i += i * 10e10 * (edit_choice = 1)
 
     endif
 endwhile

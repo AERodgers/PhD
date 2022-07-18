@@ -1,0 +1,7 @@
+intercept,slope,estimate,std.error,2.5% CI,97.5% CI,z.value,p.value,p.adj (BH),signif.
+modeMDC,modeMWH,1.877,1.137,-0.351,4.105,1.651,0.0987,0.1247,
+modeMDC,modeMYN,4.719,1.074,2.613,6.825,4.392,1.12e-05,2.07e-05,p<0.0001
+modeMDC,modeMDQ,7.592,1.111,5.414,9.77,6.832,8.36e-12,3.34e-11,p<0.0001
+modeMWH,modeMYN,2.842,0.495,1.871,3.813,5.737,9.61e-09,2.88e-08,p<0.0001
+modeMWH,modeMDQ,5.715,0.57,4.599,6.832,10.031,1.11e-23,2.66e-22,p<0.0001
+modeMYN,modeMDQ,2.874,0.37,2.148,3.599,7.764,8.20e-15,4.92e-14,p<0.0001

@@ -145,7 +145,7 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     endif
 
     # reset draw space
-    if (!superimpose) and (parameter_two == 5)
+    if (!superimpose)
         Erase all
     endif
     Black
@@ -224,8 +224,13 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
                 ... .vpWidth, pitch.obj, .smoothing, "Silver"
             endif
             @uninterpolate: .sound, .pitch_two, .minF0, .maxF0
+            if superimpose
+                .color$ = "{0.5, 0.1, 0.1}"
+            else
+                .color$ = "Blue"
+            endif
             @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-            ... .vpWidth, uninterpolate.obj, .smoothing, "Blue"
+            ... .vpWidth, uninterpolate.obj, .smoothing, .color$
             removeObject: uninterpolate.obj
         else
             @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
@@ -796,13 +801,13 @@ procedure draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
     .smooth_pitch = Smooth: .smoothing
     if .hz_ST = 1
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
-        '.colour$'
+        Colour: .colour$
         Line width: .fg_line_width
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
     else
         Draw semitones (re 100 Hz):
         ... .minT, .maxT, .line_minF0, .line_maxF0, "no"
-        '.colour$'
+        Colour: .colour$
         Line width: 7
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
         Draw semitones (re 100 Hz):

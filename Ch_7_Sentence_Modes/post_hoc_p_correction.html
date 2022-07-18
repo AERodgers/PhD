@@ -372,15 +372,15 @@ modes</h1>
 </div>
 
 
-<p>Adjust all p values using false discovery rate (FDR).</p>
+<p>Adjust all p values using false discovery rate (FDR). <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are processed separately.</p>
 <p>c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false
 discovery rate: a practical and powerful approach to multiple testing.
 Journal of the <em>Royal Statistical Society Series B,
 <strong>57</strong></em>, 289–300. <a href="doi:10.1111/j.2517-6161.1995.tb02031.x" class="uri">doi:10.1111/j.2517-6161.1995.tb02031.x</a>. <a href="https://www.jstor.org/stable/2346101" class="uri">https://www.jstor.org/stable/2346101</a>.</p>
 <div id="mode-and-phonology" class="section level2">
-<h2>Mode and Phonology</h2>
-<div id="acc_phon-as-a-function-of-mode-register-tier-hypothesis." class="section level3">
-<h3>acc_phon as a function of mode, register tier hypothesis.</h3>
+<h2>1. Mode and Phonology</h2>
+<div id="a.-beta_0" class="section level4">
+<h4>a. <span class="math inline">\(\beta_0\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
 1. acc_phon ~ mode + (1 | speaker), assuming presence of register tier
@@ -440,7 +440,7 @@ modeMDC
 4.42e-09
 </td>
 <td style="text-align:left;">
-1.77e-08
+3.54e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -469,7 +469,7 @@ modeMWH
 0.9943
 </td>
 <td style="text-align:left;">
-0.9959
+0.9943
 </td>
 <td style="text-align:left;">
 </td>
@@ -497,7 +497,7 @@ modeMYN
 0.0269
 </td>
 <td style="text-align:left;">
-0.0385
+0.0359
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -526,7 +526,7 @@ modeMDQ
 0.0127
 </td>
 <td style="text-align:left;">
-0.0211
+0.0203
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -593,7 +593,7 @@ modeMDC
 5.70e-06
 </td>
 <td style="text-align:left;">
-1.27e-05
+1.52e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -622,7 +622,7 @@ modeMWH
 4.73e-07
 </td>
 <td style="text-align:left;">
-1.35e-06
+1.51e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -680,7 +680,7 @@ modeMDQ
 0.4119
 </td>
 <td style="text-align:left;">
-0.5148
+0.4394
 </td>
 <td style="text-align:left;">
 </td>
@@ -689,7 +689,316 @@ modeMDQ
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-3. acc_phon ~ mode + (1 | speaker), assuming presence of register tier
+3. h_reg ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+2.5% CI
+</th>
+<th style="text-align:left;">
+97.5% CI
+</th>
+<th style="text-align:left;">
+z.value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+-6.191
+</td>
+<td style="text-align:left;">
+1.189
+</td>
+<td style="text-align:left;">
+-8.523
+</td>
+<td style="text-align:left;">
+-3.86
+</td>
+<td style="text-align:left;">
+-5.205
+</td>
+<td style="text-align:left;">
+1.94e-07
+</td>
+<td style="text-align:left;">
+1.03e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+-4.314
+</td>
+<td style="text-align:left;">
+0.711
+</td>
+<td style="text-align:left;">
+-5.708
+</td>
+<td style="text-align:left;">
+-2.921
+</td>
+<td style="text-align:left;">
+-6.07
+</td>
+<td style="text-align:left;">
+1.28e-09
+</td>
+<td style="text-align:left;">
+2.05e-08
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+-1.473
+</td>
+<td style="text-align:left;">
+0.578
+</td>
+<td style="text-align:left;">
+-2.605
+</td>
+<td style="text-align:left;">
+-0.34
+</td>
+<td style="text-align:left;">
+-2.548
+</td>
+<td style="text-align:left;">
+0.0108
+</td>
+<td style="text-align:left;">
+0.0192
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+1.401
+</td>
+<td style="text-align:left;">
+0.581
+</td>
+<td style="text-align:left;">
+0.262
+</td>
+<td style="text-align:left;">
+2.54
+</td>
+<td style="text-align:left;">
+2.411
+</td>
+<td style="text-align:left;">
+0.0159
+</td>
+<td style="text-align:left;">
+0.0231
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+4. one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+2.5% CI
+</th>
+<th style="text-align:left;">
+97.5% CI
+</th>
+<th style="text-align:left;">
+z.value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+-1.799
+</td>
+<td style="text-align:left;">
+0.529
+</td>
+<td style="text-align:left;">
+-2.837
+</td>
+<td style="text-align:left;">
+-0.761
+</td>
+<td style="text-align:left;">
+-3.398
+</td>
+<td style="text-align:left;">
+6.80e-04
+</td>
+<td style="text-align:left;">
+0.0016
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+-5.816
+</td>
+<td style="text-align:left;">
+1.14
+</td>
+<td style="text-align:left;">
+-8.049
+</td>
+<td style="text-align:left;">
+-3.582
+</td>
+<td style="text-align:left;">
+-5.104
+</td>
+<td style="text-align:left;">
+3.33e-07
+</td>
+<td style="text-align:left;">
+1.33e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+-1.026
+</td>
+<td style="text-align:left;">
+0.52
+</td>
+<td style="text-align:left;">
+-2.045
+</td>
+<td style="text-align:left;">
+-0.008
+</td>
+<td style="text-align:left;">
+-1.975
+</td>
+<td style="text-align:left;">
+0.0483
+</td>
+<td style="text-align:left;">
+0.0594
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+-1.014
+</td>
+<td style="text-align:left;">
+0.522
+</td>
+<td style="text-align:left;">
+-2.038
+</td>
+<td style="text-align:left;">
+0.009
+</td>
+<td style="text-align:left;">
+-1.943
+</td>
+<td style="text-align:left;">
+0.052
+</td>
+<td style="text-align:left;">
+0.0594
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="b.-beta_1" class="section level4">
+<h4>b. <span class="math inline">\(\beta_1\)</span></h4>
+<table class="table" style="width: auto !important; ">
+<caption>
+1. acc_phon ~ mode + (1 | speaker), assuming presence of register tier
 </caption>
 <thead>
 <tr>
@@ -783,7 +1092,7 @@ modeMYN
 3.41e-08
 </td>
 <td style="text-align:left;">
-1.14e-07
+9.09e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -815,7 +1124,7 @@ modeMDQ
 1.86e-19
 </td>
 <td style="text-align:left;">
-3.73e-18
+2.23e-18
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -909,7 +1218,7 @@ modeMDQ
 6.86e-15
 </td>
 <td style="text-align:left;">
-6.86e-14
+4.92e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -919,7 +1228,7 @@ p&lt;0.0001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-4. nuc_contour ~ mode + (1 | speaker), assuming no register tier.
+2. nuc_contour ~ mode + (1 | speaker), assuming no register tier.
 </caption>
 <thead>
 <tr>
@@ -982,7 +1291,7 @@ modeMWH
 0.3367
 </td>
 <td style="text-align:left;">
-0.449
+0.404
 </td>
 <td style="text-align:left;">
 </td>
@@ -1013,7 +1322,7 @@ modeMYN
 0.0243
 </td>
 <td style="text-align:left;">
-0.0373
+0.0324
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1045,7 +1354,7 @@ modeMDQ
 7.27e-11
 </td>
 <td style="text-align:left;">
-3.63e-10
+2.49e-10
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1077,7 +1386,7 @@ modeMYN
 0.0017
 </td>
 <td style="text-align:left;">
-0.0031
+0.0027
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1109,7 +1418,7 @@ modeMDQ
 1.28e-12
 </td>
 <td style="text-align:left;">
-8.52e-12
+6.14e-12
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1141,7 +1450,7 @@ modeMDQ
 2.04e-06
 </td>
 <td style="text-align:left;">
-5.10e-06
+4.90e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1149,9 +1458,476 @@ p&lt;0.0001
 </tr>
 </tbody>
 </table>
+<table class="table" style="width: auto !important; ">
+<caption>
+3. h_reg ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+slope
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+2.5% CI
+</th>
+<th style="text-align:left;">
+97.5% CI
+</th>
+<th style="text-align:left;">
+z.value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+1.877
+</td>
+<td style="text-align:left;">
+1.137
+</td>
+<td style="text-align:left;">
+-0.351
+</td>
+<td style="text-align:left;">
+4.105
+</td>
+<td style="text-align:left;">
+1.651
+</td>
+<td style="text-align:left;">
+0.0987
+</td>
+<td style="text-align:left;">
+0.1247
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+4.719
+</td>
+<td style="text-align:left;">
+1.074
+</td>
+<td style="text-align:left;">
+2.613
+</td>
+<td style="text-align:left;">
+6.825
+</td>
+<td style="text-align:left;">
+4.392
+</td>
+<td style="text-align:left;">
+1.12e-05
+</td>
+<td style="text-align:left;">
+2.07e-05
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+7.592
+</td>
+<td style="text-align:left;">
+1.111
+</td>
+<td style="text-align:left;">
+5.414
+</td>
+<td style="text-align:left;">
+9.77
+</td>
+<td style="text-align:left;">
+6.832
+</td>
+<td style="text-align:left;">
+8.36e-12
+</td>
+<td style="text-align:left;">
+3.34e-11
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+2.842
+</td>
+<td style="text-align:left;">
+0.495
+</td>
+<td style="text-align:left;">
+1.871
+</td>
+<td style="text-align:left;">
+3.813
+</td>
+<td style="text-align:left;">
+5.737
+</td>
+<td style="text-align:left;">
+9.61e-09
+</td>
+<td style="text-align:left;">
+2.88e-08
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+5.715
+</td>
+<td style="text-align:left;">
+0.57
+</td>
+<td style="text-align:left;">
+4.599
+</td>
+<td style="text-align:left;">
+6.832
+</td>
+<td style="text-align:left;">
+10.031
+</td>
+<td style="text-align:left;">
+1.11e-23
+</td>
+<td style="text-align:left;">
+2.66e-22
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+2.874
+</td>
+<td style="text-align:left;">
+0.37
+</td>
+<td style="text-align:left;">
+2.148
+</td>
+<td style="text-align:left;">
+3.599
+</td>
+<td style="text-align:left;">
+7.764
+</td>
+<td style="text-align:left;">
+8.20e-15
+</td>
+<td style="text-align:left;">
+4.92e-14
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+4. one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+slope
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+2.5% CI
+</th>
+<th style="text-align:left;">
+97.5% CI
+</th>
+<th style="text-align:left;">
+z.value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+-4.017
+</td>
+<td style="text-align:left;">
+1.049
+</td>
+<td style="text-align:left;">
+-6.072
+</td>
+<td style="text-align:left;">
+-1.962
+</td>
+<td style="text-align:left;">
+-3.831
+</td>
+<td style="text-align:left;">
+1.28e-04
+</td>
+<td style="text-align:left;">
+2.19e-04
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+0.773
+</td>
+<td style="text-align:left;">
+0.279
+</td>
+<td style="text-align:left;">
+0.225
+</td>
+<td style="text-align:left;">
+1.32
+</td>
+<td style="text-align:left;">
+2.766
+</td>
+<td style="text-align:left;">
+0.0057
+</td>
+<td style="text-align:left;">
+0.008
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMDC
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+0.784
+</td>
+<td style="text-align:left;">
+0.283
+</td>
+<td style="text-align:left;">
+0.23
+</td>
+<td style="text-align:left;">
+1.339
+</td>
+<td style="text-align:left;">
+2.771
+</td>
+<td style="text-align:left;">
+0.0056
+</td>
+<td style="text-align:left;">
+0.008
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+4.79
+</td>
+<td style="text-align:left;">
+1.046
+</td>
+<td style="text-align:left;">
+2.739
+</td>
+<td style="text-align:left;">
+6.84
+</td>
+<td style="text-align:left;">
+4.578
+</td>
+<td style="text-align:left;">
+4.70e-06
+</td>
+<td style="text-align:left;">
+9.40e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMWH
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+4.801
+</td>
+<td style="text-align:left;">
+1.047
+</td>
+<td style="text-align:left;">
+2.749
+</td>
+<td style="text-align:left;">
+6.853
+</td>
+<td style="text-align:left;">
+4.585
+</td>
+<td style="text-align:left;">
+4.53e-06
+</td>
+<td style="text-align:left;">
+9.40e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modeMYN
+</td>
+<td style="text-align:left;">
+modeMDQ
+</td>
+<td style="text-align:left;">
+0.012
+</td>
+<td style="text-align:left;">
+0.269
+</td>
+<td style="text-align:left;">
+-0.515
+</td>
+<td style="text-align:left;">
+0.538
+</td>
+<td style="text-align:left;">
+0.043
+</td>
+<td style="text-align:left;">
+0.9655
+</td>
+<td style="text-align:left;">
+0.9959
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="ip-and-f0" class="section level3">
-<h3>IP and f0</h3>
+</div>
+<div id="utterance-wide-f0-parameters" class="section level2">
+<h2>2. Utterance-wide f0 parameters</h2>
+<div id="a.-beta_0-1" class="section level4">
+<h4>a. <span class="math inline">\(\beta_0\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
 1. utt_mean_f0 ~ mode + gender + h_start + fin_phon + (1 + mode |
@@ -1218,7 +1994,7 @@ modeMDC
 2.43e-17
 </td>
 <td style="text-align:left;">
-2.03e-16
+6.48e-17
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1250,7 +2026,7 @@ modeMWH
 4.14e-16
 </td>
 <td style="text-align:left;">
-2.59e-15
+8.28e-16
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1282,7 +2058,7 @@ modeMYN
 1.77e-17
 </td>
 <td style="text-align:left;">
-2.03e-16
+6.48e-17
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1314,7 +2090,7 @@ modeMDQ
 7.99e-18
 </td>
 <td style="text-align:left;">
-2.00e-16
+6.39e-17
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -1388,9 +2164,10 @@ modeMDC
 0.0715
 </td>
 <td style="text-align:left;">
-0.0894
+0.0715
 </td>
 <td style="text-align:left;">
+(p&lt;0.1)
 </td>
 </tr>
 <tr>
@@ -1419,10 +2196,10 @@ modeMWH
 0.0071
 </td>
 <td style="text-align:left;">
-0.0127
+0.0095
 </td>
 <td style="text-align:left;">
-p&lt;0.05
+p&lt;0.01
 </td>
 </tr>
 <tr>
@@ -1451,7 +2228,7 @@ modeMYN
 0.0187
 </td>
 <td style="text-align:left;">
-0.0275
+0.0214
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1483,7 +2260,7 @@ modeMDQ
 7.74e-04
 </td>
 <td style="text-align:left;">
-0.0021
+0.0012
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1491,9 +2268,12 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
+</div>
+<div id="b.-beta_1-1" class="section level4">
+<h4>b. <span class="math inline">\(\beta_1\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-3. utt_mean_f0 ~ mode + gender + h_start + fin_phon + (1 + mode |
+1. utt_mean_f0 ~ mode + gender + h_start + fin_phon + (1 + mode |
 speaker) + (1 | prompt)
 </caption>
 <thead>
@@ -1563,7 +2343,7 @@ modeMWH
 0.2086
 </td>
 <td style="text-align:left;">
-0.2267
+0.2364
 </td>
 <td style="text-align:left;">
 </td>
@@ -1597,7 +2377,7 @@ modeMYN
 0.0099
 </td>
 <td style="text-align:left;">
-0.0165
+0.0187
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1632,7 +2412,7 @@ modeMDQ
 3.57e-04
 </td>
 <td style="text-align:left;">
-0.0015
+0.003
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1667,7 +2447,7 @@ modeMYN
 0.1862
 </td>
 <td style="text-align:left;">
-0.2116
+0.2261
 </td>
 <td style="text-align:left;">
 </td>
@@ -1701,7 +2481,7 @@ modeMDQ
 0.0131
 </td>
 <td style="text-align:left;">
-0.0205
+0.0223
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1736,7 +2516,7 @@ modeMDQ
 0.0261
 </td>
 <td style="text-align:left;">
-0.0363
+0.0403
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1771,7 +2551,7 @@ genderM
 7.45e-04
 </td>
 <td style="text-align:left;">
-0.0021
+0.0032
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1806,7 +2586,7 @@ h_startFALSE
 0.3659
 </td>
 <td style="text-align:left;">
-0.3811
+0.3888
 </td>
 <td style="text-align:left;">
 </td>
@@ -1849,7 +2629,7 @@ fin_phonL%
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-4. utt_slope ~ mode + gender + h_start + (1 + mode | speaker) + (1 |
+2. utt_slope ~ mode + gender + h_start + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -1919,7 +2699,7 @@ modeMWH
 0.1224
 </td>
 <td style="text-align:left;">
-0.1457
+0.1601
 </td>
 <td style="text-align:left;">
 </td>
@@ -1953,7 +2733,7 @@ modeMYN
 0.0021
 </td>
 <td style="text-align:left;">
-0.0048
+0.0059
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1988,10 +2768,10 @@ modeMDQ
 1.88e-04
 </td>
 <td style="text-align:left;">
-9.40e-04
+0.003
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.01
 </td>
 </tr>
 <tr>
@@ -2023,7 +2803,7 @@ modeMYN
 0.0035
 </td>
 <td style="text-align:left;">
-0.0073
+0.0085
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2058,7 +2838,7 @@ modeMDQ
 7.59e-04
 </td>
 <td style="text-align:left;">
-0.0021
+0.0032
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2093,10 +2873,10 @@ modeMDQ
 0.005
 </td>
 <td style="text-align:left;">
-0.0096
+0.0106
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2128,7 +2908,7 @@ genderM
 0.0345
 </td>
 <td style="text-align:left;">
-0.0454
+0.0489
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -2163,7 +2943,7 @@ h_startFALSE
 0.0012
 </td>
 <td style="text-align:left;">
-0.003
+0.0041
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2174,7 +2954,9 @@ p&lt;0.01
 </div>
 </div>
 <div id="mode-acc_phon-and-phonetic-parameters" class="section level2">
-<h2>Mode, acc_phon, and phonetic parameters</h2>
+<h2>3. Mode, acc_phon, and phonetic parameters</h2>
+<div id="a.-beta_0-2" class="section level4">
+<h4>a. <span class="math inline">\(\beta_0\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
 1. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
@@ -2240,7 +3022,7 @@ modeMDC
 9.62e-07
 </td>
 <td style="text-align:left;">
-2.66e-06
+1.39e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2272,7 +3054,7 @@ modeMWH
 9.29e-07
 </td>
 <td style="text-align:left;">
-2.60e-06
+1.37e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2304,7 +3086,7 @@ modeMYN
 2.32e-06
 </td>
 <td style="text-align:left;">
-6.14e-06
+3.30e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2336,7 +3118,7 @@ modeMDQ
 2.60e-07
 </td>
 <td style="text-align:left;">
-8.04e-07
+4.28e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2409,7 +3191,7 @@ modeMDC
 8.43e-17
 </td>
 <td style="text-align:left;">
-1.16e-15
+1.08e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2441,7 +3223,7 @@ modeMWH
 8.74e-17
 </td>
 <td style="text-align:left;">
-1.16e-15
+1.08e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2473,7 +3255,7 @@ modeMYN
 6.76e-17
 </td>
 <td style="text-align:left;">
-1.07e-15
+1.08e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2505,7 +3287,7 @@ modeMDQ
 9.25e-17
 </td>
 <td style="text-align:left;">
-1.16e-15
+1.08e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2578,7 +3360,7 @@ modeMDC
 0.0012
 </td>
 <td style="text-align:left;">
-0.0021
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2610,7 +3392,7 @@ modeMWH
 0.0012
 </td>
 <td style="text-align:left;">
-0.0021
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2642,7 +3424,7 @@ modeMYN
 0.0012
 </td>
 <td style="text-align:left;">
-0.0021
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2674,7 +3456,7 @@ modeMDQ
 0.0014
 </td>
 <td style="text-align:left;">
-0.0024
+0.0016
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2747,7 +3529,7 @@ modeMDC
 1.18e-15
 </td>
 <td style="text-align:left;">
-1.17e-14
+9.01e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2779,7 +3561,7 @@ modeMWH
 1.27e-16
 </td>
 <td style="text-align:left;">
-1.44e-15
+1.19e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2811,7 +3593,7 @@ modeMYN
 3.10e-14
 </td>
 <td style="text-align:left;">
-1.93e-13
+1.21e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2843,7 +3625,7 @@ modeMDQ
 1.61e-15
 </td>
 <td style="text-align:left;">
-1.47e-14
+1.04e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2916,7 +3698,7 @@ modeMDC
 2.94e-08
 </td>
 <td style="text-align:left;">
-9.59e-08
+5.04e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2948,7 +3730,7 @@ modeMWH
 2.80e-08
 </td>
 <td style="text-align:left;">
-9.26e-08
+4.90e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -2980,7 +3762,7 @@ modeMYN
 3.91e-08
 </td>
 <td style="text-align:left;">
-1.26e-07
+6.57e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3012,7 +3794,7 @@ modeMDQ
 4.23e-07
 </td>
 <td style="text-align:left;">
-1.21e-06
+6.35e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3086,7 +3868,7 @@ modeMDC
 3.16e-14
 </td>
 <td style="text-align:left;">
-1.93e-13
+1.21e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3118,7 +3900,7 @@ modeMWH
 3.38e-14
 </td>
 <td style="text-align:left;">
-2.01e-13
+1.23e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3150,7 +3932,7 @@ modeMYN
 1.74e-14
 </td>
 <td style="text-align:left;">
-1.25e-13
+8.12e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3182,7 +3964,7 @@ modeMDQ
 1.03e-16
 </td>
 <td style="text-align:left;">
-1.23e-15
+1.08e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3256,7 +4038,7 @@ modeMDC
 0.0028
 </td>
 <td style="text-align:left;">
-0.0044
+0.0031
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3288,7 +4070,7 @@ modeMWH
 0.003
 </td>
 <td style="text-align:left;">
-0.0047
+0.0032
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3320,7 +4102,7 @@ modeMYN
 0.0023
 </td>
 <td style="text-align:left;">
-0.0037
+0.0025
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3352,7 +4134,7 @@ modeMDQ
 8.62e-04
 </td>
 <td style="text-align:left;">
-0.0016
+0.0011
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3425,7 +4207,7 @@ modeMDC
 3.58e-07
 </td>
 <td style="text-align:left;">
-1.04e-06
+5.47e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3457,7 +4239,7 @@ modeMWH
 2.65e-07
 </td>
 <td style="text-align:left;">
-8.09e-07
+4.28e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3489,7 +4271,7 @@ modeMYN
 3.40e-07
 </td>
 <td style="text-align:left;">
-1.01e-06
+5.39e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3521,7 +4303,7 @@ modeMDQ
 8.65e-09
 </td>
 <td style="text-align:left;">
-3.12e-08
+1.73e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3553,7 +4335,7 @@ acc_phonL*H
 3.58e-07
 </td>
 <td style="text-align:left;">
-1.04e-06
+5.47e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3585,7 +4367,7 @@ acc_phon^[L*]H
 0.0037
 </td>
 <td style="text-align:left;">
-0.0057
+0.0039
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3617,7 +4399,7 @@ acc_phonL*^[H]
 8.25e-14
 </td>
 <td style="text-align:left;">
-4.20e-13
+2.32e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3649,7 +4431,7 @@ acc_phon^[L*H]
 5.79e-10
 </td>
 <td style="text-align:left;">
-2.19e-09
+1.22e-09
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3722,7 +4504,7 @@ modeMDC
 1.06e-13
 </td>
 <td style="text-align:left;">
-4.85e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3754,7 +4536,7 @@ modeMWH
 1.02e-13
 </td>
 <td style="text-align:left;">
-4.85e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3786,7 +4568,7 @@ modeMYN
 8.29e-14
 </td>
 <td style="text-align:left;">
-4.20e-13
+2.32e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3818,7 +4600,7 @@ modeMDQ
 2.48e-14
 </td>
 <td style="text-align:left;">
-1.70e-13
+1.05e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3850,7 +4632,7 @@ acc_phonL*H
 1.06e-13
 </td>
 <td style="text-align:left;">
-4.85e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3882,7 +4664,7 @@ acc_phon^[L*]H
 9.25e-27
 </td>
 <td style="text-align:left;">
-2.45e-25
+7.77e-25
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3914,7 +4696,7 @@ acc_phonL*^[H]
 4.67e-16
 </td>
 <td style="text-align:left;">
-4.83e-15
+3.92e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -3946,7 +4728,7 @@ acc_phon^[L*H]
 2.88e-15
 </td>
 <td style="text-align:left;">
-2.54e-14
+1.73e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4020,7 +4802,7 @@ modeMDC
 0.0013
 </td>
 <td style="text-align:left;">
-0.0022
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4052,7 +4834,7 @@ modeMWH
 0.0013
 </td>
 <td style="text-align:left;">
-0.0022
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4084,7 +4866,7 @@ modeMYN
 0.0013
 </td>
 <td style="text-align:left;">
-0.0022
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4116,7 +4898,7 @@ modeMDQ
 0.0013
 </td>
 <td style="text-align:left;">
-0.0022
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4148,7 +4930,7 @@ acc_phonL*H
 0.0013
 </td>
 <td style="text-align:left;">
-0.0022
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4180,7 +4962,7 @@ acc_phon^[L*]H
 1.63e-04
 </td>
 <td style="text-align:left;">
-3.63e-04
+2.28e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -4212,7 +4994,7 @@ acc_phonL*^[H]
 8.28e-04
 </td>
 <td style="text-align:left;">
-0.0016
+0.0011
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4244,7 +5026,7 @@ acc_phon^[L*H]
 0.001
 </td>
 <td style="text-align:left;">
-0.0018
+0.0013
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4317,7 +5099,7 @@ modeMDC
 1.14e-13
 </td>
 <td style="text-align:left;">
-4.93e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4349,7 +5131,7 @@ modeMWH
 1.12e-13
 </td>
 <td style="text-align:left;">
-4.93e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4381,7 +5163,7 @@ modeMYN
 9.29e-14
 </td>
 <td style="text-align:left;">
-4.61e-13
+2.52e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4413,7 +5195,7 @@ modeMDQ
 4.93e-14
 </td>
 <td style="text-align:left;">
-2.86e-13
+1.73e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4445,7 +5227,7 @@ acc_phonL*H
 1.14e-13
 </td>
 <td style="text-align:left;">
-4.93e-13
+2.59e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4477,7 +5259,7 @@ acc_phon^[L*]H
 1.27e-21
 </td>
 <td style="text-align:left;">
-2.33e-20
+3.56e-20
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4509,7 +5291,7 @@ acc_phonL*^[H]
 5.27e-15
 </td>
 <td style="text-align:left;">
-4.18e-14
+2.77e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4541,7 +5323,7 @@ acc_phon^[L*H]
 1.11e-14
 </td>
 <td style="text-align:left;">
-8.52e-14
+5.48e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4615,7 +5397,7 @@ modeMDC
 2.27e-08
 </td>
 <td style="text-align:left;">
-7.61e-08
+4.06e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4647,7 +5429,7 @@ modeMWH
 2.18e-08
 </td>
 <td style="text-align:left;">
-7.52e-08
+4.06e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4679,7 +5461,7 @@ modeMYN
 1.36e-08
 </td>
 <td style="text-align:left;">
-4.83e-08
+2.66e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4711,7 +5493,7 @@ modeMDQ
 1.48e-08
 </td>
 <td style="text-align:left;">
-5.18e-08
+2.83e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4743,7 +5525,7 @@ acc_phonL*H
 2.27e-08
 </td>
 <td style="text-align:left;">
-7.61e-08
+4.06e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4775,7 +5557,7 @@ acc_phon^[L*]H
 2.41e-13
 </td>
 <td style="text-align:left;">
-1.02e-12
+5.33e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4807,7 +5589,7 @@ acc_phonL*^[H]
 1.13e-10
 </td>
 <td style="text-align:left;">
-4.48e-10
+2.43e-10
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4839,7 +5621,7 @@ acc_phon^[L*H]
 8.82e-10
 </td>
 <td style="text-align:left;">
-3.28e-09
+1.81e-09
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4913,7 +5695,7 @@ modeMDC
 7.55e-14
 </td>
 <td style="text-align:left;">
-3.99e-13
+2.26e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4945,7 +5727,7 @@ modeMWH
 7.31e-14
 </td>
 <td style="text-align:left;">
-3.99e-13
+2.26e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -4977,7 +5759,7 @@ modeMYN
 5.95e-14
 </td>
 <td style="text-align:left;">
-3.37e-13
+2.00e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5009,7 +5791,7 @@ modeMDQ
 2.50e-14
 </td>
 <td style="text-align:left;">
-1.70e-13
+1.05e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5041,7 +5823,7 @@ acc_phonL*H
 7.55e-14
 </td>
 <td style="text-align:left;">
-3.99e-13
+2.26e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5073,7 +5855,7 @@ acc_phon^[L*]H
 9.09e-24
 </td>
 <td style="text-align:left;">
-1.97e-22
+3.82e-22
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5105,7 +5887,7 @@ acc_phonL*^[H]
 1.39e-15
 </td>
 <td style="text-align:left;">
-1.32e-14
+9.73e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5137,7 +5919,7 @@ acc_phon^[L*H]
 4.57e-15
 </td>
 <td style="text-align:left;">
-3.75e-14
+2.56e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5211,7 +5993,7 @@ modeMDC
 0.0047
 </td>
 <td style="text-align:left;">
-0.0068
+0.0048
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5243,7 +6025,7 @@ modeMWH
 0.0038
 </td>
 <td style="text-align:left;">
-0.0058
+0.004
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5275,7 +6057,7 @@ modeMYN
 0.0044
 </td>
 <td style="text-align:left;">
-0.0065
+0.0046
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5307,7 +6089,7 @@ modeMDQ
 0.0019
 </td>
 <td style="text-align:left;">
-0.0032
+0.0022
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5339,7 +6121,7 @@ acc_phonL*H
 0.0047
 </td>
 <td style="text-align:left;">
-0.0068
+0.0048
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5371,9 +6153,10 @@ acc_phon^[L*]H
 0.0415
 </td>
 <td style="text-align:left;">
-0.0546
+0.0415
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -5402,7 +6185,7 @@ acc_phonL*^[H]
 3.21e-04
 </td>
 <td style="text-align:left;">
-6.76e-04
+4.42e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -5434,7 +6217,7 @@ acc_phon^[L*H]
 0.0022
 </td>
 <td style="text-align:left;">
-0.0036
+0.0025
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5442,9 +6225,12 @@ p&lt;0.01
 </tr>
 </tbody>
 </table>
+</div>
+<div id="b.-beta_1-2" class="section level4">
+<h4>b. <span class="math inline">\(\beta_1\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-15. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
+1. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -5513,7 +6299,7 @@ modeMWH
 0.4124
 </td>
 <td style="text-align:left;">
-0.4565
+0.4848
 </td>
 <td style="text-align:left;">
 </td>
@@ -5547,7 +6333,7 @@ modeMYN
 0.7558
 </td>
 <td style="text-align:left;">
-0.7855
+0.8027
 </td>
 <td style="text-align:left;">
 </td>
@@ -5581,7 +6367,7 @@ modeMDQ
 0.0019
 </td>
 <td style="text-align:left;">
-0.0032
+0.0042
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -5616,7 +6402,7 @@ modeMYN
 0.7226
 </td>
 <td style="text-align:left;">
-0.761
+0.7837
 </td>
 <td style="text-align:left;">
 </td>
@@ -5650,7 +6436,7 @@ modeMDQ
 0.0104
 </td>
 <td style="text-align:left;">
-0.0143
+0.0178
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -5685,7 +6471,7 @@ modeMDQ
 2.27e-04
 </td>
 <td style="text-align:left;">
-5.00e-04
+7.28e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -5720,7 +6506,7 @@ fin_phonL%
 2.13e-11
 </td>
 <td style="text-align:left;">
-8.74e-11
+1.64e-10
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5755,7 +6541,7 @@ genderM
 0.1263
 </td>
 <td style="text-align:left;">
-0.1542
+0.1752
 </td>
 <td style="text-align:left;">
 </td>
@@ -5764,7 +6550,7 @@ genderM
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-16. h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)
+2. h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -5833,7 +6619,7 @@ modeMWH
 0.3171
 </td>
 <td style="text-align:left;">
-0.3619
+0.3915
 </td>
 <td style="text-align:left;">
 </td>
@@ -5867,7 +6653,7 @@ modeMYN
 2.59e-04
 </td>
 <td style="text-align:left;">
-5.55e-04
+7.82e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -5902,7 +6688,7 @@ modeMDQ
 2.43e-05
 </td>
 <td style="text-align:left;">
-5.96e-05
+9.85e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -5937,7 +6723,7 @@ modeMYN
 0.0116
 </td>
 <td style="text-align:left;">
-0.0158
+0.0194
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -5972,7 +6758,7 @@ modeMDQ
 5.31e-04
 </td>
 <td style="text-align:left;">
-0.0011
+0.0014
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6007,7 +6793,7 @@ modeMDQ
 0.0027
 </td>
 <td style="text-align:left;">
-0.0043
+0.0056
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6042,10 +6828,10 @@ fin_phonL%
 4.22e-05
 </td>
 <td style="text-align:left;">
-9.75e-05
+1.48e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -6077,7 +6863,7 @@ genderM
 0.0048
 </td>
 <td style="text-align:left;">
-0.0069
+0.009
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6087,7 +6873,7 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-17. h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+3. h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -6156,7 +6942,7 @@ modeMWH
 0.9274
 </td>
 <td style="text-align:left;">
-0.9313
+0.9335
 </td>
 <td style="text-align:left;">
 </td>
@@ -6190,7 +6976,7 @@ modeMYN
 0.1871
 </td>
 <td style="text-align:left;">
-0.2226
+0.2484
 </td>
 <td style="text-align:left;">
 </td>
@@ -6224,7 +7010,7 @@ modeMDQ
 6.75e-11
 </td>
 <td style="text-align:left;">
-2.72e-10
+4.95e-10
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6259,7 +7045,7 @@ modeMYN
 0.2184
 </td>
 <td style="text-align:left;">
-0.2578
+0.2856
 </td>
 <td style="text-align:left;">
 </td>
@@ -6293,7 +7079,7 @@ modeMDQ
 1.17e-10
 </td>
 <td style="text-align:left;">
-4.56e-10
+8.19e-10
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6328,7 +7114,7 @@ modeMDQ
 1.12e-07
 </td>
 <td style="text-align:left;">
-3.55e-07
+6.90e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6363,7 +7149,7 @@ fin_phonL%
 9.99e-41
 </td>
 <td style="text-align:left;">
-5.94e-39
+3.85e-39
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6398,7 +7184,7 @@ genderM
 0.005
 </td>
 <td style="text-align:left;">
-0.0072
+0.0093
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6408,7 +7194,7 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-18. l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)
+4. l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)
 </caption>
 <thead>
 <tr>
@@ -6477,7 +7263,7 @@ modeMWH
 0.6221
 </td>
 <td style="text-align:left;">
-0.6639
+0.6892
 </td>
 <td style="text-align:left;">
 </td>
@@ -6511,7 +7297,7 @@ modeMYN
 3.45e-04
 </td>
 <td style="text-align:left;">
-7.08e-04
+9.65e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -6546,7 +7332,7 @@ modeMDQ
 5.32e-04
 </td>
 <td style="text-align:left;">
-0.0011
+0.0014
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6581,10 +7367,10 @@ modeMYN
 0.0056
 </td>
 <td style="text-align:left;">
-0.008
+0.0103
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -6616,7 +7402,7 @@ modeMDQ
 0.0046
 </td>
 <td style="text-align:left;">
-0.0068
+0.0087
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6651,7 +7437,7 @@ modeMDQ
 0.0764
 </td>
 <td style="text-align:left;">
-0.0971
+0.1136
 </td>
 <td style="text-align:left;">
 </td>
@@ -6685,7 +7471,7 @@ fin_phonL%
 0.015
 </td>
 <td style="text-align:left;">
-0.0201
+0.0243
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -6720,7 +7506,7 @@ genderM
 9.35e-05
 </td>
 <td style="text-align:left;">
-2.12e-04
+3.13e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -6730,7 +7516,7 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-19. l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
+5. l_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt)
 </caption>
 <thead>
 <tr>
@@ -6799,7 +7585,7 @@ modeMWH
 0.8203
 </td>
 <td style="text-align:left;">
-0.8452
+0.8594
 </td>
 <td style="text-align:left;">
 </td>
@@ -6833,7 +7619,7 @@ modeMYN
 0.1667
 </td>
 <td style="text-align:left;">
-0.1994
+0.2232
 </td>
 <td style="text-align:left;">
 </td>
@@ -6867,7 +7653,7 @@ modeMDQ
 3.79e-27
 </td>
 <td style="text-align:left;">
-1.13e-25
+7.30e-26
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6902,7 +7688,7 @@ modeMYN
 0.1066
 </td>
 <td style="text-align:left;">
-0.1328
+0.1529
 </td>
 <td style="text-align:left;">
 </td>
@@ -6936,7 +7722,7 @@ modeMDQ
 3.68e-28
 </td>
 <td style="text-align:left;">
-1.46e-26
+9.45e-27
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -6971,7 +7757,7 @@ modeMDQ
 7.06e-22
 </td>
 <td style="text-align:left;">
-1.40e-20
+1.09e-20
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -7006,7 +7792,7 @@ fin_phonL%
 0.5354
 </td>
 <td style="text-align:left;">
-0.5792
+0.6063
 </td>
 <td style="text-align:left;">
 </td>
@@ -7040,7 +7826,7 @@ genderM
 2.55e-04
 </td>
 <td style="text-align:left;">
-5.52e-04
+7.82e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7050,7 +7836,7 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-20. lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+6. lh_mean_f0 ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -7120,7 +7906,7 @@ modeMWH
 0.3895
 </td>
 <td style="text-align:left;">
-0.4352
+0.465
 </td>
 <td style="text-align:left;">
 </td>
@@ -7154,10 +7940,10 @@ modeMYN
 3.78e-05
 </td>
 <td style="text-align:left;">
-8.91e-05
+1.39e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -7189,10 +7975,10 @@ modeMDQ
 3.31e-05
 </td>
 <td style="text-align:left;">
-7.96e-05
+1.27e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -7224,7 +8010,7 @@ modeMYN
 0.0028
 </td>
 <td style="text-align:left;">
-0.0044
+0.0057
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7259,7 +8045,7 @@ modeMDQ
 8.15e-04
 </td>
 <td style="text-align:left;">
-0.0015
+0.0019
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7294,7 +8080,7 @@ modeMDQ
 0.0113
 </td>
 <td style="text-align:left;">
-0.0155
+0.0191
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -7329,7 +8115,7 @@ fin_phonL%
 0.0747
 </td>
 <td style="text-align:left;">
-0.0956
+0.1128
 </td>
 <td style="text-align:left;">
 </td>
@@ -7363,7 +8149,7 @@ genderM
 0.0044
 </td>
 <td style="text-align:left;">
-0.0065
+0.0085
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7373,7 +8159,7 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-21. lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
+7. lh_slope ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -7443,7 +8229,7 @@ modeMWH
 0.3815
 </td>
 <td style="text-align:left;">
-0.4283
+0.459
 </td>
 <td style="text-align:left;">
 </td>
@@ -7477,7 +8263,7 @@ modeMYN
 0.6588
 </td>
 <td style="text-align:left;">
-0.6969
+0.7195
 </td>
 <td style="text-align:left;">
 </td>
@@ -7511,7 +8297,7 @@ modeMDQ
 0.0021
 </td>
 <td style="text-align:left;">
-0.0034
+0.0046
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7546,7 +8332,7 @@ modeMYN
 0.7375
 </td>
 <td style="text-align:left;">
-0.7732
+0.7942
 </td>
 <td style="text-align:left;">
 </td>
@@ -7580,7 +8366,7 @@ modeMDQ
 0.0121
 </td>
 <td style="text-align:left;">
-0.0164
+0.02
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -7615,7 +8401,7 @@ modeMDQ
 6.35e-04
 </td>
 <td style="text-align:left;">
-0.0012
+0.0016
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7650,7 +8436,7 @@ fin_phonL%
 0.3113
 </td>
 <td style="text-align:left;">
-0.3579
+0.3898
 </td>
 <td style="text-align:left;">
 </td>
@@ -7684,7 +8470,7 @@ genderM
 0.2457
 </td>
 <td style="text-align:left;">
-0.2866
+0.3153
 </td>
 <td style="text-align:left;">
 </td>
@@ -7693,7 +8479,7 @@ genderM
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-22. f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+8. f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -7762,7 +8548,7 @@ modeMWH
 0.2188
 </td>
 <td style="text-align:left;">
-0.2578
+0.2856
 </td>
 <td style="text-align:left;">
 </td>
@@ -7796,7 +8582,7 @@ modeMYN
 0.5587
 </td>
 <td style="text-align:left;">
-0.6017
+0.628
 </td>
 <td style="text-align:left;">
 </td>
@@ -7830,10 +8616,10 @@ modeMDQ
 3.54e-05
 </td>
 <td style="text-align:left;">
-8.43e-05
+1.33e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -7865,7 +8651,7 @@ modeMYN
 0.0904
 </td>
 <td style="text-align:left;">
-0.1132
+0.1313
 </td>
 <td style="text-align:left;">
 </td>
@@ -7899,7 +8685,7 @@ modeMDQ
 7.52e-04
 </td>
 <td style="text-align:left;">
-0.0014
+0.0018
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -7934,7 +8720,7 @@ modeMDQ
 1.03e-05
 </td>
 <td style="text-align:left;">
-2.58e-05
+4.41e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -7969,10 +8755,10 @@ acc_phon^[L*]H
 4.77e-04
 </td>
 <td style="text-align:left;">
-9.62e-04
+0.0013
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.01
 </td>
 </tr>
 <tr>
@@ -8004,7 +8790,7 @@ acc_phonL*^[H]
 7.51e-25
 </td>
 <td style="text-align:left;">
-1.79e-23
+1.29e-23
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8039,7 +8825,7 @@ acc_phon^[L*H]
 1.51e-04
 </td>
 <td style="text-align:left;">
-3.39e-04
+4.95e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8074,7 +8860,7 @@ acc_phonL*^[H]
 3.06e-14
 </td>
 <td style="text-align:left;">
-1.93e-13
+2.85e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8109,7 +8895,7 @@ acc_phon^[L*H]
 1.71e-06
 </td>
 <td style="text-align:left;">
-4.57e-06
+8.49e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8144,7 +8930,7 @@ acc_phon^[L*H]
 6.36e-17
 </td>
 <td style="text-align:left;">
-1.07e-15
+8.90e-16
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8179,7 +8965,7 @@ fin_phonL%
 0.0039
 </td>
 <td style="text-align:left;">
-0.0059
+0.0077
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8214,7 +9000,7 @@ genderM
 0.2906
 </td>
 <td style="text-align:left;">
-0.3357
+0.3668
 </td>
 <td style="text-align:left;">
 </td>
@@ -8223,7 +9009,7 @@ genderM
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-23. h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+9. h_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -8292,7 +9078,7 @@ modeMWH
 0.041
 </td>
 <td style="text-align:left;">
-0.0542
+0.0651
 </td>
 <td style="text-align:left;">
 </td>
@@ -8326,7 +9112,7 @@ modeMYN
 1.53e-07
 </td>
 <td style="text-align:left;">
-4.79e-07
+9.06e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8361,7 +9147,7 @@ modeMDQ
 1.34e-06
 </td>
 <td style="text-align:left;">
-3.62e-06
+6.88e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8396,7 +9182,7 @@ modeMYN
 6.03e-04
 </td>
 <td style="text-align:left;">
-0.0012
+0.0015
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8431,7 +9217,7 @@ modeMDQ
 3.42e-04
 </td>
 <td style="text-align:left;">
-7.08e-04
+9.65e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8466,7 +9252,7 @@ modeMDQ
 0.2338
 </td>
 <td style="text-align:left;">
-0.2741
+0.3026
 </td>
 <td style="text-align:left;">
 </td>
@@ -8500,7 +9286,7 @@ acc_phon^[L*]H
 0.6165
 </td>
 <td style="text-align:left;">
-0.6609
+0.688
 </td>
 <td style="text-align:left;">
 </td>
@@ -8534,7 +9320,7 @@ acc_phonL*^[H]
 2.14e-27
 </td>
 <td style="text-align:left;">
-7.28e-26
+4.71e-26
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8569,7 +9355,7 @@ acc_phon^[L*H]
 1.17e-41
 </td>
 <td style="text-align:left;">
-9.28e-40
+6.01e-40
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8604,10 +9390,10 @@ acc_phonL*^[H]
 3.88e-05
 </td>
 <td style="text-align:left;">
-9.05e-05
+1.39e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -8639,7 +9425,7 @@ acc_phon^[L*H]
 2.05e-05
 </td>
 <td style="text-align:left;">
-5.08e-05
+8.53e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -8674,7 +9460,7 @@ acc_phon^[L*H]
 0.8938
 </td>
 <td style="text-align:left;">
-0.9021
+0.9063
 </td>
 <td style="text-align:left;">
 </td>
@@ -8708,7 +9494,7 @@ fin_phonL%
 0.0816
 </td>
 <td style="text-align:left;">
-0.1028
+0.1197
 </td>
 <td style="text-align:left;">
 </td>
@@ -8742,17 +9528,17 @@ genderM
 0.0059
 </td>
 <td style="text-align:left;">
-0.0084
+0.0107
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-24. h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+10. h_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -8822,7 +9608,7 @@ modeMWH
 0.8538
 </td>
 <td style="text-align:left;">
-0.8721
+0.8825
 </td>
 <td style="text-align:left;">
 </td>
@@ -8890,7 +9676,7 @@ modeMDQ
 0.0027
 </td>
 <td style="text-align:left;">
-0.0043
+0.0056
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8925,7 +9711,7 @@ modeMYN
 0.8945
 </td>
 <td style="text-align:left;">
-0.9021
+0.9063
 </td>
 <td style="text-align:left;">
 </td>
@@ -8959,7 +9745,7 @@ modeMDQ
 0.004
 </td>
 <td style="text-align:left;">
-0.006
+0.0078
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8994,7 +9780,7 @@ modeMDQ
 0.0038
 </td>
 <td style="text-align:left;">
-0.0058
+0.0076
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -9029,7 +9815,7 @@ acc_phon^[L*]H
 0.0017
 </td>
 <td style="text-align:left;">
-0.0029
+0.0039
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -9064,7 +9850,7 @@ acc_phonL*^[H]
 0.3178
 </td>
 <td style="text-align:left;">
-0.3619
+0.3915
 </td>
 <td style="text-align:left;">
 </td>
@@ -9098,7 +9884,7 @@ acc_phon^[L*H]
 0.1072
 </td>
 <td style="text-align:left;">
-0.1329
+0.1529
 </td>
 <td style="text-align:left;">
 </td>
@@ -9132,7 +9918,7 @@ acc_phonL*^[H]
 0.0081
 </td>
 <td style="text-align:left;">
-0.0112
+0.014
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -9167,7 +9953,7 @@ acc_phon^[L*H]
 0.0078
 </td>
 <td style="text-align:left;">
-0.0109
+0.0136
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -9202,7 +9988,7 @@ acc_phon^[L*H]
 0.7858
 </td>
 <td style="text-align:left;">
-0.8131
+0.8289
 </td>
 <td style="text-align:left;">
 </td>
@@ -9236,7 +10022,7 @@ fin_phonL%
 2.84e-34
 </td>
 <td style="text-align:left;">
-1.35e-32
+8.75e-33
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9271,17 +10057,17 @@ genderM
 0.0064
 </td>
 <td style="text-align:left;">
-0.009
+0.0115
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-25. l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
+11. l_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -9350,7 +10136,7 @@ modeMWH
 0.4602
 </td>
 <td style="text-align:left;">
-0.5024
+0.5289
 </td>
 <td style="text-align:left;">
 </td>
@@ -9384,7 +10170,7 @@ modeMYN
 3.15e-14
 </td>
 <td style="text-align:left;">
-1.93e-13
+2.85e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9419,7 +10205,7 @@ modeMDQ
 0.1112
 </td>
 <td style="text-align:left;">
-0.1371
+0.1571
 </td>
 <td style="text-align:left;">
 </td>
@@ -9453,7 +10239,7 @@ modeMYN
 4.01e-12
 </td>
 <td style="text-align:left;">
-1.67e-11
+3.25e-11
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9488,7 +10274,7 @@ modeMDQ
 0.2565
 </td>
 <td style="text-align:left;">
-0.2978
+0.3265
 </td>
 <td style="text-align:left;">
 </td>
@@ -9522,7 +10308,7 @@ modeMDQ
 3.30e-04
 </td>
 <td style="text-align:left;">
-6.89e-04
+9.59e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -9557,7 +10343,7 @@ acc_phon^[L*]H
 1.22e-06
 </td>
 <td style="text-align:left;">
-3.34e-06
+6.48e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9592,7 +10378,7 @@ acc_phonL*^[H]
 6.22e-07
 </td>
 <td style="text-align:left;">
-1.76e-06
+3.42e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9627,7 +10413,7 @@ acc_phon^[L*H]
 7.78e-48
 </td>
 <td style="text-align:left;">
-1.85e-45
+1.20e-45
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9662,10 +10448,10 @@ acc_phonL*^[H]
 0.0069
 </td>
 <td style="text-align:left;">
-0.0097
+0.0122
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -9697,7 +10483,7 @@ acc_phon^[L*H]
 0.7551
 </td>
 <td style="text-align:left;">
-0.7855
+0.8027
 </td>
 <td style="text-align:left;">
 </td>
@@ -9731,7 +10517,7 @@ acc_phon^[L*H]
 3.73e-15
 </td>
 <td style="text-align:left;">
-3.17e-14
+4.10e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9766,7 +10552,7 @@ fin_phonL%
 0.1431
 </td>
 <td style="text-align:left;">
-0.172
+0.1933
 </td>
 <td style="text-align:left;">
 </td>
@@ -9800,7 +10586,7 @@ genderM
 0.0021
 </td>
 <td style="text-align:left;">
-0.0034
+0.0046
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -9810,7 +10596,7 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-26. l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
+12. l_t ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 |
 prompt)
 </caption>
 <thead>
@@ -9880,7 +10666,7 @@ modeMWH
 0.8873
 </td>
 <td style="text-align:left;">
-0.9021
+0.9063
 </td>
 <td style="text-align:left;">
 </td>
@@ -9914,7 +10700,7 @@ modeMYN
 0.3299
 </td>
 <td style="text-align:left;">
-0.3739
+0.4032
 </td>
 <td style="text-align:left;">
 </td>
@@ -9948,7 +10734,7 @@ modeMDQ
 3.86e-06
 </td>
 <td style="text-align:left;">
-9.99e-06
+1.80e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -9983,7 +10769,7 @@ modeMYN
 0.3982
 </td>
 <td style="text-align:left;">
-0.4429
+0.4717
 </td>
 <td style="text-align:left;">
 </td>
@@ -10017,7 +10803,7 @@ modeMDQ
 2.62e-06
 </td>
 <td style="text-align:left;">
-6.85e-06
+1.26e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10052,7 +10838,7 @@ modeMDQ
 2.89e-07
 </td>
 <td style="text-align:left;">
-8.71e-07
+1.65e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10087,7 +10873,7 @@ acc_phon^[L*]H
 0.434
 </td>
 <td style="text-align:left;">
-0.476
+0.5025
 </td>
 <td style="text-align:left;">
 </td>
@@ -10121,7 +10907,7 @@ acc_phonL*^[H]
 0.0131
 </td>
 <td style="text-align:left;">
-0.0176
+0.0215
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -10156,7 +10942,7 @@ acc_phon^[L*H]
 5.44e-04
 </td>
 <td style="text-align:left;">
-0.0011
+0.0014
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -10191,7 +10977,7 @@ acc_phonL*^[H]
 0.0767
 </td>
 <td style="text-align:left;">
-0.0971
+0.1136
 </td>
 <td style="text-align:left;">
 </td>
@@ -10225,7 +11011,7 @@ acc_phon^[L*H]
 0.0529
 </td>
 <td style="text-align:left;">
-0.0688
+0.0823
 </td>
 <td style="text-align:left;">
 </td>
@@ -10259,7 +11045,7 @@ acc_phon^[L*H]
 0.8283
 </td>
 <td style="text-align:left;">
-0.8497
+0.8619
 </td>
 <td style="text-align:left;">
 </td>
@@ -10293,7 +11079,7 @@ fin_phonL%
 0.1209
 </td>
 <td style="text-align:left;">
-0.1483
+0.1693
 </td>
 <td style="text-align:left;">
 </td>
@@ -10327,7 +11113,7 @@ genderM
 2.96e-04
 </td>
 <td style="text-align:left;">
-6.29e-04
+8.77e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -10337,7 +11123,7 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-27. lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) +
+13. lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) +
 (1 | prompt)
 </caption>
 <thead>
@@ -10407,7 +11193,7 @@ modeMWH
 0.0716
 </td>
 <td style="text-align:left;">
-0.0921
+0.1092
 </td>
 <td style="text-align:left;">
 </td>
@@ -10441,7 +11227,7 @@ modeMYN
 1.02e-13
 </td>
 <td style="text-align:left;">
-4.85e-13
+8.73e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10476,7 +11262,7 @@ modeMDQ
 6.20e-06
 </td>
 <td style="text-align:left;">
-1.57e-05
+2.73e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10511,7 +11297,7 @@ modeMYN
 4.17e-09
 </td>
 <td style="text-align:left;">
-1.53e-08
+2.68e-08
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10546,7 +11332,7 @@ modeMDQ
 6.44e-04
 </td>
 <td style="text-align:left;">
-0.0012
+0.0016
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -10581,7 +11367,7 @@ modeMDQ
 0.5068
 </td>
 <td style="text-align:left;">
-0.5508
+0.5781
 </td>
 <td style="text-align:left;">
 </td>
@@ -10615,7 +11401,7 @@ acc_phon^[L*]H
 0.0443
 </td>
 <td style="text-align:left;">
-0.0579
+0.0696
 </td>
 <td style="text-align:left;">
 </td>
@@ -10649,7 +11435,7 @@ acc_phonL*^[H]
 2.36e-16
 </td>
 <td style="text-align:left;">
-2.55e-15
+2.80e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10684,7 +11470,7 @@ acc_phon^[L*H]
 3.86e-47
 </td>
 <td style="text-align:left;">
-4.59e-45
+2.97e-45
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -10719,7 +11505,7 @@ acc_phonL*^[H]
 0.1418
 </td>
 <td style="text-align:left;">
-0.172
+0.1933
 </td>
 <td style="text-align:left;">
 </td>
@@ -10753,7 +11539,7 @@ acc_phon^[L*H]
 0.0018
 </td>
 <td style="text-align:left;">
-0.003
+0.0041
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -10788,7 +11574,7 @@ acc_phon^[L*H]
 4.67e-05
 </td>
 <td style="text-align:left;">
-1.07e-04
+1.60e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -10823,7 +11609,7 @@ fin_phonL%
 0.4338
 </td>
 <td style="text-align:left;">
-0.476
+0.5025
 </td>
 <td style="text-align:left;">
 </td>
@@ -10857,7 +11643,7 @@ genderM
 0.0032
 </td>
 <td style="text-align:left;">
-0.0049
+0.0065
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -10867,7 +11653,7 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-28. lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1
+14. lh_slope ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1
 | prompt)
 </caption>
 <thead>
@@ -10937,10 +11723,9 @@ modeMWH
 0.0356
 </td>
 <td style="text-align:left;">
-0.0473
+0.0571
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -10972,7 +11757,7 @@ modeMYN
 0.6577
 </td>
 <td style="text-align:left;">
-0.6969
+0.7195
 </td>
 <td style="text-align:left;">
 </td>
@@ -11006,7 +11791,7 @@ modeMDQ
 4.52e-06
 </td>
 <td style="text-align:left;">
-1.16e-05
+2.05e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -11041,7 +11826,7 @@ modeMYN
 0.1428
 </td>
 <td style="text-align:left;">
-0.172
+0.1933
 </td>
 <td style="text-align:left;">
 </td>
@@ -11075,7 +11860,7 @@ modeMDQ
 9.85e-04
 </td>
 <td style="text-align:left;">
-0.0018
+0.0023
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -11110,10 +11895,10 @@ modeMDQ
 2.91e-05
 </td>
 <td style="text-align:left;">
-7.07e-05
+1.15e-04
 </td>
 <td style="text-align:left;">
-p&lt;0.0001
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -11145,7 +11930,7 @@ acc_phon^[L*]H
 0.0027
 </td>
 <td style="text-align:left;">
-0.0043
+0.0056
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -11180,7 +11965,7 @@ acc_phonL*^[H]
 8.04e-17
 </td>
 <td style="text-align:left;">
-1.16e-15
+1.03e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -11215,7 +12000,7 @@ acc_phon^[L*H]
 0.0644
 </td>
 <td style="text-align:left;">
-0.0833
+0.0992
 </td>
 <td style="text-align:left;">
 </td>
@@ -11249,7 +12034,7 @@ acc_phonL*^[H]
 2.54e-10
 </td>
 <td style="text-align:left;">
-9.75e-10
+1.70e-09
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -11284,7 +12069,7 @@ acc_phon^[L*H]
 2.55e-04
 </td>
 <td style="text-align:left;">
-5.52e-04
+7.82e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -11319,7 +12104,7 @@ acc_phon^[L*H]
 1.71e-14
 </td>
 <td style="text-align:left;">
-1.25e-13
+1.76e-13
 </td>
 <td style="text-align:left;">
 p&lt;0.0001
@@ -11354,7 +12139,7 @@ fin_phonL%
 3.51e-04
 </td>
 <td style="text-align:left;">
-7.14e-04
+9.65e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -11389,15 +12174,16 @@ genderM
 0.3683
 </td>
 <td style="text-align:left;">
-0.4154
+0.4466
 </td>
 <td style="text-align:left;">
 </td>
 </tr>
 </tbody>
 </table>
-<div id="anovas-of-models-for-mode-acc_phon-and-phonetic-parameters" class="section level3">
-<h3>ANOVAs of models for mode, acc_phon, and phonetic parameters</h3>
+</div>
+<div id="c.-anovas-of-models-for-mode-acc_phon-and-phonetic-parameters" class="section level3">
+<h3>c. ANOVAs of models for mode, acc_phon, and phonetic parameters</h3>
 <table class="table" style="width: auto !important; ">
 <caption>
 1. f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)
@@ -12113,6 +12899,7 @@ fin_phon
 0.0996
 </td>
 <td style="text-align:left;">
+(p&lt;0.1)
 </td>
 </tr>
 <tr>
@@ -13175,6 +13962,7 @@ mode:acc_phon
 0.072
 </td>
 <td style="text-align:left;">
+(p&lt;0.1)
 </td>
 </tr>
 </tbody>
