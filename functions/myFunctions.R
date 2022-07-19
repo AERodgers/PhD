@@ -516,7 +516,10 @@ printTidyModel <-
   function(my_model,
            write_r2 = NULL,
            is_GLM = FALSE,
-           axis.lim = NULL)
+           axis.lim = NULL,
+           transform=NULL,
+           show.intercept=FALSE,
+           type=NULL)
   {
     require("formattable")
     require("tidyverse")
@@ -603,12 +606,13 @@ printTidyModel <-
     plot_model(
       my_model,
       title = my_formula,
-      show.intercept = FALSE,
+      show.intercept=show.intercept,
       show.values = TRUE,
       vline.color = "red",
       colors = "Black",
-      transform = NULL,
-      axis.lim = axis.lim
+      transform = transform,
+      axis.lim = axis.lim,
+      type=type
     )
   )
 return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))

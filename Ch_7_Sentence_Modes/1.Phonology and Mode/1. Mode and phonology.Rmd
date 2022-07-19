@@ -30,7 +30,8 @@ installMissingPackages(
     "optimx",
     "performance",
     "sjPlot",
-    "tidyverse"
+    "tidyverse",
+    "ggeffects"
 
   )
 )
@@ -50,6 +51,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
   mutate(
     # remove non-accentuation from phr_phon
+    mode =  factor(mode, levels=c("MDC", "MWH", "MYN", "MDQ")),
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)\\s", ""),
     phr_phon = str_replace_all(phr_phon, "\\s\\s", "\\s"),
     phr_phon = factor(phr_phon, levels=unique(phr_phon)),
@@ -57,7 +59,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     one_pa = factor(one_pa, levels=unique(one_pa)),
     h_reg = str_detect(phr_phon, "\\^"),
     h_reg =  factor(h_reg, levels=unique(h_reg)),
-    mode =  factor(mode, levels=c("MDC", "MWH", "MYN", "MDQ"))
+    one_pa_or_h_reg = factor((h_reg == T | one_pa ==T), levels = c(F, T))
     ) %>%
 
   # Select only columns for analysis
@@ -65,11 +67,86 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          mode,
          phr_phon,
          one_pa,
-         h_reg)
+         h_reg,
+         one_pa_or_h_reg)
 
 
 ```
 
+
+```{r one_pa_or_h_reg model test}
+one_pa_or_h_reg_model <- glmer(
+   one_pa_or_h_reg ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+one_pa_or_h_reg_null = 
+  cur_model <- glmer(
+   one_pa_or_h_reg ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(one_pa_or_h_reg_model)
+
+cat(
+  "isSingular(one_pa_or_h_reg_model, tol=1e-5) -->",
+  isSingular(one_pa_or_h_reg_model, tol = 1e-5),
+  "\n"
+)
+
+anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(one_pa_or_h_reg_model,
+                    write_r2="Utt_one_pa_or_h_reg_GLMM",
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE
+                    )
+
+
+
+x$r2
+x$table
+
+one_pa_or_h_reg_charts <- getModelFixedFX(
+  my_equation = one_pa_or_h_reg ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_one_pa_or_h_reg_GLMM",
+  is_GLM = TRUE
+)
+
+
+one_pa_or_h_reg_charts$intercepts
+
+one_pa_or_h_reg_charts$pairwise
+
+ggpredict(one_pa_or_h_reg_model) %>% plot()
+```
 
 ```{r one_pa_model test}
 one_pa_model <- glmer(
@@ -120,13 +197,17 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
 
 x <- printTidyModel(one_pa_model,
                     write_r2="Utt_one_pa_GLMM",
-                    is_GLM = TRUE
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE
                     )
 
 
 
 x$r2
 x$table
+
+ggpredict(one_pa_model) %>% plot()
 ```
 
 
@@ -139,9 +220,9 @@ one_pa_charts <- getModelFixedFX(
 )
 
 
-one_pa_charts$intercepts
+one_pa_charts$intercepts %>% mutate(estimate = exp(estimate))
 
-one_pa_charts$pairwise
+one_pa_charts$pairwise %>% mutate(estimate = exp(estimate))
 ```
 
 
@@ -194,11 +275,14 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
 
 x <- printTidyModel(h_reg_model,
                     write_r2="Utt_h_reg_GLMM",
-                    is_GLM = TRUE
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE
                     )
 
 x$r2
 x$table
+ggpredict(h_reg_model)  %>% plot()
 ```
 
 
@@ -210,8 +294,8 @@ h_reg_charts <- getModelFixedFX(
   is_GLM = TRUE
 )
 
-h_reg_charts$intercepts
-h_reg_charts$pairwise
+h_reg_charts$intercepts %>% mutate(estimate = exp(estimate))
+h_reg_charts$pairwise %>% mutate(estimate = exp(estimate))
 
 ```
 
