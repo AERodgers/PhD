@@ -519,7 +519,8 @@ printTidyModel <-
            axis.lim = NULL,
            transform=NULL,
            show.intercept=FALSE,
-           type=NULL)
+           type="est",
+           plot_pred=TRUE)
   {
     require("formattable")
     require("tidyverse")
@@ -531,8 +532,11 @@ printTidyModel <-
     require("broom.mixed")
     require("sjPlot")
     require("lmerTest")
+    require("ggeffects")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
+
+  if(type=="pred"){plot_pred <- F}
 
   my_headers <- c(
     "term",
@@ -602,6 +606,8 @@ printTidyModel <-
       write.csv(paste(write_r2, "_r2.csv", sep = ""))
   }
 
+  tidyPrintPredictions(my_model, my_formula)
+
   my_plot <- print(
     plot_model(
       my_model,
@@ -615,8 +621,24 @@ printTidyModel <-
       type=type
     )
   )
-return(list("r2" = r2_nakagawa, "table" = tidy_model, "plot" = my_plot))
-}
+
+
+  if (plot_pred) {
+    plot_model(
+      my_model,
+      title = paste("Predictions from", my_formula),
+      show.intercept = show.intercept,
+      show.values = TRUE,
+      type = "pred"
+    ) %>% print()
+  }
+
+  return(list(
+    "r2" = r2_nakagawa,
+    "table" = tidy_model,
+    "plot" = my_plot
+  ))
+  }
 
 
 
@@ -1122,3 +1144,40 @@ adjustP_posthoc <-
     }
   }
 
+tidyPrintPredictions <- function(model, caption_suffix){
+
+  require("ggeffects")
+  require("tidyverse")
+  require("knitr")
+  require("kableExtra")
+
+  pred_list <- ggpredict(model)
+  obj_names <- names(pred_list)
+  obj_i = 0
+  for (cur_obj in pred_list)
+  {
+    obj_i = obj_i + 1
+    cur_obj_name <- obj_names[obj_i]
+    cur_obj_name = enquo(cur_obj_name)
+    cur_caption <- paste(cur_obj %>% get_title, caption_suffix, sep=", ")
+
+    as_tibble(cur_obj) %>%
+      select(-group) %>%
+      mutate(x = str_replace_all(x,
+                                 "([\\*\\[\\]\\$\\^\\>])",
+                                 "\\\\\\1"),
+             across(2:last_col(),
+                    ~ if_else(
+                      . < 0.001,
+                      as.character(formatC(., format="e", digits = 2)),
+                      as.character(round(., 4), digits = 2)))
+      ) %>%
+      rename(!!cur_obj_name := x,
+             `2.5% CI` = conf.low,
+             `97.5 CI%` = conf.high) %>%
+      knitr::kable(caption = cur_caption) %>%
+      kable_styling(full_width = FALSE, position = "left") %>%
+      print()
+
+  }
+}

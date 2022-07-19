@@ -33,4 +33,4 @@ invisible(lapply(my_packages, library, character.only = TRUE))
 
 options(ggplot2.palette="Set2")
 
-theme_set(theme_minimal(base_size = 18))
+theme_set(theme_minimal(base_size = 10)

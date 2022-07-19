@@ -40,7 +40,7 @@ installMissingPackages(
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 18))
+theme_set(theme_minimal(base_size = 10))
 
 ```
 
@@ -73,8 +73,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 #### GLMM test of difference between acc_phon as a fn of mode.
 
 * models with random slopes generate singularity issues.
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-
+```{r model test, tidy = TRUE}
 acc_phon_model <- glmer(
   acc_phon ~ mode + (1 | speaker),
   data = m_corpus,
@@ -109,7 +108,10 @@ acc_phon_model_null =
 )
 
 summary(acc_phon_model)
+```
 
+
+```{r model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(acc_phon_model, tol=1e-5) -->",
   isSingular(acc_phon_model, tol = 1e-5),
@@ -124,10 +126,10 @@ anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
 x <- printTidyModel(acc_phon_model,
                     write_r2="Mode_PA_GLMM",
                     is_GLM = TRUE,
-                    axis.lim = c(-10, 10)
+                    transform="exp",
+                    show.intercept=TRUE,
+                    axis.lim = c(0.01, 10000)
                     )
-
-
 
 x$r2
 x$table
@@ -137,7 +139,7 @@ x$table
 
 
 ## Intercepts and Pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
+```{r intercepts and pairwise tables}
 
 charts <- getModelFixedFX(
   my_equation = acc_phon ~ mode + (1 | speaker),

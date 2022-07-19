@@ -40,7 +40,7 @@ installMissingPackages(
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 18))
+theme_set(theme_minimal(base_size = 10))
 
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
@@ -226,7 +226,7 @@ nuc_contour_by_speaker_adj_uncount <- nuc_contour_by_speaker_adj %>%
 
 ```
 
-```{r warning=TRUE, fig.width = 10, fig.height = 4}
+```{r warning=TRUE, fig.width = 5, fig.height = 2.5}
 # Percentage Stacked bar
 
 ggplot(data = nuc_contour_by_speaker_adj_uncount %>%
@@ -283,7 +283,7 @@ nuc_contour_by_gender_adj_list <- nuc_contour_by_gender_adj %>%
 
 ```
 
-```{r, fig.height=7, fig.width=15}
+```{r, fig.width = 14, fig.height=5, results="asis"}
 ggplot(nuc_contour_by_gender_adj_list) +
   geom_bar(
     mapping = aes(
@@ -319,7 +319,7 @@ ggplot(nuc_contour_by_gender_adj_list) +
 
 It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this as a general conclusion, especially as it is only M8, M9, and M10 who do this.
 
-```{r fig.height=4, fig.width=14.5}
+```{r fig.width = 14, fig.height = 3, results="asis"}
 nuc_contour_by_mode_adj_list <- nuc_contour_by_mode_adj %>%
   pivot_longer(2:last_col(), "nuc_contour") %>%
     uncount(value) %>%
@@ -456,7 +456,7 @@ fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
 
 ```
 
-```{r, fig.height=7, fig.width=15}
+```{r, fig.width = 10, fig.height = 5}
 ggplot(fin_phon_by_gender_adj_list) +
   geom_bar(
     mapping = aes(
@@ -491,7 +491,7 @@ ggplot(fin_phon_by_gender_adj_list) +
 ```
 
 
-```{r fig.height=4, fig.width=10}
+```{r fig.height=3, fig.width=10}
 
 ggplot(fin_phon_by_mode_adj_list) +
   geom_bar(
@@ -596,8 +596,7 @@ The results give the impression that this is a feature of male rather than femal
 
 
 #### GLMM test of difference between nuc_contour as a fn of mode.
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
-
+```{r GLMM Test}
 nuc_contour_model <- glmer(
   nuc_contour ~ mode + (1 | speaker),
   data = m_corpus,
@@ -632,7 +631,10 @@ nuc_contour_model_null =
 )
 
 summary(nuc_contour_model)
+```
 
+
+```{r GLMM Test Results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(nuc_contour_model, tol=1e-5) -->",
   isSingular(nuc_contour_model, tol = 1e-5),

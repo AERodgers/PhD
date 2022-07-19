@@ -37,7 +37,7 @@ installMissingPackages(
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 18))
+theme_set(theme_minimal(base_size = 10))
 
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
@@ -109,7 +109,10 @@ one_pa_or_h_reg_null =
 )
 
 summary(one_pa_or_h_reg_model)
+```
 
+
+```{r one_pa_or_h_reg model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(one_pa_or_h_reg_model, tol=1e-5) -->",
   isSingular(one_pa_or_h_reg_model, tol = 1e-5),
@@ -128,8 +131,6 @@ x <- printTidyModel(one_pa_or_h_reg_model,
                     show.intercept=TRUE
                     )
 
-
-
 x$r2
 x$table
 
@@ -145,7 +146,6 @@ one_pa_or_h_reg_charts$intercepts
 
 one_pa_or_h_reg_charts$pairwise
 
-ggpredict(one_pa_or_h_reg_model) %>% plot()
 ```
 
 ```{r one_pa_model test}
@@ -183,9 +183,12 @@ one_pa_model_null =
 )
 
 summary(one_pa_model)
+```
 
+
+```{r one_pa_model test results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(one_pa_model, tol=1e-5) -->",
+  "\nisSingular(one_pa_model, tol=1e-5) -->",
   isSingular(one_pa_model, tol = 1e-5),
   "\n"
 )
@@ -203,11 +206,8 @@ x <- printTidyModel(one_pa_model,
                     )
 
 
-
 x$r2
 x$table
-
-ggpredict(one_pa_model) %>% plot()
 ```
 
 
@@ -221,12 +221,11 @@ one_pa_charts <- getModelFixedFX(
 
 
 one_pa_charts$intercepts %>% mutate(estimate = exp(estimate))
-
 one_pa_charts$pairwise %>% mutate(estimate = exp(estimate))
 ```
 
 
-```{r}
+```{r h_reg_model test}
 h_reg_model <- glmer(
   h_reg ~ mode + (1 | speaker),
   data = m_corpus,
@@ -261,9 +260,12 @@ h_reg_model_null =
 )
 
 summary(h_reg_model)
+```
 
+
+```{r h_reg_model test resaults, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(h_reg_model, tol=1e-5) -->",
+  "\nisSingular(h_reg_model, tol=1e-5) -->",
   isSingular(h_reg_model, tol = 1e-5),
   "\n"
 )
@@ -282,7 +284,7 @@ x <- printTidyModel(h_reg_model,
 
 x$r2
 x$table
-ggpredict(h_reg_model)  %>% plot()
+
 ```
 
 
