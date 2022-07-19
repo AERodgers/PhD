@@ -128,9 +128,9 @@ x <- printTidyModel(acc_phon_model,
                     is_GLM = TRUE,
                     transform="exp",
                     show.intercept=TRUE,
+                    type="est",
                     axis.lim = c(0.01, 10000)
                     )
-
 x$r2
 x$table
 

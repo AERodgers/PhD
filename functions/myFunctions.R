@@ -588,11 +588,33 @@ printTidyModel <-
     formattable(
       caption = paste(my_formula)
     ) %>%
-    mutate(term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
+    mutate(
+      # avoid escape character errors
+      term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
+      # make p.value readable
            p.value = if_else(
              p.value < 0.001,
              as.character(formatC(p.value, format="e", digits = 2)),
-             as.character(round(p.value, 4), digits = 2)))
+             as.character(round(p.value, 4), digits = 2))
+      )
+
+  if (is_GLM & transform == "exp") {
+    tidy_model <- tidy_model %>%
+      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)),
+             across(c(estimate, `2.5% CI`, `97.5% CI`),
+               ~ if_else(
+                 abs(.) < 0.001 | abs(.) > 10000,
+                 as.character(formatC(
+                   ., format = "e"
+                 )),
+                 if_else(
+                   abs(.) < 10,
+                   as.character(round(., 3), digits = 3),
+                   as.character(round(., 1), digits = 1),
+                 )
+               )
+             ))
+  }
 
   r2_nakagawa <-  knitr::kable(
     r2_nakagawa(my_model),
@@ -647,6 +669,7 @@ getModelFixedFX <- function(my_equation,
                        my_data,
                        write="",
                        is_GLM=FALSE,
+                       exponentiate = TRUE,
                        optimizer = "optimx",
                        extra_text="")
 {
@@ -878,6 +901,13 @@ getModelFixedFX <- function(my_equation,
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
 
+  # convert log odds ratios to odds ratios
+  if(is_GLM * exponentiate == TRUE) {
+    my_intercepts <- my_intercepts %>%
+      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)))
+    my_pairwise <- my_pairwise %>%
+      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)))
+  }
   # Get tibble of 2-level factor slopes from base model
   ci_Wald <- confint(base_model, method = "Wald") %>%
     as_tibble() %>%
@@ -929,15 +959,20 @@ getModelFixedFX <- function(my_equation,
 
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
-    mutate(
-      intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")
-      ) %>%
+    mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
     formattable(caption = paste("b0 for", my_formula, sep = " ")) %>%
-    mutate(p.value = if_else(
-      p.value < 0.001,
-      as.character(formatC(p.value, format="e", digits = 2)),
-      as.character(round(p.value, 4), digits = 2)))
-
+    mutate(across(
+      c(p.value, estimate, `2.5% CI`, `97.5% CI`),
+      ~ if_else(
+        abs(.) < 0.001 | abs(.) > 10000,
+        as.character(formatC(., format = "e", digits = 2)),
+        if_else(
+          abs(.) < 10,
+          as.character(round(., 3), digits = 3),
+          as.character(round(., 1), digits = 1),
+        )
+      )
+    ))
 
   my_pairwise <-  my_pairwise %>%
     mutate(
@@ -945,10 +980,18 @@ getModelFixedFX <- function(my_equation,
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
     ) %>%
     formattable(caption = paste("b1 for", my_formula, sep = " ")) %>%
-    mutate(p.value = if_else(
-      p.value < 0.001,
-      as.character(formatC(p.value, format="e", digits = 2)),
-      as.character(round(p.value, 4), digits = 2)))
+    mutate(across(
+      c(p.value, estimate, `2.5% CI`, `97.5% CI`),
+      ~ if_else(
+        abs(.) < 0.001 | abs(.) > 10000,
+        as.character(formatC(., format = "e", digits = 2)),
+        if_else(
+          abs(.) < 10,
+          as.character(round(., 3), digits = 3),
+          as.character(round(., 1), digits = 1),
+        )
+      )
+    ))
 
     return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise,
               "model" = base_model))
@@ -1101,12 +1144,7 @@ adjustP_posthoc <-
         cur_set <- file_tibble %>%
           filter(file_name == cur_file) %>%
           select(-file_name)
-        # Remove dummy slope column from b0 files.
-        if (suffix_id == "b0b1") {
-          if (is.na(cur_set$slope[1])) {
-            cur_set <- cur_set %>% select(-slope)
-          }
-        }
+
         # Re-save updated tables as original file name.
         if (write) {
           write_csv(cur_set, cur_file)
@@ -1128,12 +1166,25 @@ adjustP_posthoc <-
           }
 
           cur_set %>%
-            mutate(across(
+            mutate(
+              across(
+              any_of(c("estimate", "2.5% CI", "97.5% CI")),
+              ~ if_else(
+                abs(.) < 0.001 | abs(.) > 10000,
+                as.character(formatC(., format = "e", digits = 2)),
+                if_else(
+                  abs(.) < 10,
+                  as.character(round(., 3), digits = 3),
+                  as.character(round(., 1), digits = 1),
+                )
+              )
+            ),
+            across(
               everything(),
               ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
-              )) %>%
+            )) %>%
             knitr::kable(caption = my_caption) %>%
-            kable_styling(full_width = FALSE, position="left") %>%
+            kable_styling(full_width = FALSE, position = "left") %>%
             print()
         }
       }

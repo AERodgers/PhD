@@ -648,7 +648,10 @@ anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
 
 x <- printTidyModel(nuc_contour_model,
                     write_r2="Mode_PA_Mode_PA_No_Reg_GLMM",
-                    is_GLM = TRUE
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE,
+                    type="pred"
                     )
 
 

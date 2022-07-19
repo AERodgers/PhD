@@ -73,10 +73,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```
 
-
-```{r one_pa_or_h_reg model test}
-one_pa_or_h_reg_model <- glmer(
-   one_pa_or_h_reg ~ mode + (1 | speaker),
+```{r h_reg_model test}
+h_reg_model <- glmer(
+  h_reg ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -91,9 +90,9 @@ one_pa_or_h_reg_model <- glmer(
   )
 )
 
-one_pa_or_h_reg_null = 
+h_reg_model_null = 
   cur_model <- glmer(
-   one_pa_or_h_reg ~ 1 + (1 | speaker),
+  h_reg ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -108,44 +107,44 @@ one_pa_or_h_reg_null =
   )
 )
 
-summary(one_pa_or_h_reg_model)
+summary(h_reg_model)
 ```
 
-
-```{r one_pa_or_h_reg model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r h_reg_model test results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(one_pa_or_h_reg_model, tol=1e-5) -->",
-  isSingular(one_pa_or_h_reg_model, tol = 1e-5),
+  "\nisSingular(h_reg_model, tol=1e-5) -->",
+  isSingular(h_reg_model, tol = 1e-5),
   "\n"
 )
 
-anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
+anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(one_pa_or_h_reg_model,
-                    write_r2="Utt_one_pa_or_h_reg_GLMM",
+x <- printTidyModel(h_reg_model,
+                    write_r2="Utt_h_reg_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
-                    show.intercept=TRUE
+                    show.intercept=TRUE,
+                    type="pred"
                     )
 
 x$r2
 x$table
 
-one_pa_or_h_reg_charts <- getModelFixedFX(
-  my_equation = one_pa_or_h_reg ~ mode + (1 | speaker),
+```
+
+```{r test h_reg pairwise}
+h_reg_charts <- getModelFixedFX(
+  my_equation = h_reg ~ mode + (1 | speaker),
   my_data = m_corpus,
-  write = "Utt_one_pa_or_h_reg_GLMM",
+  write = "Utt_h_reg_GLMM",
   is_GLM = TRUE
 )
 
-
-one_pa_or_h_reg_charts$intercepts
-
-one_pa_or_h_reg_charts$pairwise
-
+h_reg_charts$intercepts
+h_reg_charts$pairwise
 ```
 
 ```{r one_pa_model test}
@@ -185,7 +184,6 @@ one_pa_model_null =
 summary(one_pa_model)
 ```
 
-
 ```{r one_pa_model test results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "\nisSingular(one_pa_model, tol=1e-5) -->",
@@ -202,14 +200,14 @@ x <- printTidyModel(one_pa_model,
                     write_r2="Utt_one_pa_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
-                    show.intercept=TRUE
+                    show.intercept=TRUE,
+                    type="pred"
                     )
 
 
 x$r2
 x$table
 ```
-
 
 ```{r test one_pa pairwise}
 one_pa_charts <- getModelFixedFX(
@@ -220,14 +218,13 @@ one_pa_charts <- getModelFixedFX(
 )
 
 
-one_pa_charts$intercepts %>% mutate(estimate = exp(estimate))
-one_pa_charts$pairwise %>% mutate(estimate = exp(estimate))
+one_pa_charts$intercepts
+one_pa_charts$pairwise
 ```
 
-
-```{r h_reg_model test}
-h_reg_model <- glmer(
-  h_reg ~ mode + (1 | speaker),
+```{r one_pa_or_h_reg model test}
+one_pa_or_h_reg_model <- glmer(
+   one_pa_or_h_reg ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -242,9 +239,9 @@ h_reg_model <- glmer(
   )
 )
 
-h_reg_model_null = 
+one_pa_or_h_reg_null = 
   cur_model <- glmer(
-  h_reg ~ 1 + (1 | speaker),
+   one_pa_or_h_reg ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -259,45 +256,41 @@ h_reg_model_null =
   )
 )
 
-summary(h_reg_model)
+summary(one_pa_or_h_reg_model)
 ```
 
-
-```{r h_reg_model test resaults, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r one_pa_or_h_reg model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "\nisSingular(h_reg_model, tol=1e-5) -->",
-  isSingular(h_reg_model, tol = 1e-5),
+  "isSingular(one_pa_or_h_reg_model, tol=1e-5) -->",
+  isSingular(one_pa_or_h_reg_model, tol = 1e-5),
   "\n"
 )
 
-anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
+anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(h_reg_model,
-                    write_r2="Utt_h_reg_GLMM",
+x <- printTidyModel(one_pa_or_h_reg_model,
+                    write_r2="Utt_one_pa_or_h_reg_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
-                    show.intercept=TRUE
+                    show.intercept=TRUE,
+                    type="pred"
                     )
 
 x$r2
 x$table
 
-```
-
-
-```{r test h_reg pairwise}
-h_reg_charts <- getModelFixedFX(
-  my_equation = h_reg ~ mode + (1 | speaker),
+one_pa_or_h_reg_charts <- getModelFixedFX(
+  my_equation = one_pa_or_h_reg ~ mode + (1 | speaker),
   my_data = m_corpus,
-  write = "Utt_h_reg_GLMM",
+  write = "Utt_one_pa_or_h_reg_GLMM",
   is_GLM = TRUE
 )
 
-h_reg_charts$intercepts %>% mutate(estimate = exp(estimate))
-h_reg_charts$pairwise %>% mutate(estimate = exp(estimate))
+
+one_pa_or_h_reg_charts$intercepts
+one_pa_or_h_reg_charts$pairwise
 
 ```
-
