@@ -164,8 +164,8 @@ for (i in 1:(length(pairwise_list) - 1)) {
                       filter(`2.5 %` != "NA") %>%
                       mutate(`2.5 %` = round(`2.5 %`, 3),
                              `97.5 %` = round(`97.5 %`, 3)) %>%
-                      rename("2.5% CI" = "2.5 %",
-                             "97.5% CI" = "97.5 %")
+                      rename(conf.low = "2.5 %",
+                             "conf.high" = "97.5 %")
                     )
             )
     

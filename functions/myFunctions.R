@@ -518,6 +518,7 @@ printTidyModel <-
            is_GLM = FALSE,
            axis.lim = NULL,
            transform=NULL,
+           exponentiate=TRUE,
            show.intercept=FALSE,
            type="est")
   {
@@ -538,9 +539,9 @@ printTidyModel <-
   my_headers <- c(
     "term",
     "estimate",
+    "conf.low",
+    "conf.high",
     "std.error",
-    "2.5% CI",
-    "97.5% CI",
     eval(my_stat),
     "df",
     "p.value"
@@ -553,7 +554,11 @@ printTidyModel <-
   my_headers = enquos(my_headers)
   my_formula <- getModelFormula(my_model)
 
-  tidy_model <- tidy(my_model) %>%
+  if (is_GLM){
+    tidy_model <- tidy(my_model, exponentiate = exponentiate, conf.int=T)}
+  else{tidy_model <- tidy(my_model, conf.int=T) %>% mutate(df = round(df, 2))}
+
+  tidy_model <- tidy_model %>%
     filter(effect %notin% "ran_pars") %>%
     select(-c(group, effect)) %>%
     mutate(
@@ -561,25 +566,7 @@ printTidyModel <-
       std.error = round(std.error, 3),
       statistic = round(statistic, 3)
     ) %>%
-    rename(!!my_stat := statistic)
-
-  if (!is_GLM){
-    tidy_model <- tidy_model %>%
-    mutate(df = round(df, 2))
-    }
-
-  # Get CIs of model using Wald method (fast, fixed effects only)
-  ci_Wald <- confint(my_model, method = "Wald") %>%
-    as_tibble() %>%
-    filter(`2.5 %` != "NA") %>%
-    mutate(`2.5 %` = round(`2.5 %`, 3),
-           `97.5 %` = round(`97.5 %`, 3)) %>%
-    rename("2.5% CI" = "2.5 %",
-           "97.5% CI" = "97.5 %")
-
-  # Bind tidy model to CIs
-  tidy_model <-
-  cbind(tidy_model, ci_Wald) %>%
+    rename(!!my_stat := statistic) %>%
     # re-order columns
     select(!!!my_headers) %>%
     formattable(
@@ -599,8 +586,8 @@ printTidyModel <-
     tidy_model <- tidy_model %>%
       mutate(
         # report log odds
-        # across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)),
-             across(c(estimate, `2.5% CI`, `97.5% CI`),
+        # across(c(estimate, conf.low, conf.high), ~ exp(.)),
+             across(c(estimate, conf.low, conf.high),
                ~ if_else(
                  abs(.) < 0.001 | abs(.) > 100000,
                  as.character(formatC(., format = "e", digits = 1)),
@@ -640,16 +627,15 @@ printTidyModel <-
   else
     {
       my_plot <-
-      plot_model(
-        my_model,
-        show.intercept = show.intercept,
-        show.values = TRUE,
-        vline.color = "red",
-        colors = "Black",
-        transform = transform,
-        axis.lim = axis.lim,
-        type = type)
-      print(my_plot)
+        plot_model(
+          my_model,
+          show.intercept = show.intercept,
+          show.values = TRUE,
+          vline.color = "red",
+          colors = "Black",
+          axis.lim = axis.lim,
+          type = type) %>%
+        print()
       }
 
   return(list(
@@ -666,7 +652,7 @@ getModelFixedFX <- function(my_equation,
                        my_data,
                        write="",
                        is_GLM=FALSE,
-                       exponentiate = FALSE,
+                       exponentiate = TRUE,
                        optimizer = "optimx",
                        extra_text="")
 {
@@ -679,9 +665,9 @@ getModelFixedFX <- function(my_equation,
   my_headers <- c(
     "term",
     "estimate",
+    "conf.low",
+    "conf.high",
     "std.error",
-    "2.5% CI",
-    "97.5% CI",
     eval(my_stat),
     "df",
     "p.value"
@@ -812,7 +798,13 @@ getModelFixedFX <- function(my_equation,
       }
 
       # Tidy the model.
-      cur_model_tidy <- tidy(cur_model) %>%
+      # Decide whether or not to exponentiate GLM data
+      if (is_GLM){
+        cur_model_tidy <- tidy(cur_model, exponentiate=exponentiate, conf.int=T)
+      }
+      else{cur_model_tidy <- tidy(cur_model, conf.int=T)}
+
+      cur_model_tidy <- cur_model_tidy %>%
         # Retain fixed factors only
         filter(effect == "fixed") %>%
         # remove unnecessary columns
@@ -830,21 +822,9 @@ getModelFixedFX <- function(my_equation,
           mutate(df = round(df, 2))
       }
 
-      # Get CIs of model using Wald method (fast, fixed effects only)
-      ci_Wald <- confint(cur_model, method = "Wald") %>%
-        as_tibble() %>%
-        filter(`2.5 %` != "NA") %>%
-        mutate(`2.5 %` = round(`2.5 %`, 3),
-               `97.5 %` = round(`97.5 %`, 3)) %>%
-        rename("2.5% CI" = "2.5 %",
-               "97.5% CI" = "97.5 %")
-
-      # Bind tidy model to CI intervals
-      cur_model_tidy <- cbind(cur_model_tidy, ci_Wald) %>%
-        # re-order columns
-        select(!!!my_headers)
-
       cur_model_tidy <- cur_model_tidy %>%
+        # re-order columns
+        select(!!!my_headers) %>%
         filter((term %in% c(keep_terms, "(Intercept)"))) %>%
         # Prepare current model for pasting to all models output.
         # Make 'pairwise' column = intercept.
@@ -862,8 +842,7 @@ getModelFixedFX <- function(my_equation,
             if_else(term == "(Intercept)",
                     keep_terms[cur_level],
                     term)
-
-        )
+          )
 
       keep_comparisons = NULL
       # make list of pairwise comparisons to keeps
@@ -898,23 +877,7 @@ getModelFixedFX <- function(my_equation,
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
 
-  # convert log odds ratios to odds ratios
-  if(is_GLM * exponentiate == TRUE) {
-    my_intercepts <- my_intercepts %>%
-      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)))
-    my_pairwise <- my_pairwise %>%
-      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)))
-  }
-  # Get tibble of 2-level factor slopes from base model
-  ci_Wald <- confint(base_model, method = "Wald") %>%
-    as_tibble() %>%
-    filter(`2.5 %` != "NA") %>%
-    mutate(`2.5 %` = round(`2.5 %`, 3),
-           `97.5 %` = round(`97.5 %`, 3)) %>%
-    rename("2.5% CI" = "2.5 %",
-           "97.5% CI" = "97.5 %")
-
-  two_level_factor_slopes <- tidy(base_model) %>%
+  two_level_factor_slopes <- tidy(base_model, conf.int=T) %>%
     filter(effect %notin% "ran_pars") %>%
     mutate(
       estimate = round(estimate, 3),
@@ -927,9 +890,7 @@ getModelFixedFX <- function(my_equation,
       mutate(df = round(df, 2))
     }
 
-
     two_level_factor_slopes <- two_level_factor_slopes %>%
-      cbind(ci_Wald) %>%
       filter(term %in% two_level_terms) %>%
       select(-c(group, effect)) %>%
     mutate(estimate = round(estimate, 3),
@@ -938,8 +899,8 @@ getModelFixedFX <- function(my_equation,
     ) %>%
     mutate(intercept = "intercept", .before=term
     )  %>%
-    relocate(`97.5% CI`, .after="std.error") %>%
-    relocate(`2.5% CI`, .after="std.error") %>%
+    relocate(conf.high, .after="std.error") %>%
+    relocate(conf.low, .after="std.error") %>%
     rename(!!my_stat := statistic,
            slope=term)
   # bind two-level factor stats to my_pairwise
@@ -959,7 +920,7 @@ getModelFixedFX <- function(my_equation,
     mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
     formattable(caption = paste("b0 for", my_formula, sep = " ")) %>%
     mutate(across(
-      c(p.value, estimate, `2.5% CI`, `97.5% CI`),
+      c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
         as.character(formatC(., format = "e", digits = 1)),
@@ -978,7 +939,7 @@ getModelFixedFX <- function(my_equation,
     ) %>%
     formattable(caption = paste("b1 for", my_formula, sep = " ")) %>%
     mutate(across(
-      c(p.value, estimate, `2.5% CI`, `97.5% CI`),
+      c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
         as.character(formatC(., format = "e", digits = 1)),
@@ -1015,9 +976,9 @@ tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
     "pairwise",
     "term",
     "estimate",
+    "conf.low",
+    "conf.high",
     "std.error",
-    "2.5% CI",
-    "97.5% CI",
     eval(my_stat),
     "df",
     "p.value"
@@ -1165,7 +1126,7 @@ adjustP_posthoc <-
           cur_set %>%
             mutate(
               across(
-              any_of(c("estimate", "2.5% CI", "97.5% CI")),
+              any_of(c("estimate", "conf.low", "conf.high")),
               ~ if_else(
                 abs(.) < 0.001 | abs(.) > 100000,
                 as.character(formatC(., format = "e", digits = 1)),
@@ -1220,9 +1181,7 @@ tidyPrintPredictions <- function(model, caption_suffix){
                       as.character(formatC(., format="e", digits = 1)),
                       as.character(round(., 4), digits = 2)))
       ) %>%
-      rename(!!cur_obj_name := x,
-             `2.5% CI` = conf.low,
-             `97.5 CI%` = conf.high) %>%
+      rename(!!cur_obj_name := x) %>%
       knitr::kable(caption = cur_caption) %>%
       kable_styling(full_width = FALSE, position = "left") %>%
       print()
