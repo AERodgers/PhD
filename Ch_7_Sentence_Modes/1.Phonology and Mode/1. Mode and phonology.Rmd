@@ -123,11 +123,9 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   )
 
 x <- printTidyModel(h_reg_model,
-                    write_r2="Utt_h_reg_GLMM",
+                    write_r2 = "Utt_h_reg_GLMM",
                     is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="pred"
+                    show.intercept=TRUE
                     )
 
 x$r2
@@ -184,7 +182,7 @@ one_pa_model_null =
 summary(one_pa_model)
 ```
 
-```{r one_pa_model test results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r one_pa_model test results, fig.width = 4.5, fig.height = 2.5, results="asis"}
 cat(
   "\nisSingular(one_pa_model, tol=1e-5) -->",
   isSingular(one_pa_model, tol = 1e-5),
@@ -197,11 +195,9 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   )
 
 x <- printTidyModel(one_pa_model,
-                    write_r2="Utt_one_pa_GLMM",
+                    write_r2 = "Utt_one_pa_GLMM",
                     is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="pred"
+                    show.intercept=TRUE
                     )
 
 
@@ -272,11 +268,9 @@ anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
   )
 
 x <- printTidyModel(one_pa_or_h_reg_model,
-                    write_r2="Utt_one_pa_or_h_reg_GLMM",
+                    write_r2 = "Utt_one_pa_or_h_reg_GLMM",
                     is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="pred"
+                    show.intercept=TRUE
                     )
 
 x$r2

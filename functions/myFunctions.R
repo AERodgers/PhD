@@ -519,8 +519,7 @@ printTidyModel <-
            axis.lim = NULL,
            transform=NULL,
            show.intercept=FALSE,
-           type="est",
-           plot_pred=TRUE)
+           type="est")
   {
     require("formattable")
     require("tidyverse")
@@ -535,8 +534,6 @@ printTidyModel <-
     require("ggeffects")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
-
-  if(type=="pred"){plot_pred <- F}
 
   my_headers <- c(
     "term",
@@ -586,27 +583,27 @@ printTidyModel <-
     # re-order columns
     select(!!!my_headers) %>%
     formattable(
-      caption = paste(my_formula)
+      caption = paste("summary of model:", my_formula)
     ) %>%
     mutate(
       # avoid escape character errors
       term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
       # make p.value readable
            p.value = if_else(
-             p.value < 0.001,
-             as.character(formatC(p.value, format="e", digits = 2)),
+             p.value < 0.0001,
+             as.character(formatC(p.value, format="e", digits = 1)),
              as.character(round(p.value, 4), digits = 2))
       )
 
-  if (is_GLM & transform == "exp") {
+  if (is_GLM) {
     tidy_model <- tidy_model %>%
-      mutate(across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)),
+      mutate(
+        # report log odds
+        # across(c(estimate, `2.5% CI`, `97.5% CI`), ~ exp(.)),
              across(c(estimate, `2.5% CI`, `97.5% CI`),
                ~ if_else(
-                 abs(.) < 0.001 | abs(.) > 10000,
-                 as.character(formatC(
-                   ., format = "e"
-                 )),
+                 abs(.) < 0.001 | abs(.) > 100000,
+                 as.character(formatC(., format = "e", digits = 1)),
                  if_else(
                    abs(.) < 10,
                    as.character(round(., 3), digits = 3),
@@ -630,30 +627,30 @@ printTidyModel <-
 
   tidyPrintPredictions(my_model, my_formula)
 
-  my_plot <- print(
-    plot_model(
-      my_model,
-      title = my_formula,
-      show.intercept=show.intercept,
-      show.values = TRUE,
-      vline.color = "red",
-      colors = "Black",
-      transform = transform,
-      axis.lim = axis.lim,
-      type=type
-    )
-  )
-
-
-  if (plot_pred) {
-    plot_model(
-      my_model,
-      title = paste("Predictions from", my_formula),
-      show.intercept = show.intercept,
-      show.values = TRUE,
-      type = "pred"
-    ) %>% print()
-  }
+  if (is_GLM)
+    {
+      my_plot <-
+        plot_model(
+          my_model,
+          show.intercept = show.intercept,
+          show.values = TRUE,
+          type = "pred") %>%
+        print()
+    }
+  else
+    {
+      my_plot <-
+      plot_model(
+        my_model,
+        show.intercept = show.intercept,
+        show.values = TRUE,
+        vline.color = "red",
+        colors = "Black",
+        transform = transform,
+        axis.lim = axis.lim,
+        type = type)
+      print(my_plot)
+      }
 
   return(list(
     "r2" = r2_nakagawa,
@@ -669,7 +666,7 @@ getModelFixedFX <- function(my_equation,
                        my_data,
                        write="",
                        is_GLM=FALSE,
-                       exponentiate = TRUE,
+                       exponentiate = FALSE,
                        optimizer = "optimx",
                        extra_text="")
 {
@@ -964,8 +961,8 @@ getModelFixedFX <- function(my_equation,
     mutate(across(
       c(p.value, estimate, `2.5% CI`, `97.5% CI`),
       ~ if_else(
-        abs(.) < 0.001 | abs(.) > 10000,
-        as.character(formatC(., format = "e", digits = 2)),
+        abs(.) < 0.001 | abs(.) > 100000,
+        as.character(formatC(., format = "e", digits = 1)),
         if_else(
           abs(.) < 10,
           as.character(round(., 3), digits = 3),
@@ -983,8 +980,8 @@ getModelFixedFX <- function(my_equation,
     mutate(across(
       c(p.value, estimate, `2.5% CI`, `97.5% CI`),
       ~ if_else(
-        abs(.) < 0.001 | abs(.) > 10000,
-        as.character(formatC(., format = "e", digits = 2)),
+        abs(.) < 0.001 | abs(.) > 100000,
+        as.character(formatC(., format = "e", digits = 1)),
         if_else(
           abs(.) < 10,
           as.character(round(., 3), digits = 3),
@@ -1128,12 +1125,12 @@ adjustP_posthoc <-
                   p.adj < 0.1 & marginal, "(p<0.1)",""))))),
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
-          as.character(formatC(p.adj, format="e", digits = 2)),
-          as.character(round(p.adj, 4), digits = 2)),
+          as.character(formatC(p.adj, format="e", digits = 1)),
+          as.character(round(p.adj, 3), digits = 2)),
         !!p_column := if_else(
           !!p_column < 0.001,
-          as.character(formatC(!!p_column, format="e", digits = 2)),
-          as.character(round(!!p_column, 4), digits = 2))
+          as.character(formatC(!!p_column, format="e", digits = 1)),
+          as.character(round(!!p_column, 3), digits = 2))
         ) %>%
       # Change name of p.adj to indicate adjustment method.
       rename(!!new_adj_col := p.adj)
@@ -1170,8 +1167,8 @@ adjustP_posthoc <-
               across(
               any_of(c("estimate", "2.5% CI", "97.5% CI")),
               ~ if_else(
-                abs(.) < 0.001 | abs(.) > 10000,
-                as.character(formatC(., format = "e", digits = 2)),
+                abs(.) < 0.001 | abs(.) > 100000,
+                as.character(formatC(., format = "e", digits = 1)),
                 if_else(
                   abs(.) < 10,
                   as.character(round(., 3), digits = 3),
@@ -1219,8 +1216,8 @@ tidyPrintPredictions <- function(model, caption_suffix){
                                  "\\\\\\1"),
              across(2:last_col(),
                     ~ if_else(
-                      . < 0.001,
-                      as.character(formatC(., format="e", digits = 2)),
+                      abs(.) < 0.0001,
+                      as.character(formatC(., format="e", digits = 1)),
                       as.character(round(., 4), digits = 2)))
       ) %>%
       rename(!!cur_obj_name := x,
