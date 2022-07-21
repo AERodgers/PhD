@@ -1,0 +1,444 @@
+---
+title: 'Chapter 07: Analysis of Function'
+subtitle: 'Sentence Mode and Utterance Phonology'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+
+
+# Load Functions.
+source("../../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Load tidy packages.
+    "formattable",
+    "janitor",
+    "kableExtra",
+    "RColorBrewer",
+    "tidyverse",
+    # Load stats package.
+    "lme4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+
+# Change this as required
+options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
+
+## set colours
+
+mode_colours <- c("MDC" = brewer.pal(4, "Dark2")[3],
+                  "MWH" = brewer.pal(4, "Dark2")[2],
+                  "MYN" = brewer.pal(4, "Dark2")[1],
+                  "MDQ" = brewer.pal(4, "Dark2")[4])
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+                                   )
+pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
+                          "L*H"    = brewer.pal(6, "Set2")[3],
+                          "^[L*]H" = brewer.pal(6, "Set2")[6],
+                          ">H*"    = brewer.pal(6, "Set2")[4],
+                          "L*^[H]" = brewer.pal(6, "Set2")[2],
+                          "^[L*H]" = brewer.pal(6, "Set2")[1])
+```
+
+```{r load and process corpus, include=FALSE}
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    # remove non-accentuation from phr_phon
+    phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
+    one_pa = str_count(phr_phon, "\\*")==1,
+    one_pa = factor(one_pa, levels=unique(one_pa)),
+    h_reg =  factor(str_detect(phr_phon, "\\^"), levels = c(F, T)),
+    h_reg_or = factor((h_reg == T | one_pa ==T), levels = c(F, T))
+    ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         phr_phon,
+         one_pa, 
+         h_reg,
+         h_reg_or)
+
+
+```
+
+# **Analysis of Raw Data**
+
+## Utterance level intonational phonology
+
+```{r Prep. for utterance-level phonology, warning=FALSE}
+#set lower limit for list: more than 8 tokens in the corpus
+tot_rows = nrow(m_corpus)
+threshold = round(tot_rows / 4 / 20,0)
+
+keep_list <- m_corpus %>%
+  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
+  group_by(phr_phon) %>%
+  summarise(phon_count = n()) %>% 
+  filter(phon_count >= threshold)
+
+# List all utterance phonology
+m_corpus %>%
+  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
+  group_by(phr_phon) %>%
+  summarise(phon_count = n()) %>%
+  arrange(desc(phon_count)) %>%
+  mutate(
+    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
+    ) %>%
+  formattable(
+    caption = paste(
+      "Utterance level intonational phonology in M-corpus ",
+      "for tokens accounting for at least ",
+      percent(threshold / tot_rows),
+      " of all tokens.",
+      sep = ""
+    )
+  )
+
+# get tibble of total counts per cell 
+total_counts <- m_corpus %>%
+  group_by(mode) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>% 
+  mutate(total = sum(c_across())) %>%
+  select(MDC, MWH, MYN, MDQ, total) 
+
+
+```
+
+
+```{r Show nuc only utterance level phonology summary, warning=FALSE}
+nuc_only <- m_corpus %>%
+  filter(one_pa == TRUE) %>%
+  group_by(mode) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>% 
+  mutate(total = sum(c_across())) %>%
+  select(MDC, MWH, MYN, MDQ, total)
+
+nuc_only %>% 
+  rbind(round((nuc_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
+  mutate("info" =c("count", "percentage"), .before=1) %>%
+  kable(
+  caption = "Utterance level intonational phonology by mode for tokens with only one PA")%>% 
+  kable_styling(full_width = FALSE, position="left")
+```
+
+
+```{r Show h_reg utterance level phonology summary, warning=FALSE}
+uses_h_reg <- m_corpus %>%
+  filter(h_reg == T) %>%
+  group_by(mode) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>% 
+  mutate(total = sum(c_across())) %>%
+  select(MDC, MWH, MYN, MDQ, total)
+
+uses_h_reg %>% 
+  rbind(round((uses_h_reg / total_counts*100),1) %>% paste("%", sep="")) %>% 
+  mutate("info" =c("count", "percentage"), .before=1) %>%
+  kable(
+  caption = "Utterance level intonational phonology by mode with high register")%>% 
+  kable_styling(full_width = FALSE, position="left")
+```
+
+
+```{r Show h_reg_or utterance level phonology summary, warning=FALSE}
+uses_h_reg_or <- m_corpus %>%
+  filter(h_reg == T | one_pa == T) %>%
+  group_by(mode) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>% 
+  mutate(total = sum(c_across())) %>%
+  select(MDC, MWH, MYN, MDQ, total)
+
+uses_h_reg_or %>% 
+  rbind(round((uses_h_reg_or / total_counts*100),1) %>% paste("%", sep="")) %>% 
+  mutate("info" =c("count", "percentage"), .before=1) %>%
+  kable(
+  caption = paste("Utterance level intonational phonology by mode with",
+                  "high register or nuclear PA only"))%>% 
+  kable_styling(full_width = FALSE, position="left")
+```
+
+
+```{r Show distribution of utterance level phonology by mode, warning=FALSE}
+# List utterances phonology by mode with 8+ tokens in the corpus
+m_corpus %>%
+  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
+  filter(phr_phon %in% keep_list$phr_phon) %>%
+  group_by(mode, phr_phon) %>%
+  summarise(phon_count = n(), .groups="rowwise") %>%
+  arrange(desc(phon_count)) %>%
+  mutate(phr_phon = str_replace_all(phr_phon,
+                                    "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
+  pivot_wider(names_from = mode,
+              values_from = phon_count,
+              values_fill = 0) %>%
+  select(phr_phon, MDC, MWH, MYN, MDQ) %>%
+  rowwise(phr_phon) %>%
+  mutate(total = sum(c_across())) %>%
+  tibble::rowid_to_column("#") %>%
+  rename("Phonology" = phr_phon) %>%
+  formattable(
+    align = "r",
+    caption = paste(
+      "Utterance level intonational phonology by mode ",
+      "for tokens accounting for at least ",
+      percent(threshold / tot_rows),
+      " of all tokens.",
+      sep = ""
+    ),
+    list(
+      area(col = 3:6) ~ proportion_bar(color = c(
+        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[2], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
+        )),
+      total = proportion_bar(color = "#aaaaaa")
+    )
+  )
+```
+
+# **Statistical Analysis**
+
+```{r h_reg_model}
+h_reg_model <- glmer(
+  h_reg ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+h_reg_model_null = 
+  cur_model <- glmer(
+  h_reg ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(h_reg_model)
+```
+
+```{r h_reg_model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "\nisSingular(h_reg_model, tol=1e-5) -->",
+  isSingular(h_reg_model, tol = 1e-5),
+  "\n"
+)
+
+anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(h_reg_model,
+                    write_r2 = "Utt_h_reg_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
+                    )
+
+x$r2
+x$table
+
+h_reg_charts <- getModelFixedFX(
+  my_equation = h_reg ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_h_reg_GLMM",
+  is_GLM = TRUE
+)
+
+h_reg_charts$intercepts
+h_reg_charts$pairwise
+```
+
+```{r one_pa_model}
+one_pa_model <- glmer(
+  one_pa ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+one_pa_model_null = 
+  cur_model <- glmer(
+  one_pa ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(one_pa_model)
+```
+
+```{r one_pa_model charts and figures, fig.width = 4.5, fig.height = 2.5, results="asis"}
+cat(
+  "\nisSingular(one_pa_model, tol=1e-5) -->",
+  isSingular(one_pa_model, tol = 1e-5),
+  "\n"
+)
+
+anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(one_pa_model,
+                    write_r2 = "Utt_one_pa_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
+                    )
+
+
+x$r2
+x$table
+
+one_pa_charts <- getModelFixedFX(
+  my_equation = one_pa ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_one_pa_GLMM",
+  is_GLM = TRUE
+)
+
+
+one_pa_charts$intercepts
+one_pa_charts$pairwise
+```
+
+```{r h_reg_or model}
+h_reg_or_model <- glmer(
+  h_reg_or ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+h_reg_or_null = 
+  cur_model <- glmer(
+   h_reg_or ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(h_reg_or_model)
+```
+
+```{r h_reg_or_model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(h_reg_or_model, tol=1e-5) -->",
+  isSingular(h_reg_or_model, tol = 1e-5),
+  "\n"
+)
+
+anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(h_reg_or_model,
+                    write_r2 = "Utt_h_reg_or_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
+                    )
+
+x$r2
+x$table
+
+h_reg_or_charts <- getModelFixedFX(
+  my_equation = h_reg_or ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_h_reg_or_GLMM",
+  is_GLM = TRUE
+)
+
+
+h_reg_or_charts$intercepts
+h_reg_or_charts$pairwise
+
+```

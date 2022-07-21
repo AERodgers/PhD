@@ -1,5 +1,6 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes and Nuclear Contours without a Register Tier'
+title: 'Chapter 07: Analysis of Function'
+subtitle: 'Sentence Mode and Nuclear Contour Phonology without Reg Tier'
 output:
   html_document: default
   word_document: default
@@ -66,32 +67,46 @@ fin_phon_colours <- c(
   "H%" = brewer.pal(6, "Set2")[2],
   "HL%" = brewer.pal(8, "Set2")[8]
 )
+```
 
+
+```{r Load and prepare m corpus}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-    mutate(
-      # replace L*^[H] % with L*H H% and L*^[H] L% with L*H HL%
-      fin_phon = if_else(
-        acc_phon == "L*^[H]" & fin_phon != "L%", "H%", if_else(
-          acc_phon == "L*^[H]" & fin_phon == "L%", "HL%",fin_phon)
-        ),
-      acc_phon = if_else(
-        acc_phon == "L*^[H]" & (fin_phon == "H%" | fin_phon == "HL%"),
-        "L*H",
-        acc_phon),
-      nuc_contour = paste(acc_phon, fin_phon, sep=" "),
-      phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] %", "L\\*H H%"),
-      phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] L%", "L\\*H HL%"),
-      # remove register tier
-      phr_phon = factor(str_replace_all(phr_phon, "\\^|\\[|\\]", ""),
-                        levels = unique(phr_phon)),
-      acc_phon = factor(str_replace_all(acc_phon, "\\^|\\[|\\]", ""),
-                        levels = unique(acc_phon)),
-      nuc_contour = factor(str_replace_all(nuc_contour, "\\^|\\[|\\]", ""),
-                           levels = unique(nuc_contour)),
-      fin_phon = factor(str_replace_all(fin_phon, "]", ""),
-                        levels = unique(fin_phon))
-  )%>%
+  mutate(
+      # Remove L% in [..H L%] due to marginal salience. 
+      nuc_contour = if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)),
+    # replace L*^[H] % with L*H H% and L*^[H] L% with L*H HL%
+    fin_phon = if_else(
+      acc_phon == "L*^[H]" & fin_phon != "L%",
+      "H%",
+      if_else(acc_phon == "L*^[H]" & fin_phon == "L%", "HL%", fin_phon)
+    ),
+    acc_phon = if_else(
+      acc_phon == "L*^[H]" & (fin_phon == "H%" | fin_phon == "HL%"),
+      "L*H",
+      acc_phon
+    ),
+    nuc_contour = paste(acc_phon, fin_phon, sep = " "),
+    # remove non-accentuation from phr_phon
+    phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
+    # replace L*^[H] with L*H H(L)%
+    phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] %", "L\\*H H%"),
+    phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] L%", "L\\*H HL%"),
+    # remove register tier
+    across(
+      c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
+      ~ str_replace_all(., "\\^|\\[|\\]", "")
+    ),
+    across(
+      c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
+      ~ factor(.,
+               levels = unique(.))
+    )
+  ) %>%
   # Select only columns for analysis
   select(speaker,
          gender,
@@ -104,13 +119,16 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          fin_phon)
 
 ```
+
+### Nuclear contour
+
 It is clear that there is little relationship between the pitch accent and mode when the register tier is discounted. However, looking at the raw data for the phrase-level phonology, it looks like L% boundaries are more commonly associated with questions than declaratives.
 
 Therefore, it might be worth looking at the nuclear contour as a whole in this data set.
 
     
-```{r warning=FALSE}
-# Create tibble summarising  proportion of nuclear contours per mode per speaker
+```{r adjusted tables for nuclear contours per speaker}
+# Create tibble summarising nuclear contours per mode per speaker
 nuc_contour_adj <- m_corpus %>%
   # Count the number of nuc_contour by speaker and mode
   group_by(speaker, stim, nuc_contour) %>%
@@ -197,9 +215,8 @@ nuc_contour_by_gender_adj <- nuc_contour_adj %>%
   write_csv("nuc_contour_by_mode_and_gender_adj.csv")
 
 ```
-## Nuclear contour
 
-### Nuclear contour by Speaker
+#### Nuclear contour by Speaker
 ```{r warning=FALSE}
 nuc_contour_by_speaker_adj %>%
   write_csv("nuc_by_speaker_adj.csv")  %>%
@@ -219,39 +236,33 @@ nuc_contour_by_speaker_adj %>%
 ```
 
 
-```{r warning=FALSE}
-nuc_contour_by_speaker_adj_uncount <- nuc_contour_by_speaker_adj %>%
-    gather("nuc_contour", "count",-c(speaker)) %>%
-    uncount(count)
-
-```
-
-```{r warning=TRUE, fig.width = 5, fig.height = 2.5}
+```{r plot adjusts nuc countours per speaker, fig.width = 5, fig.height = 2.5}
 # Percentage Stacked bar
-
 ggplot(data = nuc_contour_by_speaker_adj_uncount %>%
+         # Uncount table for bar chart
+         nuc_contour_by_speaker_adj %>%
+         gather("nuc_contour", "count", -c(speaker)) %>%
+         uncount(count) %>%
+         #arrange levels
          mutate(nuc_contour = factor(
            nuc_contour,
-           levels = c("L*H H%", "L*H HL%", "L*H L%", "H* L%",  ">H* L%", "L*H %")
-         )),
+           levels =
+             c("L*H H%", "L*H HL%", "L*H L%", "H* L%",  ">H* L%", "L*H %"))),
        aes(fill = nuc_contour, x = speaker)) +
-  geom_bar(
-    stat = "count",
-    position = "fill",
-    width = 0.30,
-    colour = "black"
-  ) +
+  geom_bar(stat = "count",
+           position = "fill",
+           width = 0.30,
+           colour = "black") +
   scale_fill_manual(values = nuc_contour_colours) +
-  
   labs(y = "Proportion of nuclear contours",
        x = "Speaker") +
   theme(panel.border = element_rect(fill = NA)) +
   scale_y_continuous(sec.axis = sec_axis(~ . * 3 + 4))
 ```
 
-### Nuclear contour by Sentence Mode
+#### Nuclear contour by Sentence Mode
 
-```{r warning=FALSE}
+```{r table of adjusted distribution of nuc contours by mode}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
 #
 # This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
@@ -273,28 +284,20 @@ nuc_contour_by_mode_adj %>%
 
 ```
 
-```{r warning=FALSE}
-
-# Get list of projected PA tokens by mode and gender.
-nuc_contour_by_gender_adj_list <- nuc_contour_by_gender_adj %>%
+```{r plot adjusted distrubition of contours by mode and gender, fig.width = 14, fig.height=5, results="asis"}
+ggplot(
+  nuc_contour_by_gender_adj %>%
+    # uncount date for chart
     pivot_longer(3:last_col(), "nuc_contour") %>%
-    uncount(value) %>% 
+    uncount(value) %>%
     mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour)))
-
-```
-
-```{r, fig.width = 14, fig.height=5, results="asis"}
-ggplot(nuc_contour_by_gender_adj_list) +
-  geom_bar(
-    mapping = aes(
-      x = mode,
-      y = (..count..) / sum(..count..),
-      fill = nuc_contour
-    ),
-    show.legend = FALSE,
-    colour = "black",
-    position = position_dodge2(preserve = "single")
   ) +
+  geom_bar(mapping = aes(x = mode,
+                         y = (..count..) / sum(..count..),
+                         fill = nuc_contour),
+           show.legend = FALSE,
+           colour = "black",
+           position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
   facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
   ggtitle("Nuclear contours by sentence mode and gender (adjusted)") +
@@ -319,55 +322,40 @@ ggplot(nuc_contour_by_gender_adj_list) +
 
 It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this as a general conclusion, especially as it is only M8, M9, and M10 who do this.
 
-```{r fig.width = 14, fig.height = 3, results="asis"}
-nuc_contour_by_mode_adj_list <- nuc_contour_by_mode_adj %>%
-  pivot_longer(2:last_col(), "nuc_contour") %>%
+```{r plot adjusted distrubition of contours by mode, fig.width = 14, fig.height = 3, results="asis"}
+ggplot(
+  nuc_contour_by_mode_adj %>%
+    # Uncount table for bar chart.
+    pivot_longer(2:last_col(), "nuc_contour") %>%
     uncount(value) %>%
     mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour)))
-
-ggplot(nuc_contour_by_mode_adj_list) +
-  geom_bar(
-    mapping = aes(
-      x = mode,
-      y = (..count..) / sum(..count..),
-      fill = nuc_contour
-    ),
-    show.legend = FALSE,
-    colour = "black",
-    position = position_dodge2(preserve = "single")
   ) +
+  geom_bar(mapping = aes(x = mode,
+                         y = (..count..) / sum(..count..),
+                         fill = nuc_contour),
+           show.legend = FALSE,
+           colour = "black",
+           position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
   facet_grid(cols = vars(nuc_contour)) +
-  theme(
-    panel.border = element_rect(fill = NA),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16)
-  ) +
+  theme(panel.border = element_rect(fill = NA),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16)) +
   ggtitle("nuclear contours by sentence mode (adjusted)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
-  geom_text(aes(
-    x = mode,
-    y = (..count..) / sum(..count..),
-    label = percent((..count..) / sum(..count..), 1)
-  ),
-  stat = "count",
-  vjust = -0.75)
+  geom_text(aes(x = mode,
+                y = (..count..) / sum(..count..),
+                label = percent((..count..) / sum(..count..), 1)
+                ),
+            stat = "count",
+            vjust = -0.75)
 
-```
-
-#### Chi Squared test of association using adjusted data for nuc_contour
-
-```{r}
-with(nuc_contour_by_mode_adj_list,
-     table(mode, nuc_contour)) %>% chisq.test %>% print()
 ```
 
 The overall pattern suggest that L% is more common among YNQs and and DCQs.
 However, I don't think that the L% is used to signal a question. I think that, as with the A&H corpus, L% is used when the speaker indicates there is a conflict of expectation of shared knowledge between the speaker and listener. Thus in questions like "You live in the valley?" and "Do you live in the valley?", speaker can use the L% to indicate that the propositional content conflicts with what he or she had previously believed; i.e., it indicates surprise. In a reciprocal manner, in the declaratives of the A&H corpus (and here), the use of an L% indicates that the speaker is indicating surprise that the listener does not already share the knowledge. (i.e. "Where do you live?... "I live in the valley [L%] (and I assumed you already knew that / and you should know that already.") ... Perhaps the best way to think of this is as the surprise~redundancy strategy, with the conflict of expectations expressing redundancy in the declaratives ("This should not be news to you.") and surprise in the questions ("I did not know this at all!").
-
-Bearing in mind that the >H\* L% and H\* L% contours all belong to M8 and may represent transitional code switching, we can re produce the chi squared test without those contours.
 
 
 ```{r}
@@ -526,72 +514,10 @@ ggplot(fin_phon_by_mode_adj_list) +
 
 ```
 
-#### Chi Squared test of association using adjusted data only for H% versus %.
-
-```{r}
-with(fin_phon_by_mode_adj_list  %>% 
-       filter(fin_phon %in% c("%","H%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
-
-```
-
-However, if we run this again, using only the female data...
-```{r}
-with(fin_phon_by_gender_adj_list %>% 
-       filter(gender == "F") %>% 
-       filter(fin_phon %in% c("%","H%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
-
-```
-
-... compared with the male data...
-
-```{r}
-with(fin_phon_by_gender_adj_list %>% 
-       filter(gender == "M") %>% 
-       filter(fin_phon %in% c("%","H%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test() %>% print()
-
-```
-
-The data suggest that there is statistically significant correlation between H% and sentence mode.
 
 
+DO MODE AND FIN PHON!!!!
 
-#### Chi Squared test of association using adjusted data only for L% versus %.
-
-```{r}
-cat("Using Adjusted Data and Montecarlo simulation:\n")
-with(fin_phon_by_mode_adj_list  %>% 
-       filter(fin_phon %in% c("%","L%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
-
-```
-
-However, if we run this again, using only the female data...
-```{r}
-with(fin_phon_by_gender_adj_list %>% 
-       filter(gender == "F") %>% 
-       filter(fin_phon %in% c("%","L%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
-
-```
-
-... compared with the male data...
-
-```{r}
-with(fin_phon_by_gender_adj_list %>% 
-       filter(gender == "M") %>% 
-       filter(fin_phon %in% c("%","L%")) %>% 
-       mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))),
-     table(mode, fin_phon)) %>% chisq.test %>% print()
-
-```
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
 
 
@@ -634,7 +560,7 @@ summary(nuc_contour_model)
 ```
 
 
-```{r GLMM Test Results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r GLMM Test Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(nuc_contour_model, tol=1e-5) -->",
   isSingular(nuc_contour_model, tol = 1e-5),
@@ -657,11 +583,6 @@ x <- printTidyModel(nuc_contour_model,
 
 x$r2
 x$table
-```
-
-
-## Intercepts and Pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
 
 charts <- getModelFixedFX(
   my_equation =  nuc_contour ~ mode + (1 | speaker),

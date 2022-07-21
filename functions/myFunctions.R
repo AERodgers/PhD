@@ -2,8 +2,15 @@
 # date: '2022-05-06'
 # Bank of personal functions
 
+require("tidyverse")
+require("RColorBrewer")
 
-# formatter
+
+# Set themes, colours schemes, and formatters
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+
 p_color <- . ~ style(color =
                        if_else(. < 0.05,
                                "green",
@@ -15,6 +22,43 @@ sig_color <- x ~ style(color = if_else(
   x == "p<0.001" | x == "p<0.05" | x == "p<0.01",
   "green",
   "orange"))
+
+
+# Change this as required
+options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
+
+## set colours
+mode_colours <- c("MDC" = "#5e3c99",
+                  "WHQ" = "#e66101",
+                  "MYN" = "#fdb863",
+                  "MDQ" = "#b2abd2")
+
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red")
+)
+pitch_accent_colours <- c(
+  "H*"  = brewer.pal(6, "Set2")[5],
+  "L*H" = brewer.pal(6, "Set2")[3],
+  ">H*" = brewer.pal(6, "Set2")[4]
+)
+
+nuc_contour_colours <- c(
+  "L*H %"   = brewer.pal(6, "Set2")[3],
+  "L*H L%" = brewer.pal(8, "Set2")[7],
+  ">H* L%"  = brewer.pal(6, "Set2")[4],
+  "H* L%"   = brewer.pal(6, "Set2")[5],
+  "L*H H%" = brewer.pal(6, "Set2")[2],
+  "L*H HL%" = brewer.pal(8, "Set2")[8]
+)
+
+fin_phon_colours <- c(
+  "%"   = brewer.pal(6, "Set2")[3],
+  "L%" = brewer.pal(8, "Set2")[7],
+  "H%" = brewer.pal(6, "Set2")[2],
+  "HL%" = brewer.pal(8, "Set2")[8]
+)
 
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
@@ -431,10 +475,15 @@ get_m_corpus <- function(file_address)
         remove = FALSE
       ) %>%
       mutate(nuc_contour = if_else(
-        unlist(gregexpr('[[]', nuc_contour)) == -1
-        & unlist(gregexpr('[]]', nuc_contour)) > -1,
+        str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
         paste("^[", nuc_contour, sep = ""),
-        nuc_contour)
+        nuc_contour),
+        acc_phon = str_replace_all(acc_phon, "\\s%|\\sL%", ""),
+        acc_phon = factor(acc_phon, levels=unique(acc_phon)),
+        fin_phon = str_replace(fin_phon, "^\\%\\]", "\\%"),
+        fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
+        across(c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
+               ~ factor(., levels = unique(.)))
         )
   )
 

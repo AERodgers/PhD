@@ -1,5 +1,6 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes and Phonology (Register Tier)'
+title: 'Chapter 07: Analysis of Function'
+subtitle: 'Sentence Mode and Nuclear Phonology, Register Tier'
 mainfont: Times New Roman
 output:
   html_document: default
@@ -30,13 +31,14 @@ installMissingPackages(
     "optimx",
     "performance",
     "sjPlot",
-    "tidyverse"
+    "tidyverse",
+    "ggeffects"
 
   )
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 10)
+theme_set(theme_minimal(base_size = 10))
 
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
@@ -50,15 +52,14 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
   mutate(
     # remove non-accentuation from phr_phon
+    mode =  factor(mode, levels=c("MDC", "MWH", "MYN", "MDQ")),
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)\\s", ""),
     phr_phon = str_replace_all(phr_phon, "\\s\\s", "\\s"),
     phr_phon = factor(phr_phon, levels=unique(phr_phon)),
     one_pa = str_count(phr_phon, "\\*")==1,
     one_pa = factor(one_pa, levels=unique(one_pa)),
-    h_reg = str_detect(phr_phon, "\\^"),
-    h_reg =  factor(h_reg, levels=unique(h_reg)),
-    mode =  factor(mode, levels=c("MDC", "MWH", "MYN", "MDQ"))
-    
+    h_reg =  factor(str_detect(phr_phon, "\\^"), levels = c(F, T)),
+    one_pa_or_h_reg = factor((h_reg == T | one_pa ==T), levels = c(F, T))
     ) %>%
 
   # Select only columns for analysis
@@ -66,146 +67,87 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          mode,
          phr_phon,
          one_pa,
-         h_reg)
+         h_reg,
+         one_pa_or_h_reg)
 
 
 ```
 
-
-
-```{r fig.height=3, fig.width=8, results="asis", tidy = T, eval=F}
-#### Utterance-wide phonological anlaysis: `mode ~ one_pa + h_reg + (1 | speaker)`
-pairwise_list <- c("MDC", "MWH", "MYN", "MDQ")
-fixed_effects <- tibble()
-model_anovas <- tibble()
-
-for (i in 1:(length(pairwise_list) - 1)) {
-  for (j in (i + 1):(length(pairwise_list))) {
-    
-    cur_pair = c(pairwise_list[i], pairwise_list[j])
-
-    utt_phon_model <- glmer(
-      mode ~ one_pa + h_reg + (1 | speaker),
-      data = m_corpus %>%
-        filter(mode %in% cur_pair) %>% 
-        mutate(mode = factor(mode, levels=cur_pair)),
-      family = binomial(link = "logit"),
-      # change optimizer to avoid convergence errors
-      control = glmerControl(
-        optimizer = "optimx",
-        calc.derivs = FALSE,
-        optCtrl = list(
-          method = "nlminb",
-          starttests = FALSE,
-          kkt = FALSE
-        )
-      )
+```{r h_reg_model test}
+h_reg_model <- glmer(
+  h_reg ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
     )
-    
-    utt_phon_model_null  <- glmer(
-      mode ~ 1 + (1 | speaker),
-      data = m_corpus %>%
-        filter(mode %in% cur_pair) %>% 
-        mutate(mode = factor(mode, levels=cur_pair)),
-      family = binomial(link = "logit"),
-      # change optimizer to avoid convergence errors
-      control = glmerControl(
-        optimizer = "optimx",
-        calc.derivs = FALSE,
-        optCtrl = list(
-          method = "nlminb",
-          starttests = FALSE,
-          kkt = FALSE
-        )
-      )
+  )
+)
+
+h_reg_model_null = 
+  cur_model <- glmer(
+  h_reg ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
     )
-      
+  )
+)
 
-    plot_model(
-      utt_phon_model,
-      title = paste("Pairwise comparison:",
-                    str_flatten(cur_pair, ", ")),
-      show.values = TRUE,
-      vline.color = "red",
-      colors = "Black",
-      transform = NULL
-    ) %>% print()
+summary(h_reg_model)
+```
 
-  
-    knitr::kable(r2_nakagawa(utt_phon_model),
-                 caption = "Conditional and marginal R^2^ of model",
-                 digits = 2,
-                 align = "l"
-                 ) %>%
-      kable_styling(full_width = FALSE, position = "left") %>%
-      print()
-    
-  model_anovas <- rbind(model_anovas,
-                        anova(utt_phon_model,
-                              utt_phon_model_null,
-                              test="Chisq") %>%
-                          formattable() %>% filter(npar!=2) %>%
-                          as_tibble %>%
-                          mutate(`pairwise comparison` = str_flatten(cur_pair, ", "),
-                                 .before=npar) %>% 
-                          mutate(isSingular = isSingular(utt_phon_model, tol = 1e-5),
-                                 .after=npar)
-                        )
+```{r h_reg_model test results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "\nisSingular(h_reg_model, tol=1e-5) -->",
+  isSingular(h_reg_model, tol = 1e-5),
+  "\n"
+)
 
-    fixed_effects <- fixed_effects %>%
-      rbind(tidy(utt_phon_model) %>%
-              filter(effect == "fixed") %>%
-              select(-c(effect, group)) %>%
-              mutate(comparison = str_flatten(cur_pair, ", "),
-                     .before = "term") %>%
-              rename(z.value = statistic) %>%
-              cbind(confint(utt_phon_model, method = "Wald") %>%
-                      as_tibble() %>%
-                      filter(`2.5 %` != "NA") %>%
-                      mutate(`2.5 %` = round(`2.5 %`, 3),
-                             `97.5 %` = round(`97.5 %`, 3)) %>%
-                      rename(conf.low = "2.5 %",
-                             "conf.high" = "97.5 %")
+anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(h_reg_model,
+                    write_r2 = "Utt_h_reg_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
                     )
-            )
-    
 
-  
-  }
-}
+x$r2
+x$table
 
-fixed_effects %>%
-  relocate(c(`2.5% CI`, `97.5% CI`), .after="z.value") %>% 
-  bonferroniAdjust(bonferroniMultiplier=6, p.adj=`p.adj. (bonferroni)`) %>%
-  sigCodesTidy(`p.adj. (bonferroni)`) %>%
-  mutate(`p.adj. (bonferroni)` = if_else(`p.adj. (bonferroni)` < 0.001,
-                              as.character(formatC(`p.adj. (bonferroni)`,
-                                                   format = "e",
-                                                   digits = 2)),
-                              as.character(round(`p.adj. (bonferroni)`, 4),
-                                           digits = 2)),
-         p.value = if_else(p.value < 0.001,
-                           as.character(formatC(p.value,
-                                                format = "e",
-                                                digits = 2)),
-                           as.character(round(p.value, 4), digits = 2))
-         )%>% 
-  arrange(term) %>% 
-  formattable(caption = paste("Pairwise analysis of mode factors:",
-                              "mode ~ one_pa + h_reg + (1 | speaker)")
-              )
-
-model_anovas %>%
-  mutate(`p.adj. (bonferroni)` =
-           p.adjust(`Pr(>Chisq)`, method="bonferroni")) %>% 
-  formattable(caption = "ANOVA of each pairwsie test compared with null model")
-
-      
 ```
 
-```{r}
+```{r test h_reg pairwise}
+h_reg_charts <- getModelFixedFX(
+  my_equation = h_reg ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write = "Utt_h_reg_GLMM",
+  is_GLM = TRUE
+)
+
+h_reg_charts$intercepts
+h_reg_charts$pairwise
+```
+
+```{r one_pa_model test}
 one_pa_model <- glmer(
-  one_pa ~ mode + (1 + mode | speaker),
+  one_pa ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -222,7 +164,7 @@ one_pa_model <- glmer(
 
 one_pa_model_null = 
   cur_model <- glmer(
-  one_pa ~ mode + (1 + mode | speaker),
+  one_pa ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -238,9 +180,11 @@ one_pa_model_null =
 )
 
 summary(one_pa_model)
+```
 
+```{r one_pa_model test results, fig.width = 4.5, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(one_pa_model, tol=1e-5) -->",
+  "\nisSingular(one_pa_model, tol=1e-5) -->",
   isSingular(one_pa_model, tol = 1e-5),
   "\n"
 )
@@ -251,80 +195,96 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   )
 
 x <- printTidyModel(one_pa_model,
-                    write_r2="Utt_one_pa_GLMM",
-                    is_GLM = TRUE
+                    write_r2 = "Utt_one_pa_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
                     )
-
 
 
 x$r2
 x$table
 ```
 
-
 ```{r test one_pa pairwise}
 one_pa_charts <- getModelFixedFX(
-  my_equation = one_pa ~ mode + (1 + mode | speaker),
+  my_equation = one_pa ~ mode + (1 | speaker),
   my_data = m_corpus,
   write = "Utt_one_pa_GLMM",
   is_GLM = TRUE
 )
 
 
-one_pa_charts$intercepts %>%
-  mutate(p.value = if_else(
-    p.value < 0.001,
-    as.character(formatC(
-      p.value,
-      format = "e",
-      digits = 2
-    )),
-    as.character(round(p.value, 4), digits = 2)
-  ))
-
-one_pa_charts$pairwise %>%
-  mutate(p.value = if_else(
-    p.value < 0.001,
-    as.character(formatC(
-      p.value,
-      format = "e",
-      digits = 2
-    )),
-    as.character(round(p.value, 4), digits = 2)
-  ))
+one_pa_charts$intercepts
+one_pa_charts$pairwise
 ```
 
+```{r one_pa_or_h_reg model test}
+one_pa_or_h_reg_model <- glmer(
+   one_pa_or_h_reg ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 
-```{r test h_reg}
-h_reg_charts <- getModelFixedFX(
-  my_equation = h_reg ~ mode + (1 + mode | speaker),
+one_pa_or_h_reg_null = 
+  cur_model <- glmer(
+   one_pa_or_h_reg ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(one_pa_or_h_reg_model)
+```
+
+```{r one_pa_or_h_reg model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(one_pa_or_h_reg_model, tol=1e-5) -->",
+  isSingular(one_pa_or_h_reg_model, tol = 1e-5),
+  "\n"
+)
+
+anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(one_pa_or_h_reg_model,
+                    write_r2 = "Utt_one_pa_or_h_reg_GLMM",
+                    is_GLM = TRUE,
+                    show.intercept=TRUE
+                    )
+
+x$r2
+x$table
+
+one_pa_or_h_reg_charts <- getModelFixedFX(
+  my_equation = one_pa_or_h_reg ~ mode + (1 | speaker),
   my_data = m_corpus,
-  write = "Utt_h_reg_GLMM",
+  write = "Utt_one_pa_or_h_reg_GLMM",
   is_GLM = TRUE
 )
 
 
-h_reg_charts$intercepts  %>%
-  mutate(p.value = if_else(
-    p.value < 0.001,
-    as.character(formatC(
-      p.value,
-      format = "e",
-      digits = 2
-    )),
-    as.character(round(p.value, 4), digits = 2)
-  ))
-
-charts$pairwise  %>%
-  mutate(p.value = if_else(
-    p.value < 0.001,
-    as.character(formatC(
-      p.value,
-      format = "e",
-      digits = 2
-    )),
-    as.character(round(p.value, 4), digits = 2)
-  ))
+one_pa_or_h_reg_charts$intercepts
+one_pa_or_h_reg_charts$pairwise
 
 ```
-

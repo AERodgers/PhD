@@ -1,1 +1,0 @@
-one_pa_or_h_reg ~ mode + (1 | speaker)

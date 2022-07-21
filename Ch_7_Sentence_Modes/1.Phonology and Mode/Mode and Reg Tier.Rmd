@@ -1,0 +1,668 @@
+---
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+subtitle: 'Nuclear Phonology and Mode'
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+
+
+# Load Functions.
+source("../../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Load tidy packages.
+    "formattable",
+    "janitor",
+    "kableExtra",
+    "RColorBrewer",
+    "tidyverse",
+    # Load stats package.
+    "lme4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+
+pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
+                          "L*H"    = brewer.pal(6, "Set2")[3],
+                          "^[L*]H" = brewer.pal(6, "Set2")[6],
+                          ">H*"    = brewer.pal(6, "Set2")[4],
+                          "L*^[H]" = brewer.pal(6, "Set2")[2],
+                          "^[L*H]" = brewer.pal(6, "Set2")[1])
+
+```
+
+
+```{r load and process corpus, include=FALSE}
+# Get  Data.
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         stim,
+         mode,
+         acc_phon,
+         fin_phon)
+
+
+```
+
+#### Raw Data
+
+
+```{r summarise PA by speaker (raw data), warning=FALSE}
+# Create summary table of Pitch Accent by Speaker.
+
+
+m_corpus %>%
+  group_by(speaker, acc_phon) %>%
+  summarise(acc_count = n(), .groups = "keep") %>%
+  pivot_wider(names_from = acc_phon,
+              values_from = acc_count,
+              values_fill = 0) %>%
+  select("speaker", "H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")  %>% 
+  write_csv("nuc_by_speaker_raw.csv") %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
+  adorn_totals(where = "row") %>% 
+  formattable(
+    caption =
+      "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
+    list(area(col = 2:7, row= 1:nrow(.)-1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
+      )))
+    )
+
+```
+
+#### Adjusted Data
+
+The raw data is unbalanced since the number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
+
+Firstly a tibble is created summarising the proportion of pitch accents per mode per speaker. This is done in three initial stages:
+
+ 1. Count the number of phonological tokens per stimulus per speaker.
+ 2. Convert the counts to proportion per stimulus per speaker.
+ 3. Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
+
+From this table summary tables are created:
+
+1. pitch accents per speaker (adjusted)
+   a. Calculate the sum all proportions per token per speaker.
+   b. Convert proportions to an integer based on an ideal total number of tokens per speaker.
+2. pitch accents per mode (adjusted):
+   a. Calculate the sum all proportions per token per mode.
+   b. Convert proportions to an integer based on an ideal total number of tokens per mode
+3. pitch accents by gender and mode (adjusted):
+   a. Calculate the sum all proportions per token by mode and gender.
+  b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
+
+```{r create tables for adjusted data, warning=FALSE}
+# Create tibble summarising  proportion of pitch accents per mode per speaker
+pa_adj <- m_corpus %>%
+    # Count the number of acc_phon by speaker and mode
+    group_by(speaker, stim, acc_phon) %>%
+    summarise(nuc_count = n(), .groups = "keep") %>%
+    pivot_wider(names_from=acc_phon, values_from=nuc_count, values_fill = 0) %>%
+    # convert the totals to proportion per stim.
+    adorn_totals("col") %>% 
+    mutate(across(3:8,  ~  (. / Total))) %>%
+    select(-Total) %>% 
+    # Convert stim column to mode.
+    rename(mode = stim) %>% 
+    mutate(mode = substr(mode, 1, 3)) %>%
+    # Convert the values to proportion per mode
+    pivot_longer(3:last_col(), "acc_phon") %>% 
+    group_by(speaker, mode, acc_phon) %>%
+    pivot_wider(names_from=acc_phon,
+                values_from=value,
+                values_fill = 0,
+                values_fn = ~sum(.)) %>%
+    adorn_totals("col") %>% 
+    mutate(across(3:8, ~ (. / Total)),
+           mode = factor(mode, levels = c("MDC", "MWH", "MYN", "MDQ"))
+           ) %>%
+    select(-Total) %>%
+    as_tibble()
+
+# Create tibble of pitch accents per speaker (adjusted).
+pa_by_speaker_adj <- pa_adj %>%
+  # Get the sum of all token proportions per speaker.
+  pivot_longer(3:last_col(), "acc_phon") %>%
+  select(-mode) %>% 
+  pivot_wider(names_from = acc_phon,
+              values_from = value,
+              values_fill = 0,
+              values_fn = ~ sum(.)
+              ) %>%
+  # Convert proportions to an integer based on an ideal total number of tokens
+  # per speaker.
+  mutate(across(2:7, ~ round(. * 15, 0))) %>% 
+  select("speaker", "H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]") %>% 
+  write_csv("nucs_by_speaker_adj.csv")
+
+# Create tibble of pitch accents per mode (adjusted).
+pa_by_mode_adj <- pa_adj %>%
+  # Get the sum of all token proportions per speaker.
+  pivot_longer(3:last_col(), "acc_phon") %>%
+  select(-speaker) %>% 
+  pivot_wider(names_from = acc_phon,
+              values_from = value,
+              values_fill = 0,
+              values_fn = ~ sum(.)
+              ) %>% 
+  # Convert proportions to an integer based on an ideal total number of tokens.
+  mutate(across(2:7, ~ round(. * 15, 0))) %>% 
+  select("mode", "H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]") %>% 
+  arrange(mode) %>% 
+  write_csv("modes_nuc_balanced.csv")
+
+# Create tibble of pitch accents by gender and mode (adjusted).
+pa_by_gender_adj <- pa_adj %>%
+  # Convert gender to speaker
+  mutate(speaker = substr(speaker, 1, 1),
+         speaker = factor(speaker, levels=unique(speaker))) %>% 
+  rename(gender = speaker) %>% 
+  # Get the sum of all token proportions per speaker.
+  pivot_longer(3:last_col(), "acc_phon") %>%
+  pivot_wider(names_from = acc_phon,
+              values_from = value,
+              values_fill = 0,
+              values_fn = ~ sum(.)
+              ) %>%
+  # Convert proportions to an integer based on an ideal total number of tokens
+  # per speaker.
+  mutate(across(3:8, ~ if_else(gender=="F",
+                               round(. * 15, 0),
+                               # project equal number of Male & Female speakers.
+                               round(. * 18, 0)
+                               )
+                )
+         ) %>% 
+  select("mode", "gender", "H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]") %>% 
+  arrange(mode) %>% 
+  write_csv("modes_nuc_gender_adj.csv")
+
+```
+
+
+
+```{r print pa by speaker adjusted, warning=FALSE}
+pa_by_speaker_adj %>%
+  write_csv("nuc_by_speaker_adj.csv")  %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
+  adorn_totals(where = "row") %>% 
+  formattable(
+    caption="Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
+    list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
+      )))
+    )
+```
+
+```{r plot pitch accent by speaker adjusted, fig.width = 10, fig.height = 4}
+
+# Percentage Stacked bar
+ggplot(data = pa_by_speaker_adj %>%
+         # uncount data for plotting
+         gather("acc_phon", "count",-c(speaker)) %>%
+         uncount(count),
+       aes(fill = acc_phon, x = speaker)) +
+    geom_bar(
+        stat = "count",
+        position = "fill",
+        width = 0.30,
+        colour = "black"
+    ) +
+    scale_fill_manual(values = pitch_accent_colours[1:6]) +
+    
+    labs(y = "Proportion of Pitch Accents",
+         x = "Speaker") +
+    theme(panel.border = element_rect(fill = NA)) +
+    scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
+```
+
+
+
+```{r print pitch accent by mode adjusted, warning=FALSE}
+# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
+#
+# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
+
+ pa_by_mode_adj %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
+  adorn_totals("row") %>% 
+  formattable(
+    caption=
+      "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
+    list(area(col=2:7, row=1:4) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
+      )))
+    )
+```
+
+```{r Print table of pitch accent by mode adjusted excluding outliers}
+pa_by_mode_adj %>%
+  select("mode", "L*H", "L*^[H]", "^[L*H]") %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
+  adorn_totals("row") %>% 
+  formattable(
+    caption = paste("Distibution by of pitch accents by mode in M-corpus",
+                    "(adjusted, outliers excluded)"),
+    list(area(col=2:4, row=1:nrow(.)-1) ~ proportion_bar(color = c(
+
+      rep(brewer.pal(6, "Pastel2")[3], 4),
+
+      rep(brewer.pal(6, "Pastel2")[2], 4),
+      rep(brewer.pal(6, "Pastel2")[1], 4)
+      )))
+    )
+
+```
+
+```{r Plot common pitch accents by mode and gender adjusted, fig.height=3.5, fig.width=5.1}
+ggplot(pa_by_gender_adj %>%
+    # Uncount tables bar chart.
+    pivot_longer(3:last_col(), "acc_phon") %>%
+    uncount(value) %>% 
+    # Exclude outliers.
+    filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>% 
+    mutate(acc_phon = factor(acc_phon, levels = c("L*H", "L*^[H]", "^[L*H]")))) +
+  geom_bar(
+    mapping = aes(
+      x = mode,
+      y = (..count..) / sum(..count..),
+      fill = acc_phon
+    ),
+    show.legend = FALSE,
+    colour = "black",
+    position = position_dodge2(preserve = "single")
+  ) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
+  facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
+  ggtitle("Nuclear pitch accents by sentence mode and gender (adjusted)") +
+  theme(
+    panel.border = element_rect(fill = NA)
+  ) +
+  ggtitle("Nuclear pitch accents by sentence mode (adjusted)") +
+  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
+  labs(x = "Mode", y = "tokens (%)") +
+  theme(panel.border = element_rect(fill = NA)) +
+  geom_text(aes(
+    x = mode,
+    y = (..count..) / sum(..count..),
+    label = percent((..count..) / sum(..count..), 1)
+  ),
+  stat = "count",
+  vjust = -0.7,
+  size = 3)
+
+```
+
+```{r Plot common pitch accents by mode adjusted, fig.height=2.2, fig.width=5}
+
+ggplot(pa_by_mode_adj %>%
+         # uncount table for bar chart
+         pivot_longer(2:last_col(), "acc_phon") %>%
+         uncount(value) %>%
+         # exclude outliers.
+         filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>%
+         mutate(acc_phon = factor(acc_phon,
+                                  levels = c("L*H", "L*^[H]", "^[L*H]")))
+       ) +
+  geom_bar(mapping = aes(x = mode,
+                         y = (..count..) / sum(..count..),
+                         fill = acc_phon),
+           show.legend = FALSE,
+           colour = "black",
+           position = position_dodge2(preserve = "single")) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
+  facet_grid(cols = vars(acc_phon)) +
+  theme(panel.border = element_rect(fill = NA)) +
+  ggtitle("Nuclear pitch accents by sentence mode (adjusted)") +
+  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
+  labs(x = "Mode", y = "tokens (%)") +
+  theme(panel.border = element_rect(fill = NA)) +
+  geom_text(aes(x = mode,
+                y = (..count..) / sum(..count..),
+                label = percent((..count..) / sum(..count..), 1)),
+  stat = "count",
+  vjust = -0.7,
+  size = 3)
+
+```
+
+#### GLMM test of acc_phon as a fn of mode.
+
+* Random intercepts only since models with random slopes generate singularity issues.
+```{r model test, tidy = TRUE}
+acc_phon_model <- glmer(
+  acc_phon ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+acc_phon_model_null = 
+  cur_model <- glmer(
+  acc_phon ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(acc_phon_model)
+```
+
+
+```{r model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(acc_phon_model, tol=1e-5) -->",
+  isSingular(acc_phon_model, tol = 1e-5),
+  "\n"
+)
+
+anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(acc_phon_model,
+                    write_r2="Mode_PA_GLMM",
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE,
+                    type="est",
+                    axis.lim = c(0.01, 10000)
+                    )
+x$r2
+x$table
+
+charts <- getModelFixedFX(
+  my_equation = acc_phon ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write="Mode_PA_GLMM",
+  is_GLM=TRUE,
+  extra_text = ", assuming presence of register tier"
+)
+
+
+charts$intercepts
+charts$pairwise
+```
+
+
+```{r Wrangle data for boundary analysis}
+fin_phon_adj <- m_corpus %>%
+  mutate(fin_phon = str_replace_all(fin_phon, "\\[|\\]|\\^", "")) %>% 
+  # Count the number of fin_phon by speaker and mode
+  group_by(speaker, stim, fin_phon) %>%
+  summarise(nuc_count = n(), .groups = "keep") %>%
+  pivot_wider(names_from = fin_phon,
+              values_from = nuc_count,
+              values_fill = 0) %>%
+  # convert the totals to proportion per stim.
+  adorn_totals("col") %>%
+  mutate(across(3:(last_col()-1),  ~  (. / Total))) %>%
+  select(-Total) %>%
+  # Convert stim column to mode.
+  rename(mode = stim) %>%
+  mutate(mode = substr(mode, 1, 3)) %>%
+  # Convert the values to proportion per mode
+  pivot_longer(3:last_col(), "fin_phon") %>%
+  group_by(speaker, mode, fin_phon) %>%
+  pivot_wider(
+    names_from = fin_phon,
+    values_from = value,
+    values_fill = 0,
+    values_fn = ~ sum(.)
+  ) %>%
+  adorn_totals("col") %>%
+  mutate(across(3:(last_col()-1), ~ (. / Total)),
+         mode = factor(mode, levels = c("MDC", "MWH", "MYN", "MDQ"))) %>%
+  select(-Total) %>%
+  as_tibble()
+
+# Create tibble of final boundaries per mode (adjusted).
+fin_phon_by_mode_adj <- fin_phon_adj %>%
+  # Get the sum of all token proportions per speaker.
+  pivot_longer(3:last_col(), "fin_phon") %>%
+  select(-c(speaker)) %>% 
+  pivot_wider(names_from = fin_phon,
+              values_from = value,
+              values_fill = 0,
+              values_fn = ~ sum(.)
+              ) %>% 
+  # Convert proportions to an integer based on an ideal total number of tokens.
+  mutate(across(2:last_col(), ~ round(. * 15, 0))) %>% 
+  arrange(mode)
+
+# Create tibble of final boundaries  by gender and mode (adjusted).
+fin_phon_by_gender_adj <- fin_phon_adj %>% 
+  # Convert gender to speaker
+  mutate(speaker = substr(speaker, 1, 1),
+         speaker = factor(speaker, levels=unique(speaker))) %>% 
+  rename(gender = speaker) %>% 
+  # Get the sum of all token proportions per speaker.
+  pivot_longer(3:last_col(), "fin_phon") %>%
+
+  pivot_wider(names_from = fin_phon,
+              values_from = value,
+              values_fill = 0,
+              values_fn = ~ sum(.)
+              ) %>%
+  # Convert proportions to an integer based on an ideal total number of tokens
+  # per speaker.
+  mutate(across(3:last_col(), ~ if_else(gender=="F",
+                               round(. * 15, 0),
+                               # project equal number of Male & Female speakers.
+                               round(. * 18, 0)
+                               )
+                )
+         ) %>% 
+  arrange(mode)
+
+# Make lists of projected boundary tokens.
+fin_phon_by_mode_adj_list <- fin_phon_by_mode_adj %>%
+  pivot_longer(2:last_col(), "fin_phon") %>%
+    uncount(value) %>%
+    mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
+
+
+# Get list of projected boundary tokens by mode and gender.
+fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
+    pivot_longer(3:last_col(), "fin_phon") %>%
+    uncount(value) %>% 
+    mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
+
+```
+
+```{r plot fin_phon by mode and gender, fig.width = 4, fig.height = 3.5}
+ggplot(fin_phon_by_gender_adj_list) +
+  geom_bar(
+    mapping = aes(
+      x = mode,
+      y = (..count..) / sum(..count..),
+      fill = fin_phon
+    ),
+    show.legend = FALSE,
+    colour = "black",
+    position = position_dodge2(preserve = "single")
+  ) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
+  facet_grid(rows = vars(gender), cols = vars(fin_phon)) +
+
+  theme(
+    panel.border = element_rect(fill = NA)
+  ) +
+  ggtitle("Final boundary by mode and gender (adjusted, ^[L%]=L%)") +
+  scale_fill_manual(values = fin_phon_colours, name = "nuclear contour") +
+  labs(x = "Mode", y = "tokens (%)") +
+  theme(panel.border = element_rect(fill = NA)) +
+  geom_text(aes(
+    x = mode,
+    y = (..count..) / sum(..count..),
+    label = percent((..count..) / sum(..count..), 1)
+  ),
+  stat = "count",
+  vjust = -0.75,
+  size = 3)
+
+```
+```{r plot fin_phon by mode only, fig.height=2.2, fig.width=3.9}
+
+ggplot(fin_phon_by_mode_adj_list) +
+  geom_bar(
+    mapping = aes(
+      x = mode,
+      y = (..count..) / sum(..count..),
+      fill = fin_phon
+    ),
+    show.legend = FALSE,
+    colour = "black",
+    position = position_dodge2(preserve = "single")
+  ) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
+  facet_grid(cols = vars(fin_phon)) +
+  theme(
+    panel.border = element_rect(fill = NA)
+  ) +
+  ggtitle("Final boundary by mode (adjusted, ^[L%]=L%)") +
+  scale_fill_manual(values = fin_phon_colours, name = "final boundary") +
+  labs(x = "Mode", y = "tokens (%)") +
+  theme(panel.border = element_rect(fill = NA)) +
+  geom_text(aes(
+    x = mode,
+    y = (..count..) / sum(..count..),
+    label = percent((..count..) / sum(..count..), 1)
+  ),
+  stat = "count",
+  vjust = -0.75,
+  size = 3)
+
+
+```
+
+#### GLMM test of boundary as a fn of mode.
+
+* Random intercepts only since models with random slopes generate singularity issues.
+```{r fin_phon model test, tidy = TRUE}
+m_corpus_boundaries <- m_corpus %>% 
+  mutate(fin_phon = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
+                           levels=c("%", "L%")))
+                           
+fin_phon_model <- glmer(
+  fin_phon ~ mode + (1 | speaker),
+  data = m_corpus_boundaries,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+fin_phon_model_null = 
+  cur_model <- glmer(
+  fin_phon ~ 1 + (1 | speaker),
+  data = m_corpus_boundaries,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(fin_phon_model)
+```
+
+
+```{r fin_phon model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(fin_phon_model, tol=1e-5) -->",
+  isSingular(fin_phon_model, tol = 1e-5),
+  "\n"
+)
+
+anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(fin_phon_model,
+                    write_r2="Mode_PA_GLMM",
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE,
+                    type="est",
+                    axis.lim = c(0.01, 10000)
+                    )
+x$r2
+x$table
+
+charts <- getModelFixedFX(
+  my_equation = fin_phon ~ mode + (1 | speaker),
+  my_data = m_corpus_boundaries,
+  write="Mode_fin_phon_GLMM",
+  is_GLM=TRUE,
+  extra_text = ", assuming presence of register tier"
+)
+
+
+charts$intercepts
+charts$pairwise
+```

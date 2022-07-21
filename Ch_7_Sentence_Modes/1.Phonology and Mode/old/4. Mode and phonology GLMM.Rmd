@@ -1,10 +1,12 @@
 ---
-title: 'Chapter 07: Analysis of Function: Sentence Modes and Phonology (Register Tier)'
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+subtitle: 'Nuclear Phonology and Mode'
 output:
   html_document: default
   word_document: default
   pdf_document: default
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -17,255 +19,23 @@ source("../../functions/myFunctions.R")
 
 # Load packages.
 installMissingPackages(
-  c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer", "kableExtra")
+  c(
+    # Load tidy packages.
+    "formattable",
+    "janitor",
+    "kableExtra",
+    "RColorBrewer",
+    "tidyverse",
+    # Load stats package.
+    "lme4"
+  )
 )
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
 
-# Change this as required
-options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
-
-## set colours
-
-mode_colours <- c("MDC" = brewer.pal(4, "Dark2")[3],
-                  "MWH" = brewer.pal(4, "Dark2")[2],
-                  "MYN" = brewer.pal(4, "Dark2")[1],
-                  "MDQ" = brewer.pal(4, "Dark2")[4])
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
-                                             "green",
-                                             "red")
-                                   )
-pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
-                          "L*H"    = brewer.pal(6, "Set2")[3],
-                          "^[L*]H" = brewer.pal(6, "Set2")[6],
-                          ">H*"    = brewer.pal(6, "Set2")[4],
-                          "L*^[H]" = brewer.pal(6, "Set2")[2],
-                          "^[L*H]" = brewer.pal(6, "Set2")[1])
 ```
 
-```{r load and process corpus, include=FALSE}
-m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon = factor(str_replace(nuc_contour, "\\s%$|\\sL%$", ""),
-                      levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")),
-    acc_phon = factor(acc_phon, levels = unique(acc_phon)),
-    # remove non-accentuation from phr_phon
-    phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
-    one_PA = str_count(phr_phon, "\\*")==1,
-    one_PA = factor(one_PA, levels=unique(one_PA)),
-    h_reg = str_detect(phr_phon, "\\^"),
-    h_reg =  factor(h_reg, levels=unique(h_reg)),
-    mode =  factor(mode, levels=unique(mode))
-  ) %>%
-  # Select only columns for analysis
-  select(speaker,
-         gender,
-         mode,
-         prompt,
-         stim,
-         phr_phon,
-         acc_phon,
-         nuc_contour,
-         one_PA, 
-         h_reg)
-
-
-```
-
-# **Raw Data**
-
-## Utterance level intonational phonology (raw data)
-
-```{r list utterence level phonology, warning=FALSE}
-#set lower limit for list: more than 8 tokens in the corpus
-tot_rows = nrow(m_corpus)
-threshold = round(tot_rows / 4 / 20,0)
-
-keep_list <- m_corpus %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>% 
-  filter(phon_count >= threshold)
-
-# List all utterance phonology
-m_corpus %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  formattable(
-    caption = paste(
-      "Utterance level intonational phonology in M-corpus ",
-      "for tokens accounting for at least ",
-      percent(threshold / tot_rows),
-      " of all tokens.",
-      sep = ""
-    )
-  )
-
-total_counts <- m_corpus %>%
-  group_by(mode) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>% 
-  mutate(total = sum(c_across())) %>%
-  select(MDC, MWH, MYN, MDQ, total) 
-
-nuc_only <- m_corpus %>%
-  filter(one_PA == TRUE) %>%
-  group_by(mode) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>% 
-  mutate(total = sum(c_across())) %>%
-  select(MDC, MWH, MYN, MDQ, total)
-
-
-nuc_only %>% 
-  rbind(round((nuc_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
-  mutate("info" =c("count", "percentage"), .before=1) %>%
-  kable(
-  caption = "Utterance level intonational phonology by mode for tokens with only one PA")%>% 
-  kable_styling(full_width = FALSE, position="left")
-
-uses_h_reg <- m_corpus %>%
-  filter(h_reg == T) %>%
-  group_by(mode) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>% 
-  mutate(total = sum(c_across())) %>%
-  select(MDC, MWH, MYN, MDQ, total)
-
-uses_h_reg %>% 
-  rbind(round((uses_h_reg / total_counts*100),1) %>% paste("%", sep="")) %>% 
-  mutate("info" =c("count", "percentage"), .before=1) %>%
-  kable(
-  caption = "Utterance level intonational phonology by mode with high register")%>% 
-  kable_styling(full_width = FALSE, position="left")
-
-uses_h_reg_or <- m_corpus %>%
-  filter(h_reg == T | one_PA == T) %>%
-  group_by(mode) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>% 
-  mutate(total = sum(c_across())) %>%
-  select(MDC, MWH, MYN, MDQ, total)
-
-uses_h_reg_or %>% 
-  rbind(round((uses_h_reg_or / total_counts*100),1) %>% paste("%", sep="")) %>% 
-  mutate("info" =c("count", "percentage"), .before=1) %>%
-  kable(
-  caption = "Utterance level intonational phonology by mode with high register or nuclear PA only")%>% 
-  kable_styling(full_width = FALSE, position="left")
-
-
-
-# List utterances phonology by mode with 8+ tokens in the corpus
-m_corpus %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  filter(phr_phon %in% keep_list$phr_phon) %>%
-  group_by(mode, phr_phon) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  mutate(phr_phon = str_replace_all(phr_phon,
-                                    "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>%
-  select(phr_phon, MDC, MWH, MYN, MDQ) %>%
-  rowwise(phr_phon) %>%
-  mutate(total = sum(c_across())) %>%
-  tibble::rowid_to_column("#") %>%
-  rename("Phonology" = phr_phon) %>%
-  formattable(
-    align = "r",
-    caption = paste(
-      "Utterance level intonational phonology by mode ",
-      "for tokens accounting for at least ",
-      percent(threshold / tot_rows),
-      " of all tokens.",
-      sep = ""
-    ),
-    list(
-      area(col = 3:6) ~ proportion_bar(color = c(
-        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
-        rep(brewer.pal(4, "Pastel2")[2], nrow(.)),
-        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
-        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
-        )),
-      total = proportion_bar(color = "#aaaaaa")
-    )
-  )
-```
-
-```{r utterance phonology by mode, exlcuding MWH, warning=FALSE}
-tot_rows = nrow(m_corpus %>% filter(mode != "MWH"))
-threshold = round(tot_rows / 3 / 20,0)
-keep_list <- m_corpus %>% filter(mode != "MWH") %>% 
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>% 
-  filter(phon_count >= threshold)
-
-
-m_corpus %>%
-  mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  filter(phr_phon %in% keep_list$phr_phon) %>%
-  group_by(mode, phr_phon) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
-  arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
-  pivot_wider(names_from = mode,
-              values_from = phon_count,
-              values_fill = 0) %>%
-  select(phr_phon, MDC, MYN, MDQ) %>% 
-  rowwise(phr_phon) %>% 
-  mutate(total = sum(c_across())) %>% 
-  tibble::rowid_to_column("#") %>%
-  rename("Phonology" = phr_phon) %>% 
-  formattable(
-    align = "r",
-    caption = paste(
-      "Utterance level intonational phonology by mode ",
-      "for tokens accounting for at least ",
-      percent(threshold / tot_rows),
-      " of tokens, excluding MWH.",
-      sep = ""
-    ),
-    list(area(col = 3:5) ~ proportion_bar(color = c(
-        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
-        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
-        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
-        )),
-      total = proportion_bar(color = "#aaaaaa")
-    )
-    )
-
-```
 
 ## Nuclear Pitch Accent data (raw data)
 
@@ -300,22 +70,6 @@ m_corpus %>%
 
 ```
 
-#### Chi Squared test of association using raw data
-
-```{r chi squared of raw data}
-m_corpus %>% tabyl(mode, acc_phon) %>% chisq.test()
-```
-
-#### Chi Squared test of association using raw data without outlier tokens
-
-```{r}
-
-m_corpus %>%
-    filter(acc_phon %notin% c("H*", ">H*", "^[L*]H")) %>%
-    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))) %>% 
-    tabyl(mode, acc_phon) %>% chisq.test()
-
-```
 
 # **Adjusted Data**
 
@@ -323,26 +77,26 @@ The raw data is unbalanced since the number of utterances per target speaker var
 
 Firstly a tibble is created summarising the proportion of pitch accents per mode per speaker. This is done in three initial stages:
 
-    1. Count the number of phonological tokens per stimulus per speaker.
-    2. Convert the counts to proportion per stimulus per speaker.
-    3. 3.   Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
+  1. Count the number of phonological tokens per stimulus per speaker.
+  2. Convert the counts to proportion per stimulus per speaker.
+  3. Convert the proportion per stimulus per speaker to a proportion per stimulus per mode.
 
 From this table summary tables are created:
 
-    1. pitch accents per speaker (adjusted)
+  1. pitch accents per speaker (adjusted)
 
-        a. Calculate the sum all proportions per token per speaker.
-        b. Convert proportions to an integer based on an ideal total number of tokens per speaker.
+      a. Calculate the sum all proportions per token per speaker.
+      b. Convert proportions to an integer based on an ideal total number of tokens per speaker.
 
-    2. pitch accents per mode (adjusted):
+  2. pitch accents per mode (adjusted):
 
-        a. Calculate the sum all proportions per token per mode.
-        b. Convert proportions to an integer based on an ideal total number of tokens per mode
-        
-    3. pitch accents by gender and mode (adjusted):
+      a. Calculate the sum all proportions per token per mode.
+      b. Convert proportions to an integer based on an ideal total number of tokens per mode
+      
+  3. pitch accents by gender and mode (adjusted):
 
-        a. Calculate the sum all proportions per token by mode and gender.
-        b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
+      a. Calculate the sum all proportions per token by mode and gender.
+      b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
 
 ```{r warning=FALSE}
 # Create tibble summarising  proportion of pitch accents per mode per speaker
@@ -610,6 +364,114 @@ ggplot(pa_by_mode_adj_list %>%
 
 ```
 
-#### Chi Squared test of association using adjusted data
 
-```{r} pa_by_mode_adj_list %\>% tabyl(mode, acc_phon) %\>% chisq.test()```
+
+
+```{r load and process corpus, include=FALSE}
+# Get  Data.
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  # Consolidate nuc_contour based on observation and types of register shift.
+  mutate(
+    nuc_contour =
+      if_else(
+        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
+        "^[L*H] %",
+        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
+      ),
+    acc_phon = factor(str_replace(nuc_contour, "\\s%$|\\sL%$", ""),
+                      levels = c("H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]")),
+    acc_phon = factor(acc_phon, levels = unique(acc_phon)
+      )
+  ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         acc_phon)
+
+
+```
+
+#### GLMM test of difference between acc_phon as a fn of mode.
+
+* models with random slopes generate singularity issues.
+```{r model test, tidy = TRUE}
+acc_phon_model <- glmer(
+  acc_phon ~ mode + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+acc_phon_model_null = 
+  cur_model <- glmer(
+  acc_phon ~ 1 + (1 | speaker),
+  data = m_corpus,
+  family = binomial(link = "logit"),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summary(acc_phon_model)
+```
+
+
+```{r model results, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(acc_phon_model, tol=1e-5) -->",
+  isSingular(acc_phon_model, tol = 1e-5),
+  "\n"
+)
+
+anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
+  formattable(
+  caption="ANOVA of model and null model, assuming presence of register tier"
+  )
+
+x <- printTidyModel(acc_phon_model,
+                    write_r2="Mode_PA_GLMM",
+                    is_GLM = TRUE,
+                    transform="exp",
+                    show.intercept=TRUE,
+                    type="est",
+                    axis.lim = c(0.01, 10000)
+                    )
+x$r2
+x$table
+
+
+```
+
+
+## Intercepts and Pairwise comparisons
+```{r intercepts and pairwise tables}
+
+charts <- getModelFixedFX(
+  my_equation = acc_phon ~ mode + (1 | speaker),
+  my_data = m_corpus,
+  write="Mode_PA_GLMM",
+  is_GLM=TRUE,
+  extra_text = ", assuming presence of register tier"
+)
+
+
+charts$intercepts
+charts$pairwise
+```

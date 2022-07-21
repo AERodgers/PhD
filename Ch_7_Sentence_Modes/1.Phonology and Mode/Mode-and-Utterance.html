@@ -11,7 +11,7 @@
 
 
 
-<title>Chapter 07: Analysis of Function: Sentence Modes</title>
+<title>Chapter 07: Analysis of Function</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -585,53 +585,1410 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Chapter 07: Analysis of Function: Sentence
-Modes</h1>
+<h1 class="title toc-ignore">Chapter 07: Analysis of Function</h1>
+<h3 class="subtitle">Sentence Mode and Utterance Phonology</h3>
 
 </div>
 
 
-<div id="glmm-test-of-difference-between-acc_phon-as-a-fn-of-mode." class="section level4">
-<h4>GLMM test of difference between acc_phon as a fn of mode.</h4>
-<ul>
-<li>models with random slopes generate singularity issues.</li>
-</ul>
+<div id="analysis-of-raw-data" class="section level1">
+<h1><strong>Analysis of Raw Data</strong></h1>
+<div id="utterance-level-intonational-phonology" class="section level2">
+<h2>Utterance level intonational phonology</h2>
+<table class="table table-condensed">
+<caption>
+Utterance level intonational phonology in M-corpus for tokens accounting
+for at least 1.25% of all tokens.
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+phr_phon
+</th>
+<th style="text-align:right;">
+phon_count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+% L*H %
+</td>
+<td style="text-align:right;">
+78
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L*H %
+</td>
+<td style="text-align:right;">
+64
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*H %
+</td>
+<td style="text-align:right;">
+61
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L* L*H %
+</td>
+<td style="text-align:right;">
+53
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*H %
+</td>
+<td style="text-align:right;">
+37
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* ^[L*H] %
+</td>
+<td style="text-align:right;">
+33
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*!H L*H %
+</td>
+<td style="text-align:right;">
+21
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* !H* L*H %
+</td>
+<td style="text-align:right;">
+21
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*H L*H %
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*H L%
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*^[H] %
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L%
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H ^[L*H] %
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[L*H] %
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*H %
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*H] %
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*H L%
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*!H L*H %
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L*H L%
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* ^[L*H] L%
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*^[H L%]
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+^[% L*H %]
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L*!H L*H L%
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L* L*H %
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L* L*H L%
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H L*H L*H %
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H L*H %
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* ^[L*H L%]
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[H*] L* L*H %
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*H L%]
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L*^[H] %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*^[H] %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*H] L%
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H L* L*H %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H L*!H L*H %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H &gt;H* L*!H L*H %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L* L*H %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*^[H] %
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* &gt;H* L%
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*]H L%
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*H L%
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[L*H] L%
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H ^[L*H] L%
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[ L*H] L%
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* H* L%
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* ^[L*]H L%
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+^[% L*H L%]
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[L*H L*H] %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*^[H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*^[H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H H* L* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*H L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H ^[L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*!H L*H L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L* L*H L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L* L*H L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H &gt;H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H &gt;!H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H H* L*H L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+[% L*H %]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+^[% &gt;H* L*H %]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%L H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[H*] !H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[H*] !H*L L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* &gt;!H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%H !H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* L*/!H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[L*]H L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* &gt;H* L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H* L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+[% L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H ^[L*H] %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H ^[L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+^[% L*H %]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+%L H* ^[L*H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% H* ^[L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+^[% &gt;H* L*H L%]
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[&gt;H* L*H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% ^[H* L*H] L%
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% L*H L*H L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+% &gt;H*&gt; L*H %
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+Utterance level intonational phonology by mode for tokens with only one
+PA
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+info
+</th>
+<th style="text-align:left;">
+MDC
+</th>
+<th style="text-align:left;">
+MWH
+</th>
+<th style="text-align:left;">
+MYN
+</th>
+<th style="text-align:left;">
+MDQ
+</th>
+<th style="text-align:left;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+count
+</td>
+<td style="text-align:left;">
+36
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+56
+</td>
+<td style="text-align:left;">
+54
+</td>
+<td style="text-align:left;">
+147
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+percentage
+</td>
+<td style="text-align:left;">
+22.1%
+</td>
+<td style="text-align:left;">
+0.6%
+</td>
+<td style="text-align:left;">
+34.6%
+</td>
+<td style="text-align:left;">
+35.3%
+</td>
+<td style="text-align:left;">
+23%
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+Utterance level intonational phonology by mode with high register
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+info
+</th>
+<th style="text-align:left;">
+MDC
+</th>
+<th style="text-align:left;">
+MWH
+</th>
+<th style="text-align:left;">
+MYN
+</th>
+<th style="text-align:left;">
+MDQ
+</th>
+<th style="text-align:left;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+count
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:left;">
+46
+</td>
+<td style="text-align:left;">
+107
+</td>
+<td style="text-align:left;">
+160
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+percentage
+</td>
+<td style="text-align:left;">
+0.6%
+</td>
+<td style="text-align:left;">
+3.7%
+</td>
+<td style="text-align:left;">
+28.4%
+</td>
+<td style="text-align:left;">
+69.9%
+</td>
+<td style="text-align:left;">
+25%
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+Utterance level intonational phonology by mode with high register or
+nuclear PA only
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+info
+</th>
+<th style="text-align:left;">
+MDC
+</th>
+<th style="text-align:left;">
+MWH
+</th>
+<th style="text-align:left;">
+MYN
+</th>
+<th style="text-align:left;">
+MDQ
+</th>
+<th style="text-align:left;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+count
+</td>
+<td style="text-align:left;">
+37
+</td>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:left;">
+92
+</td>
+<td style="text-align:left;">
+124
+</td>
+<td style="text-align:left;">
+260
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+percentage
+</td>
+<td style="text-align:left;">
+22.7%
+</td>
+<td style="text-align:left;">
+4.3%
+</td>
+<td style="text-align:left;">
+56.8%
+</td>
+<td style="text-align:left;">
+81%
+</td>
+<td style="text-align:left;">
+40.7%
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+Utterance level intonational phonology by mode for tokens accounting for
+at least 1.25% of all tokens.
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:right;">
+Phonology
+</th>
+<th style="text-align:right;">
+MDC
+</th>
+<th style="text-align:right;">
+MWH
+</th>
+<th style="text-align:right;">
+MYN
+</th>
+<th style="text-align:right;">
+MDQ
+</th>
+<th style="text-align:right;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+% H* L* L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 8.16%">4</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 100.00%">49</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 67.95%">53</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+% H* L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 67.35%">33</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 8.16%">4</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 47.44%">37</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+% L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 65.31%">32</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 63.27%">31</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 30.61%">15</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 100.00%">78</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+% &gt;H* L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 61.22%">30</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 48.98%">24</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 14.29%">7</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 78.21%">61</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+% L*H L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 51.02%">25</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 53.06%">26</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 26.53%">13</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 82.05%">64</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+% H* L*!H L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 42.86%">21</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 26.92%">21</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+% &gt;H* ^[L*H] %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 28.57%">14</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 38.78%">19</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 42.31%">33</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+% H* L*H L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 34.69%">17</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 21.79%">17</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+% H* !H* L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 10.20%">5</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 32.65%">16</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 26.92%">21</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+% L*H L%
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 2.04%">1</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 24.49%">12</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 16.67%">13</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+% &gt;H* L*H L%
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 20.41%">10</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 4.08%">2</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 2.04%">1</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 16.67%">13</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+% L*H ^[L*H] %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 6.12%">3</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 20.41%">10</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 16.67%">13</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+% L*^[H] %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 8.16%">4</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 18.37%">9</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 16.67%">13</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+% &gt;H* L*!H L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 16.33%">8</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 10.26%">8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+% H* L*H %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 6.12%">3</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 16.33%">8</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 2.04%">1</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 15.38%">12</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+% H* ^[L*H] %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 14.29%">7</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 10.20%">5</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 15.38%">12</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+% H* L*H L%
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 12.24%">6</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 4.08%">2</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 10.26%">8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+% ^[L*H] %
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #CBD5E8; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #FDCDAC; width: 0.00%">0</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #B3E2CD; width: 12.24%">6</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #F4CAE4; width: 12.24%">6</span>
+</td>
+<td style="text-align:right;">
+<span style="display: inline-block; direction: rtl; unicode-bidi: plaintext; border-radius: 4px; padding-right: 2px; background-color: #aaaaaa; width: 15.38%">12</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="statistical-analysis" class="section level1">
+<h1><strong>Statistical Analysis</strong></h1>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
 ##  Family: binomial  ( logit )
-## Formula: acc_phon ~ mode + (1 | speaker)
+## Formula: h_reg ~ mode + (1 | speaker)
 ##    Data: m_corpus
 ## Control: 
 ## glmerControl(optimizer = &quot;optimx&quot;, calc.derivs = FALSE, optCtrl = list(method = &quot;nlminb&quot;,  
 ##     starttests = FALSE, kkt = FALSE))
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##    313.8    336.1   -151.9    303.8      634 
+##    363.6    385.9   -176.8    353.6      634 
 ## 
 ## Scaled residuals: 
-##      Min       1Q   Median       3Q      Max 
-## -15.7554  -0.1600  -0.0001   0.0635   4.3213 
+##     Min      1Q  Median      3Q     Max 
+## -5.8762 -0.2655 -0.0675  0.0808 11.2789 
 ## 
 ## Random effects:
 ##  Groups  Name        Variance Std.Dev.
-##  speaker (Intercept) 4.34     2.083   
+##  speaker (Intercept) 3.058    1.749   
 ## Number of obs: 639, groups:  speaker, 11
 ## 
 ## Fixed effects:
-##              Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)   -5.4765     0.9333  -5.868 4.42e-09 ***
-## modeMWH      -17.6770  3432.1514  -0.005    0.996    
-## modeMYN        3.9717     0.7196   5.519 3.41e-08 ***
-## modeMDQ        7.1808     0.7960   9.021  &lt; 2e-16 ***
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)   -6.191      1.189  -5.205 1.94e-07 ***
+## modeMWH        1.877      1.137   1.651   0.0987 .  
+## modeMYN        4.719      1.074   4.392 1.12e-05 ***
+## modeMDQ        7.592      1.111   6.832 8.36e-12 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## Correlation of Fixed Effects:
 ##         (Intr) modMWH modMYN
-## modeMWH  0.000              
-## modeMYN -0.690  0.000       
-## modeMDQ -0.698  0.000  0.857</code></pre>
-<p>isSingular(acc_phon_model, tol=1e-5) –&gt; FALSE</p>
+## modeMWH -0.814              
+## modeMYN -0.874  0.901       
+## modeMDQ -0.875  0.872  0.943</code></pre>
+<p>isSingular(h_reg_model, tol=1e-5) –&gt; FALSE</p>
 <table class="table table-condensed">
 <caption>
 ANOVA of model and null model, assuming presence of register tier
@@ -669,22 +2026,22 @@ Pr(&gt;Chisq)
 <tbody>
 <tr>
 <td style="text-align:left;">
-acc_phon_model_null
+h_reg_model_null
 </td>
 <td style="text-align:right;">
 2
 </td>
 <td style="text-align:right;">
-687.8034
+690.7039
 </td>
 <td style="text-align:right;">
-696.7232
+699.6237
 </td>
 <td style="text-align:right;">
--341.9017
+-343.3520
 </td>
 <td style="text-align:right;">
-683.8034
+686.7039
 </td>
 <td style="text-align:right;">
 NA
@@ -698,38 +2055,38 @@ NA
 </tr>
 <tr>
 <td style="text-align:left;">
-acc_phon_model
+h_reg_model
 </td>
 <td style="text-align:right;">
 5
 </td>
 <td style="text-align:right;">
-313.7796
+363.5588
 </td>
 <td style="text-align:right;">
-336.0791
+385.8583
 </td>
 <td style="text-align:right;">
--151.8898
+-176.7794
 </td>
 <td style="text-align:right;">
-303.7796
+353.5588
 </td>
 <td style="text-align:right;">
-380.0238
+333.1451
 </td>
 <td style="text-align:right;">
 3
 </td>
 <td style="text-align:right;">
-4.697364e-82
+6.652897e-72
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-Predicted probabilities of acc_phon, acc_phon ~ mode + (1 | speaker)
+Predicted probabilities of h_reg, h_reg ~ mode + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -756,16 +2113,16 @@ conf.high
 MDC
 </td>
 <td style="text-align:left;">
-0.0042
+0.002
 </td>
 <td style="text-align:left;">
-0.9333
+1.1895
 </td>
 <td style="text-align:left;">
-7e-04
+2e-04
 </td>
 <td style="text-align:left;">
-0.0254
+0.0206
 </td>
 </tr>
 <tr>
@@ -773,16 +2130,16 @@ MDC
 MWH
 </td>
 <td style="text-align:left;">
-8.8e-11
+0.0132
 </td>
 <td style="text-align:left;">
-3432.1515
+0.7108
 </td>
 <td style="text-align:left;">
-2.2e-16
+0.0033
 </td>
 <td style="text-align:left;">
-1
+0.0511
 </td>
 </tr>
 <tr>
@@ -790,16 +2147,16 @@ MWH
 MYN
 </td>
 <td style="text-align:left;">
-0.1817
+0.1866
 </td>
 <td style="text-align:left;">
-0.6801
+0.578
 </td>
 <td style="text-align:left;">
-0.0553
+0.0688
 </td>
 <td style="text-align:left;">
-0.4572
+0.4159
 </td>
 </tr>
 <tr>
@@ -807,22 +2164,22 @@ MYN
 MDQ
 </td>
 <td style="text-align:left;">
-0.8461
+0.8024
 </td>
 <td style="text-align:left;">
-0.6838
+0.5812
 </td>
 <td style="text-align:left;">
-0.59
+0.5651
 </td>
 <td style="text-align:left;">
-0.9545
+0.9269
 </td>
 </tr>
 </tbody>
 </table>
 $mode
-<img src="data:image/png;base64,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" width="403.2" />
+<img src="data:image/png;base64,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" width="403.2" />
 <table class="table" style="width: auto !important; ">
 <caption>
 Conditional and marginal R<sup>2</sup> of model
@@ -843,10 +2200,10 @@ optional
 <tbody>
 <tr>
 <td style="text-align:left;">
-0.97
+0.77
 </td>
 <td style="text-align:left;">
-0.92
+0.56
 </td>
 <td style="text-align:left;">
 FALSE
@@ -856,7 +2213,7 @@ FALSE
 </table>
 <table class="table table-condensed">
 <caption>
-summary of model: acc_phon ~ mode + (1 | speaker)
+summary of model: h_reg ~ mode + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -889,22 +2246,22 @@ p.value
 (Intercept)
 </td>
 <td style="text-align:right;">
-0.004
+0.002
 </td>
 <td style="text-align:right;">
-6.7e-04
+2.0e-04
 </td>
 <td style="text-align:right;">
-0.026
+0.021
 </td>
 <td style="text-align:right;">
-0.004
+0.002
 </td>
 <td style="text-align:right;">
--5.868
+-5.205
 </td>
 <td style="text-align:right;">
-4.4e-09
+1.9e-07
 </td>
 </tr>
 <tr>
@@ -912,22 +2269,22 @@ p.value
 modeMWH
 </td>
 <td style="text-align:right;">
-0.0e+00
+6.534
 </td>
 <td style="text-align:right;">
-0.0e+00
+0.704
 </td>
 <td style="text-align:right;">
-Inf
+60.7
 </td>
 <td style="text-align:right;">
-0.000
+7.428
 </td>
 <td style="text-align:right;">
--0.005
+1.651
 </td>
 <td style="text-align:right;">
-0.9959
+0.0987
 </td>
 </tr>
 <tr>
@@ -935,22 +2292,22 @@ Inf
 modeMYN
 </td>
 <td style="text-align:right;">
-53.1
+112
 </td>
 <td style="text-align:right;">
-13
+13.6
 </td>
 <td style="text-align:right;">
-217.5
+920.3
 </td>
 <td style="text-align:right;">
-38.196
+120.374
 </td>
 <td style="text-align:right;">
-5.519
+4.392
 </td>
 <td style="text-align:right;">
-3.4e-08
+1.1e-05
 </td>
 </tr>
 <tr>
@@ -958,32 +2315,29 @@ modeMYN
 modeMDQ
 </td>
 <td style="text-align:right;">
-1313.9
+1983.2
 </td>
 <td style="text-align:right;">
-276.1
+224.6
 </td>
 <td style="text-align:right;">
-6253.6
+17509.4
 </td>
 <td style="text-align:right;">
-1045.887
+2203.850
 </td>
 <td style="text-align:right;">
-9.021
+6.832
 </td>
 <td style="text-align:right;">
-1.9e-19
+8.4e-12
 </td>
 </tr>
 </tbody>
 </table>
-</div>
-<div id="intercepts-and-pairwise-comparisons" class="section level2">
-<h2>Intercepts and Pairwise comparisons</h2>
 <table class="table table-condensed">
 <caption>
-b0 for acc_phon ~ mode + (1 | speaker)
+b0 for h_reg ~ mode + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -1016,22 +2370,22 @@ p.value
 modeMDC
 </td>
 <td style="text-align:right;">
-0.004
+0.002
 </td>
 <td style="text-align:right;">
-6.7e-04
+2.0e-04
 </td>
 <td style="text-align:right;">
-0.026
+0.021
 </td>
 <td style="text-align:right;">
-0.004
+0.002
 </td>
 <td style="text-align:right;">
--5.868
+-5.205
 </td>
 <td style="text-align:right;">
-4.4e-09
+1.9e-07
 </td>
 </tr>
 <tr>
@@ -1039,22 +2393,22 @@ modeMDC
 modeMWH
 </td>
 <td style="text-align:right;">
-0.0e+00
+0.013
 </td>
 <td style="text-align:right;">
-0.0e+00
+0.003
 </td>
 <td style="text-align:right;">
-Inf
+0.054
 </td>
 <td style="text-align:right;">
-0.000
+0.010
 </td>
 <td style="text-align:right;">
--0.007
+-6.070
 </td>
 <td style="text-align:right;">
-0.994
+1.3e-09
 </td>
 </tr>
 <tr>
@@ -1062,22 +2416,22 @@ Inf
 modeMYN
 </td>
 <td style="text-align:right;">
-0.222
+0.229
 </td>
 <td style="text-align:right;">
-0.059
+0.074
 </td>
 <td style="text-align:right;">
-0.842
+0.712
 </td>
 <td style="text-align:right;">
-0.151
+0.133
 </td>
 <td style="text-align:right;">
--2.213
+-2.548
 </td>
 <td style="text-align:right;">
-0.027
+0.011
 </td>
 </tr>
 <tr>
@@ -1085,29 +2439,29 @@ modeMYN
 modeMDQ
 </td>
 <td style="text-align:right;">
-5.497
+4.06
 </td>
 <td style="text-align:right;">
-1.439
+1.299
 </td>
 <td style="text-align:right;">
-21
+12.7
 </td>
 <td style="text-align:right;">
-3.759
+2.360
 </td>
 <td style="text-align:right;">
-2.492
+2.411
 </td>
 <td style="text-align:right;">
-0.013
+0.016
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table table-condensed">
 <caption>
-b1 for acc_phon ~ mode + (1 | speaker)
+b1 for h_reg ~ mode + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -1146,22 +2500,22 @@ modeMDC
 modeMWH
 </td>
 <td style="text-align:right;">
-0.0e+00
+6.534
 </td>
 <td style="text-align:right;">
-0.0e+00
+0.704
 </td>
 <td style="text-align:right;">
-Inf
+60.7
 </td>
 <td style="text-align:right;">
-0.000000e+00
+7.428
 </td>
 <td style="text-align:right;">
--0.005
+1.651
 </td>
 <td style="text-align:right;">
-0.996
+0.099
 </td>
 </tr>
 <tr>
@@ -1172,22 +2526,22 @@ modeMDC
 modeMYN
 </td>
 <td style="text-align:right;">
-53.1
+112
 </td>
 <td style="text-align:right;">
-13
+13.6
 </td>
 <td style="text-align:right;">
-217.5
+920.3
 </td>
 <td style="text-align:right;">
-3.819600e+01
+120.374
 </td>
 <td style="text-align:right;">
-5.519
+4.392
 </td>
 <td style="text-align:right;">
-3.4e-08
+1.1e-05
 </td>
 </tr>
 <tr>
@@ -1198,22 +2552,22 @@ modeMDC
 modeMDQ
 </td>
 <td style="text-align:right;">
-1313.9
+1983.2
 </td>
 <td style="text-align:right;">
-276.1
+224.6
 </td>
 <td style="text-align:right;">
-6253.6
+17509.4
 </td>
 <td style="text-align:right;">
-1.045887e+03
+2203.850
 </td>
 <td style="text-align:right;">
-9.021
+6.832
 </td>
 <td style="text-align:right;">
-1.9e-19
+8.4e-12
 </td>
 </tr>
 <tr>
@@ -1224,22 +2578,22 @@ modeMWH
 modeMYN
 </td>
 <td style="text-align:right;">
-2.2e+09
+17.1
 </td>
 <td style="text-align:right;">
-0.0e+00
+6.495
 </td>
 <td style="text-align:right;">
-Inf
+45.3
 </td>
 <td style="text-align:right;">
-7.060948e+12
+8.493
 </td>
 <td style="text-align:right;">
-0.007
+5.737
 </td>
 <td style="text-align:right;">
-0.995
+9.6e-09
 </td>
 </tr>
 <tr>
@@ -1250,22 +2604,22 @@ modeMWH
 modeMDQ
 </td>
 <td style="text-align:right;">
-5.5e+10
+303.5
 </td>
 <td style="text-align:right;">
-0.0e+00
+99.4
 </td>
 <td style="text-align:right;">
-Inf
+927.2
 </td>
 <td style="text-align:right;">
-1.747938e+14
+172.935
 </td>
 <td style="text-align:right;">
-0.008
+10.031
 </td>
 <td style="text-align:right;">
-0.994
+1.1e-23
 </td>
 </tr>
 <tr>
@@ -1276,22 +2630,1416 @@ modeMYN
 modeMDQ
 </td>
 <td style="text-align:right;">
-24.8
+17.7
 </td>
 <td style="text-align:right;">
-11
+8.57
 </td>
 <td style="text-align:right;">
-55.5
+36.6
 </td>
 <td style="text-align:right;">
-1.020100e+01
+6.552
 </td>
 <td style="text-align:right;">
-7.787
+7.764
 </td>
 <td style="text-align:right;">
-6.9e-15
+8.2e-15
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: one_pa ~ mode + (1 | speaker)
+##    Data: m_corpus
+## Control: 
+## glmerControl(optimizer = &quot;optimx&quot;, calc.derivs = FALSE, optCtrl = list(method = &quot;nlminb&quot;,  
+##     starttests = FALSE, kkt = FALSE))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    515.5    537.8   -252.8    505.5      634 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.4110 -0.4977 -0.1252 -0.0153  7.8166 
+## 
+## Random effects:
+##  Groups  Name        Variance Std.Dev.
+##  speaker (Intercept) 2.483    1.576   
+## Number of obs: 639, groups:  speaker, 11
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -1.7989     0.5294  -3.398 0.000680 ***
+## modeMWH      -4.0168     1.0486  -3.831 0.000128 ***
+## modeMYN       0.7728     0.2794   2.766 0.005675 ** 
+## modeMDQ       0.7844     0.2831   2.771 0.005588 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##         (Intr) modMWH modMYN
+## modeMWH -0.073              
+## modeMYN -0.299  0.142       
+## modeMDQ -0.293  0.140  0.544</code></pre>
+<p>isSingular(one_pa_model, tol=1e-5) –&gt; FALSE</p>
+<table class="table table-condensed">
+<caption>
+ANOVA of model and null model, assuming presence of register tier
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+npar
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+logLik
+</th>
+<th style="text-align:right;">
+deviance
+</th>
+<th style="text-align:right;">
+Chisq
+</th>
+<th style="text-align:right;">
+Df
+</th>
+<th style="text-align:right;">
+Pr(&gt;Chisq)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+one_pa_model_null
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+616.1076
+</td>
+<td style="text-align:right;">
+625.0274
+</td>
+<td style="text-align:right;">
+-306.0538
+</td>
+<td style="text-align:right;">
+612.1076
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+one_pa_model
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+515.5055
+</td>
+<td style="text-align:right;">
+537.8050
+</td>
+<td style="text-align:right;">
+-252.7527
+</td>
+<td style="text-align:right;">
+505.5055
+</td>
+<td style="text-align:right;">
+106.6022
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5.908515e-23
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+Predicted probabilities of one_pa, one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+mode
+</th>
+<th style="text-align:left;">
+predicted
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+MDC
+</td>
+<td style="text-align:left;">
+0.142
+</td>
+<td style="text-align:left;">
+0.5294
+</td>
+<td style="text-align:left;">
+0.0554
+</td>
+<td style="text-align:left;">
+0.3184
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MWH
+</td>
+<td style="text-align:left;">
+0.003
+</td>
+<td style="text-align:left;">
+1.1395
+</td>
+<td style="text-align:left;">
+3e-04
+</td>
+<td style="text-align:left;">
+0.0271
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MYN
+</td>
+<td style="text-align:left;">
+0.2638
+</td>
+<td style="text-align:left;">
+0.5197
+</td>
+<td style="text-align:left;">
+0.1146
+</td>
+<td style="text-align:left;">
+0.4981
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDQ
+</td>
+<td style="text-align:left;">
+0.2661
+</td>
+<td style="text-align:left;">
+0.5221
+</td>
+<td style="text-align:left;">
+0.1153
+</td>
+<td style="text-align:left;">
+0.5022
+</td>
+</tr>
+</tbody>
+</table>
+$mode
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA2AAAAHgCAMAAAD0Y/5nAAABiVBMVEUAAAAAAF8AAIsAX18AX4sAX64Ai4sAi64Ai8xNTU1OTnpOTpxOenpOepxOerlOnLlOnNJfAABfXwBfX19fX4tfi4tfi65fi8xfrq5frsxfruZ6Tk56ek56enp6epx6nJx6nLl6nNJ6udJ6uemLAACLXwCLX1+LX4uLX66Li1+Li4uLi66LrouLrq6LrsyLruaLzOaLzP+cTk6cek6cenqcnE6cnLmcudKc0umc0v+uXwCui1+ui4uurq6ursyuzMyuzOau5v+5ek65nHq5nJy50rm50um56em56f/MiwDMi1/Mrl/MrovMrq7MrszMzK7MzMzMzObM5q7M5ubM5v/M///SnE7SnHrSuXrSuZzS0pzS0tLS6bnS6f/S/+nS///mrl/mrovmzIvmzK7mzMzm5szm5ubm5v/m/8zm///puXrpuZzp0pzp0rnp0unp6dLp6enp6f/p/9Lp/+np///r6+v/zIv/0pz/5q7/5sz/5ub/6bn/6dL/6en//8z//9L//+b//+n///9tkwLGAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO2d7WPb1nXGodjpDDnypMR1VnNpm8rO1mzNYmlbJXtbE3XzLM9bssWhu26uNadJGsZe100VZbOLRPzlvS8AiLcrkpcHB7xHz/NB4gsunnOI8+PFvQCBKIEgqDVFXQcAQZIFwCCoRQEwCGpRAAyCWhQAg6AWBcAgqEUBMAhqUQAMgloUAIOgFgXAIKhFATAIalEADIJaFACDoBYFwCCoRTEBdhDlWnnjvS/naPnNjejVr5Lk9Hb0yqeNC7z4YLY1+Ol4I7o05xJpqOV/eaDuRObQ6YPX1Qf55qKrgdoXP2Casb+YveUUwE7vR9dnW4OfyADLAqUATK1Da0pg0DKoE8Ci6NbMLacAdhQFAlgWKAVgR/ZDnJY4tATiAyxj6vTpRjRHjU3BYwkBS1UhaYZAZ5b6NP0zgljFD5gpydm7MABW18E8uwBQp+oCsGR/jvEDAKsLgIWjTgA7sIDtq8L/7PUouvow0XuOb6hhxdUPchRe3NETZV/VxmCnT/UM2jXdJhuM2HVPWUMuQ8SLd/R76XRmOZDP3imsJl/4wnv5Ol4+0EYrVz9oXqJpDDYJtJhIOV77/ELDHGspJJVO0xCsHLZxsXON9pNq/IBcn0c1RchfHQP21Ewqfmh3G40uPsyX0Xr1VxXAjm+mM5F6fUXApq0hly6odGHtXAnkxc3SauoLFyZszGprS8wIWDXe/HmtpyuH1AxYJWzt8m8buWnZ4OLD0uqnpwj5q6tdxOvm3wWzXS8Vqystv3wTf6sMWF5ephgKgE1dQy615B/cLqykFMhk/XY1auFv3SgtPCk+m0VtidkAq8ZbMK7s/1VCagSsGvbp7cna0rhrH5D786imCPmry0kOxVn0qvk21fVx8YN0hvFS9oJ6Sz8vAabarLxvv7DNyCcb2kxfQ8k+f8usZBKIWb/a1Tt9kL5XW1iv1+xKfX7Trre2xEzT9LV41Sd08RP1/8XtardRDalpDFZdxgC28v5X+vCbNa4Zuj+PWoqQv/gB++L+RrrZ9vPNd5Q/UhtXf4seZC8cb5QAS9+ePMjqdvoack1eUI/MSiaBZK/kj2oLH+XlqV7QIdWWmAmwWrz72SdUPVBWC6kBsNoyGrB0LQc24Jqh+/OopQj5q5sDzdmeWbYDsj/Z5KYQVX0UhgMFwCbbPi2yrG6nryHXpBon+6pZIAeTb3f7Yn3hXKpQU8DKS8wEWDVeE2V5bDT56MohNQBWW0YDdj1PV6dfMzzj86imCPmrm1OlsrmFtE6K83xmTquwYdP6SOuyVlpH+Q7QtDXkKjw/ymZbsrVOHqXT7/WFrV7+8m/S4+W1JWYBrBavHaWtfPvvantktZAaPoXaMoXvFxtf3fCMz6OaIuQvfsAu5PPE+ZdqcYBvRkyFcihP0++X926KgE1bQ65CfaUP87UW6jKtu/rCekI8my9IASsvMSNg5XjtQNBAVp6nr4dUB6y+TBNgVUP351FNEfJXJ7OIqfYLA4fy1i98qc4G2AxryFUuqNLuU3H8Y5vVFy5a1QGzxT0VsFq8iZ2gsCruptVDagSsskwNsAZD9+dRTRHy17IAVp6smrsHm2ENuRbrwWxXcOHqn/3kVzf8e7BavEaf3akTRtSDNRs2fx61FCF/LQVgtbG0zxhs2hpyNY3BCqP8bP1HUeMY7CA/UDuZ5PAagzVX7suP7lQ6mFpIZ4/B8hhqu4guVKanCPlrKQDTc17Vr+TshQPHLGL6vZvW7QxryFWYe97PDsgVZhxrs4ilhQuVe5TvIpZXNwtgTfFma6lUdS2kGWcRy4DVDN2fRz1FyF9LAZh++5XJCU7XC1Do3ZUCYJMp5bTYjiY1N2UNuY7zI61Zae0Xq7F+HMwufGRmPyfV9+JGDlhpidmm6WvxTmbIK4D5HgcrA1Y3dH4e9RQhfy0HYBoCfd5B8vK+LVJz3sEnalTiOJNDn6CQ1a2hZ/oacpkh/LWHhXMaCiO74ikR+Xj/2peTcyT27f6TnZLIz6IsLuEEzERROJOjFK+eps9PnyidaVENadqZHOnHVQGsZuj+PGopQv5aDsDyc/XyEX7+wh+5zkW0y9kJr1szrCGXanKhPAldCOSscxEzUCZKASsv0QxYFmgBuHK8+5PnteFk5Y36p9lwLmIFsLqh8/OopQj5a0kAS46qc9RP7Qu1s+nz08btcvas1uszrCGXHr2lNXTx01og7rPp04H//azy3rudnWVcXsJxTY400DyRaryT83MvVmq6ElLjp1k/m74KWP0Dcn4e1RQhfy0LYGqHpPJrqBd3Nty/B7M/3TJP9azbmzOsIZeZHtG/ernwfmMg6Q+rCgvr6p38Hsy8r5/m84zlJZoBywItJFKN9/M7G1HD77WqITV/muVlmgCrG7o+j2qKkL/O4XURK2cKnXvh82hTAOzcC59HmwJg5174PNoUADv3wufRpgDYuRc+jzYFwM698Hm0qXMIGATxCYBBUIsCYBDUogAYBLUoAAZBLQqAQVCLAmAQ1KIAGAS1KAAGQS0KgEFQiwJgENSiABgEtailA+y3v+W1YzVDbmR2rGYLuAEwTjPkRmbHagbA/O1YzZAbmR2rGQDzt2M1Q25kdqxmAMzfjtUMuZHZsZoBMH87VjPkRmbHagbA/O1YzZAbmR2rGQDzt2M1Q25kdqxmAMzfjtUMuZHZsZoBMH87VjPkRmbHagbA/O1YzZAbmR2rGSNgw9ho9Z5+8nw7jtfu2td78eqOfWTf8xU2FJ0dqxlya9S8gA0KgKWPN9XDUW/9cBDvqkcnW+v+0STYUJR2rGbIrVHzAtaf9E+jXqz6rGcGNv3yydaVQ0Xd5Sf+0STYUJR2rGbIrVFzAjbem/AzMH2X+WdeNn9Otjb9g9HChqKzYzVDbo2aE7DCDuB4z3Zmo96Vwwlg/QU7MGwoQjtWM3G5RY2aey3zLT6M337Ui1d/fDjpzE62NFfpLuKot9vQ6rcQFJyaAZvebiHA0nmNWI227JArBS2b5Ojb1wDYOZFvEYagTgDrx99/nCTPe2rcVQIsGW3rafqhYuzrXrz2eL61lmH0b+tjx2omLjea3SgPsX6Si6Tk11KPu8qAJfbhuurjdsaLDMTkFWHBTFxuAGxqW69WGqrSGMxquHpvvKewG8b+U4nyirBgJjg3Hq5yBZPbIoBNZhHtq3qK0fRrakTmHZDkIpScGwBztJ1r6ay3GupZjsJxMKuBOQ4GwNxmgnMDYI628y3eNxMYz3r6rKjimRxa5hgzdhHPMhOcGwBztJ1v8ZPtyfmHxXMRtezUBiY5zjATnBsAc7Sdc/nxo15+Bn3xbHrdodljzJimd5sJzg2AOdoSxkEiyUUoOTcA5mhLGAeJJBeh5NwAmKMtYRwkklyEknMDYI62hHGQSHIRSs4NgDnaEsZBIslFKDk3AOZoSxgHiSQXoeTcAJijLWEcJJJchJJzA2COtoRxkEhyEUrODYA52hLGQSLJRSg5NwDmaEsYB4kkF6Hk3ACYoy1hHCSSXISScwNgjraEcZBIchFKzg2AOdoSxkEiyUUoOTcA5mhLGAeJJBeh5NwAmKMtYRwkklyEknMDYI62hHGQSHIRSs4NgDnaEsZBIslFKDk3AOZoSxgHiSQXoeTcAJijLWEcJJJchJJzA2COtoRxkEhyEUrODYA52hLGQSLJRSg5NwDmaEsYB4kkF6Hk3ACYoy1hHE61f6sZqGuJuWtRg+bLrQPA5pHkb3nJuaEHc7QljINEkotQcm4AzNGWMA4SSS5CybkBMEdbwjhIJLkIJecGwBxtCeMgkeQilJwbAHO0JYyDRJKLUHJuAMzRljAOEkkuQsm5ATBHW8I4SCS5CCXnBsAcbQnjIJHkIpScGwBztCWMg0SSi1BybgDM0ZYwDhJJLkLJuQEwR1vCOEgkuQgl5wbAHG0J4yCR5CKUnBsAc7QljINEkotQcm4AzNGWMA4SSS5CybkBMEdbwjhIJLkIJecGwBxtCeMgkeQilJwbAHO0JYyDRJKLUHJuAMzRljAOEkkuQsm5ATBHW8I4SCS5CCXnBsAcbQnjIJHkIpScGwBztCWMg0SSi1BybgDM0ZYwDhJJLkLJuQEwR1vCOEgkuQgl5wbAHG0J4yCR5CKUnBsAc7T1adRfvWf+P9+O47W75uGwF6/u2Efpm56SXISScwNgjrYebQaxZWgQG22qh6Pe+uEg3lWPTrbWvYPRklyEknMDYI628zcZxhawUS9WfdYz80T3aSdbVw4VdZefeAejJbkIJecGwBxt524x6q1tG8AGpu8y/8Z7Civz52Rr0zsWI8lFKDk3AOZoO28DhdEv9jRg4z27ozjqXTmcANZfsAMTXYSScwNgjrbzNlA7g+MUMMvSyZbmKt1FHPV2G9q0dl8ZaGmE2xdlWgwwPZNhAbNDrhS0bJKjb18DYOdOACzTQoAN4/WkCbBktK2n6YeKsa978drjObEtwejf1seO1UxwbthFdLSda2k93moGLLEP11UXtzNeZCAmuQgl5wbAHG3nWjo98qV0+UlpDGY11OMzhd0w9p9KlFyEknMDYI62cy1dBmwyi2jf1ceYTb+mRmTeAUkuQsm5ATBHW482KVqF42BWA3McDIC5zQTnBsAcbT3apIAVz+TQMseYsYt4lpng3ACYo61Hm2znsHAuopad2sAkxxlmgnMDYI62Hm0ywIpn0+sOzR5jxjS920xwbgDM0ZYwDhJJLkLJuQEwR1vCOEgkuQgl5wbAHG0J4yCR5CKUnBsAc7QljINEkotQcm4AzNGWMA4SSS5CybkBMEdbwjhIJLkIJecGwBxtCeMgkeQilJwbAHO0JYyDRJKLUHJuAMzRljAOEkkuQsm5ATBHW8I4SCS5CCXnBsAcbQnjIJHkIpScGwBztCWMg0SSi1BybgDM0ZYwDhJJLkLJuQEwR1vCOEgkuQgl5wbAHG0J4yCR5CKUnBsAc7QljINEkotQcm4AzNGWMA4SSS5CybkBMEdbwjhIJLkIJecGwBxtCeMgkeQilJwbAHO0JYyDRJKLUHJuAMzRljAOEkkuQsm5ATBHW8I4SCS5CCXnBsAcbQnjcKq1+8pASyPcvihTB4DNI8nf8pJzQw/maEsYB4kkF6Hk3ACYoy1hHCSSXISScwNgjraEcZBIchFKzg2AOdoSxkEiyUUoOTcA5mhLGAeJJBeh5NwAmKMtYRwkklyEknMDYI62hHGQSHIRSs4NgDnaEsZBIslFKDk3AOZoSxgHiSQXoeTcAJijLWEcJJJchJJzA2COtoRxkEhyEUrODYA52hLGQSLJRSg5NwDmaEsYB4kkF6Hk3ACYoy1hHCSSXISScwNgjraEcZBIchFKzg2AOdoSxkEiyUUoOTcA5mhLGAeJJBeh5NwAmKMtYRwLKGoUgzEAIxIAc7QljGMBAbA27DjNAJijLWEcCwiAtWHHaQbAHG0dr7/8ItXnH/3pp95r9wlI8IYCYGQKJrfmlk83Cv3IKwCMygyAUSmY3BpbHhf5il79ynvtPgEJ3lAAjEzB5NbYcj9aee+jGyvvffzgZrRyq/TW+N97cfzdx/bJ8+04XrtrHg578eqOfbR6zzuaRPaGAmBkCia3ppant6NbmjKN1tPyHuJ4Lzba1U8G9vGmejjqrR8OzKsnW+vewZiABG8oAEamYHJravnNjZUPk+QguqSfHETXC28N47XHyfhn8eUnGqpY9VnPYt1j9dWfk60rh4o6/dYCkryhABiZgsmtGTDdax3ZwdfxRmEMNt6z+3+aJ9WB6b7L/BvvKazMn5OtTe9YbECCNxQAI1MwubkBO94wO4f2SVmGswy2Ue/K4QSw/oIdmOgNBcDIFExuzWMwvYtodxSbABs/itcTy1OiB12aq3QXcdTbbVhhe3eygJZFkrfbfLlNB0yNu/Ru4b4ZhB1Up+nV0Cv+wWGSDrlS0LJJjr59DYCdO0nebuSAHW/oucOjKLr47juRnesoAPbWW3H8/cMyYMloW0/TDxVjX/f0RIi3JO9qYBeRTMHk1tzyyIy/9l0ncoz7ah+xDJh9fW89GcQ740UGYpI3FAAjUzC5OVqe/oveL3z6erTyZtN5HHrcVRqDWQ1X7433FHbD2H8qUfKGAmBkCiY3v5YaruIson1VH2M2/ZoakfkHJHhDATAyBZPbGS1ffvFl9aWstzJQFY6DWQ3McTAA5jYDYFQKJjfXLqLaO9S6+EH59b6ZwHje01AVz+TQMseYsYt4lhkAo1IwuTW3PL7pOJc+OxdxXe8VFs5F1LJTG5jkOMMMgFEpmNwaW35zI4qu/uSTLz7/6J0aYfps+tfsefPFs+l1h2aPMWOa3m0GwKgUTG6un6t8mD483iid7Nu+JG8oAEamYHJz/1wl1RF+cElnBsCoFExu7pN9m54wSPKGAmBkCiY3AMZpBsCoFExujjHYZNx1VD0XsWVJ3lAAjEzB5OaaRXw/fXi8kc938EjyhgJgZGLMbbFrdDZOcvzywUZ04Ucff/zxP9+Momsfa/0r10yH3A0lGTC2C8Vm4sttwavgNo/BoprYBmIAjM6OzWnBIvQQV25FBvxW0PAaAGvLTCZgCxehh4LJbUmuTT8RAKOzY/IRDFi5l/FaA3VIiwqA0dnx2CxehB7iya26H+ezCvKgFhQAo7NjcSEoQg8FkxsA4zQDYFQKJjcAxmkGwKgUTG4AjNMMgFEpmNwAGKcZAKNSMLkBME4zAEalYGZIARinmUTAJE/T40DzwgJgi6sDvsLJDYBxmgEwKgVznqWr3Ys7r+vzD7/5k4e+gXkKgNHZsTlx4xXQLwWaG57e1+vUgN2IbjUu0ZoAGJ0dnxU3X+H81q255X4UXfxzfQOI09sRfnBJZyYWMNnbjRywI02VvRiHImzxy7a1dy8maFkkebvNl9sMgJlrcqRXu8Fl2wjN0INRKZjcmn9waW8h67xHc5uSvKEAGJmCyc192TYARm8GwKgUTG5Te7DjDQBGZgbAqBRMblPHYPu4LiKdGQCjUjC5OWYRo/ctYPqAGO+BMMkbCoCRKZjcnMfBLvxwY+Vvf6hWzduBid5QAIxMweTmaHk/P7ms8SboLUryhgJgZAomN1fLlw/0PWQvXOM+FVH0hgJgZAomN5xNz2kGwKgUTG4AjNMMgFEpmNzcLb/I9KX3yn0keUMBMDIFk1tzyxd3Cr+hw4FmMjMARqVgcmtsebwRAbA2zAAYlYLJzXEmR3TtJx9nYrs1mA1I8IYCYGQKJjfH7YsW/w2YryRvKABGpmByc59N35EkbygARqZgcgNgnGYAjErB5OYYgzFf6aYgyRsKgJEpmNwcs4i8lwkoSvKGAmBkCia3xpYvn0Yr1zCLSG8GwKgUTG6OWUQcB2vFDIBRKZjcABinGQCjUjC5Ne8iflEUzkUkMwNgVAomt3lb/v+jXhy/tmOfPN+O47W75uGwF6/aV4er97yjSWRvKABGpmBym7Pl77Zio3X9ZGAfb6qHo9764SDeVY9Otta9gzEBCd5QAIxMweTm/kXzG1G08saPKr9o7sdv/yZJnvU0S6NerPqsZ7Husfrqz8nWlUNF3eUn3sGYgARvKABGpmByO+vuKvVrcliGdN+1rv9s2sebyXhPYWX+nGxtesdiAxK8oQAYmYLJzXlVqejb77777juOq0qpPULFkx1sjXpXDieA9RfswERvKABGpmByc10X8Tu24zr9p8brIua9VqJ7Nc1Vuos46u02rK+9O1lAyyLJ222+3GYArHg136Yr+456ZmfQ7i4a0LJJjr59DYCdO0nebtSA2WvTp2q4Nv3IzHGUAEtG23qafqje+LoXrz1uwnY2Sd7VwC4imYLJberPVeq/XXlmZg8rgCX24brae9wZLzIQk7yhABiZgslt7h5s/CheNeOs0hjMarh6b7ynsBvG/lOJkjcUACNTMLnNOwYb72U7gMVZRPuePsZs+jU9yegdkOANBcDIFExuc84iKr7ezqYxCsfB0heyqQ8A5jADYFQKJjf3cbCrTcfBBoWdv+KZHFrmGDN2Ec8yA2BUCia3ec/kiFOZs6Im5yJq2akNTHKcYQbAqBRMbmeci7gRrbzxXvm3KsO4CFjxbHrdodljzJimd5sBMCoFkxtu/sBpBsCoFExuAIzTDIBRKZjcABinGQCjUjC5ATBOMwBGpWByA2CcZgCMSsHkBsA4zQAYlYLJDYBxmgEwKgWTGwDjNANgVAomNwDGaQbAqBRMbgCM0wyAUSmY3AAYpxkAo1IwuQEwTjMARqVgcgNgnGYAjErB5AbAOM0AGJWCyQ2AcZoBMCoFkxsA4zQDYFQKJjcAxmkGwKgUTG4AjNMMgFEpmNwAGKcZAKNSMLktGWD2QjuMhgCMSADM0ZYwjsWVXcqKzxGAEQmAOdoSxrGoooK4PAEYkQCYoy1hHE7NfpeYXD53mYE6lORtRn37oo4URR10YejBiIQezNGWMI7FFEVdEAbAiATAHG0J41hMAIzcjtMMgDnaEsaxmAAYuR2nGQBztCWMYzEBMHI7TjMA5mhLGMdiAmDkdpxmAMzRljCOxQTAyO04zQCYoy1hHAsK0/TUdpxmAMzRljCORdUBXwCMSgDM0ZYwjkUFwIjtOM0AmKMtYRyLixsvAEYmAOZoSxgHgbj5AmBUAmCOtoRxkEjyhgJgZAomNwDGaQbAqBRMbgCM0wyAUSmY3AAYpxkAo1IwuQEwTjMARqVgcgNgnGYAjErB5AbAOM0AGJWCyQ2AcZoBMCoFkxsA4zQTB1j1JxBsJwoEkxsA4zQDYFQKJjcAxmkGwKgUTG4AjNNMHGAFM+TWKADGaYYiJLNjNWMGbHD5iX3wfDuO1+6ah8NevLpjH63e8w8HgFHasZoht0Z5VPOzOAVsEBttqoej3vrhIN5Vj0621v2jSQAYpR2rGXJr1NzVPP5ZnAI26sU7GjfdY/XVn5OtK4eF7s03IABGZsdqhtwaNW81j7bjtW3L0MD0XebfeE+9ZP6cbG36B2MCAmBkdqxmyK1R81Zzf/XH/7dnABvv2cHWqHflcAJYf8EODIAR2rGaIbdGzVvN/3NoQUqyf6rP0lylu4ij3m5jgG3dKgaClk2LATYhyw650qfZJEffvgbAoHOrVgDTY7PVnWSoGPu6F689nn+teUDYRSSzYzVDbo2iAix9Zz0ZxDvjRQZiAIzOjtUMuTXKH7DSGMxquHpvvKewG8b+U4kAjM6O1Qy5NWoRwCaziPYNfYzZ9GtqROYfEAAjs2M1Q26N8geseBzMamCOgwEwtxmKkMyO1awbwIpncmiZY8zYRTzLDEVIZsdq1g1gxXMRtezUBiY5zjBDEZLZsZp1BFjxbHrdodljzJimd5uhCMnsWM3wezBvBbOhfOxYzZBbowAYpxmKkMyO1QyAeSuYDeVjx2qG3BoFwDjNUIRkdqxmAMxbwWwoHztWM+TWKADGaYYiJLNjNQNg3gpmQ/nYsZoht0YBME4zFCGZHasZAPNWMBvKx47VDLk1CoBxmqEIyexYzQCYt4LZUD52rGbIrVEAjNMMRUhmx2oGwLwVzIbysWM1Q26NAmCcZihCMjtWMwDmrWA2lI8dqxlyaxQA4zRDEZLZsZoBMG8Fs6F87FjNkFujlgQwybciLZihCMnsWM0AmLeC2VA+dqxmyK1RAIxRKEI6O1az8AGbCBuKzo7VDLk1CoBxmiE3MjtWs2UHrOsbykAQnzoAbB7hm5DOjtUMuTUKgHGaITcyO1YzAOZvx2qG3MjsWM0AmL8dqxlyI7NjNQNg/nasZsiNzI7VDID527GaITcyO1YzAOZvx2qG3MjsWM0AmL8dqxlyI7NjNQNg/nasZsiNzI7VDID527GaITcyO1YzAOZvx2qG3MjsWM0AmL8dqxlyI7NjNQNg/nbtW+C3bm3YsZoBMH+79i0AWBt2rGYAzN+ufQsA1oYdqxkA87fjNMMVs+jsWM0AmL8dpxkAo7NjNQNg/nacZgCMzo7VDID523GaATA6O1YzAOZvx2kGwOjsWM0AmL8dnxXb7GGmYIrQx47VDID527E5Mc7PpwqmCH3sWM0AmL8dkw/zITCjYIrQx47VDID52zH5ADBiO1azrgB7vh3Ha3fNw2EvXt2xj1bvLbJOmRuK/SwOrWCK0MeO1awjwAax0aZ6OOqtHw7iXfXoZGt9gVUK3VAdnCeVBFSEPnasZt0ANurFqs96Fuseq6/+nGxdOVTUXX7iv8pE6IYCYOR2rGbdADYwfZf5N95TWJk/J1ub/mvUErmhABi5HatZJ4CN9+xga9S7cjgBrL9gByZzQwEwcjtWs44AsyydbGmu0l3EUW+3YdGu73fRrZp/rtJ1VFBbogLMDrlS0LJJjr59DYAVBMDOl1oBLBlt62n6oWLs61689th7rQJ3NZoBa983nN0oHztWs052EcuAJfbhejKId8aLDMSEbqgODoOFU4Q+dqxm3Y/BrIar98Z7Crth7D+VKHRDATBiO1azzmcR7Sv6GLPp19SIzHu1YjcUN14BFaGPHatZ58fB0hfMcTAA5hA3X+EUoY8dq1n3Z3JomWPM2EU8ywy5kdmxmnV/LqKWndrAJMcZZsiNzI7VbAnOptcdmj3GjGl6txlyI7NjNcPvwfztWM2QG5kdqxkA87djNUNuZHasZgDM347VDLmR2bGaATB/O1Yz5EZmx2oGwPztWM2QG5kdqxkA87djNUNuZHasZgDM347VDLmR2bGaSQIMgiQJgEFQiwJgENSiABgEtSgABkEtCoBBUIsCYBDUogAYBLUoAAZBLQqAQVCLAmAQ1KIAGAS1KAAGQS0KgEFQi+oQsMFrf51dfep3f//Hu0kytJeBi9/ayW7R8ruf9uL4tR833bFlmVXNbBCnF2LtZxeRHMb6Kv7prZ4WuYxkF6qm148n13ZW+Q2yp6HllbRRk10CFmdbYrwXx4Vk8tcfpU/XFrypH5d/qvIAAAVZSURBVLeqmWVXFz/Zyq4i2Y93Awaskp5KK02grx8M4jSx0PJKZqnJ9GKg+eV2p6lbwNIoR700GbNBxs+3bTaDeFV/b/x6O26869jyqppZdhn/Yfw9e4t4c+OMkAGrbrgsP3OX7ji2F54NLa9ktprUndevfzorYZ0C9r2e3QKDy39VSMZ80+/qFC/b7lp9mTTdN3N5VcusbxPor/6jvSWN6dICBqySXrpXaHYQ9ZO37C5xaHkls9RkxtVgxm/9TgH7wZ4Jcry33i8lY4Yodn/DPv3uXcc6llOOzPSNngZpQZpdqWABq6SnvwI3C3cD2bE9dmh5JdNrcnKnk2yvZJo6BWxzYIIc9XYryeh7tMyawRKqlpm9WaHeRCPzBalvaR0yYJX07Dd7NtJUedl9xdDySmaoycldFwazZdctYLbcBpefVJLRiWR30AxQtczshhmYCQGVlU1tkI+fAyvEWnrmtT/MvhDNvbp1SmECNmtNDuOZ7tHVLWDmZkf6xrPiACtnZorOUqY7L3v/tJABq6RnJ902s7d37W1PwwRs1pqc8SZ43QKWlttuczIL3ASpW9UyM6nZLTLMJ+hD3kWspJcUb3Rq8tKH/kLLK5mhJgPrwWy5KZCmjMH+O6y+rJaZScgCpTBL9+SDBqycXlIDTM/8hpZXMldNBjEG07d11r1xNZnKjM1k44WhWmb67oS/sBtH7YH8rz0YFjRglfRqgOnnzwLLK5m5Jv/jN4HMIurC+8/ebjUZe0AlP+ZgJ4EDUi0z9dLqP6QV2L/88/SlkAGrpFcHTL3zVmB5JbPW5MlW/PbPZttD7BywYfyWGfpXjpqnX/H2qPl2HNhorJaZ3jJZuanX7RdH2ICV02sAbHJeWECasSbHj+JZzy7qGjC1GXTg/abzvsbZuYiXF7glbReqZWZ64bQ/Vq/nx4vs4kECVk6vATC9OcPKK5mhJidzv6s7M62xa8DS06BKyUzO2/j1X4Z5Nn01M/N/chZpejJO0IBV0msALLg9+2SmmrRn03//57347VnqEr8HgyAfjR8t+ywiBMkXAIOgFgXAIKhFATAIalEADIJaFACDoBYFwCCoRQEwCGpRAAyCWhQAg6AWBcDOiY6ilQ+7juE8CoCdEwGwbgTAzokAWDcCYOdEAKwbAbBzIgDWjQBYsPrmRnTrxZ0oWnnvq8T8f/Mr+8Zn70RRdPWDdLHTB69H0cWHOWCfl96FWhYAC1YKsB9tRFqXju3/VzVhp/cjK8vbNzfts3dTwLJ3X/2q0+DPjQBYsFKAqZ4pOb0d2f/7UXRLvbxv0NKYXUrM05X3VaemCDSAHUTRd9S7/7Vh34XaFgALVgqwVz5V/1X3ZdhRz6+bZ9fN2wfm1SNLXbaQ+ve+eRdDMiYBsGClgLpU/K+6skuaK0Ndxtt+ti+4b4g6yHcN99GFsQiABStL0OS/AcxSZqTZmjw1XZZ6ej199wCjMBYBsGClZxHT/yXAighl76WA6WFbrrSng1oVAAtWjYBNiDI7i5OnxxsArAsBsGA1Xw+WAXa9cV1QWwJgwcoF2NljMExt8AqABatGwKqziAflWcR97BgyC4AFq2bAKsfBsqeT42C2C0NfxiQAFqyaAaufyaFP3cjP5FBPrz1Mks9v4kAzjwBYsHIAVjkX0ZxJpehKz0XM31251V3k50kALFg5AMvOpv8kW+5p+Wx68+6FN7/kD/hcCoBBUIsCYBDUogAYBLUoAAZBLQqAQVCLAmAQ1KIAGAS1KAAGQS0KgEFQiwJgENSiABgEtSgABkEtCoBBUIsCYBDUogAYBLUoAAZBLQqAQVCLAmAQ1KJ+D379TPYnFVQ7AAAAAElFTkSuQmCC" width="432" />
+<table class="table" style="width: auto !important; ">
+<caption>
+Conditional and marginal R<sup>2</sup> of model
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+R2_conditional
+</th>
+<th style="text-align:left;">
+R2_marginal
+</th>
+<th style="text-align:left;">
+optional
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0.66
+</td>
+<td style="text-align:left;">
+0.41
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+summary of model: one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+0.165
+</td>
+<td style="text-align:right;">
+0.059
+</td>
+<td style="text-align:right;">
+0.467
+</td>
+<td style="text-align:right;">
+0.088
+</td>
+<td style="text-align:right;">
+-3.398
+</td>
+<td style="text-align:right;">
+7e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.018
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:right;">
+0.141
+</td>
+<td style="text-align:right;">
+0.019
+</td>
+<td style="text-align:right;">
+-3.831
+</td>
+<td style="text-align:right;">
+1e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+2.166
+</td>
+<td style="text-align:right;">
+1.253
+</td>
+<td style="text-align:right;">
+3.745
+</td>
+<td style="text-align:right;">
+0.605
+</td>
+<td style="text-align:right;">
+2.766
+</td>
+<td style="text-align:right;">
+0.0057
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+2.191
+</td>
+<td style="text-align:right;">
+1.258
+</td>
+<td style="text-align:right;">
+3.816
+</td>
+<td style="text-align:right;">
+0.620
+</td>
+<td style="text-align:right;">
+2.771
+</td>
+<td style="text-align:right;">
+0.0056
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b0 for one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+0.165
+</td>
+<td style="text-align:right;">
+0.059
+</td>
+<td style="text-align:right;">
+0.467
+</td>
+<td style="text-align:right;">
+0.088
+</td>
+<td style="text-align:right;">
+-3.398
+</td>
+<td style="text-align:right;">
+6.8e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.003
+</td>
+<td style="text-align:right;">
+3.2e-04
+</td>
+<td style="text-align:right;">
+0.028
+</td>
+<td style="text-align:right;">
+0.003
+</td>
+<td style="text-align:right;">
+-5.104
+</td>
+<td style="text-align:right;">
+3.3e-07
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+0.358
+</td>
+<td style="text-align:right;">
+0.129
+</td>
+<td style="text-align:right;">
+0.992
+</td>
+<td style="text-align:right;">
+0.186
+</td>
+<td style="text-align:right;">
+-1.975
+</td>
+<td style="text-align:right;">
+0.048
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+0.363
+</td>
+<td style="text-align:right;">
+0.13
+</td>
+<td style="text-align:right;">
+1.009
+</td>
+<td style="text-align:right;">
+0.189
+</td>
+<td style="text-align:right;">
+-1.943
+</td>
+<td style="text-align:right;">
+0.052
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b1 for one_pa ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+slope
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.018
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+<td style="text-align:right;">
+0.141
+</td>
+<td style="text-align:right;">
+0.019
+</td>
+<td style="text-align:right;">
+-3.831
+</td>
+<td style="text-align:right;">
+1.3e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+2.166
+</td>
+<td style="text-align:right;">
+1.253
+</td>
+<td style="text-align:right;">
+3.745
+</td>
+<td style="text-align:right;">
+0.605
+</td>
+<td style="text-align:right;">
+2.766
+</td>
+<td style="text-align:right;">
+0.006
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+2.191
+</td>
+<td style="text-align:right;">
+1.258
+</td>
+<td style="text-align:right;">
+3.816
+</td>
+<td style="text-align:right;">
+0.620
+</td>
+<td style="text-align:right;">
+2.771
+</td>
+<td style="text-align:right;">
+0.006
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+120.2
+</td>
+<td style="text-align:right;">
+15.5
+</td>
+<td style="text-align:right;">
+934.7
+</td>
+<td style="text-align:right;">
+125.811
+</td>
+<td style="text-align:right;">
+4.578
+</td>
+<td style="text-align:right;">
+4.7e-06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+121.7
+</td>
+<td style="text-align:right;">
+15.6
+</td>
+<td style="text-align:right;">
+947.1
+</td>
+<td style="text-align:right;">
+127.381
+</td>
+<td style="text-align:right;">
+4.585
+</td>
+<td style="text-align:right;">
+4.5e-06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+1.012
+</td>
+<td style="text-align:right;">
+0.597
+</td>
+<td style="text-align:right;">
+1.713
+</td>
+<td style="text-align:right;">
+0.272
+</td>
+<td style="text-align:right;">
+0.043
+</td>
+<td style="text-align:right;">
+0.966
+</td>
+</tr>
+</tbody>
+</table>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: h_reg_or ~ mode + (1 | speaker)
+##    Data: m_corpus
+## Control: 
+## glmerControl(optimizer = &quot;optimx&quot;, calc.derivs = FALSE, optCtrl = list(method = &quot;nlminb&quot;,  
+##     starttests = FALSE, kkt = FALSE))
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##    558.0    580.3   -274.0    548.0      634 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -3.3348 -0.4791 -0.1680  0.4295  5.9303 
+## 
+## Random effects:
+##  Groups  Name        Variance Std.Dev.
+##  speaker (Intercept) 0.9801   0.99    
+## Number of obs: 639, groups:  speaker, 11
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -1.4683     0.3624  -4.052 5.09e-05 ***
+## modeMWH      -2.0202     0.4519  -4.471 7.79e-06 ***
+## modeMYN       1.7866     0.2706   6.602 4.06e-11 ***
+## modeMDQ       3.2301     0.3197  10.103  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##         (Intr) modMWH modMYN
+## modeMWH -0.235              
+## modeMYN -0.433  0.307       
+## modeMDQ -0.390  0.254  0.528</code></pre>
+<p>isSingular(h_reg_or_model, tol=1e-5) –&gt; FALSE</p>
+<table class="table table-condensed">
+<caption>
+ANOVA of model and null model, assuming presence of register tier
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+npar
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+logLik
+</th>
+<th style="text-align:right;">
+deviance
+</th>
+<th style="text-align:right;">
+Chisq
+</th>
+<th style="text-align:right;">
+Df
+</th>
+<th style="text-align:right;">
+Pr(&gt;Chisq)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+h_reg_or_null
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+841.5321
+</td>
+<td style="text-align:right;">
+850.4519
+</td>
+<td style="text-align:right;">
+-418.7661
+</td>
+<td style="text-align:right;">
+837.5321
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+h_reg_or_model
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+558.0184
+</td>
+<td style="text-align:right;">
+580.3179
+</td>
+<td style="text-align:right;">
+-274.0092
+</td>
+<td style="text-align:right;">
+548.0184
+</td>
+<td style="text-align:right;">
+289.5137
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1.849938e-62
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+Predicted probabilities of h_reg_or, h_reg_or ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+mode
+</th>
+<th style="text-align:left;">
+predicted
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+MDC
+</td>
+<td style="text-align:left;">
+0.1872
+</td>
+<td style="text-align:left;">
+0.3624
+</td>
+<td style="text-align:left;">
+0.1017
+</td>
+<td style="text-align:left;">
+0.3191
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MWH
+</td>
+<td style="text-align:left;">
+0.0296
+</td>
+<td style="text-align:left;">
+0.5085
+</td>
+<td style="text-align:left;">
+0.0111
+</td>
+<td style="text-align:left;">
+0.0764
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MYN
+</td>
+<td style="text-align:left;">
+0.5789
+</td>
+<td style="text-align:left;">
+0.3458
+</td>
+<td style="text-align:left;">
+0.4111
+</td>
+<td style="text-align:left;">
+0.7303
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDQ
+</td>
+<td style="text-align:left;">
+0.8534
+</td>
+<td style="text-align:left;">
+0.3785
+</td>
+<td style="text-align:left;">
+0.735
+</td>
+<td style="text-align:left;">
+0.9244
+</td>
+</tr>
+</tbody>
+</table>
+$mode
+<img src="data:image/png;base64,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" width="403.2" />
+<table class="table" style="width: auto !important; ">
+<caption>
+Conditional and marginal R<sup>2</sup> of model
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+R2_conditional
+</th>
+<th style="text-align:left;">
+R2_marginal
+</th>
+<th style="text-align:left;">
+optional
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0.59
+</td>
+<td style="text-align:left;">
+0.47
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+summary of model: h_reg_or ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+0.113
+</td>
+<td style="text-align:right;">
+0.469
+</td>
+<td style="text-align:right;">
+0.083
+</td>
+<td style="text-align:right;">
+-4.052
+</td>
+<td style="text-align:right;">
+5.1e-05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.133
+</td>
+<td style="text-align:right;">
+0.055
+</td>
+<td style="text-align:right;">
+0.322
+</td>
+<td style="text-align:right;">
+0.060
+</td>
+<td style="text-align:right;">
+-4.471
+</td>
+<td style="text-align:right;">
+7.8e-06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+5.969
+</td>
+<td style="text-align:right;">
+3.512
+</td>
+<td style="text-align:right;">
+10.1
+</td>
+<td style="text-align:right;">
+1.615
+</td>
+<td style="text-align:right;">
+6.602
+</td>
+<td style="text-align:right;">
+4.1e-11
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+25.3
+</td>
+<td style="text-align:right;">
+13.5
+</td>
+<td style="text-align:right;">
+47.3
+</td>
+<td style="text-align:right;">
+8.084
+</td>
+<td style="text-align:right;">
+10.103
+</td>
+<td style="text-align:right;">
+5.4e-24
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b0 for h_reg_or ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+<td style="text-align:right;">
+0.113
+</td>
+<td style="text-align:right;">
+0.469
+</td>
+<td style="text-align:right;">
+0.083
+</td>
+<td style="text-align:right;">
+-4.052
+</td>
+<td style="text-align:right;">
+5.1e-05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.031
+</td>
+<td style="text-align:right;">
+0.011
+</td>
+<td style="text-align:right;">
+0.083
+</td>
+<td style="text-align:right;">
+0.016
+</td>
+<td style="text-align:right;">
+-6.860
+</td>
+<td style="text-align:right;">
+6.9e-12
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+1.375
+</td>
+<td style="text-align:right;">
+0.698
+</td>
+<td style="text-align:right;">
+2.708
+</td>
+<td style="text-align:right;">
+0.475
+</td>
+<td style="text-align:right;">
+0.921
+</td>
+<td style="text-align:right;">
+0.357
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+5.823
+</td>
+<td style="text-align:right;">
+2.773
+</td>
+<td style="text-align:right;">
+12.2
+</td>
+<td style="text-align:right;">
+2.204
+</td>
+<td style="text-align:right;">
+4.655
+</td>
+<td style="text-align:right;">
+3.2e-06
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-condensed">
+<caption>
+b1 for h_reg_or ~ mode + (1 | speaker)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+intercept
+</th>
+<th style="text-align:right;">
+slope
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+conf.low
+</th>
+<th style="text-align:right;">
+conf.high
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+z.value
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+0.133
+</td>
+<td style="text-align:right;">
+0.055
+</td>
+<td style="text-align:right;">
+0.322
+</td>
+<td style="text-align:right;">
+0.060
+</td>
+<td style="text-align:right;">
+-4.471
+</td>
+<td style="text-align:right;">
+7.8e-06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+5.969
+</td>
+<td style="text-align:right;">
+3.512
+</td>
+<td style="text-align:right;">
+10.1
+</td>
+<td style="text-align:right;">
+1.615
+</td>
+<td style="text-align:right;">
+6.602
+</td>
+<td style="text-align:right;">
+4.1e-11
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMDC
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+25.3
+</td>
+<td style="text-align:right;">
+13.5
+</td>
+<td style="text-align:right;">
+47.3
+</td>
+<td style="text-align:right;">
+8.084
+</td>
+<td style="text-align:right;">
+10.103
+</td>
+<td style="text-align:right;">
+5.4e-24
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+18.6
+</td>
+<td style="text-align:right;">
+108.7
+</td>
+<td style="text-align:right;">
+20.246
+</td>
+<td style="text-align:right;">
+8.463
+</td>
+<td style="text-align:right;">
+2.6e-17
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMWH
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+190.6
+</td>
+<td style="text-align:right;">
+74
+</td>
+<td style="text-align:right;">
+490.9
+</td>
+<td style="text-align:right;">
+92.009
+</td>
+<td style="text-align:right;">
+10.878
+</td>
+<td style="text-align:right;">
+1.5e-27
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+modeMYN
+</td>
+<td style="text-align:right;">
+modeMDQ
+</td>
+<td style="text-align:right;">
+4.235
+</td>
+<td style="text-align:right;">
+2.399
+</td>
+<td style="text-align:right;">
+7.476
+</td>
+<td style="text-align:right;">
+1.228
+</td>
+<td style="text-align:right;">
+4.979
+</td>
+<td style="text-align:right;">
+6.4e-07
 </td>
 </tr>
 </tbody>
