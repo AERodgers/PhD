@@ -47,15 +47,16 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
 ```{r load and process corpus, include=FALSE}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+  mutate(nuc_reg = factor(if_else(str_detect(acc_phon, "\\^"),"H","L"),
+                          levels = c("L", "H"))) %>% 
   # Select only columns for analysis
   select(speaker,
          gender,
          stim,
          mode,
          acc_phon,
-         fin_phon)
-
-
+         fin_phon,
+         nuc_reg)
 ```
 
 #### Raw Data
@@ -154,7 +155,7 @@ pa_by_speaker_adj <- pa_adj %>%
   # per speaker.
   mutate(across(2:7, ~ round(. * 15, 0))) %>% 
   select("speaker", "H*", "L*H", "^[L*]H", ">H*", "L*^[H]", "^[L*H]") %>% 
-  write_csv("nucs_by_speaker_adj.csv")
+ write_csv("nucs_by_speaker_adj.csv")
 
 # Create tibble of pitch accents per mode (adjusted).
 pa_by_mode_adj <- pa_adj %>%
@@ -293,6 +294,7 @@ ggplot(pa_by_gender_adj %>%
     # Exclude outliers.
     filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>% 
     mutate(acc_phon = factor(acc_phon, levels = c("L*H", "L*^[H]", "^[L*H]")))) +
+  
   geom_bar(
     mapping = aes(
       x = mode,
@@ -303,7 +305,7 @@ ggplot(pa_by_gender_adj %>%
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.16)) +
   facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
   ggtitle("Nuclear pitch accents by sentence mode and gender (adjusted)") +
   theme(
@@ -313,6 +315,7 @@ ggplot(pa_by_gender_adj %>%
   scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
+  
   geom_text(aes(
     x = mode,
     y = (..count..) / sum(..count..),
@@ -341,7 +344,7 @@ ggplot(pa_by_mode_adj %>%
            show.legend = FALSE,
            colour = "black",
            position = position_dodge2(preserve = "single")) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.32)) +
   facet_grid(cols = vars(acc_phon)) +
   theme(panel.border = element_rect(fill = NA)) +
   ggtitle("Nuclear pitch accents by sentence mode (adjusted)") +
@@ -357,30 +360,47 @@ ggplot(pa_by_mode_adj %>%
 
 ```
 
-#### GLMM test of acc_phon as a fn of mode.
+#### __GLMM test of nuclear H register as a fn of mode__
 
-* Random intercepts only since models with random slopes generate singularity issues.
+* __Temporary workaround for complete separation issue__
+* Workaround: create dummy speaker with one entry per level of each alternative outcome.
 ```{r model test, tidy = TRUE}
-acc_phon_model <- glmer(
-  acc_phon ~ mode + (1 | speaker),
-  data = m_corpus,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
+# NB: GLMER cannot estimate likelihood of H:L for MDC and MWH since there are no instances of H for either level.
+# Therefore, the odds ratio for L is 1:0 against and for H it is 0:1 for,
+# making the probability 0 but the CIs stretch from 0 to infinity...
+# 
+# At least, that's what I think is happening!
+# 
+# Apparently it is called "complete separation"
+# 
+# Workaround: add dummy speaker with one instance of each possible outcome for 
+# each level of mode.
+# 
+m_c_avoid_separation <- m_corpus %>%
+  select(speaker, nuc_reg, mode) %>%
+  mutate(speaker = factor(speaker, levels = c(levels(speaker), "dummy"))) %>%
+  add_row(
+    speaker = rep("dummy",8),
+    nuc_reg = rep("H", 8),
+    mode = rep(c("MDC", "MWH", "MYN", "MDQ"),2)
+  ) %>%
+  # adding rows appears to remove factors from columns. Need to redo them!
+  mutate(
+    speaker = factor(speaker, levels = unique(speaker)),
+    nuc_reg = factor(nuc_reg, level = c("L", "H")),
+    mode = factor(mode, c("MDC", "MWH", "MYN", "MDQ"))
   )
-)
+  
 
-acc_phon_model_null = 
+nuc_reg_model <- glmer(
+  nuc_reg ~ mode + (1 | speaker),
+  data = m_c_avoid_separation,
+  family = binomial(link = "logit"))
+
+nuc_reg_model_null = 
   cur_model <- glmer(
-  acc_phon ~ 1 + (1 | speaker),
-  data = m_corpus,
+  nuc_reg ~ 1 + (1 | speaker),
+  data = m_c_avoid_separation,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -394,36 +414,31 @@ acc_phon_model_null =
   )
 )
 
-summary(acc_phon_model)
+summary(nuc_reg_model)
 ```
 
 
 ```{r model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(acc_phon_model, tol=1e-5) -->",
-  isSingular(acc_phon_model, tol = 1e-5),
+  "isSingular(nuc_reg_model, tol=1e-5) -->",
+  isSingular(nuc_reg_model, tol = 1e-5),
   "\n"
 )
 
-anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
+anova(nuc_reg_model, nuc_reg_model_null, test="Chisq") %>%
   formattable(
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(acc_phon_model,
+x <- printTidyModel(nuc_reg_model,
                     write_r2="Mode_PA_GLMM",
-                    is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="est",
-                    axis.lim = c(0.01, 10000)
-                    )
+                    is_GLM = TRUE)
 x$r2
 x$table
 
 charts <- getModelFixedFX(
-  my_equation = acc_phon ~ mode + (1 | speaker),
-  my_data = m_corpus,
+  my_equation = nuc_reg ~ mode + (1 | speaker),
+  my_data = m_c_avoid_separation,
   write="Mode_PA_GLMM",
   is_GLM=TRUE,
   extra_text = ", assuming presence of register tier"
@@ -431,7 +446,7 @@ charts <- getModelFixedFX(
 
 
 charts$intercepts
-charts$pairwise
+charts$slopes
 ```
 
 
@@ -552,6 +567,7 @@ ggplot(fin_phon_by_gender_adj_list) +
   size = 3)
 
 ```
+
 ```{r plot fin_phon by mode only, fig.height=2.2, fig.width=3.9}
 
 ggplot(fin_phon_by_mode_adj_list) +
@@ -586,7 +602,7 @@ ggplot(fin_phon_by_mode_adj_list) +
 
 ```
 
-#### GLMM test of boundary as a fn of mode.
+#### __GLMM test of boundary as a fn of mode__
 
 * Random intercepts only since models with random slopes generate singularity issues.
 ```{r fin_phon model test, tidy = TRUE}
@@ -645,12 +661,7 @@ anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
 
 x <- printTidyModel(fin_phon_model,
                     write_r2="Mode_PA_GLMM",
-                    is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="est",
-                    axis.lim = c(0.01, 10000)
-                    )
+                    is_GLM = TRUE)
 x$r2
 x$table
 
@@ -664,5 +675,5 @@ charts <- getModelFixedFX(
 
 
 charts$intercepts
-charts$pairwise
+charts$slopes
 ```

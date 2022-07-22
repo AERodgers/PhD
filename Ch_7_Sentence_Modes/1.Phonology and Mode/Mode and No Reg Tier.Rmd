@@ -80,7 +80,7 @@ keep_list <- m_corpus %>%
 ```{r print utterance phonology by mode}
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-  filter(phr_phon %in% keep_list$phr_phon) %>%
+
   group_by(phr_phon) %>%
   summarise(phon_count = n()) %>%
   arrange(desc(phon_count)) %>%
@@ -89,11 +89,8 @@ m_corpus %>%
     ) %>%
   formattable(
     caption = paste(
-      "Utterance level intonational phonology without Register Tier in M-corpus ",
-      "for tokens accounting for at least ",
-      percent(threshold / tot_rows),
-      " of all tokens.",
-      sep = ""
+      "Utterance level intonational phonology without Register Tier",
+      "in M-corpus for all tokens."
     )
   )
 
@@ -123,10 +120,11 @@ m_corpus %>%
       sep = ""
     ),
     list(area(col = 3:6) ~ proportion_bar(color = c(
-      rep("#9e7cd9", 15),
-      rep("#ff8131", 15),
-      rep("#fdb863", 15),
-      rep("#d2cbf2", 15))),
+        rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[2], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
+        rep(brewer.pal(4, "Pastel2")[4], nrow(.))
+        )),
       total = proportion_bar(color = "#aaaaaa")
     )
     )
@@ -476,14 +474,14 @@ nuc_contour_by_mode_adj %>%
 
 ```
 
-```{r plot adjusted distrubition of contours by mode and gender, fig.height=3.5, fig.width=6.1, results="asis"}
+```{r plot adjusted distrubition of contours by mode and gender, fig.height=3.1, fig.width=8, results="asis"}
 ggplot(
   nuc_contour_by_gender_adj %>%
     # uncount date for chart
     pivot_longer(3:last_col(), "nuc_contour") %>%
     uncount(value) %>%
-    mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour))) %>% 
-    filter(nuc_contour %notin% c(">H* L%", "H* L%"))
+    mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour))) # %>% 
+    #filter(nuc_contour %notin% c(">H* L%", "H* L%"))
   ) +
   geom_bar(mapping = aes(x = mode,
                          y = (..count..) / sum(..count..),
@@ -493,11 +491,10 @@ ggplot(
            position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
   facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuclear contours by sentence mode and gender (adjusted, no register tier)") +
   theme(
     panel.border = element_rect(fill = NA)
   ) +
-  ggtitle("Nuclear contours by sentence mode and gender (adjusted, no register tierexcluding H* and >H*)") +
+  ggtitle("Nuclear contours by sentence mode and gender (adjusted, no register tier)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -514,15 +511,18 @@ ggplot(
 
 It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this as a general conclusion, especially as it is only M8, M9, and M10 who do this.
 
-```{r plot adjusted distrubition of contours by mode, fig.height=2.2, fig.width=6, results="asis"}
+```{r plot adjusted distrubition of contours by mode, fig.height=4, fig.width=5.1, results="asis"}
 ggplot(
   nuc_contour_by_mode_adj %>%
     # Uncount table for bar chart.
     pivot_longer(2:last_col(), "nuc_contour") %>%
     uncount(value) %>%
-    mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour))) %>% 
-    filter(nuc_contour %notin% c(">H* L%", "H* L%"))
-  ) +
+    mutate(
+      nuc_contour=
+        factor(
+          nuc_contour,
+          levels = c("L*H %", "L*H L%", "L*H H%", "L*H HL%", ">H* L%", "H* L%"))
+      )) +
   geom_bar(mapping = aes(x = mode,
                          y = (..count..) / sum(..count..),
                          fill = nuc_contour),
@@ -530,9 +530,9 @@ ggplot(
            colour = "black",
            position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
-  facet_grid(cols = vars(nuc_contour)) +
+  facet_wrap(~nuc_contour,nrow=2) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("nuclear contours by sentence mode (adjusted)") +
+  ggtitle("nuclear contours by sentence mode (adjusted, no register tier)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -696,90 +696,139 @@ ggplot(fin_phon_by_mode_adj_list) +
   ),
   stat = "count",
   vjust = -0.75,
-  size = 3)
+  size = 2.5)
 
 
 ```
+
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
 
 
-#### GLMM test of nuc_contour as a fn of mode.
+#### GLMM tests of fin\_phon as a fn of mode.
 
 A preliminary test returned a genderM with a probability  of 1.015 (CIs=0.118--8.721, p=0.9894), indicating that gender likely has no effect, Therefore, it was removed from the final model.
 
-```{r GLMM Test of nuc_contour as a fn of mode}
-nuc_contour_model <- glmer(
-  nuc_contour ~ mode +(1 | speaker),
-  data = m_corpus,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
 
-nuc_contour_model_null = 
-  cur_model <- glmer(
-  nuc_contour ~ 1 + (1 | speaker),
-  data = m_corpus,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
+* __Temporary workaround for complete separation issue__
+* Workaround: create dummy speaker with one entry per level of each alternative outcome.
 
-summary(nuc_contour_model)
+```{r Make binomial subsets of corpus}
+m_corpus_0H <- m_corpus %>%
+  # treat HL% as for purpose of % vs H%
+  mutate(fin_phon =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
+  filter(fin_phon %in% c("%", "H%")) %>% 
+  # Add anti-separation workaround: add dummy speaker with one instance of each
+  # alternate values for each level of mode.
+  select(speaker, fin_phon, mode) %>%
+  mutate(speaker = factor(speaker, levels = c(levels(speaker), "dummy"))) %>%
+  add_row(
+    speaker = rep("dummy", 8),
+    fin_phon = c(rep("H%", 4), rep("%", 4)),
+    mode = rep(c("MDC", "MWH", "MYN", "MDQ"),2)
+  ) %>%
+  # adding rows appears to remove factors from columns. Need to redo them!
+  mutate(
+    speaker = factor(speaker, levels = unique(speaker)),
+    fin_phon = factor(fin_phon, level = c("%", "H%")),
+    mode = factor(mode, c("MDC", "MWH", "MYN", "MDQ")))
+
+
+
+  
+m_corpus_0L <- m_corpus %>%
+  # treat HL% as for purpose of % vs L%
+  mutate(fin_phon, str_replace(fin_phon, "HL\\%", "L%")) %>% 
+  filter(fin_phon %in% c("%", "L%")) %>% 
+  mutate(fin_phon = factor(fin_phon, levels = c("%", "L%")))
+```
+
+#### __`%|H% ~ mode + (1 | speaker)`__
+```{r GLMM Test of % and H% re mode}
+my_formula = formula(fin_phon ~ mode + (1 | speaker))
+
+fin_phon_model_0H <- glmer(my_formula,
+                           data = m_corpus_0H,
+                           family = binomial(link = "logit"))
+
+fin_phon_model_0H_null <- glmer(fin_phon ~ 1 + (1 | speaker),
+                                data = m_corpus_0H,
+                                family = binomial(link = "logit"))
+
+summary(fin_phon_model_0H)
 ```
 
 
-```{r nuc_contour GLMM Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r GLMM of 0 and H re mode Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(nuc_contour_model, tol=1e-5) -->",
-  isSingular(nuc_contour_model, tol = 1e-5),
+  "isSingular(fin_phon_model_0H, tol=1e-5) -->",
+  isSingular(fin_phon_model_0H, tol = 1e-5),
   "\n"
 )
 
-anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
+anova(fin_phon_model_0H, fin_phon_model_0H_null, test="Chisq") %>%
   formattable(
     caption="ANOVA of model and null model, assuming no register tier."
     )
 
-x <- printTidyModel(nuc_contour_model,
-                    write_r2="Mode_nuc_contour_No_Reg",
-                    is_GLM = TRUE,
-                    transform="exp",
-                    show.intercept=TRUE,
-                    type="pred"
-                    )
-
+x <- printTidyModel(fin_phon_model_0H, "Mode_fin_phon_no_Reg_0H", is_GLM = TRUE)
 
 x$r2
 x$table
 
 charts <- getModelFixedFX(
-  my_equation =  nuc_contour ~ mode + (1 | speaker),
-  my_data = m_corpus,
-  write="Mode_nuc_contour_No_Reg",
+  my_equation = my_formula,
+  my_data = m_corpus_0H,
+  write="Mode_fin_phon_no_Reg_0H",
   is_GLM=TRUE,
-  extra_text = ", assuming no register tier."
+  extra_text = ", zero and high, assuming no register tier.",
+  report="intercepts"
+)
+charts$intercepts
+charts$slopes
+```
+
+#### `%|L% ~ mode + (1 | speaker)`
+```{r GLMM Test of 0 and L re mode}
+my_formula = formula(fin_phon ~ mode + (1 | speaker))
+                                
+fin_phon_model_0L <- glmer(my_formula,
+                           data = m_corpus_0L,
+                           family = binomial(link = "logit"))
+
+fin_phon_model_0L_null <- glmer(fin_phon ~ 1 + (1 | speaker),
+                                data = m_corpus_0L,
+                                family = binomial(link = "logit"))
+
+summary(fin_phon_model_0L)
+```
+
+
+```{r GLMM of 0 and L re mode Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(fin_phon_model_0L, tol=1e-5) -->",
+  isSingular(fin_phon_model_0L, tol = 1e-5),
+  "\n"
+)
+
+anova(fin_phon_model_0L, fin_phon_model_0L_null, test="Chisq") %>%
+  formattable(
+    caption="ANOVA of model and null model, assuming no register tier."
+    )
+
+x <- printTidyModel(fin_phon_model_0L, "Mode_fin_phon_no_Reg_0L", is_GLM = TRUE)
+x$r2
+x$table
+
+charts <- getModelFixedFX(
+  my_equation = my_formula,
+  my_data = m_corpus_0L,
+  write="Mode_fin_phon_no_Reg_0L",
+  is_GLM=TRUE,
+  extra_text = ", zero and low, assuming no register tier.",
+  report="intercepts"
 )
 
 charts$intercepts
-charts$pairwise
-
-
+charts$slopes
 ```
 

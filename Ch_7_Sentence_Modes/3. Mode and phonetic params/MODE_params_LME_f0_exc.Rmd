@@ -149,7 +149,7 @@ charts <- getModelFixedFX(
   write="../output/Mode_f0_exc"
 )
 charts$intercepts
-charts$pairwise
+charts$slopes
 
 
 ```

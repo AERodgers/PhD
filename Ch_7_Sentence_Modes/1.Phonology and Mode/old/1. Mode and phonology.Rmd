@@ -142,7 +142,7 @@ h_reg_charts <- getModelFixedFX(
 )
 
 h_reg_charts$intercepts
-h_reg_charts$pairwise
+h_reg_charts$slopes
 ```
 
 ```{r one_pa_model test}
@@ -215,7 +215,7 @@ one_pa_charts <- getModelFixedFX(
 
 
 one_pa_charts$intercepts
-one_pa_charts$pairwise
+one_pa_charts$slopes
 ```
 
 ```{r one_pa_or_h_reg model test}
@@ -285,6 +285,6 @@ one_pa_or_h_reg_charts <- getModelFixedFX(
 
 
 one_pa_or_h_reg_charts$intercepts
-one_pa_or_h_reg_charts$pairwise
+one_pa_or_h_reg_charts$slopes
 
 ```

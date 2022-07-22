@@ -1,0 +1,1 @@
+fin_phon ~ mode + (1 | speaker), zero and low, assuming no register tier.

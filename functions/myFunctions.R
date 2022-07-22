@@ -478,8 +478,13 @@ get_m_corpus <- function(file_address)
         str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
         paste("^[", nuc_contour, sep = ""),
         nuc_contour),
+
+        # Correct acc_phon
         acc_phon = str_replace_all(acc_phon, "\\s%|\\sL%", ""),
-        acc_phon = factor(acc_phon, levels=unique(acc_phon)),
+        acc_phon = str_replace_all(acc_phon,"^(L\\*H\\]|\\^\\[L\\*H)$",
+                               "^[L*H]"),
+        acc_phon = str_replace_all(acc_phon, "^L\\*\\^\\[H$", "L*^[H]"),
+        # Correct fin_phon
         fin_phon = str_replace(fin_phon, "^\\%\\]", "\\%"),
         fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
         across(c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
@@ -566,7 +571,6 @@ printTidyModel <-
            write_r2 = NULL,
            is_GLM = FALSE,
            axis.lim = NULL,
-           transform=NULL,
            exponentiate=TRUE,
            show.intercept=FALSE,
            type="est")
@@ -578,7 +582,6 @@ printTidyModel <-
     require("performance")
     require("broom")
     require("broomExtra")
-    require("broom.mixed")
     require("sjPlot")
     require("lmerTest")
     require("ggeffects")
@@ -698,12 +701,14 @@ printTidyModel <-
 
 ###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
-                       my_data,
-                       write="",
-                       is_GLM=FALSE,
-                       exponentiate = TRUE,
-                       optimizer = "optimx",
-                       extra_text="")
+                            my_data,
+                            contrasts=NULL,
+                            write = "",
+                            is_GLM = FALSE,
+                            exponentiate = TRUE,
+                            optimizer = "optimx",
+                            extra_text = "",
+                            report = c("intercepts", "slopes"))
 {
   require("formattable")
   require("tidyverse")
@@ -761,11 +766,6 @@ getModelFixedFX <- function(my_equation,
     )
   }
 
-  # write text file for model info
-  my_formula <- getModelFormula(base_model)
-
-  write(paste(my_formula, extra_text, sep=""),
-        paste(write, "_formula.txt", sep = ""))
 
   # create list of fixed factors
   fixed_factors <-
@@ -956,18 +956,24 @@ getModelFixedFX <- function(my_equation,
   my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
 
   # Write tables to file
+  my_formula <- getModelFormula(base_model)
   if (write != "")
-  {
-    write_csv(my_intercepts,
-              paste(write, "_b0.csv", sep = ""))
-    write_csv(my_pairwise,
-              paste(write, "_b1.csv", sep = ""))
-  }
-
+    write(paste(my_formula, extra_text, sep=""),
+          paste(write, "_formula.txt", sep = ""))
+    {
+    if ("intercepts" %in% report)
+      {
+      write_csv(my_intercepts, paste(write, "_b0.csv", sep = ""))
+      }
+    if ("slopes" %in% report)
+      {
+      write_csv(my_pairwise, paste(write, "_b1.csv", sep = ""))
+      }
+    }
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
     mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
-    formattable(caption = paste("b0 for", my_formula, sep = " ")) %>%
+    formattable(caption = paste("b0 for", my_formula, extra_text, sep = " ")) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -986,7 +992,7 @@ getModelFixedFX <- function(my_equation,
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
     ) %>%
-    formattable(caption = paste("b1 for", my_formula, sep = " ")) %>%
+    formattable(caption = paste("b1 for", my_formula, extra_text, sep = " ")) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -1000,7 +1006,7 @@ getModelFixedFX <- function(my_equation,
       )
     ))
 
-    return(list("intercepts" = my_intercepts, "pairwise" = my_pairwise,
+    return(list("intercepts" = my_intercepts, "slopes" = my_pairwise,
               "model" = base_model))
 }
 
@@ -1231,6 +1237,7 @@ tidyPrintPredictions <- function(model, caption_suffix){
                       as.character(round(., 4), digits = 2)))
       ) %>%
       rename(!!cur_obj_name := x) %>%
+      relocate(std.error, .after=conf.high) %>%
       knitr::kable(caption = cur_caption) %>%
       kable_styling(full_width = FALSE, position = "left") %>%
       print()

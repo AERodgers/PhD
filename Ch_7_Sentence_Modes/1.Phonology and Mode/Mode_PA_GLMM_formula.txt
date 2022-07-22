@@ -1,1 +1,1 @@
-acc_phon ~ mode + (1 | speaker), assuming presence of register tier
+nuc_reg ~ mode + (1 | speaker), assuming presence of register tier

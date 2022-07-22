@@ -298,7 +298,7 @@ h_reg_charts <- getModelFixedFX(
 )
 
 h_reg_charts$intercepts
-h_reg_charts$pairwise
+h_reg_charts$slopes
 ```
 
 ```{r one_pa_model}
@@ -369,7 +369,7 @@ one_pa_charts <- getModelFixedFX(
 
 
 one_pa_charts$intercepts
-one_pa_charts$pairwise
+one_pa_charts$slopes
 ```
 
 ```{r h_reg_or model}
@@ -423,8 +423,7 @@ anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
 
 x <- printTidyModel(h_reg_or_model,
                     write_r2 = "Utt_h_reg_or_GLMM",
-                    is_GLM = TRUE,
-                    show.intercept=TRUE
+                    is_GLM = TRUE
                     )
 
 x$r2
@@ -439,6 +438,6 @@ h_reg_or_charts <- getModelFixedFX(
 
 
 h_reg_or_charts$intercepts
-h_reg_or_charts$pairwise
+h_reg_or_charts$slopes
 
 ```
