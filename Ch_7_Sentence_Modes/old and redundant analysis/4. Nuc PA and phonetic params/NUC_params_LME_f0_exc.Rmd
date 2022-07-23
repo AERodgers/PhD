@@ -136,7 +136,7 @@ summariseLME(f0_exc_model_reduced , run_step = FALSE)
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-f0_exc_model.tidy <- printTidyModel(f0_exc_model_reduced,
+f0_exc_model.tidy <- analyseModel(f0_exc_model_reduced,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/PA_f0_exc"

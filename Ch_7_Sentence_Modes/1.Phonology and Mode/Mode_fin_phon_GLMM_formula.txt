@@ -1,1 +1,1 @@
-fin_phon ~ mode + (1 | speaker), assuming presence of register tier
+L% boundary ~ mode + (1 | speaker), register tier analysis

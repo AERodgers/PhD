@@ -119,7 +119,7 @@ summariseLME(l_f0_model.trimmed, run_step = TRUE,
 
 ```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
-l_f0_model_trimmed.tidy <- printTidyModel(l_f0_model.trimmed,
+l_f0_model_trimmed.tidy <- analyseModel(l_f0_model.trimmed,
                                 write_r2="../output/Mode_l_f0"
                                 )
 l_f0_model_trimmed.tidy$r2

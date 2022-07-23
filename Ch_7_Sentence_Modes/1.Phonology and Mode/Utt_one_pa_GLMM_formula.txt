@@ -1,1 +1,1 @@
-one_pa ~ mode + (1 | speaker)
+nuclear PA only ~ mode + (1 | speaker)

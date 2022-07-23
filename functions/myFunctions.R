@@ -81,7 +81,6 @@ installMissingPackages <- function (package_list)
 
 }
 
-
 ###  Balance data  #############################################################
 balancedData <- function(data_set,
                          treatment_col,
@@ -544,7 +543,9 @@ summariseLME <-
       write_csv(write)
       formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
         str_replace(".csv", ".txt")
-      write(paste(my_formula, extra_text, sep=""), formula_save)
+      write(
+        paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep=""),
+        formula_save)
     }
 
     cat("\nisSingular(my_model, tol =",
@@ -565,13 +566,13 @@ summariseLME <-
   }
 
 
-###  Print Tidy Model  #########################################################
-printTidyModel <-
+###  Analyse Model and extract key info ########################################
+analyseModel <-
   function(my_model,
            write_r2 = NULL,
            is_GLM = FALSE,
            axis.lim = NULL,
-           exponentiate=TRUE,
+           exponentiate=FALSE,
            show.intercept=FALSE,
            type="est")
   {
@@ -585,6 +586,7 @@ printTidyModel <-
     require("sjPlot")
     require("lmerTest")
     require("ggeffects")
+    require("sjlabelled")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -622,7 +624,8 @@ printTidyModel <-
     # re-order columns
     select(!!!my_headers) %>%
     formattable(
-      caption = paste("summary of model:", my_formula)
+      caption = paste("summary of model:",
+                      str_replace_all(my_formula, "\\`", ""))
     ) %>%
     mutate(
       # avoid escape character errors
@@ -664,16 +667,18 @@ printTidyModel <-
       write.csv(paste(write_r2, "_r2.csv", sep = ""))
   }
 
-  tidyPrintPredictions(my_model, my_formula)
-
   if (is_GLM)
     {
+      tidyPrintPredictions(my_model, my_formula)
       my_plot <-
         plot_model(
           my_model,
           show.intercept = show.intercept,
           show.values = TRUE,
-          type = "pred") %>%
+          type = "pred",
+          title=paste("Predicted probabilities of", response_labels(my_model)),
+          axis.title = response_labels(my_model)
+          ) %>%
         print()
     }
   else
@@ -702,17 +707,21 @@ printTidyModel <-
 ###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
                             my_data,
-                            contrasts=NULL,
+                            contrasts = NULL,
+                            is_separation = FALSE,
                             write = "",
                             is_GLM = FALSE,
-                            exponentiate = TRUE,
+                            exponentiate = FALSE,
                             optimizer = "optimx",
                             extra_text = "",
-                            report = c("intercepts", "slopes"))
+                            report = c("intercepts", "slopes")
+                            )
 {
   require("formattable")
   require("tidyverse")
   require("mefa4")
+  require("lme4")
+  require("blme")
 
   my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
@@ -734,23 +743,48 @@ getModelFixedFX <- function(my_equation,
 
   # run base model.
   if (is_GLM) {
-    base_model <- glmer(
-      my_equation,
-      data = my_data,
-      family = binomial(link = "logit"),
-      # Change optimizer to avoid convergence errors/
-      control = glmerControl(
-        optimizer = optimizer,
-        calc.derivs = FALSE,
-        optCtrl = list(
-          method = "nlminb",
-          starttests = FALSE,
-          kkt = FALSE
+    # Run bglmer!
+    if (!is_separation) {
+    # don't use prior
+      base_model <- bglmer(
+        my_equation,
+        data = my_data,
+        family = binomial(link = "logit"),
+        # Change optimizer to avoid convergence errors/
+        control = glmerControl(
+          optimizer = optimizer,
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
         )
       )
-    )
+    }
+    else
+    {
+      # Use prior
+        base_model <- bglmer(
+        my_equation,
+        data = my_data,
+        family = binomial(link = "logit"),
+        fixef.prior = normal(cov = diag(9, 4)),
+        # Change optimizer to avoid convergence errors/
+        control = glmerControl(
+          optimizer = optimizer,
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
+        )
+      )
+    }
   }
   else {
+    # Run lmer
     base_model <- lmer(
       my_equation,
       data = my_data,
@@ -814,21 +848,45 @@ getModelFixedFX <- function(my_equation,
     {
       # Run current model.
       if (is_GLM) {
-        cur_model <- glmer(
-          my_equation,
-          data = my_data,
-          family = binomial(link = "logit"),
-          # Change optimizer to avoid convergence errors/
-          control = glmerControl(
-            optimizer = optimizer,
-            calc.derivs = FALSE,
-            optCtrl = list(
-              method = "nlminb",
-              starttests = FALSE,
-              kkt = FALSE
+        # Run bglmer!
+        if (!is_separation) {
+          # don't use prior
+          cur_model <- bglmer(
+            my_equation,
+            data = my_data,
+            family = binomial(link = "logit"),
+            # Change optimizer to avoid convergence errors/
+            control = glmerControl(
+              optimizer = optimizer,
+              calc.derivs = FALSE,
+              optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+              )
             )
           )
-        )
+        }
+        else
+        {
+          # Use prior
+          cur_model <- bglmer(
+            my_equation,
+            data = my_data,
+            family = binomial(link = "logit"),
+            fixef.prior = normal(cov = diag(9,4)),
+            # Change optimizer to avoid convergence errors/
+            control = glmerControl(
+              optimizer = optimizer,
+              calc.derivs = FALSE,
+              optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+              )
+            )
+          )
+        }
       }
       else {
         cur_model <- lmer(
@@ -958,7 +1016,7 @@ getModelFixedFX <- function(my_equation,
   # Write tables to file
   my_formula <- getModelFormula(base_model)
   if (write != "")
-    write(paste(my_formula, extra_text, sep=""),
+    write(paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep=""),
           paste(write, "_formula.txt", sep = ""))
     {
     if ("intercepts" %in% report)
@@ -973,7 +1031,10 @@ getModelFixedFX <- function(my_equation,
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
     mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
-    formattable(caption = paste("b0 for", my_formula, extra_text, sep = " ")) %>%
+    formattable(caption = paste("b0 for",
+                                str_replace_all(my_formula, "\\`", ""),
+                                extra_text,
+                                sep = " ")) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -992,7 +1053,10 @@ getModelFixedFX <- function(my_equation,
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
     ) %>%
-    formattable(caption = paste("b1 for", my_formula, extra_text, sep = " ")) %>%
+    formattable(caption = paste("b1 for",
+                                str_replace_all(my_formula, "\\`", ""),
+                                extra_text,
+                                sep = " ")) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -1223,21 +1287,44 @@ tidyPrintPredictions <- function(model, caption_suffix){
     obj_i = obj_i + 1
     cur_obj_name <- obj_names[obj_i]
     cur_obj_name = enquo(cur_obj_name)
-    cur_caption <- paste(cur_obj %>% get_title, caption_suffix, sep=", ")
+    cur_caption <- cur_obj %>% get_title
 
     as_tibble(cur_obj) %>%
       select(-group) %>%
+      relocate(std.error, .after=conf.high) %>%
       mutate(x = str_replace_all(x,
                                  "([\\*\\[\\]\\$\\^\\>])",
                                  "\\\\\\1"),
-             across(2:last_col(),
-                    ~ if_else(
-                      abs(.) < 0.0001,
-                      as.character(formatC(., format="e", digits = 1)),
-                      as.character(round(., 4), digits = 2)))
-      ) %>%
+             std.error = if_else(
+               abs(std.error) < 0.0001,
+               as.character(formatC(std.error, format="e", digits = 1)),
+               as.character(round(std.error, 4), digits = 2)),
+             across(
+               c("predicted", "conf.low", "conf.high"),
+               ~ if_else(
+                 . * 100 < 0.01,
+                 paste(as.character(round(. * 100, digits=4)),
+                       "%",
+                       sep=""),
+                 if_else(
+                   . * 100 < 0.01,
+                   paste(as.character(round(. * 100, digits=3)),
+                         "%",
+                         sep=""),
+                   if_else(
+                     . * 100 < 0.1,
+                     paste(as.character(round(. * 100, digits=2)),
+                           "%",
+                           sep=""),
+                     paste(as.character(round(. * 100, digits=1)),
+                           "%",
+                           sep="")
+                     )
+                   )
+                 )
+               )
+             ) %>%
       rename(!!cur_obj_name := x) %>%
-      relocate(std.error, .after=conf.high) %>%
       knitr::kable(caption = cur_caption) %>%
       kable_styling(full_width = FALSE, position = "left") %>%
       print()

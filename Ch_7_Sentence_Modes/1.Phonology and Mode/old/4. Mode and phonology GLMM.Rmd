@@ -445,7 +445,7 @@ anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(acc_phon_model,
+tidy_summary <- analyseModel(acc_phon_model,
                     write_r2="Mode_PA_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
@@ -453,8 +453,8 @@ x <- printTidyModel(acc_phon_model,
                     type="est",
                     axis.lim = c(0.01, 10000)
                     )
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 
 ```

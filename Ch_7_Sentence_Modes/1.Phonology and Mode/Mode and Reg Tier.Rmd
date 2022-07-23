@@ -27,7 +27,7 @@ installMissingPackages(
     "RColorBrewer",
     "tidyverse",
     # Load stats package.
-    "lme4"
+    "blme"
   )
 )
 
@@ -47,8 +47,8 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
 ```{r load and process corpus, include=FALSE}
 # Get  Data.
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  mutate(nuc_reg = factor(if_else(str_detect(acc_phon, "\\^"),"H","L"),
-                          levels = c("L", "H"))) %>% 
+  mutate(`high register in nucleus` = factor( str_detect(acc_phon, "\\^"),
+                          levels = c(F, T))) %>% 
   # Select only columns for analysis
   select(speaker,
          gender,
@@ -56,7 +56,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          mode,
          acc_phon,
          fin_phon,
-         nuc_reg)
+         `high register in nucleus`)
 ```
 
 #### Raw Data
@@ -362,45 +362,34 @@ ggplot(pa_by_mode_adj %>%
 
 #### __GLMM test of nuclear H register as a fn of mode__
 
-* __Temporary workaround for complete separation issue__
-* Workaround: create dummy speaker with one entry per level of each alternative outcome.
+* __Complete separation issue__
+
+* GLMER cannot correctly estimate the CIs of H:L for MDC and MWH since there are no instances of H for either level, leading to a problem know as "complete separation". (The odds ratio for L is 1:0 against and for H it is 0:1 for, making the probability 0 but the CIs stretch from 0 to infinity.)
+
+To resolve this issue, I have used the blme package, which uses "Maximum a posteriori estimation for linear and generalized linear mixed-effects models in a Bayesian setting" (documentation).
+
+We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 4 diagonal matrix with diagonal elements equal to 9, for variances of 9 or standard deviations of 3)"
+
+(http://bbolker.github.io/mixedmodels-misc/ecostats_chap.html#digression-complete-separation)
+
+(directed from https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#penalizationhandling-complete-separation)`
+
 ```{r model test, tidy = TRUE}
-# NB: GLMER cannot estimate likelihood of H:L for MDC and MWH since there are no instances of H for either level.
-# Therefore, the odds ratio for L is 1:0 against and for H it is 0:1 for,
-# making the probability 0 but the CIs stretch from 0 to infinity...
-# 
-# At least, that's what I think is happening!
-# 
-# Apparently it is called "complete separation"
-# 
-# Workaround: add dummy speaker with one instance of each possible outcome for 
-# each level of mode.
-# 
-m_c_avoid_separation <- m_corpus %>%
-  select(speaker, nuc_reg, mode) %>%
-  mutate(speaker = factor(speaker, levels = c(levels(speaker), "dummy"))) %>%
-  add_row(
-    speaker = rep("dummy",8),
-    nuc_reg = rep("H", 8),
-    mode = rep(c("MDC", "MWH", "MYN", "MDQ"),2)
-  ) %>%
-  # adding rows appears to remove factors from columns. Need to redo them!
-  mutate(
-    speaker = factor(speaker, levels = unique(speaker)),
-    nuc_reg = factor(nuc_reg, level = c("L", "H")),
-    mode = factor(mode, c("MDC", "MWH", "MYN", "MDQ"))
-  )
+
+m_corpus_h_reg <- m_corpus %>%
+  select(speaker, `high register in nucleus`, mode)
   
 
-nuc_reg_model <- glmer(
-  nuc_reg ~ mode + (1 | speaker),
-  data = m_c_avoid_separation,
-  family = binomial(link = "logit"))
+h_reg_model <- bglmer(
+  `high register in nucleus` ~ mode + (1 | speaker),
+  data = m_corpus_h_reg,
+  family = binomial(link = "logit"),
+  fixef.prior = normal(cov = diag(9,4)))
 
-nuc_reg_model_null = 
-  cur_model <- glmer(
-  nuc_reg ~ 1 + (1 | speaker),
-  data = m_c_avoid_separation,
+h_reg_model_null = 
+  cur_model <- bglmer(
+  `high register in nucleus` ~ 1 + (1 | speaker),
+  data = m_corpus_h_reg,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -414,34 +403,35 @@ nuc_reg_model_null =
   )
 )
 
-summary(nuc_reg_model)
+summary(h_reg_model)
 ```
 
 
 ```{r model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(nuc_reg_model, tol=1e-5) -->",
-  isSingular(nuc_reg_model, tol = 1e-5),
+  "isSingular(h_reg_model, tol=1e-5) -->",
+  isSingular(h_reg_model, tol = 1e-5),
   "\n"
 )
 
-anova(nuc_reg_model, nuc_reg_model_null, test="Chisq") %>%
+anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   formattable(
-  caption="ANOVA of model and null model, assuming presence of register tier"
+  caption="ANOVA of model and null model, register tier analysis"
   )
 
-x <- printTidyModel(nuc_reg_model,
+tidy_summary <- analyseModel(h_reg_model,
                     write_r2="Mode_PA_GLMM",
                     is_GLM = TRUE)
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = nuc_reg ~ mode + (1 | speaker),
-  my_data = m_c_avoid_separation,
+  my_equation = `high register in nucleus` ~ mode + (1 | speaker),
+  my_data = m_corpus_h_reg,
+  is_separation = TRUE,
   write="Mode_PA_GLMM",
   is_GLM=TRUE,
-  extra_text = ", assuming presence of register tier"
+  extra_text = ", register tier analysis"
 )
 
 
@@ -607,11 +597,11 @@ ggplot(fin_phon_by_mode_adj_list) +
 * Random intercepts only since models with random slopes generate singularity issues.
 ```{r fin_phon model test, tidy = TRUE}
 m_corpus_boundaries <- m_corpus %>% 
-  mutate(fin_phon = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
+  mutate(`L% boundary` = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
                            levels=c("%", "L%")))
                            
-fin_phon_model <- glmer(
-  fin_phon ~ mode + (1 | speaker),
+fin_phon_model <- bglmer(
+  `L% boundary` ~ mode + (1 | speaker),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -627,8 +617,8 @@ fin_phon_model <- glmer(
 )
 
 fin_phon_model_null = 
-  cur_model <- glmer(
-  fin_phon ~ 1 + (1 | speaker),
+  cur_model <- bglmer(
+  `L% boundary` ~ 1 + (1 | speaker),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -656,21 +646,21 @@ cat(
 
 anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
   formattable(
-  caption="ANOVA of model and null model, assuming presence of register tier"
+  caption="ANOVA of model and null model, register tier analysis"
   )
 
-x <- printTidyModel(fin_phon_model,
+tidy_summary <- analyseModel(fin_phon_model,
                     write_r2="Mode_PA_GLMM",
                     is_GLM = TRUE)
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = fin_phon ~ mode + (1 | speaker),
+  my_equation = `L% boundary` ~ mode + (1 | speaker),
   my_data = m_corpus_boundaries,
   write="Mode_fin_phon_GLMM",
   is_GLM=TRUE,
-  extra_text = ", assuming presence of register tier"
+  extra_text = ", register tier analysis"
 )
 
 

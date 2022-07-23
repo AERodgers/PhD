@@ -170,7 +170,7 @@ summariseLME(lh_slope_model.trimmed, run_step = TRUE,
 
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
-lh_slope_model.tidy <- printTidyModel(lh_slope_model.trimmed,
+lh_slope_model.tidy <- analyseModel(lh_slope_model.trimmed,
                                 write_r2="../output/Mode_PA_lh_slope"
                                 )
 lh_slope_model.tidy$r2

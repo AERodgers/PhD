@@ -122,14 +122,14 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(h_reg_model,
+tidy_summary <- analyseModel(h_reg_model,
                     write_r2 = "Utt_h_reg_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 ```
 
@@ -194,15 +194,15 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(one_pa_model,
+tidy_summary <- analyseModel(one_pa_model,
                     write_r2 = "Utt_one_pa_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
 
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 ```
 
 ```{r test one_pa pairwise}
@@ -267,14 +267,14 @@ anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(one_pa_or_h_reg_model,
+tidy_summary <- analyseModel(one_pa_or_h_reg_model,
                     write_r2 = "Utt_one_pa_or_h_reg_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 one_pa_or_h_reg_charts <- getModelFixedFX(
   my_equation = one_pa_or_h_reg ~ mode + (1 | speaker),

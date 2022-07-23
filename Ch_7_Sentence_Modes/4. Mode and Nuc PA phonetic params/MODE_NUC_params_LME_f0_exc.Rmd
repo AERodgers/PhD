@@ -195,7 +195,7 @@ summariseLME(f0_exc_model.trimmed, run_step=TRUE,
 
 ```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
 
-f0_exc_model.tidy <- printTidyModel(f0_exc_model.trimmed,
+f0_exc_model.tidy <- analyseModel(f0_exc_model.trimmed,
                                 write_r2 = "../output/Mode_PA_f0_exc"
                                 )
 f0_exc_model.tidy$r2

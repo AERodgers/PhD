@@ -1,1 +1,1 @@
-h_reg_or ~ mode + (1 | speaker)
+high reg. or nuc. PA only ~ mode + (1 | speaker)

@@ -120,7 +120,7 @@ summariseLME(l_t_model, run_step=TRUE)
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-l_t_model.tidy <- printTidyModel(l_t_model,
+l_t_model.tidy <- analyseModel(l_t_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/PA_l_t"

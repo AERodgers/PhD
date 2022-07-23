@@ -26,7 +26,7 @@ installMissingPackages(
     "RColorBrewer",
     "tidyverse",
     # Load stats package.
-    "lme4"
+    "blme"
   )
 )
 
@@ -61,19 +61,19 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   mutate(
     # remove non-accentuation from phr_phon
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
-    one_pa = str_count(phr_phon, "\\*")==1,
-    one_pa = factor(one_pa, levels=unique(one_pa)),
-    h_reg =  factor(str_detect(phr_phon, "\\^"), levels = c(F, T)),
-    h_reg_or = factor((h_reg == T | one_pa ==T), levels = c(F, T))
+    `nuclear PA only` = str_count(phr_phon, "\\*")==1,
+    `nuclear PA only` = factor(`nuclear PA only`, levels=unique(`nuclear PA only`)),
+    `high register in utterance` =  factor(str_detect(phr_phon, "\\^"), levels = c(F, T)),
+    `high reg. or nuc. PA only` = factor((`high register in utterance` == T | `nuclear PA only` ==T), levels = c(F, T))
     ) %>%
   # Select only columns for analysis
   select(speaker,
          gender,
          mode,
          phr_phon,
-         one_pa, 
-         h_reg,
-         h_reg_or)
+         `nuclear PA only`, 
+         `high register in utterance`,
+         `high reg. or nuc. PA only`)
 
 
 ```
@@ -129,7 +129,7 @@ total_counts <- m_corpus %>%
 
 ```{r Show nuc only utterance level phonology summary, warning=FALSE}
 nuc_only <- m_corpus %>%
-  filter(one_pa == TRUE) %>%
+  filter(`nuclear PA only` == TRUE) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -148,9 +148,9 @@ nuc_only %>%
 ```
 
 
-```{r Show h_reg utterance level phonology summary, warning=FALSE}
+```{r Show `high register in utterance` utterance level phonology summary, warning=FALSE}
 uses_h_reg <- m_corpus %>%
-  filter(h_reg == T) %>%
+  filter(`high register in utterance` == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -169,9 +169,9 @@ uses_h_reg %>%
 ```
 
 
-```{r Show h_reg_or utterance level phonology summary, warning=FALSE}
+```{r Show `high reg. or nuc. PA only` utterance level phonology summary, warning=FALSE}
 uses_h_reg_or <- m_corpus %>%
-  filter(h_reg == T | one_pa == T) %>%
+  filter(`high register in utterance` == T | `nuclear PA only` == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -233,8 +233,8 @@ m_corpus %>%
 # **Statistical Analysis**
 
 ```{r h_reg_model}
-h_reg_model <- glmer(
-  h_reg ~ mode + (1 | speaker),
+h_reg_model <- bglmer(
+  `high register in utterance` ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -250,8 +250,8 @@ h_reg_model <- glmer(
 )
 
 h_reg_model_null = 
-  cur_model <- glmer(
-  h_reg ~ 1 + (1 | speaker),
+  cur_model <- bglmer(
+  `high register in utterance` ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -281,17 +281,17 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(h_reg_model,
+tidy_summary <- analyseModel(h_reg_model,
                     write_r2 = "Utt_h_reg_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 h_reg_charts <- getModelFixedFX(
-  my_equation = h_reg ~ mode + (1 | speaker),
+  my_equation = `high register in utterance` ~ mode + (1 | speaker),
   my_data = m_corpus,
   write = "Utt_h_reg_GLMM",
   is_GLM = TRUE
@@ -302,8 +302,9 @@ h_reg_charts$slopes
 ```
 
 ```{r one_pa_model}
-one_pa_model <- glmer(
-  one_pa ~ mode + (1 | speaker),
+
+one_pa_model <- bglmer(
+  `nuclear PA only` ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -319,8 +320,8 @@ one_pa_model <- glmer(
 )
 
 one_pa_model_null = 
-  cur_model <- glmer(
-  one_pa ~ 1 + (1 | speaker),
+  cur_model <- bglmer(
+  `nuclear PA only` ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -350,18 +351,18 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(one_pa_model,
+tidy_summary <- analyseModel(one_pa_model,
                     write_r2 = "Utt_one_pa_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
 
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 one_pa_charts <- getModelFixedFX(
-  my_equation = one_pa ~ mode + (1 | speaker),
+  my_equation = `nuclear PA only` ~ mode + (1 | speaker),
   my_data = m_corpus,
   write = "Utt_one_pa_GLMM",
   is_GLM = TRUE
@@ -372,9 +373,9 @@ one_pa_charts$intercepts
 one_pa_charts$slopes
 ```
 
-```{r h_reg_or model}
-h_reg_or_model <- glmer(
-  h_reg_or ~ mode + (1 | speaker),
+```{r `high reg. or nuc. PA only` model}
+h_reg_or_model <- bglmer(
+  `high reg. or nuc. PA only` ~ mode + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -390,8 +391,8 @@ h_reg_or_model <- glmer(
 )
 
 h_reg_or_null = 
-  cur_model <- glmer(
-   h_reg_or ~ 1 + (1 | speaker),
+  cur_model <- bglmer(
+   `high reg. or nuc. PA only` ~ 1 + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -421,16 +422,16 @@ anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
   caption="ANOVA of model and null model, assuming presence of register tier"
   )
 
-x <- printTidyModel(h_reg_or_model,
+tidy_summary <- analyseModel(h_reg_or_model,
                     write_r2 = "Utt_h_reg_or_GLMM",
                     is_GLM = TRUE
                     )
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 h_reg_or_charts <- getModelFixedFX(
-  my_equation = h_reg_or ~ mode + (1 | speaker),
+  my_equation = `high reg. or nuc. PA only` ~ mode + (1 | speaker),
   my_data = m_corpus,
   write = "Utt_h_reg_or_GLMM",
   is_GLM = TRUE

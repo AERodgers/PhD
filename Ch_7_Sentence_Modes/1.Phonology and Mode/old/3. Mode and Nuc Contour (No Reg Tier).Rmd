@@ -572,7 +572,7 @@ anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
     caption="ANOVA of model and null model, assuming no register tier."
     )
 
-x <- printTidyModel(nuc_contour_model,
+tidy_summary <- analyseModel(nuc_contour_model,
                     write_r2="Mode_PA_Mode_PA_No_Reg_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
@@ -581,8 +581,8 @@ x <- printTidyModel(nuc_contour_model,
                     )
 
 
-x$r2
-x$table
+tidy_summary$r2
+tidy_summary$table
 
 charts <- getModelFixedFX(
   my_equation =  nuc_contour ~ mode + (1 | speaker),

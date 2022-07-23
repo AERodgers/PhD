@@ -1,1 +1,1 @@
-fin_phon ~ mode + (1 | speaker), zero and high, assuming no register tier.
+% or H% (no reg tier) ~ mode + (1 | speaker), non-register tier analysis.

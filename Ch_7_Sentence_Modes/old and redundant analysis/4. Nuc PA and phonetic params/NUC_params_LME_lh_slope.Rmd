@@ -122,7 +122,7 @@ summariseLME(lh_slope_model, run_step=TRUE) %>% print()
 
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
-lh_slope_model.tidy <- printTidyModel(lh_slope_model,
+lh_slope_model.tidy <- analyseModel(lh_slope_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
                                 write_r2="../output/PA_lh_slope"
