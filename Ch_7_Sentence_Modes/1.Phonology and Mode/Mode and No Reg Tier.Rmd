@@ -810,14 +810,14 @@ anova(fin_phon_model_0L, fin_phon_model_0L_null, test="Chisq") %>%
     caption="ANOVA of model and null model, assuming no register tier."
     )
 
-tidy_summary <- analyseModel(fin_phon_model_0L, "Mode_fin_phon_no_Reg_0L", is_GLM = TRUE)
+tidy_summary <- analyseModel(fin_phon_model_0L, is_GLM = TRUE)
 tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
   my_equation = `% or L% (no reg tier)` ~ mode + (1 | speaker),
   my_data = m_corpus_0L,
-  write="Mode_fin_phon_no_Reg_0L",
+  #write="Mode_fin_phon_no_Reg_0L",
   is_GLM=TRUE,
   extra_text = ", non-register tier analysis."
 )

@@ -1,6 +1,9 @@
 
 
-
+###
+### I now know this issue is perfect separation.
+###
+###
 # Create data set.
 outcome <-
     c(1, 1, 1, 1, 1, 2, 1, 2, 3, 2, 3, 3,

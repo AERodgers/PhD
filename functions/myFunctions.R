@@ -38,11 +38,33 @@ p_color <- all_models_tidy ~ style(color =
                                              "green",
                                              "red")
 )
-pitch_accent_colours <- c(
-  "H*"  = brewer.pal(6, "Set2")[5],
-  "L*H" = brewer.pal(6, "Set2")[3],
-  ">H*" = brewer.pal(6, "Set2")[4]
-)
+
+
+pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
+                          "L*H"    = brewer.pal(6, "Set2")[3],
+                          "^[L*]H" = brewer.pal(6, "Set2")[6],
+                          ">H*"    = brewer.pal(6, "Set2")[4],
+                          "L*^[H]" = brewer.pal(6, "Set2")[2],
+                          "^[L*H]" = brewer.pal(6, "Set2")[1])
+
+
+nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(6, "Set2")[5],
+                                ">H* L%"    = brewer.pal(6, "Set2")[4],
+                                "^[L*]H L%" = brewer.pal(6, "Set2")[6],
+                                "L*H L%"    = brewer.pal(8, "Set2")[1],
+                                "L*^[H] L%" = brewer.pal(8, "Set2")[8],
+                                "^[L*H] L%" = brewer.pal(6, "Set2")[7],
+                                "L*^[H L]%" = brewer.pal(8, "Set2")[2],
+                                "^[L*H L]%" = brewer.pal(6, "Set2")[3],
+                                "L*H %"     = brewer.pal(6, "Set2")[3],
+                                "L*^[H] %" = brewer.pal(6, "Set2")[2],
+                                "^[L*H] %" = brewer.pal(6, "Set2")[7])
+
+
+
+
+
+
 
 nuc_contour_colours <- c(
   "L*H %"   = brewer.pal(6, "Set2")[3],
@@ -473,11 +495,31 @@ get_m_corpus <- function(file_address)
         sep = " ",
         remove = FALSE
       ) %>%
-      mutate(nuc_contour = if_else(
-        str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
-        paste("^[", nuc_contour, sep = ""),
-        nuc_contour),
-
+      mutate(
+        # correct nuc_contour
+        nuc_contour = if_else(
+          str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
+          paste("^[", nuc_contour, sep = ""),
+          nuc_contour),
+        nuc_contour = str_replace(nuc_contour,
+                                  "\\^\\[L\\*H\\s\\%]",
+                                  "^[L*H] %"),
+        nuc_contour = factor(
+          nuc_contour,
+          levels = c(
+            "H* L%",
+            ">H* L%",
+            "^[L*]H L%",
+            "L*H %",
+            "L*H L%",
+            "L*^[H] %",
+            "L*^[H L%]",
+            "L*^[H] L%",
+            "^[L*H] %",
+            "^[L*H L%]",
+            "^[L*H] L%"
+          )
+        ),
         # Correct acc_phon
         acc_phon = str_replace_all(acc_phon, "\\s%|\\sL%", ""),
         acc_phon = str_replace_all(acc_phon,"^(L\\*H\\]|\\^\\[L\\*H)$",
@@ -486,7 +528,7 @@ get_m_corpus <- function(file_address)
         # Correct fin_phon
         fin_phon = str_replace(fin_phon, "^\\%\\]", "\\%"),
         fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
-        across(c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
+        across(c("phr_phon", "acc_phon", "fin_phon"),
                ~ factor(., levels = unique(.)))
         )
   )
@@ -675,8 +717,8 @@ analyseModel <-
           my_model,
           show.intercept = show.intercept,
           show.values = TRUE,
-          type = "pred",
-          title=paste("Predicted probabilities of", response_labels(my_model)),
+          type = type,
+          title=paste(response_labels(my_model)),
           axis.title = response_labels(my_model)
           ) %>%
         print()
