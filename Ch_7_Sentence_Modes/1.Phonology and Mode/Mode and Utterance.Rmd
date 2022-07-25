@@ -234,7 +234,7 @@ m_corpus %>%
 
 ```{r h_reg_model}
 h_reg_model <- bglmer(
-  `high register in utterance` ~ mode + (1 | speaker),
+  `high register in utterance` ~ mode + gender + (1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -284,14 +284,14 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
 tidy_summary <- analyseModel(h_reg_model,
                     write_r2 = "Utt_h_reg_GLMM",
                     is_GLM = TRUE,
-                    show.intercept=TRUE
+                    type = "pred"
                     )
 
 tidy_summary$r2
 tidy_summary$table
 
 h_reg_charts <- getModelFixedFX(
-  my_equation = `high register in utterance` ~ mode + (1 | speaker),
+  my_equation = `high register in utterance` ~ mode + gender +(1 | speaker),
   my_data = m_corpus,
   write = "Utt_h_reg_GLMM",
   is_GLM = TRUE
@@ -304,7 +304,7 @@ h_reg_charts$slopes
 ```{r one_pa_model}
 
 one_pa_model <- bglmer(
-  `nuclear PA only` ~ mode + (1 | speaker),
+  `nuclear PA only` ~ mode + gender +(1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -352,17 +352,16 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(one_pa_model,
-                    write_r2 = "Utt_one_pa_GLMM",
-                    is_GLM = TRUE,
-                    show.intercept=TRUE
-                    )
+                             write_r2 = "Utt_one_pa_GLMM",
+                             is_GLM = TRUE,
+                             type = "pred")
 
 
 tidy_summary$r2
 tidy_summary$table
 
 one_pa_charts <- getModelFixedFX(
-  my_equation = `nuclear PA only` ~ mode + (1 | speaker),
+  my_equation = `nuclear PA only` ~ mode + gender + (1 | speaker),
   my_data = m_corpus,
   write = "Utt_one_pa_GLMM",
   is_GLM = TRUE
@@ -375,7 +374,7 @@ one_pa_charts$slopes
 
 ```{r `high reg. or nuc. PA only` model}
 h_reg_or_model <- bglmer(
-  `high reg. or nuc. PA only` ~ mode + (1 | speaker),
+  `high reg. or nuc. PA only` ~ mode + gender +(1 | speaker),
   data = m_corpus,
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
@@ -424,14 +423,15 @@ anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
 
 tidy_summary <- analyseModel(h_reg_or_model,
                     write_r2 = "Utt_h_reg_or_GLMM",
-                    is_GLM = TRUE
+                    is_GLM = TRUE,
+                    type = "pred"
                     )
 
 tidy_summary$r2
 tidy_summary$table
 
 h_reg_or_charts <- getModelFixedFX(
-  my_equation = `high reg. or nuc. PA only` ~ mode + (1 | speaker),
+  my_equation = `high reg. or nuc. PA only` ~ mode + gender +(1 | speaker),
   my_data = m_corpus,
   write = "Utt_h_reg_or_GLMM",
   is_GLM = TRUE

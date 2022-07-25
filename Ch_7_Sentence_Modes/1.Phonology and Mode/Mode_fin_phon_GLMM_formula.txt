@@ -1,1 +1,1 @@
-L% boundary ~ mode + (1 | speaker), register tier analysis
+L% boundary ~ mode + gender + (1 | speaker), register tier analysis

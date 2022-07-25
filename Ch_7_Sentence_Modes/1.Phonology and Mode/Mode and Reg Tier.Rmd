@@ -43,6 +43,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
          gender,
          stim,
+         prompt,
          mode,
          acc_phon,
          fin_phon,
@@ -524,6 +525,8 @@ To resolve this issue, I have used the blme package, which uses "Maximum a poste
 
 We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 4 diagonal matrix with diagonal elements equal to 9, for variances of 9 or standard deviations of 3)"
 
+With multivariate fixed effects, I just used normal() without spec
+
 (http://bbolker.github.io/mixedmodels-misc/ecostats_chap.html#digression-complete-separation)
 
 (directed from https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#penalizationhandling-complete-separation)`
@@ -531,14 +534,15 @@ We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 
 ```{r model test, tidy = TRUE}
 
 m_corpus_h_reg <- m_corpus %>%
-  select(speaker, `high register in nucleus`, mode)
+  select(prompt, speaker, gender, `high register in nucleus`, mode)
   
 
 h_reg_model <- bglmer(
-  `high register in nucleus` ~ mode + (1 | speaker),
+  `high register in nucleus` ~ mode + gender + (1 | speaker)+ (1 | prompt),
   data = m_corpus_h_reg,
   family = binomial(link = "logit"),
-  fixef.prior = normal(cov = diag(9,4)))
+  fixef.prior = normal()
+  )
 
 h_reg_model_null = 
   cur_model <- bglmer(
@@ -573,15 +577,16 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   caption="ANOVA of model and null model, register tier analysis"
   )
 
+
 tidy_summary <- analyseModel(h_reg_model,
-                    write_r2="Mode_PA_GLMM",
-                    is_GLM = TRUE,
-                    type="pred")
+                             write_r2 = "Mode_PA_GLMM",
+                             is_GLM = TRUE,
+                             type = "pred")
 tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = `high register in nucleus` ~ mode + (1 | speaker),
+  my_equation = `high register in nucleus` ~ mode + gender + (1 | speaker),
   my_data = m_corpus_h_reg,
   is_separation = TRUE,
   write="Mode_PA_GLMM",
@@ -756,7 +761,7 @@ m_corpus_boundaries <- m_corpus %>%
                            levels=c("%", "L%")))
                            
 fin_phon_model <- bglmer(
-  `L% boundary` ~ mode + (1 | speaker),
+  `L% boundary` ~ mode + gender + (1 | speaker),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   control = glmerControl(
@@ -810,7 +815,7 @@ tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = `L% boundary` ~ mode + (1 | speaker),
+  my_equation = `L% boundary` ~ mode + gender +  (1 | speaker),
   my_data = m_corpus_boundaries,
   write="Mode_fin_phon_GLMM",
   is_GLM=TRUE,

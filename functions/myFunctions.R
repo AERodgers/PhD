@@ -710,19 +710,33 @@ analyseModel <-
   }
 
   if (is_GLM)
-    {
-      tidyPrintPredictions(my_model, my_formula)
-      my_plot <-
-        plot_model(
-          my_model,
-          show.intercept = show.intercept,
-          show.values = TRUE,
-          type = type,
-          title=paste(response_labels(my_model)),
-          axis.title = response_labels(my_model)
-          ) %>%
-        print()
+  {
+    tidyPrintPredictions(my_model, my_formula)
+
+    fixed_factors <- (str_replace_all(deparse(formula(
+      my_model, fixed.only = TRUE
+    )[3]),
+    "[\\(|\\)|+ ]",
+    " ") %>%
+      str_squish() %>%
+      str_split(" "))[[1]]
+    fixed_factors = fixed_factors[fixed_factors != "*"]
+
+    for (cur_factor in fixed_factors) {
+      my_plot <- ggpredict(my_model, terms = cur_factor) %>%
+        plot() +
+        ylim(0, 1) +
+        labs(caption = paste(response_labels(my_model)))
+      print(my_plot)
+
     }
+    my_plot <- ggpredict(my_model, terms = fixed_factors) %>%
+      plot() +
+      ylim(0, 1) +
+      labs(caption = paste(response_labels(my_model)))
+    print(my_plot)
+
+  }
   else
     {
       my_plot <-
@@ -811,7 +825,7 @@ getModelFixedFX <- function(my_equation,
         my_equation,
         data = my_data,
         family = binomial(link = "logit"),
-        fixef.prior = normal(cov = diag(9, 4)),
+        fixef.prior = normal(),
         # Change optimizer to avoid convergence errors/
         control = glmerControl(
           optimizer = optimizer,
@@ -916,7 +930,7 @@ getModelFixedFX <- function(my_equation,
             my_equation,
             data = my_data,
             family = binomial(link = "logit"),
-            fixef.prior = normal(cov = diag(9,4)),
+            fixef.prior = normal(),
             # Change optimizer to avoid convergence errors/
             control = glmerControl(
               optimizer = optimizer,
