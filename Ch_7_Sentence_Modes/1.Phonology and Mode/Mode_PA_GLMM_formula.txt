@@ -1,1 +1,1 @@
-high register in nucleus ~ mode + gender + (1 | speaker), register tier analysis
+high register in nucleus ~ mode + gender + (1 | speaker) + (1 | prompt), register tier analysis

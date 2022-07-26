@@ -581,12 +581,13 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
 tidy_summary <- analyseModel(h_reg_model,
                              write_r2 = "Mode_PA_GLMM",
                              is_GLM = TRUE,
-                             type = "pred")
+                             type = "pred",
+                             factor_matrix=TRUE)
 tidy_summary$r2
 tidy_summary$table
-
 charts <- getModelFixedFX(
-  my_equation = `high register in nucleus` ~ mode + gender + (1 | speaker),
+  my_equation =
+    `high register in nucleus` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_h_reg,
   is_separation = TRUE,
   write="Mode_PA_GLMM",
@@ -761,7 +762,7 @@ m_corpus_boundaries <- m_corpus %>%
                            levels=c("%", "L%")))
                            
 fin_phon_model <- bglmer(
-  `L% boundary` ~ mode + gender + (1 | speaker),
+  `L% boundary` ~ mode + gender + (1 | speaker) + (1 | prompt),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   control = glmerControl(
@@ -777,7 +778,7 @@ fin_phon_model <- bglmer(
 
 fin_phon_model_null = 
   cur_model <- bglmer(
-  `L% boundary` ~ 1 + (1 | speaker),
+  `L% boundary` ~ 1 + (1 | speaker) + (1 | prompt),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   control = glmerControl(
@@ -815,7 +816,7 @@ tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = `L% boundary` ~ mode + gender +  (1 | speaker),
+  my_equation = `L% boundary` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_boundaries,
   write="Mode_fin_phon_GLMM",
   is_GLM=TRUE,

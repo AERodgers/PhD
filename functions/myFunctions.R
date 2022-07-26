@@ -614,9 +614,10 @@ analyseModel <-
            write_r2 = NULL,
            is_GLM = FALSE,
            axis.lim = NULL,
-           exponentiate=FALSE,
-           show.intercept=FALSE,
-           type="est")
+           exponentiate = FALSE,
+           show.intercept = FALSE,
+           type = "est",
+           factor_matrix = FALSE)
   {
     require("formattable")
     require("tidyverse")
@@ -630,114 +631,132 @@ analyseModel <-
     require("ggeffects")
     require("sjlabelled")
 
-  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+    my_stat <- ifelse(is_GLM, "z.value", "z.value")
 
-  my_headers <- c(
-    "term",
-    "estimate",
-    "conf.low",
-    "conf.high",
-    "std.error",
-    eval(my_stat),
-    "df",
-    "p.value"
-  )
+    my_headers <- c(
+      "term",
+      "estimate",
+      "conf.low",
+      "conf.high",
+      "std.error",
+      eval(my_stat),
+      "df",
+      "p.value"
+    )
 
-  my_stat = enquo(my_stat)
+    my_stat = enquo(my_stat)
 
-  if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
+    if (is_GLM) {
+      my_headers <- my_headers[my_headers != "df"]
+    }
 
-  my_headers = enquos(my_headers)
-  my_formula <- getModelFormula(my_model)
+    my_headers = enquos(my_headers)
+    my_formula <- getModelFormula(my_model)
 
-  if (is_GLM){
-    tidy_model <- tidy(my_model, exponentiate = exponentiate, conf.int=T)}
-  else{tidy_model <- tidy(my_model, conf.int=T) %>% mutate(df = round(df, 2))}
+    if (is_GLM) {
+      tidy_model <-
+        tidy(my_model, exponentiate = exponentiate, conf.int = T)
+    }
+    else{
+      tidy_model <-
+        tidy(my_model, conf.int = T) %>% mutate(df = round(df, 2))
+    }
 
-  tidy_model <- tidy_model %>%
-    filter(effect %notin% "ran_pars") %>%
-    select(-c(group, effect)) %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3)
-    ) %>%
-    rename(!!my_stat := statistic) %>%
-    # re-order columns
-    select(!!!my_headers) %>%
-    formattable(
-      caption = paste("summary of model:",
-                      str_replace_all(my_formula, "\\`", ""))
-    ) %>%
-    mutate(
-      # avoid escape character errors
-      term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
-      # make p.value readable
-           p.value = if_else(
-             p.value < 0.0001,
-             as.character(formatC(p.value, format="e", digits = 1)),
-             as.character(round(p.value, 4), digits = 2))
+    tidy_model <- tidy_model %>%
+      filter(effect %notin% "ran_pars") %>%
+      select(-c(group, effect)) %>%
+      mutate(
+        estimate = round(estimate, 3),
+        std.error = round(std.error, 3),
+        statistic = round(statistic, 3)
+      ) %>%
+      rename(!!my_stat := statistic) %>%
+      # re-order columns
+      select(!!!my_headers) %>%
+      formattable(caption = paste("summary of model:",
+                                  str_replace_all(my_formula, "\\`", "")),
+                  title = "") %>%
+      mutate(
+        # avoid escape character errors
+        term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
+        # make p.value readable
+        p.value = if_else(
+          p.value < 0.0001,
+          as.character(formatC(
+            p.value, format = "e", digits = 1
+          )),
+          as.character(round(p.value, 4), digits = 2)
+        )
       )
 
-  if (is_GLM) {
-    tidy_model <- tidy_model %>%
-      mutate(
-        # report log odds
-        # across(c(estimate, conf.low, conf.high), ~ exp(.)),
-             across(c(estimate, conf.low, conf.high),
-               ~ if_else(
-                 abs(.) < 0.001 | abs(.) > 100000,
-                 as.character(formatC(., format = "e", digits = 1)),
-                 if_else(
-                   abs(.) < 10,
-                   as.character(round(., 3), digits = 3),
-                   as.character(round(., 1), digits = 1),
-                 )
-               )
-             ))
-  }
-
-  r2_nakagawa <-  knitr::kable(
-    r2_nakagawa(my_model),
-    caption = "Conditional and marginal R^2^ of model",
-    digits = 2,
-    align = "l"
-  )  %>% kable_styling(full_width = FALSE, position="left")
-
-  if (!is.null(write_r2)) {
-    do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
-      write.csv(paste(write_r2, "_r2.csv", sep = ""))
-  }
-
-  if (is_GLM)
-  {
-    tidyPrintPredictions(my_model, my_formula)
-
-    fixed_factors <- (str_replace_all(deparse(formula(
-      my_model, fixed.only = TRUE
-    )[3]),
-    "[\\(|\\)|+ ]",
-    " ") %>%
-      str_squish() %>%
-      str_split(" "))[[1]]
-    fixed_factors = fixed_factors[fixed_factors != "*"]
-
-    for (cur_factor in fixed_factors) {
-      my_plot <- ggpredict(my_model, terms = cur_factor) %>%
-        plot() +
-        ylim(0, 1) +
-        labs(caption = paste(response_labels(my_model)))
-      print(my_plot)
-
+    if (is_GLM) {
+      tidy_model <- tidy_model %>%
+        mutate(# report log odds
+          # across(c(estimate, conf.low, conf.high), ~ exp(.)),
+          across(
+            c(estimate, conf.low, conf.high),
+            ~ if_else(
+              abs(.) < 0.001 | abs(.) > 100000,
+              as.character(formatC(
+                ., format = "e", digits = 1
+              )),
+              if_else(
+                abs(.) < 10,
+                as.character(round(., 3), digits = 3),
+                as.character(round(., 1), digits = 1),
+              )
+            )
+          ))
     }
-    my_plot <- ggpredict(my_model, terms = fixed_factors) %>%
-      plot() +
-      ylim(0, 1) +
-      labs(caption = paste(response_labels(my_model)))
-    print(my_plot)
 
-  }
-  else
+    r2_nakagawa <-  knitr::kable(
+      r2_nakagawa(my_model),
+      caption = "Conditional and marginal R^2^ of model",
+      digits = 2,
+      align = "l"
+    )  %>% kable_styling(full_width = FALSE, position = "left")
+
+    if (!is.null(write_r2)) {
+      do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
+        write.csv(paste(write_r2, "_r2.csv", sep = ""))
+    }
+
+    if (is_GLM)
+    {
+      tidyPrintPredictions(my_model, my_formula, factor_matrix = factor_matrix)
+      fixed_factors <- (str_replace_all(deparse(formula(
+        my_model, fixed.only = TRUE
+      )[3]),
+      "[\\(|\\)|+ ]",
+      " ") %>%
+        str_squish() %>%
+        str_split(" "))[[1]]
+      fixed_factors = fixed_factors[fixed_factors != "*"]
+
+      if (factor_matrix) {
+        my_plot <- ggpredict(my_model, terms = fixed_factors) %>%
+          plot() +
+          ylim(0, 1) +
+          labs(
+            caption = paste("predicted probability of",
+                            response_labels(my_model)),
+            title=""
+            )
+        print(my_plot)
+      }
+      else{
+        for (cur_factor in fixed_factors) {
+          my_plot <- ggpredict(my_model, terms = cur_factor) %>%
+            plot() +
+            ylim(0, 1) +
+            labs(caption = paste(response_labels(my_model)),
+                 title="")
+          print(my_plot)
+
+        }
+      }
+    }
+    else
     {
       my_plot <-
         plot_model(
@@ -747,15 +766,16 @@ analyseModel <-
           vline.color = "red",
           colors = "Black",
           axis.lim = axis.lim,
-          type = type) %>%
+          type = type
+        ) %>%
         print()
-      }
+    }
 
-  return(list(
-    "r2" = r2_nakagawa,
-    "table" = tidy_model,
-    "plot" = my_plot
-  ))
+    return(list(
+      "r2" = r2_nakagawa,
+      "table" = tidy_model,
+      "plot" = my_plot
+    ))
   }
 
 
@@ -1090,7 +1110,8 @@ getModelFixedFX <- function(my_equation,
     formattable(caption = paste("b0 for",
                                 str_replace_all(my_formula, "\\`", ""),
                                 extra_text,
-                                sep = " ")) %>%
+                                sep = " "),
+                title = "") %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -1112,7 +1133,8 @@ getModelFixedFX <- function(my_equation,
     formattable(caption = paste("b1 for",
                                 str_replace_all(my_formula, "\\`", ""),
                                 extra_text,
-                                sep = " ")) %>%
+                                sep = " "),
+                title = "") %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
@@ -1327,63 +1349,121 @@ adjustP_posthoc <-
       return(p_counts)
     }
   }
+### Tidy Print Predictions ####################################################
+tidyPrintPredictions <-
+  function(model, caption_suffix, factor_matrix = FALSE) {
+    require("ggeffects")
+    require("tidyverse")
+    require("knitr")
+    require("kableExtra")
 
-tidyPrintPredictions <- function(model, caption_suffix){
+    pred_list <- ggpredict(model)
+    obj_names <- names(pred_list)
+    obj_i = 0
+    if (factor_matrix) {
+      ggpredict(model, terms = obj_names) %>%
+        as_tibble() %>%
+        relocate(std.error, .after = conf.high) %>%
+        relocate(group , .before = x) %>%
+        mutate(
+          x = str_replace_all(x,
+                              "([\\*\\[\\]\\$\\^\\>])",
+                              "\\\\\\1"),
+          std.error = if_else(
+            abs(std.error) < 0.0001,
+            as.character(formatC(
+              std.error, format = "e", digits = 1
+            )),
+            as.character(round(std.error, 4), digits = 2)
+          ),
+          across(
+            c("predicted", "conf.low", "conf.high"),
+            ~ if_else(
+              . * 100 < 0.01,
+              paste(as.character(round(. * 100, digits = 4)),
+                    "%",
+                    sep = ""),
+              if_else(
+                . * 100 < 0.01,
+                paste(as.character(round(. * 100, digits = 3)),
+                      "%",
+                      sep = ""),
+                if_else(
+                  . * 100 < 0.1,
+                  paste(as.character(round(. * 100, digits = 2)),
+                        "%",
+                        sep = ""),
+                  paste(as.character(round(. * 100, digits = 1)),
+                        "%",
+                        sep = "")
+                )
+              )
+            )
+          )
+        ) %>%
+        rename(probability = x) %>%
+        arrange(group) %>%
+        knitr::kable(caption = paste("predicted probability of",
+                                      response_labels(model))) %>%
+        kable_styling(full_width = FALSE, position = "left") %>%
+        print()
+    }
 
-  require("ggeffects")
-  require("tidyverse")
-  require("knitr")
-  require("kableExtra")
+    else
+    {
+      for (cur_obj in pred_list)
+      {
+        obj_i = obj_i + 1
+        cur_obj_name <- obj_names[obj_i]
+        cur_obj_name = enquo(cur_obj_name)
+        cur_caption <- cur_obj %>% get_title
 
-  pred_list <- ggpredict(model)
-  obj_names <- names(pred_list)
-  obj_i = 0
-  for (cur_obj in pred_list)
-  {
-    obj_i = obj_i + 1
-    cur_obj_name <- obj_names[obj_i]
-    cur_obj_name = enquo(cur_obj_name)
-    cur_caption <- cur_obj %>% get_title
+        as_tibble(cur_obj) %>%
+          select(-group) %>%
+          relocate(std.error, .after = conf.high) %>%
+          mutate(
+            x = str_replace_all(x,
+                                "([\\*\\[\\]\\$\\^\\>])",
+                                "\\\\\\1"),
+            std.error = if_else(
+              abs(std.error) < 0.0001,
+              as.character(formatC(
+                std.error, format = "e", digits = 1
+              )),
+              as.character(round(std.error, 4), digits = 2)
+            ),
+            across(
+              c("predicted", "conf.low", "conf.high"),
+              ~ if_else(
+                . * 100 < 0.01,
+                paste(
+                  as.character(round(. * 100, digits = 4)),
+                  "%",
+                  sep = ""),
+                if_else(
+                  . * 100 < 0.01,
+                  paste(as.character(round(. * 100, digits = 3)),
+                        "%",
+                        sep = ""),
+                  if_else(
+                    . * 100 < 0.1,
+                    paste(as.character(round(. * 100, digits = 2)),
+                    "%",
+                    sep = ""),
+                    paste(as.character(round(. * 100, digits = 1)),
+                    "%",
+                    sep = "")
+                  )
+                )
+              )
+            )
+          ) %>%
+          rename(!!cur_obj_name := x) %>%
+          knitr::kable(caption = cur_caption) %>%
+          kable_styling(full_width = FALSE, position = "left") %>%
+          print()
 
-    as_tibble(cur_obj) %>%
-      select(-group) %>%
-      relocate(std.error, .after=conf.high) %>%
-      mutate(x = str_replace_all(x,
-                                 "([\\*\\[\\]\\$\\^\\>])",
-                                 "\\\\\\1"),
-             std.error = if_else(
-               abs(std.error) < 0.0001,
-               as.character(formatC(std.error, format="e", digits = 1)),
-               as.character(round(std.error, 4), digits = 2)),
-             across(
-               c("predicted", "conf.low", "conf.high"),
-               ~ if_else(
-                 . * 100 < 0.01,
-                 paste(as.character(round(. * 100, digits=4)),
-                       "%",
-                       sep=""),
-                 if_else(
-                   . * 100 < 0.01,
-                   paste(as.character(round(. * 100, digits=3)),
-                         "%",
-                         sep=""),
-                   if_else(
-                     . * 100 < 0.1,
-                     paste(as.character(round(. * 100, digits=2)),
-                           "%",
-                           sep=""),
-                     paste(as.character(round(. * 100, digits=1)),
-                           "%",
-                           sep="")
-                     )
-                   )
-                 )
-               )
-             ) %>%
-      rename(!!cur_obj_name := x) %>%
-      knitr::kable(caption = cur_caption) %>%
-      kable_styling(full_width = FALSE, position = "left") %>%
-      print()
+      }
+    }
 
   }
-}

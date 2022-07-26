@@ -1,1 +1,1 @@
-% or H% (no reg tier) ~ mode + gender + (1 | speaker), non-register tier analysis.
+% or H% (no reg tier) ~ mode + gender + (1 | speaker) + (1 | prompt)

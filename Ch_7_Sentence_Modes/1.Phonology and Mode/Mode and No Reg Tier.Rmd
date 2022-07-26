@@ -736,18 +736,23 @@ m_corpus_0L <- m_corpus %>%
   rename("% or L% (no reg tier)"= fin_phon_0L)
 ```
 
-#### __`%|H% ~ mode + (1 | speaker)`__
+#### __GLMM analysis for % v H% tier__
 ```{r GLMM Test of % and H% re mode}
 
 
-fin_phon_model_0H <- bglmer(`% or H% (no reg tier)` ~ mode + gender + (1 | speaker),
-                           data = m_corpus_0H,
-                           family = binomial(link = "logit"),
-                           fixef.prior = normal())
+fin_phon_model_0H <- bglmer(
+  `% or H% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  data = m_corpus_0H,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+)
 
-fin_phon_model_0H_null <- bglmer(`% or H% (no reg tier)` ~ 1 + (1 | speaker),
-                                 data = m_corpus_0H,
-                                 family = binomial(link = "logit"))
+fin_phon_model_0H_null <-
+  bglmer(
+    `% or H% (no reg tier)` ~ 1 + (1 | speaker) + (1 | prompt),
+    data = m_corpus_0H,
+    family = binomial(link = "logit")
+  )
 
 summary(fin_phon_model_0H)
 ```
@@ -774,28 +779,30 @@ tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = `% or H% (no reg tier)` ~ mode + gender + (1 | speaker),
+  my_equation =
+    `% or H% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_0H,
   is_separation = TRUE,
   write="Mode_fin_phon_no_Reg_0H",
-  is_GLM=TRUE,
-  extra_text = ", non-register tier analysis."
+  is_GLM=TRUE
 )
 charts$intercepts
 charts$slopes
 ```
 
-#### `%|L% ~ mode + (1 | speaker)`
+#### __`GLMM for % v L%`__
 ```{r GLMM Test of 0 and L re mode}
+fin_phon_model_0L <- glmer(
+  `% or L% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  data = m_corpus_0L,
+  family = binomial(link = "logit")
+)
 
-                                
-fin_phon_model_0L <- glmer(`% or L% (no reg tier)` ~ mode + gender + (1 | speaker),
-                           data = m_corpus_0L,
-                           family = binomial(link = "logit"))
-
-fin_phon_model_0L_null <- glmer(`% or L% (no reg tier)` ~ 1 + (1 | speaker),
-                                data = m_corpus_0L,
-                                family = binomial(link = "logit"))
+fin_phon_model_0L_null <- glmer(
+  `% or L% (no reg tier)` ~ 1 + (1 | speaker) + (1 | prompt),
+  data = m_corpus_0L,
+  family = binomial(link = "logit")
+)
 
 summary(fin_phon_model_0L)
 ```
@@ -821,11 +828,11 @@ tidy_summary$r2
 tidy_summary$table
 
 charts <- getModelFixedFX(
-  my_equation = `% or L% (no reg tier)` ~ mode + gender + (1 | speaker),
+  my_equation =
+    `% or L% (no reg tier)` ~ mode + gender + (1 | speaker) + (1| prompt),
   my_data = m_corpus_0L,
   write="Mode_fin_phon_no_Reg_0L",
-  is_GLM=TRUE,
-  extra_text = ", non-register tier analysis."
+  is_GLM=TRUE
 )
 
 charts$intercepts
