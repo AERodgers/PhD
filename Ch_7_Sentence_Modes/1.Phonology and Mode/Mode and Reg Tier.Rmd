@@ -809,7 +809,7 @@ anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(fin_phon_model,
-                            # write_r2="Mode_PA_GLMM",
+                             write_r2="Mode_PA_GLMM",
                              is_GLM = TRUE,
                              type="pred")
 tidy_summary$r2

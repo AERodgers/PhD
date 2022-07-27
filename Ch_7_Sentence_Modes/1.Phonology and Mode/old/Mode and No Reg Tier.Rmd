@@ -704,7 +704,10 @@ ggplot(fin_phon_by_mode_adj_list) +
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
 
 
-#### GLMM test of fin\_phon H as a fn of mode.
+#### GLMM tests of fin\_phon as a fn of mode.
+
+A preliminary test returned a genderM with a probability  of 1.015 (CIs=0.118--8.721, p=0.9894), indicating that gender likely has no effect, Therefore, it was removed from the final model.
+
 
 * __Complete separation issue__
 
@@ -718,27 +721,35 @@ We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 
 
 (directed from https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#penalizationhandling-complete-separation)
 ```{r Make binomial subsets of corpus}
-m_corpus_is_H_boundary <- m_corpus %>%
+m_corpus_H_or_not <- m_corpus %>%
   # treat HL% as for purpose of % vs H%
-  mutate(is_H_boundary =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
-  mutate(is_H_boundary = factor(is_H_boundary=="H%", level = c(F, T)))
+  mutate(fin_phon_0H =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
+  mutate(fin_phon_0H = factor(fin_phon_0H=="H%", level = c(F, T))) %>% 
+  rename("% or H% (no reg tier)"= fin_phon_0H)
+
+m_corpus_0L <- m_corpus %>%
+  # treat HL% as for purpose of % vs L%
+  mutate(fin_phon_0L = str_replace(fin_phon, "HL\\%", "L%")) %>% 
+  filter(fin_phon_0L %in% c("%", "L%")) %>% 
+  mutate(fin_phon_0L = factor(fin_phon_0L, levels = c("%", "L%"))) %>% 
+  rename("% or L% (no reg tier)"= fin_phon_0L)
 ```
 
-#### __GLMM analysis for H% tier__
+#### __GLMM analysis for % v H% tier__
 ```{r GLMM Test of % and H% re mode}
 
 
 fin_phon_model_H_or_not <- bglmer(
-  is_H_boundary ~ mode + gender + (1 | speaker) + (1 | prompt),
-  data = m_corpus_is_H_boundary,
+  `% or H% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  data = m_corpus_H_or_not,
   family = binomial(link = "logit"),
   fixef.prior = normal()
 )
 
 fin_phon_model_H_or_not_null <-
   bglmer(
-    is_H_boundary ~ 1 + (1 | speaker) + (1 | prompt),
-    data = m_corpus_is_H_boundary,
+    `% or H% (no reg tier)` ~ 1 + (1 | speaker) + (1 | prompt),
+    data = m_corpus_H_or_not,
     family = binomial(link = "logit")
   )
 
@@ -768,8 +779,8 @@ tidy_summary$table
 
 charts <- getModelFixedFX(
   my_equation =
-    is_H_boundary ~ mode + gender + (1 | speaker) + (1 | prompt),
-  my_data = m_corpus_is_H_boundary,
+    `% or H% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  my_data = m_corpus_H_or_not,
   is_separation = TRUE,
   write="Mode_fin_phon_no_Reg_0H",
   is_GLM=TRUE
@@ -778,4 +789,52 @@ charts$intercepts
 charts$slopes
 ```
 
+#### __`GLMM for % v L%`__
+```{r GLMM Test of 0 and L re mode}
+fin_phon_model_0L <- glmer(
+  `% or L% (no reg tier)` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  data = m_corpus_0L,
+  family = binomial(link = "logit")
+)
+
+fin_phon_model_0L_null <- glmer(
+  `% or L% (no reg tier)` ~ 1 + (1 | speaker) + (1 | prompt),
+  data = m_corpus_0L,
+  family = binomial(link = "logit")
+)
+
+summary(fin_phon_model_0L)
+```
+
+
+```{r GLMM of 0 and L re mode Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(fin_phon_model_0L, tol=1e-5) -->",
+  isSingular(fin_phon_model_0L, tol = 1e-5),
+  "\n"
+)
+
+anova(fin_phon_model_0L, fin_phon_model_0L_null, test="Chisq") %>%
+  formattable(
+    caption="ANOVA of model and null model, assuming no register tier."
+    )
+
+tidy_summary <- analyseModel(fin_phon_model_0L,
+                             "Mode_fin_phon_no_Reg_0L",
+                             is_GLM = TRUE,
+                             type = "pred")
+tidy_summary$r2
+tidy_summary$table
+
+charts <- getModelFixedFX(
+  my_equation =
+    `% or L% (no reg tier)` ~ mode + gender + (1 | speaker) + (1| prompt),
+  my_data = m_corpus_0L,
+  write="Mode_fin_phon_no_Reg_0L",
+  is_GLM=TRUE
+)
+
+charts$intercepts
+charts$slopes
+```
 

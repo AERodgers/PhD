@@ -1,1 +1,0 @@
-% or L% (no reg tier) ~ mode + gender + (1 | speaker) + (1 | prompt)
