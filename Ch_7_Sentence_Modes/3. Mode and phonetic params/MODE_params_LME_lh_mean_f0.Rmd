@@ -31,7 +31,8 @@ installMissingPackages(
     "knitr",
     "RColorBrewer",
     # Include packages for %in% %notin% syntactic notation
-    "mefa4"
+    "mefa4",
+    "blme"
   )
 )
 
@@ -41,28 +42,10 @@ theme_set(theme_minimal(base_size = 14))
 ```
 
 ```{r load corpus, include=FALSE}
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
   select(
     speaker,
@@ -78,19 +61,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-- Maximal model works.
+- Intercepts only model without prompt is best for no singularity / convergence issues
 
-#### `lh_mean_f0 ~  mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt)`
+#### ` lh_mean_f0 ~ mode + (1 + mode | speaker) + (1 | gender) + (1 | prompt)`
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
-lh_mean_f0_model <-
-    lmer(
-        lh_mean_f0 ~  mode + fin_phon + gender +
-          (1 + mode | speaker) + (1 | prompt),
+lh_mean_f0_model <- lmer(
+  lh_mean_f0 ~
+    mode + acc_phon + (1 | speaker) + (1 | gender) + (1 | fin_phon),
         data = m_corpus,
         control = lmerControl(
-            optimizer = "optimx",
+            optimizer = "bobyqa",
             calc.derivs = FALSE,
             optCtrl = list(
                 method = "nlminb",
@@ -100,31 +82,29 @@ lh_mean_f0_model <-
         )
       )
 
-
 summariseLME(lh_mean_f0_model, run_step=TRUE,
               write="../output_model_anovas/Mode_lh_mean_f0_anova.csv")
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, results="asis"}
 
 lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model,
                                 write_r2="../output/Mode_lh_mean_f0"
                                 )
 lh_mean_f0_model.tidy$r2
-
+lh_mean_f0_model.tidy$table
 ```
 
 ```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_mean_f0 ~  mode + fin_phon + gender +
-    (1 + mode | speaker) + (1 | prompt),
-
+  my_equation = lh_mean_f0 ~ 
+     mode + (1 | speaker) + (1 | gender) + (1 | fin_phon),
   my_data = m_corpus,
-  write="../output/Mode_lh_mean_f0"
+  write="../output/Mode_lh_mean_f0",
+  optimizer="bobyqa"
 )
-charts$intercepts
 charts$slopes
 
 

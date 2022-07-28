@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME analysis of h_f0 ~ Mode"
+title: "Chapter 7 - LME analysis of h_f0 ~ acc_phon"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -40,19 +40,14 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-```{r load corpus, include=FALSE}
+
+```{r load corpus}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
     acc_phon =
       factor(
         str_replace(nuc_contour,
@@ -60,7 +55,6 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                     ""),
         levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
       ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
     fin_phon = factor(fin_phon, levels=unique(fin_phon))
   ) %>%
   # Select only columns for analysis
@@ -69,6 +63,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     gender,
     mode,
     prompt,
+    nuc_contour,
     acc_phon,
     fin_phon,
     h_f0) %>% 
@@ -76,48 +71,72 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   mutate(acc_phon = factor(acc_phon,
                            levels = l_star_h_types)
          )
+
 ```
 
-- initial model raises a singularity issue warning.
-- Singularity only disappears in intercepts-only model without (1|prompt)
-
-#### `h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker)`
-
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE}
 # run model
 h_f0_model <-
-  lmer(h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
-       data = m_corpus,
+    lmer(
+        h_f0 ~ acc_phon + fin_phon + gender +
+          (1 + acc_phon | speaker) + (1 | prompt),
+        data = m_corpus,
         control = lmerControl(
-          optimizer = "optimx",
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+            )
         )
       )
-summariseLME(h_f0_model, run_step = TRUE,
-              write = "../output_model_anovas/Mode_h_f0_anova.csv")
-#              
+
+summariseLME(h_f0_model, run_step=TRUE) %>% print()
+```
+-   Convergence and singularity issues (with bobyqa and omptimx).
+-   Running model again without (1|prompt).
+-   This model works.
+
+#### `h_f0 ~ acc_phon + fin_phon + gender + (1 + mode | speaker)`
+
+```{r run model w/o gender,  fig.height=3, fig.width=9}
+# run model
+h_f0_model <-
+    lmer(
+        h_f0 ~ acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
+        data = m_corpus,
+        control = lmerControl(
+            optimizer = "optimx",
+            calc.derivs = FALSE,
+            optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+                )
+            )
+        )
+
+summariseLME(h_f0_model, run_step=TRUE,
+             write="../output_model_anovas/acc_phon_h_f0_anova.csv")
+
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
-
+```{r make tidy model, fig.height=3, fig.width=9, results="asis"}
 h_f0_model.tidy <- analyseModel(h_f0_model,
-                                write_r2="../output/acc_phon_h_f0"
-                                )
+                                  write_r2 = "../output/acc_phon_h_f0"
+                                  )
+
 h_f0_model.tidy$r2
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+
+```{r do pairwise analysis, fig.height=3, fig.width=9}
 
 charts <- getModelFixedFX(
-  my_equation = h_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
+  my_equation = h_f0 ~ acc_phon + fin_phon + gender + (1 + acc_phon | speaker),
   my_data = m_corpus,
-  optimizer = "optimx",
   write="../output/acc_phon_h_f0"
 )
 charts$intercepts

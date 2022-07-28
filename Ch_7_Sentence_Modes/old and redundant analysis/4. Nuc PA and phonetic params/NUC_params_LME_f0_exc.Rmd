@@ -45,7 +45,7 @@ Give the sparsity of \^[L\*]H (n=6), H\* (n=2) and \>H \*(n=5), and considering 
 They should be analysed independently for M8 alone.
 
 ```{r load corpus}
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
@@ -62,7 +62,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
         str_replace(nuc_contour,
                     "\\s%$|\\sL%$",
                     ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
+        levels = c("H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]")
       ),
     fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
     fin_phon = factor(fin_phon, levels=unique(fin_phon))

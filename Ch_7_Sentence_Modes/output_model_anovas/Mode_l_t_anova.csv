@@ -1,4 +1,2 @@
-term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
-mode,59131.094,19710.365,3,612.164,60.12,4.5e-34,6.3e-33,p<0.0001
-fin_phon,126.082,126.082,1,563.702,0.385,0.535,0.555,
-gender,11105.355,11105.355,1,8.979,33.873,2.6e-04,6.1e-04,p<0.001
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,signif.
+mode,41957.589,13985.863,3,606.129,43.698,1.4163476614232169e-25,p<0.001

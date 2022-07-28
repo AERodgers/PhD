@@ -40,24 +40,6 @@ theme_set(theme_minimal(base_size = 14))
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
   select(
     speaker,
@@ -71,16 +53,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   # keep only explicitly LH pitch accents.
   filter(acc_phon %notin% c("H*", ">H*")) %>%
   mutate(acc_phon = factor(acc_phon,
-                           levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
+                           levels = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")))
 ```
 
+#### `h_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt)`
 - Maximal model creates singularity issue.
 - This disappears with an random intercepts-only model.
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 h_t_model <-
-  lmer(h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt),
+  lmer(h_t ~ mode +
+         (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
        data = m_corpus,
         control = lmerControl(
           optimizer = "optimx",
@@ -98,7 +82,7 @@ summariseLME(h_t_model, run_step=TRUE,
               write = "../output_model_anovas/Mode_h_t_anova.csv")
 
 ```
-- 
+
 ```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 h_t_model.tidy <- analyseModel(h_t_model,
@@ -111,7 +95,8 @@ h_t_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = h_t ~ mode + fin_phon + gender + (1 | speaker) + (1 | prompt),
+  my_equation = h_t ~ mode +
+         (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
   my_data = m_corpus,
   write="../output/Mode_h_t"
 )

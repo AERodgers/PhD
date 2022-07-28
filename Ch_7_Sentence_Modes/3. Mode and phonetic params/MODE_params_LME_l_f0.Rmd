@@ -38,47 +38,35 @@ installMissingPackages(
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
+```
+
+```{r load corpus, include=FALSE}
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
+
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
-  select(speaker,
-         gender,
-         mode,
-         prompt,
-         acc_phon,
-         fin_phon,
-         l_f0) %>%
-  # keep only explicitly LH pitch accents.
-  filter(acc_phon %notin% c("H*", ">H*")) %>%
+  select(
+    speaker,
+    gender,
+    mode,
+    prompt,
+    acc_phon,
+    fin_phon,
+    l_f0) %>% 
+  filter(acc_phon %in% l_star_h_types)  %>% 
   mutate(acc_phon = factor(acc_phon,
-                           levels = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")))
+                           levels = l_star_h_types)
+         )
 ```
 
 ```{r run initial model,  fig.height=3, include=FALSE, fig.width=9, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode + fin_phon + (1 + mode | speaker) + gender + (1 | prompt),
+    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
     data = m_corpus,
     control = lmerControl(
-      optimizer = "optimx",
+      optimizer = "bobyqa",
       calc.derivs = FALSE,
       optCtrl = list(
         method = "nlminb",
@@ -96,15 +84,15 @@ summariseLME(l_f0_model, run_step = TRUE)
 -   Trimmed model creates singularity issue!
 -   removing (1 | prompt), as suggested by step() resolved the singularity issue.
 
-#### `l_f0 ~ mode + fin_phon + gender + (1 | speaker)`
+#### `l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender)`
 
-```{r run trimmed models,  fig.height=3, fig.width=9, tidy = TRUE}
+```{r run trimmed models,  fig.height=3, fig.width=9, tidy = TRUE,}
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_f0_model))) <= 3)
 optimizer = "bobyqa"
 
 l_f0_model.trimmed <-
   lmer(
-    l_f0 ~ mode + fin_phon + (1 + mode | speaker) + gender,
+    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
     data = m_corpus.trimmed,
     control = lmerControl(
       optimizer = "bobyqa",
@@ -117,7 +105,7 @@ summariseLME(l_f0_model.trimmed, run_step = TRUE,
 ```
 
 
-```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE, results="asis"}
 
 l_f0_model_trimmed.tidy <- analyseModel(l_f0_model.trimmed,
                                 write_r2="../output/Mode_l_f0"
@@ -131,7 +119,7 @@ l_f0_model_trimmed.tidy$r2
 
 charts <- getModelFixedFX(
   my_equation =
-    l_f0 ~ mode + fin_phon + gender + (1 + mode | speaker),
+    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
   my_data = m_corpus.trimmed,
   optimizer = "bobyqa",
   write="../output/Mode_l_f0"

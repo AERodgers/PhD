@@ -42,28 +42,10 @@ theme_set(theme_minimal(base_size = 14))
 
 
 ```{r load corpus}
-l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", "L*H", ">H*", "^[L*]H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
   select(
     speaker,
@@ -79,43 +61,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
-
-# run model
-f0_exc_model <-
-    lmer(
-        f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker) + (1 | prompt),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-      )
-
-
-summariseLME(f0_exc_model, run_step=TRUE) %>% print()
-
-```
--   Convergence and singularity issues (with bobyqa and omptimx).
--   Running model again without (1|prompt).
--   This model works.
-
-#### `f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker)`
+* model works without  `+ (1 | gender) + (1 | prompt)` and bobyqa optimizer
+#### `f0_exc ~ mode + (1 + mode | speaker) + (1 | fin_phon)`
 
 ```{r run model w/o gender,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
-f0_exc_model <-
-    lmer(
-        f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker),
+f0_exc_model <- lmer(
+  f0_exc ~
+    mode + (1 + mode | speaker) + (1 | fin_phon),
         data = m_corpus,
         control = lmerControl(
-            optimizer = "optimx",
+            optimizer = "bobyqa",
             calc.derivs = FALSE,
             optCtrl = list(
                 method = "nlminb",
@@ -131,7 +88,7 @@ summariseLME(f0_exc_model, run_step=TRUE,
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r make tidy model, fig.height=3, fig.width=9, results="asis"}
 
 f0_exc_model.tidy <- analyseModel(f0_exc_model,
                                 write_r2="../output/Mode_f0_exc"
@@ -144,8 +101,10 @@ f0_exc_model.tidy$r2
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = f0_exc ~ mode + fin_phon + gender + (1 + mode | speaker),
+  my_equation = f0_exc ~
+   mode + (1 + mode | speaker) + (1 | fin_phon),
   my_data = m_corpus,
+  optimizer = "bobyqa",
   write="../output/Mode_f0_exc"
 )
 charts$intercepts
