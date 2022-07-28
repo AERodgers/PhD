@@ -738,8 +738,7 @@ analyseModel <-
           plot() +
           ylim(0, 1) +
           labs(
-            caption = paste("predicted probability of",
-                            response_labels(my_model)),
+            caption = "",
             title=""
             )
         print(my_plot)
@@ -749,7 +748,7 @@ analyseModel <-
           my_plot <- ggpredict(my_model, terms = cur_factor) %>%
             plot() +
             ylim(0, 1) +
-            labs(caption = paste(response_labels(my_model)),
+            labs(caption = "",
                  title="")
           print(my_plot)
 

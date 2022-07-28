@@ -281,7 +281,7 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(one_pa_model,
-                             write_r2 = "Utt_one_pa_GLMM",
+                             #write_r2 = "Utt_one_pa_GLMM",
                              is_GLM = TRUE,
                              factor_matrix = TRUE,
                              type = "pred")
@@ -293,13 +293,39 @@ tidy_summary$table
 one_pa_charts <- getModelFixedFX(
   my_equation = `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
-  write = "Utt_one_pa_GLMM",
+  #write = "Utt_one_pa_GLMM",
   is_GLM = TRUE
 )
 
 
 one_pa_charts$intercepts
 one_pa_charts$slopes
+```
+
+```{r extra chart on PA, fig.width = 5.5, fig.height = 2.5}
+ggpredict(one_pa_model, terms=c("mode", "gender")) %>%
+  plot() +
+  labs(caption = "", title = "") +
+  ylim(0,1) +
+  ylab("prob. of nuc PA only") +
+   geom_text(aes(
+    label = percent(predicted, 0),
+  hjust = 1.5,
+  position = "dodge"),
+  check_overlap = T,
+  size=3) +
+  theme(axis.title.x=element_blank())
+
+ggpredict(one_pa_model, terms=c("mode")) %>%
+  as.tibble() %>% 
+  select(-group) %>% 
+  rename(mode = x) %>%
+  relocate(std.error, .after = conf.high) %>%
+  mutate(across(2:last_col(),
+         ~ (round(., 3))),
+         across(2:4,
+         ~ percent(., 1))) %>% 
+  formattable(caption="probability of nuclear pitch-accent-only IP")
 ```
 
 ```{r `high reg. or nuc. PA only` model}
@@ -339,6 +365,35 @@ h_reg_or_null =
 summary(h_reg_or_model)
 ```
 
+
+
+```{r extra chart Charts, fig.width = 5.5, fig.height = 2.5}
+ggpredict(h_reg_or_model, terms=c("mode")) %>%
+  plot() +
+  labs(caption = "", title = "") +
+  ylim(0,1) +
+  ylab("prob. of strategies") +
+   geom_text(aes(
+    label = percent(predicted, 1),
+  hjust = 1.2,
+  position = "dodge"),
+  check_overlap = T,
+  size=3) +
+  theme(axis.title.x=element_blank())
+
+ggpredict(h_reg_or_model, terms=c("mode")) %>%
+  as.tibble() %>% 
+  select(-group) %>% 
+  rename(mode = x) %>%
+  relocate(std.error, .after = conf.high) %>%
+  mutate(across(2:last_col(),
+         ~ (round(., 3))),
+         across(2:4,
+         ~ percent(., 1))) %>% 
+  formattable(caption="Probability of either high register or nuclear-PA-only IP")
+```
+
+
 ```{r h_reg_or_model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(h_reg_or_model, tol=1e-5) -->",
@@ -352,7 +407,7 @@ anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(h_reg_or_model,
-                    write_r2 = "Utt_h_reg_or_GLMM",
+                    #write_r2 = "Utt_h_reg_or_GLMM",
                     is_GLM = TRUE,
                     type = "pred"
                     )
@@ -364,7 +419,7 @@ h_reg_or_charts <- getModelFixedFX(
   my_equation = 
     `high reg. or nuc. PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
-  write = "Utt_h_reg_or_GLMM",
+  #write = "Utt_h_reg_or_GLMM",
   is_GLM = TRUE
 )
 

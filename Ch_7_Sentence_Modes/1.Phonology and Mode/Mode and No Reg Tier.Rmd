@@ -746,7 +746,7 @@ summary(fin_phon_model_H_or_not)
 ```
 
 
-```{r GLMM of 0 and H re mode Figures and Charts, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r GLMM of 0 and H re mode Figures and Charts, fig.width =3.57, fig.height = 2.78, results="asis"}
 cat(
   "isSingular(fin_phon_model_H_or_not, tol=1e-5) -->",
   isSingular(fin_phon_model_H_or_not, tol = 1e-5),
@@ -778,4 +778,14 @@ charts$intercepts
 charts$slopes
 ```
 
-
+```{r extra chart Charts, fig.width =3.7, fig.height = 3.7}
+ggpredict(fin_phon_model_H_or_not, terms=c("mode")) %>%
+  plot() +
+  labs(caption = "", title = "") +
+  ylim(0,1) +
+  ylab("probability of H%") +
+   geom_text(aes(
+    label = percent(predicted, 0),
+  hjust = 1.5),
+  size=3)
+```
