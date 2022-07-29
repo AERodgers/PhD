@@ -130,7 +130,7 @@ l_f0_model.trimmed <-
 
     
 summariseLME(l_f0_model.trimmed, run_step = TRUE
-             #, write="../output_model_anovas/Mode_l_f0_anova.csv"
+             , write="../output_model_anovas/Mode_l_f0_anova.csv"
              )
 ```
 
@@ -138,7 +138,7 @@ summariseLME(l_f0_model.trimmed, run_step = TRUE
 ```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
 l_f0_model_trimmed.tidy <- analyseModel(l_f0_model.trimmed
-                                        #, write="../output/Mode_l_f0"
+                                        , write="../output/Mode_l_f0"
                                 )
 l_f0_model_trimmed.tidy$table
 ```
@@ -150,7 +150,7 @@ charts <- getModelFixedFX(
   my_equation,
   my_data = m_corpus.trimmed,
   optimizer = optimizer
-  #, write="../output/Mode_l_f0"
+  , write="../output/Mode_l_f0"
 )
 charts$intercepts
 charts$slopes

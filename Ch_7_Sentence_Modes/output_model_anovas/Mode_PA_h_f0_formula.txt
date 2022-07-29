@@ -1,1 +1,0 @@
-h_f0 ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)

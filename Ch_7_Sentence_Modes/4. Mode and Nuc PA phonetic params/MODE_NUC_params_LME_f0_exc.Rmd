@@ -123,13 +123,6 @@ f0_exc_model <-
 summariseLME(f0_exc_model, run_step=TRUE) 
 
 ```
-
--  Convergence and singularity issues remain.
--  Using model without (acc_phon | speaker) or (1| gender) and with bobyqa optimizer works well.
--  Needs trimmed
-
-#### f0_exc ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)
-    
 ```{r intercepts-only model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 f0_exc_model <-
