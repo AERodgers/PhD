@@ -57,34 +57,54 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
+-  Model works with intercepts-only and gender removed.
+-  Model needs trimmed.
+```{r set equation and optimizer}
+my_equation = formula(
+  lh_slope ~ mode * acc_phon
+  + gender
+  + fin_phon
+  + (1 + mode + acc_phon | speaker)
+  + (1 | prompt)
+)
 
-```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
+# prompt causes singularity. Removing from model.
+my_equation = formula(
+  lh_slope ~ mode * acc_phon
+  #+ gender
+  + fin_phon
+  + (1 | speaker)
+  + (1 | prompt)
+)
+optimizer = "optimx"
+```
+
+```{r run initial model,  fig.height=3, fig.width=9, include=FALSE, tidy = TRUE}
 # run model
 lh_slope_model <-
-    lmer(lh_slope ~ mode + acc_phon + (1 + mode + acc_phon | speaker) + (1 | gender) + (1 | fin_phon) + (1 | prompt),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
+  lmer(
+    my_equation,
+    m_corpus,
+    control = lmerControl(
+      optimizer = optimizer,
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
       )
+    )
+  )
 
 summariseLME(lh_slope_model, run_step=TRUE)
 ```
 
--   Singularity and convergence  issues.
--   Testing reduced model suggested by step()
+```{r trimmed model tested, fig.height=3, fig.width=9}
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_slope_model))) <= 3)
 
-```{r run reduced step only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
-
-lh_slope_model <- lmer(
-  lh_slope ~ mode + acc_phon + (1 + mode + acc_phon | speaker) + (1 | prompt),
-  data = m_corpus,
+lh_slope_model.trimmed <- lmer(
+  my_equation,
+  m_corpus.trimmed,
   control = lmerControl(
     optimizer = "optimx",
     calc.derivs = FALSE,
@@ -96,58 +116,18 @@ lh_slope_model <- lmer(
   )
 )
 
-summariseLME(lh_slope_model , run_step = TRUE)
-
-```
-
--   Singularity and convergence issues persist.
--   Trying model without random acc_phon slope.
--   Model only works when gender removed as a random slope
--   Trimming model for observations with model residual of > 3 standard deviations.
-
-#### `lh_slope ~ mode + acc_phon + (1 + mode | speaker) + (1 | gender) + (1 | fin_phon) + (1 | prompt`
-```{r fewer random slopes model, fig.height=3, fig.width=9, include=FALSE}
-lh_slope_model <- lmer(
-  lh_slope ~ mode + acc_phon +
-    (1 + mode | speaker) +  (1 | fin_phon) + (1 | prompt),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-      )
-summariseLME(lh_slope_model , run_step = TRUE)
-```
-
-
-```{r trimmed model tested, fig.height=3, fig.width=9, tidy = TRUE}
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_slope_model))) <= 3)
-
-lh_slope_model.trimmed <- lmer(
-  lh_slope ~ mode + acc_phon +
-    (1 + mode | speaker) +  (1 | fin_phon) + (1 | prompt),
-        data = m_corpus.trimmed,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-    )
-
 summariseLME(lh_slope_model.trimmed, run_step = TRUE,
               write="../output_model_anovas/Mode_PA_lh_slope_anova.csv")
 ```
+```{r random effect of prompt, fig.height=2, fig.width=5}
+plot_model(lh_slope_model.trimmed,
+           type="re",
+           axis.title = c("semitones", "prompt"),
+           title="random effect: prompt",
+           show.values = T)[2]
+```
 
-```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
+```{r make tidy model, fig.height=5, fig.width=7, results="asis"}
 
 lh_slope_model.tidy <- analyseModel(lh_slope_model.trimmed,
                                 write="../output/Mode_PA_lh_slope"
@@ -159,12 +139,11 @@ lh_slope_model.tidy$table
 ```{r do pairwise analysis}
 
 charts <- getModelFixedFX(
-  my_equation = lh_slope ~ mode + acc_phon +
-    (1 + mode | speaker) +  (1 | fin_phon) + (1 | prompt),
-  my_data = m_corpus.trimmed,
+  my_equation,
+  m_corpus.trimmed,
   write="../output/Mode_PA_lh_slope"
 )
-
+charts$intercepts
 charts$slopes
 
 

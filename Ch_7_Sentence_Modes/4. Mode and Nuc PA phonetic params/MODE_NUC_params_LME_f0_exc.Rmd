@@ -41,28 +41,10 @@ theme_set(theme_minimal(base_size = 14))
 ```
 
 ```{r load corpus, include=FALSE}
-l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
   select(
     speaker,
@@ -78,39 +60,55 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
+-  Model works with gender and (1 | prompt) removed
+```{r set equation and optimizer}
+my_equation = formula(
+  f0_exc ~ mode * acc_phon
+  + gender
+  + fin_phon
+  + (1 + mode + acc_phon | speaker)
+  + (1 | prompt)
+)
+
+# prompt causes singularity. Removing from model.
+my_equation = formula(
+  f0_exc ~ mode * acc_phon
+  #+ gender
+  + fin_phon
+  + (1 | speaker)
+  #+ (1 | prompt)
+)
+optimizer = "optimx"
+```
+
 ```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
-f0_exc_model <-
-  lmer(
-    f0_exc ~ mode * acc_phon + fin_phon + gender + 
-      (1 + acc_phon + mode | speaker) + (1 | prompt),
-
-    data = m_corpus,
-    control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
+f0_exc_model <- lmer(
+  my_equation,
+  m_corpus,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
     )
   )
-
+  )
 
 summariseLME(f0_exc_model, run_step=TRUE) 
-
 ```
 
 -  Convergence and singularity issues in initial model.
--  Using model found by step
+-  Using model found by step ( without prompt and gender)
 
-```{r run step() model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
+```{r run step model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 f0_exc_model <-
   lmer(
-    f0_exc ~ mode*acc_phon + fin_phon + (1 + acc_phon + mode | speaker),
-    data = m_corpus,
+    my_equation,
+    m_corpus,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -127,40 +125,16 @@ summariseLME(f0_exc_model, run_step=TRUE)
 ```
 
 -  Convergence and singularity issues remain.
--  Using intercepts only model for speaker with original factors.
+-  Using model without (acc_phon | speaker) or (1| gender) and with bobyqa optimizer works well.
+-  Needs trimmed
 
-```{r intercepts-only model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
-
-f0_exc_model <-
-  lmer(
-    f0_exc ~ mode * acc_phon + fin_phon + gender + 
-      (1 | speaker) + (1 | prompt),
-    data = m_corpus,
-    control = lmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
-    )
-  )
-
-
-summariseLME(f0_exc_model, run_step=TRUE)
-```
-- singularity remains in random intercepts only model.
-- Running model with only speaker as random effect.
-- Model works.
-- Trimming model: removing observation with model residual of > 3 standard deviations
-
-#### `f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker)`
-```{r reduced intercepts-only model,  fig.height=3, fig.width=9, tidy = TRUE}
+#### f0_exc ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)
+    
+```{r intercepts-only model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 f0_exc_model <-
-  lmer(f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker),
-    data = m_corpus,
+  lmer(my_equation,
+    m_corpus,
     control = lmerControl(
       optimizer = "optimx",
       calc.derivs = FALSE,
@@ -174,8 +148,9 @@ f0_exc_model <-
 
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(f0_exc_model))) <= 3)
 
-f0_exc_model.trimmed <-
-  lmer(f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker),
+f0_exc_model <-
+  lmer(
+    my_equation,
     data = m_corpus.trimmed,
     control = lmerControl(
       optimizer = "optimx",
@@ -188,27 +163,24 @@ f0_exc_model.trimmed <-
     )
   )
 
-
-summariseLME(f0_exc_model.trimmed, run_step=TRUE,
-              write="../output_model_anovas/Mode_PA_f0_exc_anova.csv")
-```
-
-```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
-
-f0_exc_model.tidy <- analyseModel(f0_exc_model.trimmed,
-                                write = "../output/Mode_PA_f0_exc"
-                                )
-f0_exc_model.tidy$r2
+summariseLME(f0_exc_model, run_step=TRUE)
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
+```{r make tidy model, fig.height=5, fig.width=7, results="asis"}
+
+f0_exc_model.tidy <- analyseModel(f0_exc_model, write = "../output/Mode_PA_f0_exc")
+f0_exc_model.tidy$table
+
+```
+
+```{r do pairwise analysis}
 
 charts <- getModelFixedFX(
-  my_equation =
-    f0_exc ~ mode * acc_phon + fin_phon + gender + (1 | speaker),
-  my_data = m_corpus.trimmed,
-  write="../output/Mode_PA_f0_exc"
+  my_equation,
+  m_corpus.trimmed,
+  write="../output/Mode_PA_f0_exc",
+  optimizer=optimizer
 )
 charts$intercepts
 charts$slopes

@@ -60,28 +60,41 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-- Full model works with bobyqa optimizer
-- isSingular = False @ tol = 1e-5
-- Removing prompt for parity with l_f0 model
+- Using intercepts only model for parity with mode + acc_phon model 
 
-#### `h_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender)`
+```{r set equation and optimizer}
+my_equation = formula(
+  h_f0 ~ mode
+  + gender
+  + fin_phon
+  + (1 | speaker)
+  )
+optimizer = "optimx"
+
+```
 
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 # run model
 h_f0_model <- lmer(
-  h_f0 ~ 
-    mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
-       data = m_corpus,
-        control = lmerControl(
-          optimizer = "bobyqa")
-      )
+  my_equation,
+  m_corpus,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 
 summariseLME(h_f0_model, run_step = FALSE,
               write = "../output_model_anovas/Mode_h_f0_anova.csv")
 #              
 ```
 
-```{r make tidy model, fig.height=2.5, fig.width=5, tidy = TRUE, results="asis"}
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
 h_f0_model.tidy <- analyseModel(h_f0_model,
                                 write="../output/Mode_h_f0"
@@ -93,13 +106,12 @@ h_f0_model.tidy$table
 ```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation =
-    h_f0 ~ mode +
-    (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
-  my_data = m_corpus,
-  optimizer = "bobyqa",
+  my_equation,
+  m_corpus,
+  optimizer,
   write="../output/Mode_h_f0"
 )
+charts$intercepts
 charts$slopes
 
 

@@ -8,7 +8,8 @@ output:
 
 ```{r message=FALSE, warning=TRUE, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE)
+                      warning = FALSE,
+                      message = FALSE)
 
 # Load Functions.
 source("../../functions/myFunctions.R")
@@ -54,6 +55,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
          gender,
          mode,
+         acc_phon,
          phr_phon,
          fin_phon,
          utt_slope,
@@ -71,11 +73,22 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```
 
-Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
+- Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
+- Initial model has singularity issues
+- Removing prompt gender from model
+- Model word, but needs trimmed ()
+
+```{r}
+# set current equation
+cur_equation  <-
+  "utt_slope ~ mode + h_start +
+   (1 | acc_phon) + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)"
+
+```
+
 ```{r fig.height=3, fig.width=9, tidy = TRUE}
 # set recommended equation
-utt_slope_mdl  <-  lmer(utt_slope ~  mode + gender + h_start + fin_phon + 
-    (1 + mode | speaker) + (1 | prompt),
+utt_slope_mdl  <-  lmer(cur_equation,
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
@@ -92,9 +105,7 @@ utt_slope_mdl  <-  lmer(utt_slope ~  mode + gender + h_start + fin_phon +
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 2.5)
 
 
-utt_slope_mdl.trimmed  <-  lmer(
-  utt_slope ~ mode + gender + h_start + fin_phon +
-    (1 + mode | speaker) + (1 | prompt),
+utt_slope_mdl.trimmed  <-  lmer(cur_equation,
   data = m_corpus.trimmed,
   control = lmerControl(
     optimizer = "optimx",
@@ -111,20 +122,27 @@ summariseLME(utt_slope_mdl.trimmed, run_step = TRUE,
               write="anova/utt_slope.csv")
 ```
 
-```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r fig.height=2.5, fig.width=5, results="asis"}
 utt_utt_slope.tidy <- analyseModel(
   utt_slope_mdl.trimmed,
   write="utt_slope"
   )
-utt_utt_slope.tidy$r2
+utt_utt_slope.tidy$table
+```
+```{r random effect of prompt, fig.height=2, fig.width=5}
+plot_model(utt_slope_mdl.trimmed,
+           type="re",
+           axis.title = c("semitones", "prompt"),
+           title="random effect",
+           show.values = T)[2:4]
 ```
 
-```{r fig.height=3, fig.width=9, tidy = TRUE}
+
+```{r slopes}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation = utt_slope ~ mode + gender + h_start +
-    (1 + mode | speaker) + (1 | prompt),
+  my_equation = cur_equation,
   my_data = m_corpus.trimmed,
   write="utt_slope"
 )

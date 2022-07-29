@@ -56,18 +56,37 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
                            levels = l_star_h_types)
          )
 ```
-- Maximal model works well, but ...
-- For consistency with h_t, running random intercepts-only model.
-- Trimming observation where residual standard deviation > 3.5
 
-### `l_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt)`
+```{r set equation}
+my_equation = formula(
+  l_t ~ mode +
+    gender +
+    fin_phon +
+    (1 + mode | speaker) +
+    (1 | prompt)
+)
+
+# model works with intercepts_only model
+# as per mode and acc_phon model
+
+my_equation = formula(
+  l_t ~ mode +
+    gender +
+    fin_phon +
+    (1 | prompt) +
+    (1 | speaker)
+)
+```
+
+- Following intercepts only model of other time parameter models.
+- model needs trimmed (redisual SD > 3.5)
+
 
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 l_t_model <-
-  lmer(
-    l_t  ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
+  lmer(my_equation,
     data = m_corpus,
     control = lmerControl(
       optimizer = "optimx",
@@ -82,8 +101,7 @@ l_t_model <-
 
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_t_model))) <= 3.5)
 
-l_t_model.trimmed <- lmer(
-  l_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
+l_t_model <- lmer(my_equation,
        data = m_corpus.trimmed,
         control = lmerControl(
           optimizer = "optimx",
@@ -96,14 +114,14 @@ l_t_model.trimmed <- lmer(
         )
       )
 
-summariseLME(l_t_model.trimmed , run_step=TRUE,
+summariseLME(l_t_model, run_step=TRUE,
               write="../output_model_anovas/Mode_l_t_anova.csv")
 
 ```
  
-```{r make tidy model, fig.height=3, fig.width=9, result="asis"}
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
-l_t_model.tidy <- analyseModel(l_t_model.trimmed,
+l_t_model.tidy <- analyseModel(l_t_model,
                                 write="../output/Mode_l_t"
                                 )
 l_t_model.tidy$table
@@ -113,12 +131,11 @@ l_t_model.tidy$table
 ```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation =
-    l_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
+  my_equation,
   my_data = m_corpus.trimmed,
   write="../output/Mode_l_t"
 )
 charts$slopes
-
+charts$intercepts
 
 ```

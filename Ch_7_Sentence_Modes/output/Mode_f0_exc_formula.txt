@@ -1,1 +1,0 @@
-f0_exc ~ mode + (1 + mode | speaker) + (1 | fin_phon)

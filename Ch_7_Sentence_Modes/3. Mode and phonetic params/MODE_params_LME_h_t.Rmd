@@ -57,16 +57,51 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-#### `h_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt)`
-- Maximal model creates singularity issue.
-- This disappears with an random intercepts-only model.
+```{r set equation}
+my_equation = formula(
+  h_t ~ mode +
+    gender +
+    fin_phon +
+    (1 + mode | speaker) +
+    (1 | prompt)
+)
+
+# model works with intercepts_only model
+# as per mode and acc_phon model
+
+my_equation = formula(
+  h_t ~ mode +
+    gender +
+    fin_phon +
+    (1 | prompt) +
+    (1 | speaker)
+)
+```
+
+- Following intercepts only model of other time parameter models.
+- model needs trimmed
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 h_t_model <-
-  lmer(h_t ~ mode +
-         (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
+  lmer(my_equation,
        data = m_corpus,
+        control = lmerControl(
+          optimizer = "optimx",
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
+        )
+      )
+
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(h_t_model))) <= 3.5)
+
+h_t_model <-
+  lmer(my_equation,
+       data = m_corpus.trimmed,
         control = lmerControl(
           optimizer = "optimx",
           calc.derivs = FALSE,
@@ -84,7 +119,7 @@ summariseLME(h_t_model, run_step=TRUE,
 
 ```
 
-```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
 h_t_model.tidy <- analyseModel(h_t_model,
                                 write="../output/Mode_h_t"
@@ -93,15 +128,15 @@ h_t_model.tidy$table
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis}
 
 charts <- getModelFixedFX(
-  my_equation = h_t ~ mode +
-         (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
-  my_data = m_corpus,
+  my_equation,
+  my_data = m_corpus.trimmed,
   write="../output/Mode_h_t"
 )
 charts$slopes
+charts$intercepts
 
 
 ```

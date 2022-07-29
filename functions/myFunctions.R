@@ -713,8 +713,9 @@ analyseModel <-
       do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
         write.csv(paste(write, "_r2.csv", sep = ""))
 
-      tidyPrediction(my_model) %>%
-        write.csv(paste(write, "_pred.csv", sep = ""))
+      ## This doesn't work correctly with interactions
+      # tidyPrediction(my_model) %>%
+      #    write.csv(paste(write, "_pred.csv", sep = ""))
     }
 
     if (is_GLM)
@@ -752,7 +753,8 @@ analyseModel <-
     }
     else
     {
-      tidyPrintPredictions(my_model, my_formula, factor_matrix = factor_matrix, is_LME=T)
+      # THis doesn't work with interactions. Use B0 estimates
+      #tidyPrintPredictions(my_model, my_formula, factor_matrix = factor_matrix, is_LME=T)
       my_plot <-
         plot_model(
           my_model,
@@ -785,7 +787,7 @@ getModelFixedFX <- function(my_equation,
                             exponentiate = FALSE,
                             optimizer = "optimx",
                             extra_text = "",
-                            report = c("slopes")
+                            report = c("slopes", "intercepts")
                             )
 {
   require("formattable")

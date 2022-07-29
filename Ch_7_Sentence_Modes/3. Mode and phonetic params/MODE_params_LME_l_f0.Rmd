@@ -40,6 +40,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
+
 ```{r load corpus, include=FALSE}
 l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
@@ -60,13 +61,27 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
+- Using intercepts only model for parity with mode + acc_phon model 
+
+```{r set equation and optimizer}
+my_equation = formula(
+  l_f0 ~ mode
+  + gender
+  + fin_phon
+  + (1 | speaker)
+
+)
+optimizer = "optimx"
+```
+
+
 ```{r run initial model,  fig.height=3, include=FALSE, fig.width=9, tidy = TRUE}
 l_f0_model <-
   lmer(
-    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt),
+    my_equation,
     data = m_corpus,
     control = lmerControl(
-      optimizer = "bobyqa",
+      optimizer = optimizer,
       calc.derivs = FALSE,
       optCtrl = list(
         method = "nlminb",
@@ -79,49 +94,64 @@ l_f0_model <-
 summariseLME(l_f0_model, run_step = TRUE)
 ```
 
--   Model works.
--   Trimming model to remove observations with residual > 3 standard deviations.
--   Trimmed model creates singularity issue!
--   removing (1 | prompt), as suggested by step() resolved the singularity issue.
-
-#### `l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender)`
 
 ```{r run trimmed models,  fig.height=3, fig.width=9, tidy = TRUE,}
+l_f0_model <-
+  lmer(
+    my_equation,
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = optimizer,
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
+    )
+  )
+
 m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(l_f0_model))) <= 3)
-optimizer = "bobyqa"
 
 l_f0_model.trimmed <-
   lmer(
-    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
+    my_equation,
     data = m_corpus.trimmed,
     control = lmerControl(
-      optimizer = "bobyqa",
-      calc.derivs = FALSE
-
+      optimizer = optimizer,
+      calc.derivs = FALSE,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = FALSE,
+        kkt = FALSE
+      )
     )
   )
-summariseLME(l_f0_model.trimmed, run_step = TRUE,
-              write="../output_model_anovas/Mode_l_f0_anova.csv")
+
+    
+summariseLME(l_f0_model.trimmed, run_step = TRUE
+             #, write="../output_model_anovas/Mode_l_f0_anova.csv"
+             )
 ```
 
 
-```{r make tidy model, fig.height=2.5, fig.width=5, tidy = TRUE, results="asis"}
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
-l_f0_model_trimmed.tidy <- analyseModel(l_f0_model.trimmed,
-                                write="../output/Mode_l_f0"
+l_f0_model_trimmed.tidy <- analyseModel(l_f0_model.trimmed
+                                        #, write="../output/Mode_l_f0"
                                 )
 l_f0_model_trimmed.tidy$table
 ```
 
-```{r do pairwise analysis, tidy = TRUE}
+```{r do pairwise analysis}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
-  my_equation =
-    l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender),
+  my_equation,
   my_data = m_corpus.trimmed,
-  optimizer = "bobyqa",
-  write="../output/Mode_l_f0"
+  optimizer = optimizer
+  #, write="../output/Mode_l_f0"
 )
+charts$intercepts
 charts$slopes
 ```

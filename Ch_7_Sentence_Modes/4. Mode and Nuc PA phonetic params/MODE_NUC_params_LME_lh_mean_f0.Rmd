@@ -42,7 +42,7 @@ theme_set(theme_minimal(base_size = 14))
 
 
 ```{r load corpus,include=FALSE}
-l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
+l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
@@ -61,52 +61,36 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
+-  Model works with gender and (1 | prompt) removed
+-  Needs trimmed (residual SD > 2.8)
+```{r set equation and optimizer}
+my_equation = formula(
+  lh_mean_f0 ~ mode * acc_phon
+  + gender
+  + fin_phon
+  + (1 + mode + acc_phon | speaker)
+  + (1 | prompt)
+)
+
+# prompt causes singularity. Removing from model.
+my_equation = formula(
+  lh_mean_f0 ~ mode * acc_phon
+  #+ gender
+  + fin_phon
+  + (1 | speaker)
+  #+ (1 | prompt)
+)
+optimizer = "optimx"
+```
+
+```{r run initial model,  fig.height=3, fig.width=9, include=FALSE}
 
 # run model
 lh_mean_f0_model <- lmer(
-  lh_mean_f0 ~ mode + acc_phon +
-    (1 + acc_phon + mode | speaker) +
-    (1 | gender) +
-    (1 | fin_phon) +
-    (1 | prompt),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-      )
-
-
-summariseLME(lh_mean_f0_model, run_step=TRUE) %>% print()
-
-```
-
--   Singularity & convergence issues in maximal model.
--   Running model suggested by step()
--   ... still issues
--   ... running original model without acc_phon as slope.
--   ... still singularity.
--   ... works with bobyqa optimizer.
--   ... needs trimmed...
--   ... reintroduced singularity
--   ... works without gender./
-
-#### `lh_mean_f0 ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)`
-
-```{r run intercepts only model, fig.height=3, fig.width=9, tidy = TRUE}
-
-lh_mean_f0_model_reduced <- lmer(
-  lh_mean_f0 ~ mode + acc_phon +
-    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
-  data = m_corpus,
+  my_equation,
+  m_corpus,
   control = lmerControl(
-    optimizer = "bobyqa",
+    optimizer = optimizer,
     calc.derivs = FALSE,
     optCtrl = list(
       method = "nlminb",
@@ -116,14 +100,23 @@ lh_mean_f0_model_reduced <- lmer(
   )
 )
 
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_mean_f0_model_reduced))) <= 4)
+
+summariseLME(lh_mean_f0_model, run_step=TRUE)
+
+```
+
+#### `lh_mean_f0 ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon)`
+
+```{r run intercepts only model, fig.height=3, fig.width=9, tidy = TRUE}
+
+m_corpus.trimmed <-
+  m_corpus %>% filter(abs(scale(resid(lh_mean_f0_model))) <= 2.8)
 
 lh_mean_f0_model_reduced <- lmer(
-  lh_mean_f0 ~ mode + acc_phon +
-    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
-  data = m_corpus.trimmed,
+  my_equation,
+  m_corpus.trimmed,
   control = lmerControl(
-    optimizer = "bobyqa",
+    optimizer = optimizer,
     calc.derivs = FALSE,
     optCtrl = list(
       method = "nlminb",
@@ -134,13 +127,13 @@ lh_mean_f0_model_reduced <- lmer(
 )
 summariseLME(lh_mean_f0_model_reduced,
              run_step = TRUE,
-             write="../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
+             write = "../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
 
 ```
 
 
 
-```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
+```{r make tidy model, fig.height=5, fig.width=7, results="asis"}
 
 lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model_reduced,
                                 write="../output/Mode_PA_lh_mean_f0"
@@ -149,18 +142,16 @@ lh_mean_f0_model.tidy$table
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis}
 
 charts <- getModelFixedFX(
-  my_equation =
-    lh_mean_f0 ~ mode + acc_phon +
-    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
-  my_data = m_corpus.trimmed,
+  my_equation,
+  m_corpus.trimmed,
   write = "../output/Mode_PA_lh_mean_f0",
-  optimizer = "bobyqa"
+  optimizer = optimizer
 )
 
+charts$intercepts
 charts$slopes
-
 
 ```

@@ -1,1 +1,0 @@
-high reg. or nuc. PA only ~ mode + gender + (1 | speaker) + (1 | prompt)

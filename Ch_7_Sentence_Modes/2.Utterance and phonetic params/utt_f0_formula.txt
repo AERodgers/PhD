@@ -1,1 +1,1 @@
-utt_mean_f0 ~ mode + gender + h_start + fin_phon + (1 + mode | speaker) + (1 | prompt)
+utt_mean_f0 ~ mode + (1 | acc_phon) + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)
