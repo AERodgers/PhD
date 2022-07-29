@@ -123,7 +123,7 @@ summariseLME(l_t_model, run_step=TRUE)
 l_t_model.tidy <- analyseModel(l_t_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2="../output/PA_l_t"
+                                write="../output/PA_l_t"
                                 )
 l_t_model.tidy$table
 l_t_model.tidy$r2

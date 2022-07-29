@@ -102,7 +102,7 @@ summariseLME(utt_mean_f0 , run_step = TRUE,
 ```{r fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
 utt_mean_f0.tidy <- analyseModel(
   utt_mean_f0,
-  write_r2="utt_f0"
+  write="utt_f0"
 )
 utt_mean_f0.tidy$r2
 ```

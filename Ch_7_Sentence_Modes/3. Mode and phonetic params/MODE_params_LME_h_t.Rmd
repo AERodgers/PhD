@@ -35,8 +35,10 @@ installMissingPackages(
   )
 )
 
-# Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 14))
+```
+
+```{r load corpus}
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
@@ -48,12 +50,11 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
     prompt,
     acc_phon,
     fin_phon,
-    h_t
-  ) %>% 
-  # keep only explicitly LH pitch accents.
-  filter(acc_phon %notin% c("H*", ">H*")) %>%
+    h_t) %>% 
+  filter(acc_phon %in% l_star_h_types)  %>% 
   mutate(acc_phon = factor(acc_phon,
-                           levels = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")))
+                           levels = l_star_h_types)
+         )
 ```
 
 #### `h_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | prompt)`
@@ -83,12 +84,12 @@ summariseLME(h_t_model, run_step=TRUE,
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
 
 h_t_model.tidy <- analyseModel(h_t_model,
-                                write_r2="../output/Mode_h_t"
+                                write="../output/Mode_h_t"
                                 )
-h_t_model.tidy$r2
+h_t_model.tidy$table
 
 ```
 
@@ -100,7 +101,6 @@ charts <- getModelFixedFX(
   my_data = m_corpus,
   write="../output/Mode_h_t"
 )
-charts$intercepts
 charts$slopes
 
 

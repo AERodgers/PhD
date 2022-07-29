@@ -161,7 +161,7 @@ summariseLME(l_t_model.trimmed, run_step=TRUE,
 ```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE}
 
 l_t_model.tidy <- analyseModel(l_t_model.trimmed,
-                                write_r2="../output/Mode_PA_l_t"
+                                write="../output/Mode_PA_l_t"
                                 )
 l_t_model.tidy$r2
 

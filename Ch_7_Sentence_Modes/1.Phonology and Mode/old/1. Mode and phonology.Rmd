@@ -123,7 +123,7 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(h_reg_model,
-                    write_r2 = "Utt_h_reg_GLMM",
+                    write = "Utt_h_reg_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
@@ -195,7 +195,7 @@ anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(one_pa_model,
-                    write_r2 = "Utt_one_pa_GLMM",
+                    write = "Utt_one_pa_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )
@@ -268,7 +268,7 @@ anova(one_pa_or_h_reg_model, one_pa_or_h_reg_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(one_pa_or_h_reg_model,
-                    write_r2 = "Utt_one_pa_or_h_reg_GLMM",
+                    write = "Utt_one_pa_or_h_reg_GLMM",
                     is_GLM = TRUE,
                     show.intercept=TRUE
                     )

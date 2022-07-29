@@ -1,1 +1,1 @@
-lh_mean_f0 ~ mode + acc_phon + (1 | speaker) + (1 | gender) + (1 | fin_phon)
+lh_mean_f0 ~ mode + (1 | speaker) + (1 | gender) + (1 | fin_phon)

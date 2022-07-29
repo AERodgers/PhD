@@ -1,0 +1,1 @@
+l_f0 ~ mode + (1 + mode | speaker) + (1 | fin_phon) + (1 | gender)

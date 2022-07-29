@@ -81,16 +81,16 @@ summariseLME(h_f0_model, run_step = FALSE,
 #              
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, tidy = TRUE, results="asis"}
+```{r make tidy model, fig.height=2.5, fig.width=5, tidy = TRUE, results="asis"}
 
 h_f0_model.tidy <- analyseModel(h_f0_model,
-                                write_r2="../output/Mode_h_f0"
+                                write="../output/Mode_h_f0"
                                 )
-h_f0_model.tidy$r2
+h_f0_model.tidy$table
 
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
+```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = TRUE}
 
 charts <- getModelFixedFX(
   my_equation =
@@ -100,7 +100,6 @@ charts <- getModelFixedFX(
   optimizer = "bobyqa",
   write="../output/Mode_h_f0"
 )
-charts$intercepts
 charts$slopes
 
 

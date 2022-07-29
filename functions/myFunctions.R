@@ -6,17 +6,10 @@ require("tidyverse")
 require("RColorBrewer")
 
 
-# Set themes, colours schemes, and formatters
+### Set themes, colours schemes, and formatters ###############################
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
-
-p_color <- . ~ style(color =
-                       if_else(. < 0.05,
-                               "green",
-                               if_else(. < 0.01,
-                                       "orange",
-                                       "red")))
 
 sig_color <- x ~ style(color = if_else(
   x == "p<0.001" | x == "p<0.05" | x == "p<0.01",
@@ -60,12 +53,6 @@ nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(6, "Set2")[5],
                                 "L*^[H] %" = brewer.pal(6, "Set2")[2],
                                 "^[L*H] %" = brewer.pal(6, "Set2")[7])
 
-
-
-
-
-
-
 nuc_contour_colours <- c(
   "L*H %"   = brewer.pal(6, "Set2")[3],
   "L*H L%" = brewer.pal(8, "Set2")[7],
@@ -81,6 +68,7 @@ fin_phon_colours <- c(
   "H%" = brewer.pal(6, "Set2")[2],
   "HL%" = brewer.pal(8, "Set2")[8]
 )
+
 
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
@@ -613,7 +601,7 @@ summariseLME <-
 ###  Analyse Model and extract key info ########################################
 analyseModel <-
   function(my_model,
-           write_r2 = NULL,
+           write = NULL,
            is_GLM = FALSE,
            axis.lim = NULL,
            exponentiate = FALSE,
@@ -712,19 +700,21 @@ analyseModel <-
           ))
     }
 
-    r2_nakagawa <-  knitr::kable(
+    r2_nakagawa <- knitr::kable(
       r2_nakagawa(my_model),
       caption = "Conditional and marginal R^2^ of model",
       digits = 2,
       align = "l"
-    )  %>% kable_styling(full_width = FALSE, position = "left")
+    )  %>% kable_styling(full_width = FALSE, position = "left") %>%
+      remove_column(3)
+    print(r2_nakagawa)
 
-    if (!is.null(write_r2)) {
+    if (!is.null(write)) {
       do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
-        write.csv(paste(write_r2, "_r2.csv", sep = ""))
+        write.csv(paste(write, "_r2.csv", sep = ""))
 
       tidyPrediction(my_model) %>%
-        write.csv(paste(write_r2, "_pred.csv", sep = ""))
+        write.csv(paste(write, "_pred.csv", sep = ""))
     }
 
     if (is_GLM)

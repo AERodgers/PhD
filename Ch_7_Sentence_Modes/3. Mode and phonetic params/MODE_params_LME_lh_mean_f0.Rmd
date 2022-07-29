@@ -63,13 +63,13 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 - Intercepts only model without prompt is best for no singularity / convergence issues
 
-#### ` lh_mean_f0 ~ mode + (1 + mode | speaker) + (1 | gender) + (1 | prompt)`
+#### `lh_mean_f0 ~ mode + (1| speaker) + (1 | gender) + (1 | fin_phon)`
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
 
 # run model
 lh_mean_f0_model <- lmer(
   lh_mean_f0 ~
-    mode + acc_phon + (1 | speaker) + (1 | gender) + (1 | fin_phon),
+    mode + (1 | speaker) + (1 | gender) + (1 | fin_phon),
         data = m_corpus,
         control = lmerControl(
             optimizer = "bobyqa",
@@ -87,16 +87,15 @@ summariseLME(lh_mean_f0_model, run_step=TRUE,
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, results="asis"}
+```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
 
 lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model,
-                                write_r2="../output/Mode_lh_mean_f0"
+                                write="../output/Mode_lh_mean_f0"
                                 )
-lh_mean_f0_model.tidy$r2
 lh_mean_f0_model.tidy$table
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, tidy = TRUE}
+```{r do pairwise analysis, tidy = TRUE}
 
 charts <- getModelFixedFX(
   my_equation = lh_mean_f0 ~ 

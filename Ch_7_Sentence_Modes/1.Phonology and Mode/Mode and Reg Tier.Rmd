@@ -579,7 +579,7 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
 
 
 tidy_summary <- analyseModel(h_reg_model,
-                             #write_r2 = "Mode_PA_GLMM",
+                             #write = "Mode_PA_GLMM",
                              is_GLM = TRUE,
                              type = "pred",
                              factor_matrix=TRUE)
@@ -826,7 +826,7 @@ anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(fin_phon_model,
-                             #write_r2="Mode_PA_GLMM",
+                             #write="Mode_PA_GLMM",
                              is_GLM = TRUE,
                              type="pred")
 tidy_summary$r2

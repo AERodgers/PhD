@@ -573,7 +573,7 @@ anova(nuc_contour_model, nuc_contour_model_null, test="Chisq") %>%
     )
 
 tidy_summary <- analyseModel(nuc_contour_model,
-                    write_r2="Mode_PA_Mode_PA_No_Reg_GLMM",
+                    write="Mode_PA_Mode_PA_No_Reg_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
                     show.intercept=TRUE,

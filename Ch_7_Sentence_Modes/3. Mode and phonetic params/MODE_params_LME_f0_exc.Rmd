@@ -61,8 +61,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
+### `f0_exc ~ mode + (1 + mode | speaker) + (1 | fin_phon)`
+
 * model works without  `+ (1 | gender) + (1 | prompt)` and bobyqa optimizer
-#### `f0_exc ~ mode + (1 + mode | speaker) + (1 | fin_phon)`
 
 ```{r run model w/o gender,  fig.height=3, fig.width=9, tidy = TRUE}
 
@@ -88,17 +89,16 @@ summariseLME(f0_exc_model, run_step=TRUE,
 
 ```
 
-```{r make tidy model, fig.height=3, fig.width=9, results="asis"}
+```{r make tidy model, fig.height=2.5, fig.width=5,  results="asis"}
 
 f0_exc_model.tidy <- analyseModel(f0_exc_model,
-                                write_r2="../output/Mode_f0_exc"
+                                write="../output/Mode_f0_exc"
                                 )
 
-f0_exc_model.tidy$r2
-
+f0_exc_model.tidy$table
 ```
 
-```{r do pairwise analysis, fig.height=3, fig.width=9, warning = FALSE, message = FALSE, tidy = TRUE}
+```{r do pairwise analysis, warning = FALSE, message = FALSE, tidy = TRUE}
 
 charts <- getModelFixedFX(
   my_equation = f0_exc ~
@@ -107,7 +107,6 @@ charts <- getModelFixedFX(
   optimizer = "bobyqa",
   write="../output/Mode_f0_exc"
 )
-charts$intercepts
 charts$slopes
 
 

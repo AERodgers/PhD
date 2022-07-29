@@ -46,24 +46,6 @@ l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
-  mutate(
-    nuc_contour =
-      if_else(
-        nuc_contour == "^[L*H %]" | nuc_contour == "^[L*H L%]",
-        "^[L*H] %",
-        if_else(nuc_contour == "L*^[H L%]", "L*^[H] %", nuc_contour)
-      ),
-    acc_phon =
-      factor(
-        str_replace(nuc_contour,
-                    "\\s%$|\\sL%$",
-                    ""),
-        levels = c("H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]")
-      ),
-    fin_phon = str_replace_all(fin_phon, "L%]|%]", "%"),
-    fin_phon = factor(fin_phon, levels=unique(fin_phon))
-  ) %>%
   # Select only columns for analysis
   select(
     speaker,
@@ -82,10 +64,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r run initial model,  fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
 
 # run model
-lh_mean_f0_model <-
-    lmer(
-        lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + 
-          (1 + acc_phon + mode | speaker) + (1 | prompt),
+lh_mean_f0_model <- lmer(
+  lh_mean_f0 ~ mode + acc_phon +
+    (1 + acc_phon + mode | speaker) +
+    (1 | gender) +
+    (1 | fin_phon) +
+    (1 | prompt),
         data = m_corpus,
         control = lmerControl(
             optimizer = "optimx",
@@ -105,63 +89,63 @@ summariseLME(lh_mean_f0_model, run_step=TRUE) %>% print()
 
 -   Singularity & convergence issues in maximal model.
 -   Running model suggested by step()
+-   ... still issues
+-   ... running original model without acc_phon as slope.
+-   ... still singularity.
+-   ... works with bobyqa optimizer.
+-   ... needs trimmed...
+-   ... reintroduced singularity
+-   ... works without gender./
 
-```{r run intercepts only model, fig.height=3, fig.width=9, eval=FALSE, tidy = TRUE}
+#### `lh_mean_f0 ~ mode + acc_phon + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)`
 
-lh_mean_f0_model_reduced <-
-    lmer(lh_mean_f0 ~  mode + acc_phon + (1 + mode + acc_phon | speaker),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
+```{r run intercepts only model, fig.height=3, fig.width=9, tidy = TRUE}
+
+lh_mean_f0_model_reduced <- lmer(
+  lh_mean_f0 ~ mode + acc_phon +
+    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "bobyqa",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
     )
+  )
+)
 
-summariseLME(lh_mean_f0_model_reduced , run_step = TRUE)
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(lh_mean_f0_model_reduced))) <= 4)
+
+lh_mean_f0_model_reduced <- lmer(
+  lh_mean_f0 ~ mode + acc_phon +
+    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
+  data = m_corpus.trimmed,
+  control = lmerControl(
+    optimizer = "bobyqa",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(lh_mean_f0_model_reduced,
+             run_step = TRUE,
+             write="../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
 
 ```
 
-- Model still returns singularity.
-- Rerunning model, intercepts only with original factors.
-- This removes singularity issues.
-
-#### `lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + (1 | speaker) + (1 | prompt),)`
-
-```{r trimmed model tested,  fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 
 
-lh_mean_f0_model_intercepts_only <-
-    lmer(lh_mean_f0 ~ mode * acc_phon + fin_phon + gender + 
-          (1 | speaker) + (1 | prompt),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "optimx",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-    )
+```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
 
-summariseLME(lh_mean_f0_model_intercepts_only,
-              run_step = TRUE,
-              write="../output_model_anovas/Mode_PA_lh_mean_f0_anova.csv")
-  
-```
-
-```{r make tidy model, fig.height=3, fig.width=9, ,  warning = FALSE, message = FALSE, tidy = TRUE}
-
-lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model_intercepts_only,
-                                write_r2="../output/Mode_PA_lh_mean_f0"
+lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model_reduced,
+                                write="../output/Mode_PA_lh_mean_f0"
                                 )
-lh_mean_f0_model.tidy$r2
+lh_mean_f0_model.tidy$table
 
 ```
 
@@ -169,12 +153,13 @@ lh_mean_f0_model.tidy$r2
 
 charts <- getModelFixedFX(
   my_equation =
-    lh_mean_f0 ~ mode * acc_phon + fin_phon + gender +
-    (1 | speaker) + (1 | prompt),
-  my_data = m_corpus,
-  write="../output/Mode_PA_lh_mean_f0"
+    lh_mean_f0 ~ mode + acc_phon +
+    (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt),
+  my_data = m_corpus.trimmed,
+  write = "../output/Mode_PA_lh_mean_f0",
+  optimizer = "bobyqa"
 )
-charts$intercepts
+
 charts$slopes
 
 

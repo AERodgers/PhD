@@ -446,7 +446,7 @@ anova(acc_phon_model, acc_phon_model_null, test="Chisq") %>%
   )
 
 tidy_summary <- analyseModel(acc_phon_model,
-                    write_r2="Mode_PA_GLMM",
+                    write="Mode_PA_GLMM",
                     is_GLM = TRUE,
                     transform="exp",
                     show.intercept=TRUE,

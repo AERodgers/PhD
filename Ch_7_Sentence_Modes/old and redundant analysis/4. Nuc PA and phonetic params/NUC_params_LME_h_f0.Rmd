@@ -111,7 +111,7 @@ summariseLME(h_f0_model, run_step=TRUE)
 h_f0_model.tidy <- analyseModel(h_f0_model,
                                 bf_adj = 16,
                                 exclude_terms = c("fin_phonL%", "genderM"),
-                                write_r2="../output/PA_h_f0"
+                                write="../output/PA_h_f0"
                                 )
 h_f0_model.tidy$table
 h_f0_model.tidy$r2
