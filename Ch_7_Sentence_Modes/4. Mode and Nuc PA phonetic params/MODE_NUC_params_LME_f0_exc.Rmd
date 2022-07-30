@@ -156,7 +156,8 @@ f0_exc_model <-
     )
   )
 
-summariseLME(f0_exc_model, run_step=TRUE)
+summariseLME(f0_exc_model, run_step=TRUE,
+                           write="../output_model_anovas/Mode_PA_f0_exc_anova.csv")
 
 ```
 

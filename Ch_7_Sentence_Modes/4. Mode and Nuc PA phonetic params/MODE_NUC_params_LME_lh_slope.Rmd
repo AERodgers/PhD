@@ -71,7 +71,7 @@ my_equation = formula(
 # prompt causes singularity. Removing from model.
 my_equation = formula(
   lh_slope ~ mode * acc_phon
-  #+ gender
+  + gender
   + fin_phon
   + (1 | speaker)
   + (1 | prompt)

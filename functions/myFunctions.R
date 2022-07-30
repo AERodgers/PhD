@@ -543,7 +543,8 @@ summariseLME <-
            run_step = FALSE,
            my_tolerance = 1e-05,
            write=NULL,
-           extra_text="")
+           extra_text="",
+           post_hoc_method = "BH")
     # short function to remove need for repetition of optimized used throughout.
   {
     require("lme4")
@@ -551,6 +552,12 @@ summariseLME <-
     require("optimx")
     require("stringr")
     require("broomExtra")
+
+    post_hoc_method <- paste("p.adj (",
+                             shortenPAdjMethod(post_hoc_method),
+                             ")",
+                             sep="")
+    post_hoc_method <- enquo(post_hoc_method)
 
     my_formula <- getModelFormula(my_model)
     my_data_name <- getModelDataName(my_model)
@@ -569,7 +576,8 @@ summariseLME <-
       sigCodesTidy(p.value, FALSE) %>%
       rename(`F value` = statistic)
     if(!is_null(write)){
-      anova %>%
+      anova %>% mutate(!!post_hoc_method := NA, signif. = NA) %>%
+      relocate(signif., .after=!!post_hoc_method) %>%
       write_csv(write)
       formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
         str_replace(".csv", ".txt")
@@ -782,13 +790,13 @@ getModelFixedFX <- function(my_equation,
                             my_data,
                             contrasts = NULL,
                             is_separation = FALSE,
-                            write = "",
+                            write = NULL,
                             is_GLM = FALSE,
                             exponentiate = FALSE,
                             optimizer = "optimx",
                             extra_text = "",
-                            report = c("slopes", "intercepts")
-                            )
+                            report = c("slopes", "intercepts"),
+                            post_hoc_method = "BH")
 {
   require("formattable")
   require("tidyverse")
@@ -811,14 +819,22 @@ getModelFixedFX <- function(my_equation,
 
   my_stat = enquo(my_stat)
 
-  if (is_GLM){my_headers <- my_headers[my_headers != "df"]}
+  post_hoc_method <- paste("p.adj (",
+                           shortenPAdjMethod(post_hoc_method),
+                           ")",
+                           sep="")
+  post_hoc_method <- enquo(post_hoc_method)
+
+  if (is_GLM) {
+    my_headers <- my_headers[my_headers != "df"]
+  }
   my_headers = enquos(my_headers)
 
   # run base model.
   if (is_GLM) {
     # Run bglmer!
     if (!is_separation) {
-    # don't use prior
+      # don't use prior
       base_model <- bglmer(
         my_equation,
         data = my_data,
@@ -838,7 +854,7 @@ getModelFixedFX <- function(my_equation,
     else
     {
       # Use prior
-        base_model <- bglmer(
+      base_model <- bglmer(
         my_equation,
         data = my_data,
         family = binomial(link = "logit"),
@@ -876,27 +892,30 @@ getModelFixedFX <- function(my_equation,
 
   # create list of fixed factors
   fixed_factors <-
-    (str_replace_all(deparse(formula(base_model,fixed.only = TRUE)[3]),
-                     "[\\(|\\)|+ ]",
-                     " ") %>%
-       str_squish() %>%
-       str_split(" "))[[1]]
+    (str_replace_all(deparse(formula(
+      base_model, fixed.only = TRUE
+    )[3]),
+    "[\\(|\\)|+ ]",
+    " ") %>%
+      str_squish() %>%
+      str_split(" "))[[1]]
 
   # Get list of non-interaction factors
-  multilevel_factors <- fixed_factors[fixed_factors %in% colnames(my_data)]
+  multilevel_factors <-
+    fixed_factors[fixed_factors %in% colnames(my_data)]
 
   # Get list of 2-level fixed factors.
   two_level_factors <- character()
   two_level_terms <- character()
-  for (cur_factor in multilevel_factors){
-    if(levels(m_corpus[[cur_factor]]) %>% length() == 2){
-      two_level_factors <-c(two_level_factors, cur_factor)
+  for (cur_factor in multilevel_factors) {
+    if (levels(m_corpus[[cur_factor]]) %>% length() == 2) {
+      two_level_factors <- c(two_level_factors, cur_factor)
       two_level_terms <- c(two_level_terms,
                            paste(cur_factor,
                                  levels(m_corpus[[cur_factor]])[2],
-                                 sep=""))
-      }
+                                 sep = ""))
     }
+  }
 
   # remove 2-level factors from list of multilevel_factors
   multilevel_factors <-
@@ -907,7 +926,7 @@ getModelFixedFX <- function(my_equation,
 
   # loop through each multilevel fixed factor of interest (multilevel_factors)
   for (cur_factor in multilevel_factors)
-    {
+  {
     # Get levels for current factor
     cur_levels = levels(my_data[[cur_factor]])
     num_levels = length(cur_levels)
@@ -979,10 +998,15 @@ getModelFixedFX <- function(my_equation,
 
       # Tidy the model.
       # Decide whether or not to exponentiate GLM data
-      if (is_GLM){
-        cur_model_tidy <- tidy(cur_model, exponentiate=exponentiate, conf.int=T)
+      if (is_GLM) {
+        cur_model_tidy <-
+          tidy(cur_model,
+               exponentiate = exponentiate,
+               conf.int = T)
       }
-      else{cur_model_tidy <- tidy(cur_model, conf.int=T)}
+      else{
+        cur_model_tidy <- tidy(cur_model, conf.int = T)
+      }
 
       cur_model_tidy <- cur_model_tidy %>%
         # Retain fixed factors only
@@ -997,7 +1021,7 @@ getModelFixedFX <- function(my_equation,
         ) %>%
         rename(!!my_stat := statistic)
 
-      if (!is_GLM){
+      if (!is_GLM) {
         cur_model_tidy <- cur_model_tidy %>%
           mutate(df = round(df, 2))
       }
@@ -1022,7 +1046,7 @@ getModelFixedFX <- function(my_equation,
             if_else(term == "(Intercept)",
                     keep_terms[cur_level],
                     term)
-          )
+        )
 
       keep_comparisons = NULL
       # make list of pairwise comparisons to keeps
@@ -1047,7 +1071,7 @@ getModelFixedFX <- function(my_equation,
       my_data <- my_data %>%
         mutate(!!factor_var := factor(!!factor_var,
                                       levels = cur_levels))
-          }
+    }
   }
 
   # Get intercepts and pairwise comparisons tables
@@ -1055,9 +1079,9 @@ getModelFixedFX <- function(my_equation,
     relocate(pairwise)
 
   my_intercepts <- tidyIntercepts(all_models_tidy)
-  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM=is_GLM)
+  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM = is_GLM)
 
-  two_level_factor_slopes <- tidy(base_model, conf.int=T) %>%
+  two_level_factor_slopes <- tidy(base_model, conf.int = T) %>%
     filter(effect %notin% "ran_pars") %>%
     mutate(
       estimate = round(estimate, 3),
@@ -1065,55 +1089,65 @@ getModelFixedFX <- function(my_equation,
       statistic = round(statistic, 3)
     )
 
-  if (!is_GLM){
+  if (!is_GLM) {
     two_level_factor_slopes <- two_level_factor_slopes %>%
       mutate(df = round(df, 2))
-    }
+  }
 
-    two_level_factor_slopes <- two_level_factor_slopes %>%
-      filter(term %in% two_level_terms) %>%
-      select(-c(group, effect)) %>%
-    mutate(estimate = round(estimate, 3),
-           std.error = round(std.error, 3),
-           statistic = round(statistic, 3),
+  two_level_factor_slopes <- two_level_factor_slopes %>%
+    filter(term %in% two_level_terms) %>%
+    select(-c(group, effect)) %>%
+    mutate(
+      estimate = round(estimate, 3),
+      std.error = round(std.error, 3),
+      statistic = round(statistic, 3),
     ) %>%
-    mutate(intercept = "intercept", .before=term
-    )  %>%
-    relocate(conf.high, .after="std.error") %>%
-    relocate(conf.low, .after="std.error") %>%
+    mutate(intercept = "intercept", .before = term)  %>%
+    relocate(conf.high, .after = "std.error") %>%
+    relocate(conf.low, .after = "std.error") %>%
     rename(!!my_stat := statistic,
-           slope=term)
+           slope = term)
   # bind two-level factor stats to my_pairwise
   my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
 
   # Write tables to file
   my_formula <- getModelFormula(base_model)
-  if (write != "")
-    write(paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep=""),
-          paste(write, "_formula.txt", sep = ""))
-    {
+  if (!is.null(write))
+  {
+    write(
+      paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
+      paste(write, "_formula.txt", sep = "")
+    )
     if ("intercepts" %in% report)
-      {
-      write_csv(my_intercepts, paste(write, "_b0.csv", sep = ""))
-      }
-    if ("slopes" %in% report)
-      {
-      write_csv(my_pairwise, paste(write, "_b1.csv", sep = ""))
-      }
+    {
+      write_csv(my_intercepts %>% mutate( !!post_hoc_method := NA,signif. = NA),
+                paste(write, "_b0.csv", sep = ""))
     }
+    if ("slopes" %in% report)
+    {
+      write_csv(my_pairwise %>% mutate( !!post_hoc_method := NA,signif. = NA),
+                paste(write, "_b1.csv", sep = ""))
+    }
+  }
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
     mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
-    formattable(caption = paste("b0 for",
-                                str_replace_all(my_formula, "\\`", ""),
-                                extra_text,
-                                sep = " "),
-                title = "") %>%
+    formattable(
+      caption = paste(
+        "b0 for",
+        str_replace_all(my_formula, "\\`", ""),
+        extra_text,
+        sep = " "
+      ),
+      title = ""
+    ) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
-        as.character(formatC(., format = "e", digits = 1)),
+        as.character(formatC(
+          ., format = "e", digits = 1
+        )),
         if_else(
           abs(.) < 10,
           as.character(round(., 3), digits = 3),
@@ -1127,16 +1161,22 @@ getModelFixedFX <- function(my_equation,
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
     ) %>%
-    formattable(caption = paste("b1 for",
-                                str_replace_all(my_formula, "\\`", ""),
-                                extra_text,
-                                sep = " "),
-                title = "") %>%
+    formattable(
+      caption = paste(
+        "b1 for",
+        str_replace_all(my_formula, "\\`", ""),
+        extra_text,
+        sep = " "
+      ),
+      title = ""
+    ) %>%
     mutate(across(
       c(p.value, estimate, conf.low, conf.high),
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
-        as.character(formatC(., format = "e", digits = 1)),
+        as.character(formatC(
+          ., format = "e", digits = 1
+        )),
         if_else(
           abs(.) < 10,
           as.character(round(., 3), digits = 3),
@@ -1145,8 +1185,11 @@ getModelFixedFX <- function(my_equation,
       )
     ))
 
-    return(list("intercepts" = my_intercepts, "slopes" = my_pairwise,
-              "model" = base_model))
+  return(list(
+    "intercepts" = my_intercepts,
+    "slopes" = my_pairwise,
+    "model" = base_model
+  ))
 }
 
 
@@ -1234,13 +1277,8 @@ adjustP_posthoc <-
     require("performance")
 
     # Abbreviate method where necessary.
-    if(method %in% c("hochberg", "hommel", "bonferroni")) {
-      my_meth <- switch(method,
-                        "hochberg" = "hoch",
-                        "hommel" = "homm",
-                        "bonferroni" = "bonf")
-      }
-    else{my_meth <- method}
+    my_meth <- shortenPAdjMethod(method)
+
 
     # Enquote variables which whose values will be evaluated as variables.
     p_column = enquo(p_column)
@@ -1256,8 +1294,17 @@ adjustP_posthoc <-
                  col_names = TRUE,
                  show_col_types = FALSE) %>%
 
-        # avoid reduplication of current method column
-        select(-any_of(c(!!new_adj_col, "signif."))) %>%
+        # avoid reduplication of columns
+        select(-any_of(c("p.adj.",
+                         "p.adj (holm)",
+                         "p.adj (hoch)",
+                         "p.adj (homm)",
+                         "p.adj (bonf)",
+                         "p.adj (BH)",
+                         "p.adj (BY)",
+                         "p.adj (FDR)",
+                         "p.adj (none)",
+                         "signif."))) %>%
         # Add p.adjusted column using method.
         mutate(p.adj = p.adjust(!!p_column,
                                 method = method),
@@ -1571,3 +1618,16 @@ tidyPrediction <- function(model) {
   }
   return(my_tibble)
 }
+
+
+### Shorten P Adjustment method name #########################################
+shortenPAdjMethod <- function(method){
+  require("mefa4")
+  if(method %in% c("hochberg", "hommel", "bonferroni")) {
+    short_meth <- switch(method,
+                         "hochberg" = "hoch",
+                         "hommel" = "homm",
+                         "bonferroni" = "bonf")
+  }
+  else{short_meth <- method}
+  return(short_meth)}

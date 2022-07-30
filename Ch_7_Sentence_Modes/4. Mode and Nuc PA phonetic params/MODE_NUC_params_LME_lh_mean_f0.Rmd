@@ -75,10 +75,10 @@ my_equation = formula(
 # prompt causes singularity. Removing from model.
 my_equation = formula(
   lh_mean_f0 ~ mode * acc_phon
-  #+ gender
+  + gender
   + fin_phon
   + (1 | speaker)
-  #+ (1 | prompt)
+  + (1 | prompt)
 )
 optimizer = "optimx"
 ```
