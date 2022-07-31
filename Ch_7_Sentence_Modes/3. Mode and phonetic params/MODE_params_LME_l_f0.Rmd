@@ -66,11 +66,11 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r set equation and optimizer}
 my_equation = formula(
   l_f0 ~ mode
-  + gender
-  + fin_phon
   + (1 | speaker)
-
-)
+# + (1 | gender)
+  + (1 | fin_phon)
+# + (1 | prompt)
+  )
 optimizer = "optimx"
 ```
 

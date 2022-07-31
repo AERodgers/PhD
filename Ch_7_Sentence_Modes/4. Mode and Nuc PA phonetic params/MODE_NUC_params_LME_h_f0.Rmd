@@ -65,9 +65,9 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r set equation and optimizer}
 my_equation = formula(
   h_f0 ~ mode * acc_phon
-  + gender
-  + fin_phon
   + (1 + mode + acc_phon | speaker)
+  + (1 | gender)
+  + (1 | fin_phon)
   + (1 | prompt)
 )
 
@@ -75,9 +75,9 @@ my_equation = formula(
 
 my_equation = formula(
   h_f0 ~ mode * acc_phon
-  + gender
-  + fin_phon
   + (1 | speaker)
+# + (1 | gender)
+  + (1 |fin_phon)
   + (1 | prompt)
 )
 optimizer = "optimx"
@@ -119,15 +119,17 @@ plot_model(h_f0_model,
 
 -  removing prompt as it causes singularity in l_f0 and has little effect here.
 
-### Final Model
+### Final Model, without (1|prompt)
 
 ```{r run model without prompt, fig.height=3, fig.width=9}
 my_equation = formula(
   h_f0 ~ mode * acc_phon
-  + gender
-  + fin_phon
+# + (1 | gender)
+  + (1 |fin_phon)
   + (1 | speaker)
-  )
+# + (1 | prompt)
+)
+
 # run model
 h_f0_model <-
   lmer(my_equation,

@@ -64,19 +64,19 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r set equation and optimizer}
 my_equation = formula(
   f0_exc ~ mode * acc_phon
-  + gender
-  + fin_phon
   + (1 + mode + acc_phon | speaker)
+  + (1 | gender)
+  + (1 | fin_phon)
   + (1 | prompt)
 )
 
 # prompt causes singularity. Removing from model.
 my_equation = formula(
   f0_exc ~ mode * acc_phon
-  #+ gender
-  + fin_phon
   + (1 | speaker)
-  #+ (1 | prompt)
+# + (1 | gender)
+  + (1 | fin_phon)
+# + (1 | prompt)
 )
 optimizer = "optimx"
 ```

@@ -62,18 +62,18 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r set equation and optimizer}
 my_equation = formula(
   lh_slope ~ mode * acc_phon
-  + gender
-  + fin_phon
   + (1 + mode + acc_phon | speaker)
+  + (1 | gender)
+  + (1 | fin_phon)
   + (1 | prompt)
 )
 
 # prompt causes singularity. Removing from model.
 my_equation = formula(
   lh_slope ~ mode * acc_phon
-  + gender
-  + fin_phon
   + (1 | speaker)
+# + (1 | gender)
+  + (1 | fin_phon)
   + (1 | prompt)
 )
 optimizer = "optimx"
@@ -123,8 +123,7 @@ summariseLME(lh_slope_model.trimmed, run_step = TRUE,
 plot_model(lh_slope_model.trimmed,
            type="re",
            axis.title = c("semitones", "prompt"),
-           title="random effect: prompt",
-           show.values = T)[2]
+           show.values = T)[2:3]
 ```
 
 ```{r make tidy model, fig.height=5, fig.width=7, results="asis"}

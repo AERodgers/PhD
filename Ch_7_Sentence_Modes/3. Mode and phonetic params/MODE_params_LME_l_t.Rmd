@@ -60,10 +60,10 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r set equation}
 my_equation = formula(
   l_t ~ mode +
-    gender +
-    fin_phon +
-    (1 + mode | speaker) +
-    (1 | prompt)
+  + (1 + mode | speaker)
+  + (1 | gender)
+  + (1 | fin_phon)
+  + (1 | prompt)
 )
 
 # model works with intercepts_only model
@@ -71,10 +71,10 @@ my_equation = formula(
 
 my_equation = formula(
   l_t ~ mode +
-    gender +
-    fin_phon +
-    (1 | prompt) +
-    (1 | speaker)
+  + (1 | speaker)
+# + (1 | gender)
+  + (1 | fin_phon)
+  + (1 | prompt)
 )
 ```
 
