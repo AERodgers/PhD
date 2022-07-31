@@ -25,6 +25,7 @@ installMissingPackages(
     "kableExtra",
     "RColorBrewer",
     "tidyverse",
+    "ggeffects",
     # Load stats package.
     "blme"
   )
@@ -163,13 +164,13 @@ uses_h_reg %>%
   rbind(round((uses_h_reg / total_counts*100),1) %>% paste("%", sep="")) %>% 
   mutate("info" =c("count", "percentage"), .before=1) %>%
   kable(
-  caption = "Utterance level intonational phonology by mode with high register")%>% 
+  caption = "High register in nucelar PA")%>% 
   kable_styling(full_width = FALSE, position="left")
 ```
 
 
 ```{r Show `high reg. or nuc. PA only` utterance level phonology summary, warning=FALSE}
-uses_h_reg_or <- m_corpus %>%
+uses_h_reg_or_nuc_PA_only <- m_corpus %>%
   filter(`high register in nucleus` == T | `nuclear PA only` == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
@@ -180,8 +181,8 @@ uses_h_reg_or <- m_corpus %>%
   mutate(total = sum(c_across())) %>%
   select(MDC, MWH, MYN, MDQ, total)
 
-uses_h_reg_or %>% 
-  rbind(round((uses_h_reg_or / total_counts*100),1) %>% paste("%", sep="")) %>% 
+uses_h_reg_or_nuc_PA_only %>% 
+  rbind(round((uses_h_reg_or_nuc_PA_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
   mutate("info" =c("count", "percentage"), .before=1) %>%
   kable(
   caption = paste("Utterance level intonational phonology by mode with",
@@ -230,9 +231,9 @@ m_corpus %>%
 ```
 
 # **Statistical Analysis**
-```{r one_pa_model}
+```{r nuc_pa_only_model}
 
-one_pa_model <- bglmer(
+nuc_pa_only_model <- bglmer(
   `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   data = m_corpus,
   family = binomial(link = "logit"),
@@ -248,7 +249,7 @@ one_pa_model <- bglmer(
   )
 )
 
-one_pa_model_null = 
+nuc_pa_only_model_null = 
   cur_model <- bglmer(
   `nuclear PA only` ~ 1 + (1 | speaker) + (1 | prompt),
   data = m_corpus,
@@ -265,58 +266,11 @@ one_pa_model_null =
   )
 )
 
-summary(one_pa_model)
+summary(nuc_pa_only_model)
 ```
 
-```{r one_pa_model charts and figures, fig.width = 4.5, fig.height = 2.5, results="asis"}
-cat(
-  "\nisSingular(one_pa_model, tol=1e-5) -->",
-  isSingular(one_pa_model, tol = 1e-5),
-  "\n"
-)
-
-anova(one_pa_model, one_pa_model_null, test="Chisq") %>%
-  formattable(
-  caption="ANOVA of model and null model, assuming presence of register tier"
-  )
-
-tidy_summary <- analyseModel(one_pa_model,
-                             #write = "Utt_one_pa_GLMM",
-                             is_GLM = TRUE,
-                             factor_matrix = TRUE,
-                             type = "pred")
-
-
-tidy_summary$r2
-tidy_summary$table
-
-one_pa_charts <- getModelFixedFX(
-  my_equation = `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
-  my_data = m_corpus,
-  #write = "Utt_one_pa_GLMM",
-  is_GLM = TRUE
-)
-
-
-one_pa_charts$intercepts
-one_pa_charts$slopes
-```
-
-```{r extra chart on PA, fig.width = 5.5, fig.height = 2.5}
-ggpredict(one_pa_model, terms=c("mode", "gender")) %>%
-  plot() +
-  labs(caption = "", title = "") +
-  ylim(0,1) +
-  ylab("prob. of nuc PA only") +
-   geom_text(aes(
-    label = percent(predicted, 0),
-  hjust = 1.5,
-  position = "dodge"),
-  check_overlap = T,
-  size=3) +
-  theme(axis.title.x=element_blank())
-
-ggpredict(one_pa_model, terms=c("mode")) %>%
+```{r extra chart one PA}
+ggpredict(nuc_pa_only_model, terms=c("mode")) %>%
   as.tibble() %>% 
   select(-group) %>% 
   rename(mode = x) %>%
@@ -328,8 +282,45 @@ ggpredict(one_pa_model, terms=c("mode")) %>%
   formattable(caption="probability of nuclear pitch-accent-only IP")
 ```
 
+```{r nuc_pa_only_model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
+cat(
+  "\nisSingular(nuc_pa_only_model, tol=1e-5) -->",
+  isSingular(nuc_pa_only_model, tol = 1e-5),
+  "\n"
+)
+
+# get, save, and print ANOVA of model
+anova(nuc_pa_only_model, nuc_pa_only_model_null, test="Chisq") %>%
+  outputChiSqResults(
+    nuc_pa_only_model,
+    extra_text = "(assuming no register tier)",
+    write="Utt_nuc_pa_only_GLMM",
+    post_hoc_method = "BH"
+  )
+
+tidy_summary <- analyseModel(nuc_pa_only_model,
+                             write = "Utt_nuc_pa_only_GLMM",
+                             is_GLM = TRUE,
+                             factor_matrix = TRUE,
+                             type = "pred")
+
+
+tidy_summary$table
+
+nuc_pa_only_charts <- getModelFixedFX(
+  my_equation = `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  my_data = m_corpus,
+  write = "Utt_nuc_pa_only_GLMM",
+  is_GLM = TRUE
+)
+
+
+nuc_pa_only_charts$intercepts
+nuc_pa_only_charts$slopes
+```
+
 ```{r `high reg. or nuc. PA only` model}
-h_reg_or_model <- bglmer(
+h_reg_or_nuc_pa_only_model <- bglmer(
   `high reg. or nuc. PA only` ~ mode + gender +(1 | speaker) + (1 | prompt),
   data = m_corpus,
   family = binomial(link = "logit"),
@@ -362,26 +353,13 @@ h_reg_or_null =
   )
 )
 
-summary(h_reg_or_model)
+summary(h_reg_or_nuc_pa_only_model)
 ```
 
 
 
-```{r extra chart Charts, fig.width = 5.5, fig.height = 2.5}
-ggpredict(h_reg_or_model, terms=c("mode")) %>%
-  plot() +
-  labs(caption = "", title = "") +
-  ylim(0,1) +
-  ylab("prob. of strategies") +
-   geom_text(aes(
-    label = percent(predicted, 1),
-  hjust = 1.2,
-  position = "dodge"),
-  check_overlap = T,
-  size=3) +
-  theme(axis.title.x=element_blank())
-
-ggpredict(h_reg_or_model, terms=c("mode")) %>%
+```{r extra chart Charts5}
+ggpredict(h_reg_or_nuc_pa_only_model, terms=c("mode")) %>%
   as.tibble() %>% 
   select(-group) %>% 
   rename(mode = x) %>%
@@ -394,32 +372,35 @@ ggpredict(h_reg_or_model, terms=c("mode")) %>%
 ```
 
 
-```{r h_reg_or_model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r h_reg_or_nuc_pa only model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
 cat(
-  "isSingular(h_reg_or_model, tol=1e-5) -->",
-  isSingular(h_reg_or_model, tol = 1e-5),
+  "isSingular(h_reg_or_nuc_pa_only_model, tol=1e-5) -->",
+  isSingular(h_reg_or_nuc_pa_only_model, tol = 1e-5),
   "\n"
 )
 
-anova(h_reg_or_model, h_reg_or_null, test="Chisq") %>%
-  formattable(
-  caption="ANOVA of model and null model, assuming presence of register tier"
+anova(h_reg_or_nuc_pa_only_model, h_reg_or_null, test="Chisq") %>%
+  outputChiSqResults(
+    h_reg_or_nuc_pa_only_model,
+    extra_text = "(assuming no register tier)",
+    write="Utt_h_reg_or_nuc_pa_only_GLMM",
+    post_hoc_method = "BH"
   )
 
-tidy_summary <- analyseModel(h_reg_or_model,
-                    #write = "Utt_h_reg_or_GLMM",
+tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
+                    write = "Utt_h_reg_or_nuc_pa_only_GLMM",
                     is_GLM = TRUE,
                     type = "pred"
                     )
 
-tidy_summary$r2
+
 tidy_summary$table
 
 h_reg_or_charts <- getModelFixedFX(
   my_equation = 
     `high reg. or nuc. PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
-  #write = "Utt_h_reg_or_GLMM",
+  write = "Utt_h_reg_or_nuc_pa_only_GLMM",
   is_GLM = TRUE
 )
 

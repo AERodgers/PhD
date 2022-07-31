@@ -119,13 +119,13 @@ utt_slope_mdl.trimmed  <-  lmer(cur_equation,
 )
 
 summariseLME(utt_slope_mdl.trimmed, run_step = TRUE,
-              write="anova/utt_slope.csv")
+              write="../output_model_anovas/utt_slope_anova.csv")
 ```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
 utt_utt_slope.tidy <- analyseModel(
   utt_slope_mdl.trimmed,
-  write="utt_slope"
+  write="../output/utt_slope"
   )
 utt_utt_slope.tidy$table
 ```
@@ -144,7 +144,7 @@ plot_model(utt_slope_mdl.trimmed,
 charts <- getModelFixedFX(
   my_equation = cur_equation,
   my_data = m_corpus.trimmed,
-  write="utt_slope"
+  write="../output/utt_slope"
 )
 charts$intercepts
 charts$slopes

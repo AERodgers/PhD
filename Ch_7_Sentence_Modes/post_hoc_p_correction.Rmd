@@ -17,40 +17,36 @@ source("../functions/myFunctions.R")
 installMissingPackages("tidyverse")
 ```
 
-Adjust all p values using false discovery rate (FDR).
-$\beta_0$ and $\beta_1$ are processed separately.
-
+Adjust all p values using false discovery rate (FDR). $\beta_0$, $\beta_1$, and model ANOVAs are processed separately.
 
 c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
 
 ## 1. Mode and Phonology
+
 #### a. $\beta_0$
 
 ```{r Phonology and Mode b0, results="asis"}
-adjustP_posthoc("1.Phonology and Mode/", p.value, print=T, marginal=F, suffix_id="_b0")
+adjustP_posthoc(
+    "1.Phonology and Mode/", p.value, print=T, marginal=F, suffix_id="_b0")
 ```
+
 #### b. $\beta_1$
+
 ```{r Phonology and Mode b1, results="asis"}
-adjustP_posthoc("1.Phonology and Mode/", p.value, print=T, marginal=F, suffix_id="_b1")
+adjustP_posthoc(
+    "1.Phonology and Mode/", p.value, print=T, marginal=F, suffix_id="_b1")
 ```
 
-## 2. Utterance-wide f0 parameters
-#### a. $\beta_0$
-```{r Utterance Phonetic Parameters and Mode b0, results="asis"}
-adjustP_posthoc("2.Utterance and phonetic params/",
-                p.value,
-                print=TRUE,
-                suffix_id="_b0")
-```
-#### b. $\beta_1$
-```{r Utterance Phonetic Parameters and Mode b1, results="asis"}
-adjustP_posthoc("2.Utterance and phonetic params/",
-                p.value,
-                print=TRUE,
-                suffix_id="_b1")
+### c. ANOVAs for phonological analysis models
+
+```{r PA and PHonological Parameters ANOVAs, results="asis"}
+adjustP_posthoc("1.Phonology and Mode/", `Pr(>Chisq)`, suffix_id="_anova",
+                print=TRUE)
 ```
 
-## 3. Mode, acc_phon, and phonetic parameters
+
+## 2. Mode, acc_phon, and phonetic parameters
+
 #### a. $\beta_0$
 
 ```{r Mode Nuc PA and Phonetic Parameters b0, results="asis"}

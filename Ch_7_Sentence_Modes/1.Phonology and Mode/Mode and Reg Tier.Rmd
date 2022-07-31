@@ -18,18 +18,15 @@ knitr::opts_chunk$set(echo = FALSE,
 source("../../functions/myFunctions.R") 
 
 # Load packages.
-installMissingPackages(
-  c(
-    # Load tidy packages.
-    "formattable",
-    "janitor",
-    "kableExtra",
-    "RColorBrewer",
-    "tidyverse",
-    # Load stats package.
-    "blme"
-  )
-)
+installMissingPackages(c(# Load tidy packages
+                         "formattable",
+                         "janitor",
+                         "kableExtra",
+                         "RColorBrewer",
+                         "tidyverse",
+                         "ggeffects",
+                         # Load stats package.
+                         "blme"))
 
 ```
 
@@ -442,6 +439,7 @@ ggplot(
   size = 3)
 
 ```
+
 ```{r Plot common pitch accents by mode and gender adjusted, fig.height=3.5, fig.width=5.15}
 ggplot(pa_by_gender_adj %>%
     # Uncount tables bar chart.
@@ -565,25 +563,29 @@ summary(h_reg_model)
 ```
 
 
-```{r model charts and figures, fig.width = 5, fig.height = 2.5, results="asis"}
+```{r model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(h_reg_model, tol=1e-5) -->",
   isSingular(h_reg_model, tol = 1e-5),
   "\n"
 )
 
+
+# get, save, and print ANOVA of model
 anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
-  formattable(
-  caption="ANOVA of model and null model, register tier analysis"
+  outputChiSqResults(
+    h_reg_model,
+    extra_text = "(assuming no register tier)",
+    write="Mode_PA_GLMM",
+    post_hoc_method = "BH"
   )
 
-
 tidy_summary <- analyseModel(h_reg_model,
-                             #write = "Mode_PA_GLMM",
+                             write = "Mode_PA_GLMM",
                              is_GLM = TRUE,
                              type = "pred",
                              factor_matrix=TRUE)
-tidy_summary$r2
+
 tidy_summary$table
 
 charts <- getModelFixedFX(
@@ -591,30 +593,13 @@ charts <- getModelFixedFX(
     `high register in nucleus` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_h_reg,
   is_separation = TRUE,
-  #write="Mode_PA_GLMM",
+  write="Mode_PA_GLMM",
   is_GLM=TRUE,
   extra_text = ", register tier analysis"
 )
 
-
 charts$intercepts
 charts$slopes
-```
-
-
-```{r extra chart Charts, fig.width = 4.2, fig.height = 2.5}
-ggpredict(h_reg_model, terms=c("mode", "gender")) %>%
-  plot() +
-  labs(caption = "", title = "") +
-  ylim(0,1) +
-  ylab("prob. of high reg in nuc.") +
-   geom_text(aes(
-    label = percent(predicted, 0),
-  hjust = 1.5,
-  position = "dodge"),
-  check_overlap = T,
-  size=3) +
-  theme( axis.title.x=element_blank())
 ```
 
 
@@ -703,7 +688,7 @@ fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
 
 ```
 
-```{r plot fin_phon by mode and gender, fig.width = 4, fig.height = 3.5}
+```{r plot fin_phon by mode and gender, fig.width = 4, fig.height = 2.5}
 ggplot(fin_phon_by_gender_adj_list) +
   geom_bar(
     mapping = aes(
@@ -813,29 +798,33 @@ summary(fin_phon_model)
 ```
 
 
-```{r fin_phon model charts and figures, fig.width = 4.2, fig.height = 2.5, results="asis"}
+```{r fin_phon model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(fin_phon_model, tol=1e-5) -->",
   isSingular(fin_phon_model, tol = 1e-5),
   "\n"
 )
 
+# get, save, and print ANOVA of model
 anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
-  formattable(
-  caption="ANOVA of model and null model, register tier analysis"
+  outputChiSqResults(
+    fin_phon_model,
+    extra_text = "(assuming no register tier)",
+    write="Mode_fin_phon_GLMM",
+    post_hoc_method = "BH"
   )
 
 tidy_summary <- analyseModel(fin_phon_model,
-                             #write="Mode_PA_GLMM",
+                             write="Mode_fin_phon_GLMM",
                              is_GLM = TRUE,
                              type="pred")
-tidy_summary$r2
+
 tidy_summary$table
 
 charts <- getModelFixedFX(
   my_equation = `L% boundary` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_boundaries,
-  #write="Mode_fin_phon_GLMM",
+  write="Mode_fin_phon_GLMM",
   is_GLM=TRUE,
   extra_text = ", register tier analysis"
 )
@@ -845,20 +834,7 @@ charts$intercepts
 charts$slopes
 ```
 
-```{r extra chart L boundary, fig.width = 4.2, fig.height = 2.5, results="asis"}
-ggpredict(fin_phon_model, terms=c("mode")) %>%
-  plot() +
-  labs(caption = "", title = "") +
-  ylim(0,1) +
-  ylab("prob. of L%") +
-   geom_text(aes(
-    label = percent(predicted, 0),
-  hjust = 1.5,
-  position = "dodge"),
-  check_overlap = T,
-  size=3) +
-  theme(axis.title.x=element_blank())
-
+```{r extra chart L boundary, results="asis"}
 ggpredict(fin_phon_model, terms=c("mode")) %>%
   as.tibble() %>% 
   select(-group) %>% 

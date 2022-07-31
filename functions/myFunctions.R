@@ -6,7 +6,7 @@ require("tidyverse")
 require("RColorBrewer")
 
 
-### Set themes, colours schemes, and formatters ###############################
+###  Set themes, colours schemes, and formatters ###############################
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
@@ -361,7 +361,7 @@ param_means <-
   }
 
 
-###  Get M_Corpus #############################################################
+###  Get m_corpus #############################################################
 get_m_corpus <- function(file_address)
 
   # Include package for %in% / %notin% syntactic notation
@@ -524,7 +524,7 @@ get_m_corpus <- function(file_address)
 }
 
 
-###  Get Formula as String from LME/GLM model ##################################
+###  Get Formula as String from LME/(B)GLM model ##################################
 getModelFormula <-function(my_model) {
   require("stringr")
   my_formula <- str_c(formula(my_model))
@@ -532,7 +532,7 @@ getModelFormula <-function(my_model) {
   return(my_formula)
 }
 
-###  Get Data as String from LME/GLM model ##################################
+###  Get Data object name as String from LME/GLM model #########################
 getModelDataName <-function(my_model) {
   return(my_model@call[["data"]])
 }
@@ -630,7 +630,7 @@ analyseModel <-
     require("ggeffects")
     require("sjlabelled")
 
-    my_stat <- ifelse(is_GLM, "z.value", "z.value")
+    my_stat <- ifelse(is_GLM, "z.value", "t.value")
 
     my_headers <- c(
       "term",
@@ -741,10 +741,15 @@ analyseModel <-
         my_plot <- ggpredict(my_model, terms = fixed_factors) %>%
           plot() +
           ylim(0, 1) +
-          labs(
-            caption = "",
-            title=""
-            )
+          labs(caption = "", title="") +
+          geom_text(aes(
+            label = percent(predicted, 0),
+            hjust = 1.5,
+            position = "dodge"),
+            check_overlap = T,
+            size=3) +
+          theme(axis.title.x=element_blank())
+
         print(my_plot)
       }
       else{
@@ -752,8 +757,14 @@ analyseModel <-
           my_plot <- ggpredict(my_model, terms = cur_factor) %>%
             plot() +
             ylim(0, 1) +
-            labs(caption = "",
-                 title="")
+            labs(caption = "", title="") +
+            geom_text(aes(
+              label = percent(predicted, 0),
+              hjust = 1.5,
+              position = "dodge"),
+              check_overlap = T,
+              size=3) +
+            theme(axis.title.x=element_blank())
           print(my_plot)
 
         }
@@ -804,7 +815,7 @@ getModelFixedFX <- function(my_equation,
   require("lme4")
   require("blme")
 
-  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+  my_stat <- ifelse(is_GLM, "z.value", "t.value")
 
   my_headers <- c(
     "term",
@@ -1208,7 +1219,7 @@ tidyIntercepts <- function(all_models_tidy)
 tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 {
 
-  my_stat <- ifelse(is_GLM, "z.value", "z.value")
+  my_stat <- ifelse(is_GLM, "z.value", "t.value")
   my_headers <- c(
     "pairwise",
     "term",
@@ -1393,7 +1404,7 @@ adjustP_posthoc <-
       return(p_counts)
     }
   }
-### Tidy Print Predictions ####################################################
+###  Tidy Print Predictions ####################################################
 tidyPrintPredictions <-
   function(model, caption_suffix, factor_matrix = F, is_LME=F) {
     require("ggeffects")
@@ -1600,18 +1611,18 @@ tidyPrediction <- function(model) {
     cur_obj_name <- obj_names[obj_i]
     cur_obj_name = enquo(cur_obj_name)
 
-    my_tibble <- my_tibble |>
+    my_tibble <- my_tibble %>%
       rbind(
-        as_tibble(cur_obj) |>
-          relocate(std.error, .after = conf.high) |>
-          relocate(group, .before = x) |>
+        as_tibble(cur_obj) %>%
+          relocate(std.error, .after = conf.high) %>%
+          relocate(group, .before = x) %>%
           mutate(std.error = if_else(
             abs(std.error) < 0.001,
             as.character(formatC(
               std.error, format = "e", digits = 1
             )),
             as.character(round(std.error, 3))
-          )) |>
+          )) %>%
           rename(level = x,
                  factor = group)
       )
@@ -1620,7 +1631,7 @@ tidyPrediction <- function(model) {
 }
 
 
-### Shorten P Adjustment method name #########################################
+###  Shorten P Adjustment method name #########################################
 shortenPAdjMethod <- function(method){
   require("mefa4")
   if(method %in% c("hochberg", "hommel", "bonferroni")) {
@@ -1631,3 +1642,50 @@ shortenPAdjMethod <- function(method){
   }
   else{short_meth <- method}
   return(short_meth)}
+
+
+outputChiSqResults <- function(anova,
+                               model,
+                               extra_text = "",
+                               write = "test",
+                               post_hoc_method = "BH")
+
+{
+  # rename and enquote relevant arguments.
+  my_formula <- getModelFormula(model)
+
+  post_hoc_method <- paste("p.adj (",
+                           shortenPAdjMethod(post_hoc_method),
+                           ")",
+                           sep = "")
+  post_hoc_method <- enquo(post_hoc_method)
+
+  # convert anova to formattable object
+  anova <- anova %>%
+    formattable(caption = paste("ANOVA of model and null model: ",
+                                my_formula,
+                                extra_text,
+                                sep = "")) %>%
+    # tidy up decimal places
+    mutate(
+      across(2:last_col(),
+             ~ if_else(abs(.) < 0.001 | abs(.) > 100000,
+                       as.character(formatC(., format = "e", digits = 1)),
+                       if_else(round(.) == .,
+                               as.character(.),
+                               as.character(round(., 3), digits = 3)))))
+
+    # Save anova
+    anova %>%
+    # add blank p.adj and significance columns.
+    mutate(!!post_hoc_method := NA, signif. = NA) %>%
+    relocate(signif., .after = !!post_hoc_method) %>%
+    write_csv(paste(write, "_anova.csv", sep = ""))
+
+    # Save formula
+    write(paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
+          paste(write, "_formula.txt", sep = ""))
+
+    # Return tidy anova.
+    return(anova)
+}

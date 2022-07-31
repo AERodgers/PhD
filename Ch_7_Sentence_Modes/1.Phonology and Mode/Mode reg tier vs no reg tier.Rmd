@@ -7,7 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE)
+                      message = FALSE,
+                      warning=FALSE)
 
 
 # Load Functions.
@@ -73,7 +74,6 @@ tidy_summary_non_reg <- analyseModel(fin_phon_model_H_or_not,
                              is_GLM = TRUE,
                              type = "pred")
 
-tidy_summary_non_reg$r2
 tidy_summary_non_reg$table
 ```
 
@@ -93,6 +93,5 @@ tidy_summary_reg <- analyseModel(h_reg_model,
                              type = "pred",
                              factor_matrix=TRUE)
 
-tidy_summary_reg$r2
 tidy_summary_reg$table
 ```

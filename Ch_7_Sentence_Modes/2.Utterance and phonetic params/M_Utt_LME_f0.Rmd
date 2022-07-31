@@ -116,21 +116,20 @@ utt_mean_f0_mdl = lmer(
 )
 
 summariseLME(utt_mean_f0_mdl, run_step = TRUE,
-              write="anova/utt_f0.csv")
+              write="../output_model_anovas/utt_f0_anova.csv")
 ```
 
 ```{r random effect of prompt, fig.height=2, fig.width=5}
 plot_model(utt_mean_f0_mdl,
            type="re",
            axis.title = c("semitones", "prompt"),
-           title="random effect",
            show.values = T)[2:4]
 ```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
 utt_mean_f0.tidy <- analyseModel(
   utt_mean_f0_mdl,
-  write="utt_f0"
+  write="../output/utt_f0"
 )
 utt_mean_f0.tidy$table
 ```
@@ -142,7 +141,7 @@ utt_mean_f0.tidy$table
 charts <- getModelFixedFX(
   my_equation = cur_equation,
   my_data = m_corpus.trimmed,
-  write="utt_f0"
+  write="../output/utt_f0"
 )
 # NB for this, we aren't actually interested in the slopes of acc_phon, but the of mode
 charts$intercepts
