@@ -59,7 +59,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 ```{r set equation}
 my_equation = formula(
-  l_t ~ mode * acc_phon +
+  l_t ~ mode * acc_phon
   + (1 + mode + acc_phon | speaker)
   + (1 | gender)
   + (1 | fin_phon)
@@ -70,7 +70,7 @@ my_equation = formula(
 # but keep with random intercepts only for parity with h_t
 
 my_equation = formula(
-  l_t ~ mode * acc_phon +
+  l_t ~ mode * acc_phon
   + (1 | speaker)
 # + (1 | gender)
   + (1 | fin_phon)

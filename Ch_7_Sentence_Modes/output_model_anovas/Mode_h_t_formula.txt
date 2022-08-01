@@ -1,1 +1,1 @@
-h_t ~ mode + +(1 | speaker) + (1 | fin_phon) + (1 | prompt)
+h_t ~ mode + (1 | speaker) + (1 | fin_phon) + (1 | prompt)

@@ -69,7 +69,7 @@ my_equation = formula(
 # Use same model for l_t
 
 my_equation = formula(
-  h_t ~ mode * acc_phon +
+  h_t ~ mode * acc_phon
   + (1 | speaker)
 # + (1 | gender)
   + (1 | fin_phon)
