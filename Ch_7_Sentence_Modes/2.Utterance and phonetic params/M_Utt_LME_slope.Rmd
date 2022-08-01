@@ -75,14 +75,17 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 
 - Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
 - Initial model has singularity issues
-- Removing prompt gender from model
 - Model word, but needs trimmed ()
 
 ```{r}
 # set current equation
-cur_equation  <-
-  "utt_slope ~ mode + h_start +
-   (1 | acc_phon) + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)"
+cur_equation  <- formula(
+  utt_slope ~ mode + h_start
+  + (1 + mode | speaker)
+  # + (1 | acc_phon)
+  # + (1 | fin_phon)
+  + (1 | prompt)
+  )
 
 ```
 

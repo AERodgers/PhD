@@ -31,8 +31,7 @@ installMissingPackages(
     "knitr",
     "RColorBrewer",
     # Include packages for %in% %notin% syntactic notation
-    "mefa4",
-    "blme"
+    "mefa4"
   )
 )
 
@@ -61,50 +60,59 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
          )
 ```
 
-- Intercepts only model without prompt is best for no singularity / convergence issues
+- Using intercepts only model for parity with mode + acc_phon model 
 
-#### `lh_mean_f0 ~ mode + (1| speaker) + (1 | gender) + (1 | fin_phon)`
+```{r set equation and optimizer}
+my_equation = formula(
+  lh_mean_f0 ~ mode
+  + (1 | speaker)
+# + (1 | gender)
+  + (1 | fin_phon)
+# + (1 | prompt)
+  )
+optimizer = "optimx"
+
+```
+
 ```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
-
 # run model
 lh_mean_f0_model <- lmer(
-  lh_mean_f0 ~
-    mode + (1 | speaker) + (1 | gender) + (1 | fin_phon),
-        data = m_corpus,
-        control = lmerControl(
-            optimizer = "bobyqa",
-            calc.derivs = FALSE,
-            optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-            )
-        )
-      )
+  my_equation,
+  m_corpus,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 
-summariseLME(lh_mean_f0_model, run_step=TRUE
-              #, write="../output_model_anovas/Mode_lh_mean_f0_anova.csv"
-             )
-
+summariseLME(lh_mean_f0_model, run_step = FALSE,
+              write = "../output_model_anovas/Mode_lh_mean_f0_anova.csv")
+#              
 ```
 
-```{r make tidy model, fig.height=2.5, fig.width=5, results="asis"}
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
 
-lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model
-                                #, write="../output/Mode_lh_mean_f0"
+lh_mean_f0_model.tidy <- analyseModel(lh_mean_f0_model,
+                                write="../output/Mode_lh_mean_f0"
                                 )
 lh_mean_f0_model.tidy$table
+
 ```
 
-```{r do pairwise analysis, tidy = TRUE}
+```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = TRUE}
 
 charts <- getModelFixedFX(
-  my_equation = lh_mean_f0 ~ 
-     mode + (1 | speaker) + (1 | gender) + (1 | fin_phon),
-  my_data = m_corpus,
-  #write="../output/Mode_lh_mean_f0",
-  optimizer="bobyqa"
+  my_equation,
+  m_corpus,
+  optimizer,
+  write="../output/Mode_lh_mean_f0"
 )
+charts$intercepts
 charts$slopes
 
 

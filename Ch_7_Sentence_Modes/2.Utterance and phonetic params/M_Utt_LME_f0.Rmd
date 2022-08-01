@@ -75,13 +75,15 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ### LME model analysis using initial model
 ```{r}
 # set current equation
-cur_equation  <-
-  "utt_mean_f0 ~ mode +
-(1 | acc_phon) + (1 + mode | speaker) + (1 | fin_phon) + (1 | prompt)"
+cur_equation  <- formula(
+  utt_mean_f0 ~ mode
+  + (1 + mode | speaker)
+# + (1 | acc_phon)
+# + (1 | fin_phon)
+  + (1 | prompt)
+)
 
 ```
-
-#### ``r cur_equation``
 
 ```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
 utt_mean_f0_mdl = lmer(
