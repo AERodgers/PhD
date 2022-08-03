@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME Analysis of Utterance mean f0"
+title: "Chapter 7 - LME Analysis of Utterance mean f0 - Mode only"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -51,23 +51,9 @@ p_color <- all_models_tidy ~ style(color =
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
-         gender,
          mode,
          prompt,
-         acc_phon, 
-         phr_phon,
-         fin_phon,
-         utt_mean_f0) %>%
-  mutate(h_start =
-           if_else(
-             !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
-             T,
-             F),
-         h_start = factor(h_start, levels = unique(h_start)),
-         # Remove register tier identifier from fin_phon.
-         fin_phon = str_replace_all(fin_phon, "\\]", ""),
-         fin_phon = factor(fin_phon, levels = unique(fin_phon))
-)
+         utt_mean_f0)
 
 ```
 
@@ -75,13 +61,10 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ### LME model analysis using initial model
 ```{r}
 # set current equation
-cur_equation  <- formula(
-  utt_mean_f0 ~ mode
-  + (1 + mode | speaker)
-# + (1 | acc_phon)
-# + (1 | fin_phon)
-  + (1 | prompt)
-)
+cur_equation  <- formula(utt_mean_f0 ~ mode
+                         + (1 + mode | speaker)
+                         + (1 | prompt)
+                         )
 
 ```
 
@@ -121,12 +104,6 @@ summariseLME(utt_mean_f0_mdl, run_step = TRUE,
               write="../output_model_anovas/utt_f0_anova.csv")
 ```
 
-```{r random effect of prompt, fig.height=2, fig.width=5}
-plot_model(utt_mean_f0_mdl,
-           type="re",
-           axis.title = c("semitones", "prompt"),
-           show.values = T)[2:4]
-```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
 utt_mean_f0.tidy <- analyseModel(
@@ -136,6 +113,12 @@ utt_mean_f0.tidy <- analyseModel(
 utt_mean_f0.tidy$table
 ```
 
+```{r random effect of prompt, fig.height=2, fig.width=5}
+plot_model(utt_mean_f0_mdl,
+           type="re",
+           axis.title = c("semitones", "prompt"),
+           show.values = T)[2]
+```
 
 ```{r slopes}
 # Get number of levels in target treatment variable.

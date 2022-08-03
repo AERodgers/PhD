@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME Analysis of Utterance Slope"
+title: "Chapter 7 - LME Analysis of Utterance Slope - Mode only"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -53,40 +53,15 @@ p_color <- all_models_tidy ~ style(color =
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
-         gender,
          mode,
-         acc_phon,
-         phr_phon,
-         fin_phon,
          utt_slope,
-         prompt) %>%
-  mutate(h_start =
-           if_else(
-             !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
-             T,
-             F),
-         h_start = factor(h_start, levels = unique(h_start)),
-         # Remove register tier identifier from fin_phon.
-         fin_phon = str_replace_all(fin_phon, "\\]", ""),
-         fin_phon = factor(fin_phon, levels = unique(fin_phon))
-)
+         prompt)
 
 ```
 
-- Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
-- Initial model has singularity issues
-- Model word, but needs trimmed ()
-
 ```{r}
 # set current equation
-cur_equation  <- formula(
-  utt_slope ~ mode + h_start
-  + (1 + mode | speaker)
-  # + (1 | acc_phon)
-  # + (1 | fin_phon)
-  + (1 | prompt)
-  )
-
+cur_equation  <- formula(utt_slope ~ mode + (1 + mode | speaker)+ (1 | prompt))
 ```
 
 ```{r fig.height=3, fig.width=9, tidy = TRUE}
@@ -122,13 +97,11 @@ utt_slope_mdl.trimmed  <-  lmer(cur_equation,
 )
 ```
 
-
-```{r random effect of prompt, fig.height=2, fig.width=5}
-plot_model(utt_slope_mdl.trimmed,
-           type="re",
-           axis.title = c("semitones", "prompt"),
-           title="random effect",
-           show.values = T)[2:4]
+```{r summary, fig.height=3, fig.width=9, tidy = TRUE}
+summariseLME(utt_slope_mdl.trimmed, run_step = TRUE
+             ,
+              write="../output_model_anovas/utt_slope_anova.csv"
+              )
 ```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
@@ -136,15 +109,19 @@ utt_utt_slope.tidy <- analyseModel(
   utt_slope_mdl.trimmed,
  # write="../output/utt_slope"
   )
+
 utt_utt_slope.tidy$table
 ```
 
-```{r summary, fig.height=3, fig.width=9, tidy = TRUE}
-summariseLME(utt_slope_mdl.trimmed, run_step = TRUE
-             #,
-              #write="../output_model_anovas/utt_slope_anova.csv"
-              )
+```{r random effect of prompt, fig.height=2, fig.width=5}
+plot_model(utt_slope_mdl.trimmed,
+           type="re",
+           axis.title = c("semitones", "prompt"),
+           title="random effect",
+           show.values = T)[2]
 ```
+
+
 
 ```{r slopes}
 # Get number of levels in target treatment variable.

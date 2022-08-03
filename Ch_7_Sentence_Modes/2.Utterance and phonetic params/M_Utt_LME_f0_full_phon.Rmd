@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME Analysis of Utterance mean f0"
+title: "Chapter 7 - LME Analysis of Utterance mean f0 - mode and phonology"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -52,16 +52,21 @@ p_color <- all_models_tidy ~ style(color =
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
          mode,
-         phr_phon,
-         nuc_contour,
          utt_mean_f0,
+         phr_phon,
+         acc_phon,
+         fin_phon,
          prompt) %>%
   mutate(h_start =
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
-             T,
-             F),
-         h_start = factor(h_start, levels = unique(h_start)))
+             "H start",
+             "no H start"),
+         h_start = factor(h_start, levels = c("H start","no H start")),
+         fin_phon = factor(str_replace_all(fin_phon, "\\^|\\[|\\]", ""),
+                           levels=c("%", "L%")
+           
+         ))
 
 ```
 
@@ -70,10 +75,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r}
 # set current equation
 cur_equation  <- formula(
-  utt_mean_f0 ~ mode + h_start
+  utt_mean_f0  ~ mode
   + (1 + mode | speaker)
-  + (1 | nuc_contour)
   + (1 | prompt)
+  + (1 | h_start)
+  + (1 | acc_phon)
+  + (1 | fin_phon)
   )
 
 ```
@@ -93,42 +100,32 @@ utt_mean_f0_mdl = lmer(
   )
 )
 
-# model needs trimming
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_mean_f0_mdl))) <= 2.9)
-
-utt_mean_f0_mdl = lmer(
-  formula(cur_equation),
-  data = m_corpus.trimmed,
-  control = lmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
 
 summariseLME(utt_mean_f0_mdl, run_step = TRUE,
               write="../output_model_anovas/utt_f0_full_phon_anova.csv")
 ```
 
-```{r random effect of acc_phon, fig.height=4, fig.width=5}
+```{r random effect 1, fig.height=4, fig.width=8}
+plot_model(utt_mean_f0_mdl,
+           type="re",
+           vline.color = "red",
+           show.values = T)[1]
+```
+```{r random effect 2, fig.height=4, fig.width=6}
 plot_model(utt_mean_f0_mdl,
            type="re",
            vline.color = "red",
            show.values = T)[2]
 ```
 
-```{r random effect of prompt, fig.height=2, fig.width=5}
+```{r random effect 3, fig.height=2, fig.width=6}
 plot_model(utt_mean_f0_mdl,
            type="re",
            vline.color = "red",
-           show.values = T)[3]
+           show.values = T)[3:5]
 ```
 
-```{r fig.height=2.5, fig.width=5, results="asis"}
+```{r fig.height=2.5, fig.width=6, results="asis"}
 utt_mean_f0.tidy <- analyseModel(
   utt_mean_f0_mdl,
   write="../output/utt_f0_full_phon"
@@ -142,10 +139,10 @@ utt_mean_f0.tidy$table
 
 charts <- getModelFixedFX(
   my_equation = cur_equation,
-  my_data = m_corpus.trimmed,
+  my_data = m_corpus,
   write="../output/utt_f0_full_phon"
 )
-# NB for this, we aren't actually interested in the slopes of acc_phon, but the of mode
+
 charts$intercepts
 charts$slopes
 

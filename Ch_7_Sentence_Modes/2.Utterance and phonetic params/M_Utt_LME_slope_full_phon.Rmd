@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME Analysis of Utterance Slope"
+title: "Chapter 7 - LME Analysis of Utterance Slope - Mode and Phonology"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -54,16 +54,22 @@ p_color <- all_models_tidy ~ style(color =
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
          mode,
-         phr_phon,
-         nuc_contour,
          utt_slope,
+         phr_phon,
+         acc_phon,
+         fin_phon,
          prompt) %>%
   mutate(h_start =
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
-             T,
-             F),
-         h_start = factor(h_start, levels = unique(h_start)))
+             "H start",
+             "no H start"),
+         h_start = factor(h_start, levels = c("H start","no H start")),
+         fin_phon = factor(str_replace_all(fin_phon, "\\^|\\[|\\]", ""),
+                           levels=c("%", "L%")
+           
+         ))
+
 
 ```
 
@@ -74,10 +80,12 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 ```{r}
 # set current equation
 cur_equation  <- formula(
-  utt_slope ~ mode + h_start
+  utt_slope ~ mode
   + (1 + mode | speaker)
-  + (1 | nuc_contour)
   + (1 | prompt)
+  + (1 | h_start)
+  + (1 | acc_phon)
+  + (1 | fin_phon)
   )
 
 ```
@@ -98,7 +106,7 @@ utt_slope_mdl  <-  lmer(cur_equation,
 )
 
 # model needs trimming
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 2.5)
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 3)
 
 
 utt_slope_mdl.trimmed  <-  lmer(cur_equation,
@@ -114,29 +122,29 @@ utt_slope_mdl.trimmed  <-  lmer(cur_equation,
   )
 )
 
-summariseLME(utt_slope_mdl.trimmed, run_step = TRUE,
+summariseLME(utt_slope_mdl.trimmed, run_step = T,
               write="../output_model_anovas/utt_slope_full_phon_anova.csv")
 ```
-```{r random effect of acc_phon, fig.height=4, fig.width=5}
+
+```{r random effect 1, fig.height=4, fig.width=6}
+plot_model(utt_slope_mdl.trimmed,
+           type="re",
+           vline.color = "red",
+           show.values = T)[1]
+```
+
+```{r random effect 2, fig.height=4, fig.width=6}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
            vline.color = "red",
            show.values = T)[2]
 ```
 
-```{r random effect of prompt, fig.height=2, fig.width=5}
+```{r random effect 3, fig.height=2, fig.width=6}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
            vline.color = "red",
-           show.values = T)[3]
-```
-
-```{r fig.height=2.5, fig.width=5, results="asis"}
-utt_utt_slope.tidy <- analyseModel(
-  utt_slope_mdl.trimmed,
-  write="../output/utt_slope_full_phon"
-  )
-utt_utt_slope.tidy$table
+           show.values = T)[3:5]
 ```
 
 
