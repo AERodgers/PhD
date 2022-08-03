@@ -53,11 +53,9 @@ p_color <- all_models_tidy ~ style(color =
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
-         gender,
          mode,
-         acc_phon,
          phr_phon,
-         fin_phon,
+         nuc_contour,
          utt_slope,
          prompt) %>%
   mutate(h_start =
@@ -65,11 +63,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
              T,
              F),
-         h_start = factor(h_start, levels = unique(h_start)),
-         # Remove register tier identifier from fin_phon.
-         fin_phon = str_replace_all(fin_phon, "\\]", ""),
-         fin_phon = factor(fin_phon, levels = unique(fin_phon))
-)
+         h_start = factor(h_start, levels = unique(h_start)))
 
 ```
 
@@ -82,8 +76,7 @@ m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
 cur_equation  <- formula(
   utt_slope ~ mode + h_start
   + (1 + mode | speaker)
-  # + (1 | acc_phon)
-  # + (1 | fin_phon)
+  + (1 | nuc_contour)
   + (1 | prompt)
   )
 
@@ -120,40 +113,40 @@ utt_slope_mdl.trimmed  <-  lmer(cur_equation,
     )
   )
 )
-```
 
+summariseLME(utt_slope_mdl.trimmed, run_step = TRUE,
+              write="../output_model_anovas/utt_slope_full_phon_anova.csv")
+```
+```{r random effect of acc_phon, fig.height=4, fig.width=5}
+plot_model(utt_slope_mdl.trimmed,
+           type="re",
+           vline.color = "red",
+           show.values = T)[2]
+```
 
 ```{r random effect of prompt, fig.height=2, fig.width=5}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
-           axis.title = c("semitones", "prompt"),
-           title="random effect",
-           show.values = T)[2:4]
+           vline.color = "red",
+           show.values = T)[3]
 ```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
 utt_utt_slope.tidy <- analyseModel(
   utt_slope_mdl.trimmed,
- # write="../output/utt_slope"
+  write="../output/utt_slope_full_phon"
   )
 utt_utt_slope.tidy$table
 ```
 
-```{r summary, fig.height=3, fig.width=9, tidy = TRUE}
-summariseLME(utt_slope_mdl.trimmed, run_step = TRUE
-             #,
-              #write="../output_model_anovas/utt_slope_anova.csv"
-              )
-```
 
 ```{r slopes}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
   my_equation = cur_equation,
-  my_data = m_corpus.trimmed
-  #,
- # write="../output/utt_slope"
+  my_data = m_corpus.trimmed,
+  write="../output/utt_slope_full_phon"
 )
 charts$intercepts
 charts$slopes

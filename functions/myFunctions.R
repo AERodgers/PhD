@@ -441,7 +441,11 @@ get_m_corpus <- function(file_address)
 
         # create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3), levels = c("MDC", "MWH", "MYN", "MDQ")),
-        prompt = factor(str_sub(stim, 4, 4), levels = c(1, 2, 3)),
+        prompt = str_sub(stim, 4, 4),
+        prompt = str_replace(prompt, "1", "vases"),
+        prompt = str_replace(prompt, "2", "valley"),
+        prompt = str_replace(prompt, "3", "valuables"),
+        prompt = factor(prompt, levels=c("vases", "valley", "valuables")),
         # Ignore downstep.
         #acc_phon = str_replace(acc_phon, "!", ""),
 

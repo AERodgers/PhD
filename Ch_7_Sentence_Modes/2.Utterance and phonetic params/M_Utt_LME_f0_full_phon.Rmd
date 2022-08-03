@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7 - LME Analysis of Utterance Slope"
+title: "Chapter 7 - LME Analysis of Utterance mean f0"
 author: "Antoin Rodgers"
 date: "5.6.2022"
 output:
@@ -12,11 +12,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 
 # Load Functions.
-source("../../functions/myFunctions.R")
-```
+source("../../functions/myFunctions.R") 
 
-
-```{r load packages etc., message=FALSE, warning=TRUE, include=FALSE}
 # Load packages.
 installMissingPackages(
   c(
@@ -28,6 +25,7 @@ installMissingPackages(
     "MuMIn",
     # Include packages for tidy output.
     "tidyverse",
+    "stringr",
     "broomExtra",
     "janitor",
     "sjPlot",
@@ -49,49 +47,40 @@ p_color <- all_models_tidy ~ style(color =
 ```
 
 
-```{r load corpus,  message=FALSE, warning=TRUE, include=FALSE}
+```{r load corpus, include=FALSE}
 # Load Corpus
 m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
   select(speaker,
-         gender,
          mode,
-         acc_phon,
          phr_phon,
-         fin_phon,
-         utt_slope,
+         nuc_contour,
+         utt_mean_f0,
          prompt) %>%
   mutate(h_start =
            if_else(
              !is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
              T,
              F),
-         h_start = factor(h_start, levels = unique(h_start)),
-         # Remove register tier identifier from fin_phon.
-         fin_phon = str_replace_all(fin_phon, "\\]", ""),
-         fin_phon = factor(fin_phon, levels = unique(fin_phon))
-)
+         h_start = factor(h_start, levels = unique(h_start)))
 
 ```
 
-- Include initial %H or % H* in model to mitigate against skewing effect of initial phonologically high f0
-- Initial model has singularity issues
-- Model word, but needs trimmed ()
 
+### LME model analysis using initial model
 ```{r}
 # set current equation
 cur_equation  <- formula(
-  utt_slope ~ mode + h_start
+  utt_mean_f0 ~ mode + h_start
   + (1 + mode | speaker)
-  # + (1 | acc_phon)
-  # + (1 | fin_phon)
+  + (1 | nuc_contour)
   + (1 | prompt)
   )
 
 ```
 
-```{r fig.height=3, fig.width=9, tidy = TRUE}
-# set recommended equation
-utt_slope_mdl  <-  lmer(cur_equation,
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+utt_mean_f0_mdl = lmer(
+  formula(cur_equation),
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
@@ -105,10 +94,10 @@ utt_slope_mdl  <-  lmer(cur_equation,
 )
 
 # model needs trimming
-m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_slope_mdl))) <= 2.5)
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_mean_f0_mdl))) <= 2.9)
 
-
-utt_slope_mdl.trimmed  <-  lmer(cur_equation,
+utt_mean_f0_mdl = lmer(
+  formula(cur_equation),
   data = m_corpus.trimmed,
   control = lmerControl(
     optimizer = "optimx",
@@ -120,41 +109,43 @@ utt_slope_mdl.trimmed  <-  lmer(cur_equation,
     )
   )
 )
+
+summariseLME(utt_mean_f0_mdl, run_step = TRUE,
+              write="../output_model_anovas/utt_f0_full_phon_anova.csv")
 ```
 
+```{r random effect of acc_phon, fig.height=4, fig.width=5}
+plot_model(utt_mean_f0_mdl,
+           type="re",
+           vline.color = "red",
+           show.values = T)[2]
+```
 
 ```{r random effect of prompt, fig.height=2, fig.width=5}
-plot_model(utt_slope_mdl.trimmed,
+plot_model(utt_mean_f0_mdl,
            type="re",
-           axis.title = c("semitones", "prompt"),
-           title="random effect",
-           show.values = T)[2:4]
+           vline.color = "red",
+           show.values = T)[3]
 ```
 
 ```{r fig.height=2.5, fig.width=5, results="asis"}
-utt_utt_slope.tidy <- analyseModel(
-  utt_slope_mdl.trimmed,
- # write="../output/utt_slope"
-  )
-utt_utt_slope.tidy$table
+utt_mean_f0.tidy <- analyseModel(
+  utt_mean_f0_mdl,
+  write="../output/utt_f0_full_phon"
+)
+utt_mean_f0.tidy$table
 ```
 
-```{r summary, fig.height=3, fig.width=9, tidy = TRUE}
-summariseLME(utt_slope_mdl.trimmed, run_step = TRUE
-             #,
-              #write="../output_model_anovas/utt_slope_anova.csv"
-              )
-```
 
 ```{r slopes}
 # Get number of levels in target treatment variable.
 
 charts <- getModelFixedFX(
   my_equation = cur_equation,
-  my_data = m_corpus.trimmed
-  #,
- # write="../output/utt_slope"
+  my_data = m_corpus.trimmed,
+  write="../output/utt_f0_full_phon"
 )
+# NB for this, we aren't actually interested in the slopes of acc_phon, but the of mode
 charts$intercepts
 charts$slopes
 

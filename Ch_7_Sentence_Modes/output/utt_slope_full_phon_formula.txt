@@ -1,0 +1,1 @@
+utt_slope ~ mode + h_start + (1 + mode | speaker) + (1 | nuc_contour) + (1 | prompt)
