@@ -111,14 +111,14 @@ plot_model(utt_mean_f0_mdl,
            vline.color = "red",
            show.values = T)[1]
 ```
-```{r random effect 2, fig.height=4, fig.width=6}
+```{r random effect 2, fig.height=4, fig.width=8}
 plot_model(utt_mean_f0_mdl,
            type="re",
            vline.color = "red",
            show.values = T)[2]
 ```
 
-```{r random effect 3, fig.height=2, fig.width=6}
+```{r random effect 3, fig.height=2, fig.width=8}
 plot_model(utt_mean_f0_mdl,
            type="re",
            vline.color = "red",

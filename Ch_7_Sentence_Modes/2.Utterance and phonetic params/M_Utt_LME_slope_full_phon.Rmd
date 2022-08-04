@@ -126,21 +126,29 @@ summariseLME(utt_slope_mdl.trimmed, run_step = T,
               write="../output_model_anovas/utt_slope_full_phon_anova.csv")
 ```
 
-```{r random effect 1, fig.height=4, fig.width=6}
+```{r analyse model, fig.height=2.5, fig.width=5, results="asis"}
+utt_slope_mdl.tidy <- analyseModel(
+  utt_slope_mdl.trimmed,
+  write="../output/utt_slope_full_phon"
+)
+utt_slope_mdl.tidy$table
+```
+
+```{r random effect 1, fig.height=4, fig.width=8}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
            vline.color = "red",
            show.values = T)[1]
 ```
 
-```{r random effect 2, fig.height=4, fig.width=6}
+```{r random effect 2, fig.height=4, fig.width=8}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
            vline.color = "red",
            show.values = T)[2]
 ```
 
-```{r random effect 3, fig.height=2, fig.width=6}
+```{r random effect 3, fig.height=2, fig.width=8}
 plot_model(utt_slope_mdl.trimmed,
            type="re",
            vline.color = "red",
