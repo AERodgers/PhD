@@ -1,0 +1,27 @@
+---
+title: "m_corpus summary info"
+author: "AER"
+date: "2022-08-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# load functions
+source("../functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(c(# Load tidy packages
+                         "formattable",
+                         "janitor",
+                         "kableExtra",
+                         "RColorBrewer",
+                         "tidyverse"))
+```
+
+```{r}
+m_corpus <- get_m_corpus("../data/m_corpus.csv")  %>%
+    select(speaker, gender, stim, mode)
+```
+
