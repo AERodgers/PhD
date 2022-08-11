@@ -1,0 +1,1 @@
+isLH ~ foot_syls + gender + (1 | speech_rate) + (1 | speaker)

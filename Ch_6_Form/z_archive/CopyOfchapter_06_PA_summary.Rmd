@@ -106,7 +106,100 @@ nuc_by_speaker <- nuc %>%
 
 ```
 
-## **__1 Adjusted Data__**
+
+# **1. Summary of Pitch Accent distributions**
+The raw data is unbalanced since there is not an equal number of tokens per speaker per condition. In some cases there are no tokens from one speaker, effectively reducing the number of participants for that condition by one. To make the presentation of these data both honest and representative, summaries are provided based on both the raw unbalanced, and adjusted balanced data are presented.
+
+## **__1.1 Raw Data__**
+These table summarize the number of PA tokens per condition regardless of any imbalance in the number of utterances per speaker per condition or the number of speakers per condition.
+
+## 1.1.1 Pre-nuclear Pitch Accents
+Foot size data presented first followed by anacrusis data, since the anacrusis targets reflect the number of syllables of anacrusis under maximum foot-size conditions.
+
+### PN Foot-size conditions
+```{r warning=FALSE}
+# Calculate the number of tokens of each PN PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+pn_foot_summary_raw <- pn_foot %>%
+  group_by(acc_phon, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  write_csv("output/pn_foot_unbalanced.csv")
+kable(pn_foot_summary_raw)
+```
+
+### PN Anacrusis conditions
+```{r warning=FALSE}
+# Calculate the number of tokens of each PN PA as a function of anacrusis.
+# These are the raw, unadjusted values.
+
+pn_ana_summary_raw <- pn_ana %>%
+  group_by(acc_phon, ana_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  # Save the results in a csv file
+  write_csv("output/pn_ana_unbalanced.csv")
+
+# output the results in a nice table.
+kable(pn_ana_summary_raw)                             
+```
+
+## 1.1.2 Nuclear Pitch Accents
+
+### NUC Foot size
+```{r warning=FALSE}
+# Calculate the number of tokens of each NUC PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+nuc_foot_summary_raw <- nuc_foot %>%
+  group_by(nuc_contour, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <- 0) %>%
+  write_csv("output/nuc_foot_unbalanced.csv")
+kable(nuc_foot_summary_raw)
+```
+
+### NUC Preceding syllable count
+```{r warning=FALSE}
+# Calculate the number of tokens of each NUC PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+nuc_pre_summary_raw <- nuc_pre %>%
+  group_by(nuc_contour, pre_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <- 0) %>%
+  write_csv("output/nuc_foot_unbalanced.csv")
+kable(nuc_pre_summary_raw)
+```
+
+## 1.1.3 Distribution PA and Nuclear Contour by speaker
+
+### PN accents
+```{r warning=FALSE}
+pn_by_speaker %>%
+  group_by(speaker, acc_phon) %>%
+  summarise(accCount = n(), .groups="keep") %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  write_csv("output/pn_by_speaker.csv") %>%
+  kable()
+#kable(summary(pn_by_speaker, n=Inf))
+
+```
+
+### Nuclear Contours
+```{r warning=FALSE}
+nuc_by_speaker %>%
+  group_by(speaker, nuc_contour) %>%
+  summarise(nuc_count = n(), .groups="keep") %>%
+  spread(nuc_contour, nuc_count, is.na <- 0) %>%
+  write_csv("output/nuc_by_speaker.csv") %>%
+  kable()
+```
+
+
+
+## **__1.2 Adjusted Data__**
 These Tables summarize the number of PA tokens per condition once adjusted to take into account in the number of utterances per speaker per condition and the number of speakers per condition.
 
 This is the distribution of PAs across conditions adjusted for number of speakers per target and number of repetitions per speaker. It is a better representation of the distribution of the PAs per foot-size condition, although it is not the set of actual values.
@@ -148,7 +241,7 @@ rm(mean_speech_rate)
 ```
 
 #### By speaker correlation between PN pitch accents per speaker and average speech rate 
-```{r warning=TRUE, fig.width = 8, fig.height = 3.5}
+```{r warning=TRUE, fig.width = 8, fig.height = 4}
 # Percentage Stacked bar
 
 # 
@@ -204,7 +297,7 @@ ggplot(pn_by_speaker_ratio,
                                           label.y = 25) +
   xlab("speech rate (syls/sec)") +
   ylab("proportion of H*") + 
-  ggtitle("Correlation between H* and speech rate") 
+  ggtitle("Correlation between L*H and speech rate") 
 
 
 cor.test(pn_by_speaker_ratio$`H*`,
@@ -620,7 +713,7 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 # APPENDICES
 # **__A. Initial boundary and downstep__**
 ### foot size
-```{r fig.height=2.5, fig.width=10.5}
+```{r fig.height=4, fig.width=16}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/M.csv", sep = "")
 my_table_f <- paste(getwd(), "/output/F.csv", sep = "")
@@ -674,7 +767,7 @@ ggplot(all) +
 ```
 
 
-```{r fig.height=1.75, fig.width=10.5}
+```{r fig.height=2.5, fig.width=16}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = init_contour),
@@ -693,7 +786,7 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 ```
 
 ### anacrusis
-```{r fig.height=2.5, fig.width=8.1}
+```{r fig.height=4, fig.width=16}
 # create temp file addresses
 my_table_m <-
   paste(getwd(), "/output/pn_ana_adj_M_ds.csv", sep = "")
@@ -750,7 +843,7 @@ ggplot(all) +
 ```
 
 
-```{r fig.height=1.75, fig.width=8}
+```{r fig.height=2.5, fig.width=16}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = init_contour),

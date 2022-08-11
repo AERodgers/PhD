@@ -6,13 +6,15 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE,}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = F,
+                      message = F)
 
 ```
 
 
-```{r message=FALSE, warning=TRUE, include=FALSE}
+```{r message=FALSE}
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 
@@ -20,7 +22,7 @@ installMissingPackages(
   c(
     # Include statistical packages.
     "lmerTest",
-    "lme4",
+    "blme",
     "optimx",
     "MuMIn",
     
@@ -42,16 +44,25 @@ source("get_AH_corpora.R")
 pn_foot <- select(pn_foot,
                   speaker,
                   gender,
-                  stim,
                   foot_syls,
                   acc_phon,
                   speech_rate,
                   foot_dur) %>%
-  mutate(isLH =
+  mutate(isLH = factor(
            if_else(acc_phon == "L*H",
                    TRUE,
                    FALSE),
-         foot_dur = foot_dur / 100)
+           levels = c(F, T)),
+         isHStar = factor(
+           if_else(acc_phon == "H*",
+                   TRUE,
+                   FALSE),
+           levels = c(F, T)),
+         foot_dur = foot_dur / 100,
+         gender = factor(gender, levels = c("F", "M")),
+         foot_syls = factor(foot_syls, levels = 1:4)
+         ) %>% 
+  select(-acc_phon)
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
@@ -68,331 +79,123 @@ rm(nuc_foot, nuc_pre, pn_lex, pn_ana, corpus, nuc, pn)
 
 ```
 
-## **L\*H PN** as a function of **foot size + speech rate + gender**
-```{r echo=FALSE}
-# Run GLME model statistical cur_model.
-cur_model <- glmer(
-  isLH ~ foot_syls + gender + speech_rate + (1 | speaker),
+
+```{r}
+# Run GLME model statistical lh_pn_re_ft_size_model.
+lh_pn_re_ft_size_model <- bglmer(
+  isLH ~ foot_syls + gender + (1 | speech_rate) + (1 | speaker),
   data = pn_foot,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
+  fixef.prior = normal(),
+  family = binomial(link = "logit")
 )
 
-null_model <- glmer(
-  isLH ~ 1 + (1 | speaker),
+null_model <- bglmer(
+  isLH ~ 1 + gender + (1 | speech_rate) + (1 | speaker),
   data = pn_foot,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
+
+  family = binomial(link = "logit")
 )
 
-print(summary(cur_model))
-```
-
-### ANOVA to compare current model and model with null fixed factors
-```{r echo=FALSE}
-anova(cur_model, null_model, test="Chisq")
-kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r-squared of the model.")
-```
-
-### Visualisation and tidy representation of the model **isLH ~ foot size + speech_rate + gender + (1 | speaker)**.
-```{r echo=FALSE, warning=TRUE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
-
-# Tidy up model.
-cur_model_tidy <- tidy(cur_model) %>%
-    filter(term != "sd__(Intercept)") %>%
-   bonferroniAdjust(10, "") %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      p.value = round(p.value, 8),
-      p.adj = round(p.adj, 8)
-    ) %>%
-  select(-c(group, effect)) %>%
-  rename(z.value = statistic)
-
-plot_model(
-  cur_model,
-  transform=NULL,
-  show.intercept = TRUE,
-  show.values = TRUE,
-  show.p = FALSE,
-  title = "isLH ~ foot size + (1 | speaker)",
-  vline.color = "red",
-  colors = "Black"
-) +
-  font_size(title = 12)
-
-cur_model_tidy  %>%
-  formattable(list(p.adj = formatter("span", style = p_color))) %>% mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
-    ),
-    p.adj = if_else(p.adj < 0.001,
-                    as.character(scientific(p.adj)),
-                    as.character(round(p.adj, 4)))
-  )
-
-
-
+summary(lh_pn_re_ft_size_model)
 ```
 
 
-## **L\*H PN** as a function of **foot size**
-```{r echo=FALSE, warning=FALSE}
-# Run GLME model statistical cur_model.
-cur_model <- glmer(
-  isLH ~ foot_syls + (1 | speaker),
-  data = pn_foot,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
+```{r random effect of prompt, fig.height=4, fig.width=5}
+plot_model(lh_pn_re_ft_size_model,
+           type="re",
+           show.values = T,
+           title = "random speaker intercepts")[2]
+```
+
+```{r model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(lh_pn_re_ft_size_model, tol=1e-5) -->",
+  isSingular(lh_pn_re_ft_size_model, tol = 1e-5),
+  "\n"
 )
 
-null_model <- glmer(
-  isLH ~ 1 + (1 | speaker),
-  data = pn_foot,
-  family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
-  control = glmerControl(
-    optimizer = "optimx",
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
+
+
+# get, save, and print ANOVA of model
+anova(lh_pn_re_ft_size_model, null_model, test="Chisq") %>%
+  outputChiSqResults(
+    lh_pn_re_ft_size_model,
+    write="output/lh_pn_re_ft_size",
+    post_hoc_method = "BH"
   )
+
+tidy_summary <- analyseModel(lh_pn_re_ft_size_model,
+                             write = "output/lh_pn_re_ft_size",
+                             is_GLM = TRUE,
+                             type = "pred",
+                             factor_matrix=TRUE)
+
+tidy_summary$table
+
+charts <- getModelFixedFX(
+  isLH ~ foot_syls + gender + (1 | speech_rate) + (1 | speaker),
+  pn_foot,
+  write="output/lh_pn_re_ft_size",
+  is_GLM=TRUE,
+  is_separation = T
 )
 
-print(summary(cur_model))
+charts$intercepts
+charts$slopes
 ```
 
-### ANOVA to compare current model and model with null fixed factors
-```{r echo=FALSE, warning=FALSE}
-anova(cur_model, null_model, test="Chisq")
-kable(r.squaredGLMM(cur_model), caption = "Theoretical marginal and conditional r-squared of the model.")
+```{r}
+h_star_pn_re_ft_size_model <- bglmer(
+  isHStar ~ foot_syls + gender + (1 | speech_rate) + (1 | speaker),
+  data = pn_foot,
+  fixef.prior = normal(),
+  family = binomial(link = "logit")
+)
+
+summary(h_star_pn_re_ft_size_model)
 ```
 
-### Visualisation and tidy representation of the model **isLH ~ foot size + (1 | speaker)**.
-```{r echo=FALSE, warning=TRUE, fig.width=15.5/2.54, fig.height=15.5/16*9/2.54}
 
-# Tidy up model.
-cur_model_tidy <- tidy(cur_model) %>%
-    filter(term != "sd__(Intercept)") %>%
-   bonferroniAdjust(10, "") %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      p.value = round(p.value, 8),
-      p.adj = round(p.adj, 8)
-    ) %>%
-  select(-c(group, effect)) %>%
-  rename(z.value = statistic)
+```{r fig.height=4, fig.width=5}
+plot_model(h_star_pn_re_ft_size_model,
+           type="re",
+           show.values = T,
+           title = "random speaker intercepts")[2]
+```
 
-plot_model(
-  cur_model,
-  transform=NULL,
-  show.intercept = TRUE,
-  show.values = TRUE,
-  show.p = FALSE,
-  title = "isLH ~ foot size + (1 | speaker)",
-  vline.color = "red",
-  colors = "Black"
-) +
-  font_size(title = 12)
+```{r fig.width = 5.5, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(h_star_pn_re_ft_size_model, tol=1e-5) -->",
+  isSingular(h_star_pn_re_ft_size_model, tol = 1e-5),
+  "\n"
+)
 
-cur_model_tidy  %>%
-  formattable(list(p.adj = formatter("span", style = p_color))) %>%
-  mutate(
-    p.value = if_else(
-      p.value < 0.001,
-      as.character(scientific(p.value)),
-      as.character(round(p.value, 4))
-    ),
-    p.adj = if_else(
-      p.adj < 0.001,
-      as.character(scientific(p.adj)),
-      as.character(round(p.adj, 4))
-    )
+
+
+# get, save, and print ANOVA of model
+anova(h_star_pn_re_ft_size_model, null_model, test="Chisq") %>%
+  outputChiSqResults(
+    lh_pn_re_ft_size_model,
+    write="output/h_star_pn_re_ft_size",
+    post_hoc_method = "BH"
   )
 
+tidy_summary <- analyseModel(h_star_pn_re_ft_size_model,
+                             write = "output/h_star_pn_re_ft_size",
+                             is_GLM = TRUE,
+                             type = "pred",
+                             factor_matrix=TRUE)
 
+tidy_summary$table
 
+charts <- getModelFixedFX(
+  isHStar ~ foot_syls + gender + (1 | speech_rate) + (1 | speaker),
+  pn_foot,
+  write="output/h_star_pn_re_ft_size",
+  is_GLM=TRUE,
+  is_separation = T
+)
+
+charts$intercepts
+charts$slopes
 ```
-
-## Pairwise comparisons
-```{r echo=FALSE, paged.print=FALSE}
-# Get intercepts and pairwise comparisons for each foot size condition.
-
-# Get number of levels in target treatment variable.
-curLevels <- levels(pn_foot$foot_syls)
-numLevels <- length(curLevels)
-all_models_tidy = tibble()
-
-for (i in 1:(numLevels)) {
-  # Test GLMM model on data.
-  cur_model <- glmer(
-    isLH ~ foot_syls + (1 | speaker),
-    data = pn_foot,
-    family = binomial(link = "logit"),
-    # Change optimizer to avoid convergence errors/
-    control = glmerControl(
-      optimizer = "optimx",
-      calc.derivs = FALSE,
-      optCtrl = list(
-        method = "nlminb",
-        starttests = FALSE,
-        kkt = FALSE
-      )
-    )
-  )
-  
-  # Convert the model output into a more readable format.
-  cur_model_tidy <- tidy(cur_model) %>%
-   bonferroniAdjust(10,) %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3),
-      p.value = round(p.value, 8),
-      p.adj = round(p.adj, 8)
-    )
-  
-  # Prepare current model for pasting to all models output.
-  # Make 'pairwise' column = intercept.
-  cur_model_tidy <- cur_model_tidy %>%
-    mutate(
-      pairwise =
-        if_else(
-          term == "(Intercept)",
-          "intercept",
-          if_else(
-            term %notin% c(
-              "foot_syls1",
-              "foot_syls2",
-              "foot_syls3",
-              "foot_syls4"),
-            "N/A",
-            paste("foot_syls", i, sep = "")
-          )
-        ),
-      # change 'term' so "intercept" states the target condition name.
-      term =
-        if_else(term == "(Intercept)",
-                paste("foot_syls", i, sep = ""),
-                term)
-    ) %>%
-    # remove random effects detail
-    filter(term != "sd__(Intercept)") %>%
-    select(-group,-effect) %>%
-    # rename statistic column to "z.value"
-    rename(z.value = statistic)
-  
-  
-  # make list of pairwise comparisons to keeps
-  keep = ""
-  for (j in i:4) {
-    keep <- c(keep, paste("foot_syls", j, sep = ""))
-  }
-  # remove pairwise comparisons which have already been done
-  cur_model_tidy <- filter(cur_model_tidy, term %in% keep)
-  
-  # add remaining pairwise comparisons to main tibble.
-  all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
-  
-  # restructure the order of levels for next GLME cur_model.
-  curLevels <- c(curLevels[2:numLevels], curLevels[1])
-  pn_foot <- pn_foot %>%
-    mutate(foot_syls = factor(foot_syls,
-                              levels = curLevels))
-  
-}
-
-# arrange tibble according to pairwise move it to first column position
-all_models_tidy  <- arrange(all_models_tidy, pairwise) %>%
-  relocate(pairwise)
-
-
-b0_footSize  <- filter(all_models_tidy, pairwise == "intercept") %>%
-  select(-pairwise) %>%
-  rename(intercept = term)
-
-
-b1_footSize  <-
-  filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
-  select(pairwise,
-         term,
-         estimate,
-         std.error,
-         z.value,
-         p.value,
-         p.adj) %>%
-  rename(intercept = pairwise, lh_slope = term)
-
-```
-
-
-#### Foot size as intercept ($\beta$~0~)
-
-```{r echo=FALSE, warning=FALSE}
-b0_footSize  %>%
-  formattable(list(p.adj = formatter("span", style = p_color)))%>% mutate(
-  p.value = if_else(p.value < 0.001,
-                    as.character(scientific(p.value)),
-                    as.character(round(p.value, 4))),
-  p.adj = if_else(p.adj < 0.001,
-                       as.character(scientific(p.adj)),
-                       as.character(round(p.adj, 4))
-                       )
-  ) 
-
-
-
-```
-
-
-#### Pairwise comparisons ($\beta$~1~)
-
-```{r echo=FALSE, warning=FALSE}
-b1_footSize %>%
-  formattable(list(p.adj = formatter("span", style = p_color)))%>% mutate(
-  p.value = if_else(p.value < 0.001,
-                    as.character(scientific(p.value)),
-                    as.character(round(p.value, 4))),
-  p.adj = if_else(p.adj < 0.001,
-                       as.character(scientific(p.adj)),
-                       as.character(round(p.adj, 4))
-                       )
-  ) 
-```
-

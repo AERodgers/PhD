@@ -776,8 +776,6 @@ analyseModel <-
     }
     else
     {
-      # THis doesn't work with interactions. Use B0 estimates
-      #tidyPrintPredictions(my_model, my_formula, factor_matrix = factor_matrix, is_LME=T)
       my_plot <-
         plot_model(
           my_model,
@@ -803,10 +801,10 @@ analyseModel <-
 ###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(my_equation,
                             my_data,
-                            contrasts = NULL,
                             is_separation = FALSE,
                             write = NULL,
                             is_GLM = FALSE,
+                            is_Bayesian = T,
                             exponentiate = FALSE,
                             optimizer = "optimx",
                             extra_text = "",
@@ -845,10 +843,12 @@ getModelFixedFX <- function(my_equation,
   }
   my_headers = enquos(my_headers)
 
+
   # run base model.
   if (is_GLM) {
-    # Run bglmer!
-    if (!is_separation) {
+
+    # RUN BLGMER
+    if (!is_separation & is_Bayesian) {
       # don't use prior
       base_model <- bglmer(
         my_equation,
@@ -866,7 +866,7 @@ getModelFixedFX <- function(my_equation,
         )
       )
     }
-    else
+    else if (is_separation & is_Bayesian)
     {
       # Use prior
       base_model <- bglmer(
@@ -886,9 +886,27 @@ getModelFixedFX <- function(my_equation,
         )
       )
     }
+    # USE GLMER (not bayesian)
+    else  {
+      base_model <- glmer(
+        my_equation,
+        data = my_data,
+        family = binomial(link = "logit"),
+        # Change optimizer to avoid convergence errors/
+        control = glmerControl(
+          optimizer = optimizer,
+          calc.derivs = FALSE,
+          optCtrl = list(
+            method = "nlminb",
+            starttests = FALSE,
+            kkt = FALSE
+          )
+        )
+      )
+    }
   }
+  # RUN LMER
   else {
-    # Run lmer
     base_model <- lmer(
       my_equation,
       data = my_data,
@@ -923,11 +941,11 @@ getModelFixedFX <- function(my_equation,
   two_level_factors <- character()
   two_level_terms <- character()
   for (cur_factor in multilevel_factors) {
-    if (levels(m_corpus[[cur_factor]]) %>% length() == 2) {
+    if (levels(my_data[[cur_factor]]) %>% length() == 2) {
       two_level_factors <- c(two_level_factors, cur_factor)
       two_level_terms <- c(two_level_terms,
                            paste(cur_factor,
-                                 levels(m_corpus[[cur_factor]])[2],
+                                 levels(my_data[[cur_factor]])[2],
                                  sep = ""))
     }
   }
@@ -955,8 +973,9 @@ getModelFixedFX <- function(my_equation,
     {
       # Run current model.
       if (is_GLM) {
-        # Run bglmer!
-        if (!is_separation) {
+        if (!is_separation & is_Bayesian)
+          # RUN BGLMER W/O SEPARATION ISSUE
+        {
           # don't use prior
           cur_model <- bglmer(
             my_equation,
@@ -974,7 +993,8 @@ getModelFixedFX <- function(my_equation,
             )
           )
         }
-        else
+        else if (is_separation & is_Bayesian)
+          # RUN BGLMER WITH SEPARATION ISSUE
         {
           # Use prior
           cur_model <- bglmer(
@@ -994,7 +1014,27 @@ getModelFixedFX <- function(my_equation,
             )
           )
         }
+        else
+          # RUN GLMER (NON-BAYESIAN)
+        {
+          cur_model <- glmer(
+            my_equation,
+            data = my_data,
+            family = binomial(link = "logit"),
+            # Change optimizer to avoid convergence errors/
+            control = glmerControl(
+              optimizer = optimizer,
+              calc.derivs = FALSE,
+              optCtrl = list(
+                method = "nlminb",
+                starttests = FALSE,
+                kkt = FALSE
+              )
+            )
+          )
+        }
       }
+      # REUN LME
       else {
         cur_model <- lmer(
           my_equation,
