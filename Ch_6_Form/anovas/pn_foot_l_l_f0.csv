@@ -1,0 +1,3 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+acc_phon,0.001,0.001,1,101.418,0.001,0.9728710834723883,NA,NA
+foot_syls,4.628,1.543,3,97.681,1.505,0.21817866579923986,NA,NA

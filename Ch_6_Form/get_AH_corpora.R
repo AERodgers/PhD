@@ -89,7 +89,10 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
         "M9",
         "M10"
       )
-    )
+    ),
+    gender = factor(gender, level = unique(gender)),
+    fin_phon = factor(fin_phon, level = unique(fin_phon)),
+    foot_syls = factor(foot_syls, levels=(1:4))
   ) %>%
   #rename lh_slope!
   rename(lh_slope = lh_slope) %>%

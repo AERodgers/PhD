@@ -565,9 +565,9 @@ summariseLME <-
 
     my_formula <- getModelFormula(my_model)
     my_data_name <- getModelDataName(my_model)
-
     # output results
     drawResiduals(my_model)
+    cat(c("Formula: ", my_formula, "\n\n"))
     print(summary(my_model))
 
     anova <- anova(my_model) %>%
@@ -769,7 +769,10 @@ analyseModel <-
               check_overlap = T,
               size=3) +
             theme(axis.title.x=element_blank())
+
           print(my_plot)
+
+
 
         }
       }
@@ -1034,7 +1037,7 @@ getModelFixedFX <- function(my_equation,
           )
         }
       }
-      # REUN LME
+      # RUN LME
       else {
         cur_model <- lmer(
           my_equation,

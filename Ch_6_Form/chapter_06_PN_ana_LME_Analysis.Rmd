@@ -1,5 +1,5 @@
 ---
-title: "LME Analysis of foot_size PNs"
+title: "LME Analysis of anacrusis PNs"
 author: "Antoin Rodgers"
 date: "18.05.2022"
 output:
@@ -50,10 +50,10 @@ theme_set(theme_minimal(base_size = 14))
 h_star_type <-  c("H*", ">H*", "L*H")
 source("get_AH_corpora.R")
 
-rm(nuc_foot, nuc_pre, pn_lex, pn_ana, pn, corpus, nuc)
+rm(nuc_foot, nuc_pre, pn_lex, pn_foot, pn, corpus, nuc)
 
-pn_foot_h <- pn_foot %>% 
-  select(speaker, gender, foot_syls, acc_phon,h_t, h_f0, lh_dur, foot_dur, speech_rate) %>% 
+pn_ana_h <- pn_ana %>% 
+  select(speaker, gender, ana_syls, acc_phon,h_t, h_f0, lh_dur, foot_dur, speech_rate) %>% 
   filter(acc_phon %in% h_star_type) %>% 
   mutate(acc_phon = factor(acc_phon, levels = h_star_type))
 
@@ -62,10 +62,9 @@ pn_foot_h <- pn_foot %>%
 ### Analysis of H timing
 
 - Only intercepts only model avoided convergence and singularity issues
-- foot_dur causes errors
 ```{r set h_t equation}
 h_t_equation = formula(
-  h_t ~ acc_phon + foot_syls + gender
+  h_t ~ acc_phon + ana_syls + gender
   + (1 | speaker)
   + (1 | speech_rate)
   )
@@ -75,9 +74,9 @@ optimizer = "optimx"
 
 - model needs trimming (residuals +/- 3 s.d.)
 ```{r run h_t models, fig.height=3, fig.width=9}
-pn_foot_h_t_mdl = lmer(
+pn_ana_h_t_mdl = lmer(
   h_t_equation,
-  pn_foot_h,
+  pn_ana_h,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -90,11 +89,11 @@ pn_foot_h_t_mdl = lmer(
 )
 
 # model needs trimming
-pn_foot_h_t.trimmed <- pn_foot_h %>% filter(abs(scale(resid(pn_foot_h_t_mdl))) <= 3)
+pn_ana_h_t.trimmed <- pn_ana_h %>% filter(abs(scale(resid(pn_ana_h_t_mdl))) <= 3)
 
-pn_foot_h_t_mdl.trimmed = lmer(
+pn_ana_h_t_mdl.trimmed = lmer(
   h_t_equation,
-  pn_foot_h_t.trimmed,
+  pn_ana_h_t.trimmed,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -106,18 +105,19 @@ pn_foot_h_t_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(pn_foot_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_foot_h_t.csv")
+allFit(pn_ana_h_t_mdl.trimmed)
+summariseLME(pn_ana_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_ana_h_t.csv")
 ```
 
 
 ```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
 
-pn_foot_h_t_mdl.trimmed.tidy <- analyseModel(pn_foot_h_t_mdl.trimmed,
-                                write="phonetic_models/pn_foot_h_t",
+pn_ana_h_t_mdl.trimmed.tidy <- analyseModel(pn_ana_h_t_mdl.trimmed,
+                                write="phonetic_models/pn_ana_h_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
-pn_foot_h_t_mdl.trimmed.tidy$table
+pn_ana_h_t_mdl.trimmed.tidy$table
 
 ```
 
@@ -125,9 +125,9 @@ pn_foot_h_t_mdl.trimmed.tidy$table
 
 charts <- getModelFixedFX(
   h_t_equation,
-  pn_foot_h_t.trimmed,
+  pn_ana_h_t.trimmed,
   optimizer,
-  write="phonetic_models/pn_foot_h_t"
+  write="phonetic_models/pn_ana_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -140,10 +140,9 @@ charts$slopes
 ### Analysis of H F0
 
 - Only intercepts only model avoided convergence and singularity issues
-- 
 ```{r set h_f0 equation}
 h_f0_equation = formula(
-  h_f0 ~ foot_syls + acc_phon
+  h_f0 ~ ana_syls + acc_phon
   + (1 | speaker)
   )
 
@@ -152,9 +151,9 @@ optimizer = "optimx"
 
 - model needs trimming (residuals +/- 2.6 s.d.)
 ```{r run h_f0 models, fig.height=3, fig.width=9}
-pn_foot_h_f0_mdl = lmer(
+pn_ana_h_f0_mdl = lmer(
   h_f0_equation,
-  pn_foot_h,
+  pn_ana_h,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -167,11 +166,11 @@ pn_foot_h_f0_mdl = lmer(
 )
 
 # model needs trimming
-pn_foot_h_f0.trimmed <- pn_foot_h %>% filter(abs(scale(resid(pn_foot_h_f0_mdl))) <= 3)
+pn_ana_h_f0.trimmed <- pn_ana_h %>% filter(abs(scale(resid(pn_ana_h_f0_mdl))) <= 3)
 
-pn_foot_h_f0_mdl.trimmed = lmer(
+pn_ana_h_f0_mdl.trimmed = lmer(
   h_f0_equation,
-  pn_foot_h_f0.trimmed,
+  pn_ana_h_f0.trimmed,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -183,18 +182,18 @@ pn_foot_h_f0_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(pn_foot_h_f0_mdl.trimmed, run_step = TRUE, write = "anovas/pn_foot_h_f0.csv")
-allFit(pn_foot_h_f0_mdl.trimmed)
+summariseLME(pn_ana_h_f0_mdl.trimmed, run_step = TRUE, write = "anovas/pn_ana_h_f0.csv")
+allFit(pn_ana_h_f0_mdl.trimmed)
 ```
 
 
 ```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
 
-pn_foot_h_f0_mdl.trimmed.tidy <- analyseModel(pn_foot_h_f0_mdl.trimmed,
-                                write="phonetic_models/pn_foot_h_f0",
+pn_ana_h_f0_mdl.trimmed.tidy <- analyseModel(pn_ana_h_f0_mdl.trimmed,
+                                write="phonetic_models/pn_ana_h_f0",
                                 type = "pred"
                                 )
-pn_foot_h_f0_mdl.trimmed.tidy$table
+pn_ana_h_f0_mdl.trimmed.tidy$table
 
 ```
 
@@ -202,9 +201,9 @@ pn_foot_h_f0_mdl.trimmed.tidy$table
 
 charts <- getModelFixedFX(
   h_f0_equation,
-  pn_foot_h_f0.trimmed,
+  pn_ana_h_f0.trimmed,
   optimizer,
-  write="phonetic_models/pn_foot_h_f0"
+  write="phonetic_models/pn_ana_h_f0"
 )
 charts$intercepts
 charts$slopes
@@ -216,16 +215,13 @@ charts$slopes
 ## L targets
 
 ```{r l Get data}
-# Get  data for analysis
-l_star_type <-  c("L*H", "L*")
-source("get_AH_corpora.R")
+# Get  data for analysis. NB: there are only L*H here!
+l_star_type <-  c("L*H")
 
-rm(nuc_foot, nuc_pre, pn_lex, pn_ana, pn, corpus, nuc)
-
-pn_foot_l <- pn_foot %>%
+pn_ana_l <- pn_ana %>%
   select(speaker,
          gender,
-         foot_syls,
+         ana_syls,
          acc_phon,
          l_t,
          l_f0,
@@ -240,12 +236,12 @@ pn_foot_l <- pn_foot %>%
 ### Analysis of L timing
 
 - Only intercepts only model avoided convergence and singularity issues
-- 
+- speech rate caused errors!
 ```{r set l_t equation}
 l_t_equation = formula(
-  l_t ~ acc_phon + foot_syls + gender
+  l_t ~ ana_syls + gender
   + (1 | speaker)
-  + (1 | speech_rate)
+ # + (1 | speech_rate)
   )
 
 optimizer = "optimx"
@@ -253,9 +249,9 @@ optimizer = "optimx"
 
 - model needs trimming (residuals +/- 3 s.d.)
 ```{r run l_t models, fig.height=3, fig.width=9}
-pn_foot_l_t_mdl = lmer(
+pn_ana_l_t_mdl = lmer(
   l_t_equation,
-  pn_foot_l,
+  pn_ana_l,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -268,11 +264,11 @@ pn_foot_l_t_mdl = lmer(
 )
 
 # model needs trimming
-pn_foot_l_t.trimmed <- pn_foot_l %>% filter(abs(scale(resid(pn_foot_l_t_mdl))) <= 3)
+pn_ana_l_t.trimmed <- pn_ana_l %>% filter(abs(scale(resid(pn_ana_l_t_mdl))) <= 3)
 
-pn_foot_l_t_mdl.trimmed = lmer(
+pn_ana_l_t_mdl.trimmed = lmer(
   l_t_equation,
-  pn_foot_l_t.trimmed,
+  pn_ana_l_t.trimmed,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -284,20 +280,20 @@ pn_foot_l_t_mdl.trimmed = lmer(
   )
 )
 
-allFit(pn_foot_l_t_mdl.trimmed)
+allFit(pn_ana_l_t_mdl.trimmed)
 
-summariseLME(pn_foot_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_foot_l_t.csv")
+summariseLME(pn_ana_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_ana_l_t.csv")
 ```
 
 
 ```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
 
-pn_foot_l_t_mdl.trimmed.tidy <- analyseModel(pn_foot_l_t_mdl.trimmed,
-                                write="phonetic_models/pn_foot_l_t",
+pn_ana_l_t_mdl.trimmed.tidy <- analyseModel(pn_ana_l_t_mdl.trimmed,
+                                write="phonetic_models/pn_ana_l_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
-pn_foot_l_t_mdl.trimmed.tidy$table
+pn_ana_l_t_mdl.trimmed.tidy$table
 
 ```
 
@@ -305,9 +301,9 @@ pn_foot_l_t_mdl.trimmed.tidy$table
 
 charts <- getModelFixedFX(
   l_t_equation,
-  pn_foot_l_t.trimmed,
+  pn_ana_l_t.trimmed,
   optimizer,
-  write="phonetic_models/pn_foot_l_t"
+  write="phonetic_models/pn_ana_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -323,7 +319,7 @@ charts$slopes
 - Speech rate caused massive estimation issues
 ```{r set l_f0 equation}
 l_f0_equation = formula(
-  l_f0 ~ foot_syls + acc_phon
+  l_f0 ~ ana_syls
   + (1 | speaker)
   )
 
@@ -331,9 +327,9 @@ optimizer = "optimx"
 ```
 
 ```{r run l_f0 models, fig.height=3, fig.width=9}
-pn_foot_l_f0_mdl = lmer(
+pn_ana_l_f0_mdl = lmer(
   l_f0_equation,
-  pn_foot_l,
+  pn_ana_l,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = FALSE,
@@ -345,19 +341,37 @@ pn_foot_l_f0_mdl = lmer(
   )
 )
 
+# model needs trimming
+pn_ana_l_f0.trimmed <-
+  pn_ana_l %>% filter(abs(scale(resid(pn_ana_l_f0_mdl))) <= 4)
 
-summariseLME(pn_foot_l_f0_mdl, run_step = TRUE, write = "anovas/pn_foot_l_f0.csv")
-allFit(pn_foot_l_f0_mdl)
+
+pn_ana_l_f0_mdl.trimmed = lmer(
+  l_f0_equation,
+  pn_ana_l_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(pn_ana_l_f0_mdl.trimmed, run_step = FALSE, write = "anovas/pn_ana_l_f0.csv")
+allFit(pn_ana_l_f0_mdl.trimmed)
 ```
 
 
 ```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
 
-pn_foot_l_f0_mdl.tidy <- analyseModel(pn_foot_l_f0_mdl,
-                                write="phonetic_models/pn_foot_l_f0",
+pn_ana_l_f0_mdl.tidy <- analyseModel(pn_ana_l_f0_mdl,
+                                write="phonetic_models/pn_ana_l_f0",
                                 type = "pred"
                                 )
-pn_foot_l_f0_mdl.tidy$table
+pn_ana_l_f0_mdl.tidy$table
 
 ```
 
@@ -365,9 +379,9 @@ pn_foot_l_f0_mdl.tidy$table
 
 charts <- getModelFixedFX(
   l_f0_equation,
-  pn_foot_l,
+  pn_ana_l,
   optimizer,
-  write="phonetic_models/pn_foot_l_f0"
+  write="phonetic_models/pn_ana_l_f0"
 )
 charts$intercepts
 charts$slopes

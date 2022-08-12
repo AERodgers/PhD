@@ -136,9 +136,9 @@ ggplot() +
 
 
 
-
-
-```{r message=FALSE, warning=TRUE, include=FALSE}
+These should not be used for statistical purposes!!!
+Why? Because marginal effects of LME models will provide muchmore robust results.
+```{r message=FALSE, warning=TRUE, include=FALSE, eval = FALSE}
 # PROCESS PN DATA
 # 
 #get summary of each target parameter per pa per pre_syl condition
@@ -175,7 +175,7 @@ param_means(pn_ana_param_sum, lh_slope, ana_syls, acc_phon) %>%
 ```
 
 
-```{r message=FALSE, warning=TRUE, include=FALSE}
+```{r message=FALSE, warning=TRUE, include=FALSE, eval = FALSE}
 # PROCESS NUCLEAR DATA
 # 
 # Get summary of each target parameter per pa per pre_syl condition

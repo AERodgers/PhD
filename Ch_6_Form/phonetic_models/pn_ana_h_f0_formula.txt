@@ -1,0 +1,1 @@
+h_f0 ~ ana_syls + acc_phon + (1 | speaker)
