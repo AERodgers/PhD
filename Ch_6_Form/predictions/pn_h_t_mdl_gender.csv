@@ -1,0 +1,3 @@
+gender,predicted,conf.low,conf.high,std.error
+F,150.06,94.38,205.74,28.41
+M,76.52,20.56,132.48,28.55

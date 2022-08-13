@@ -129,7 +129,7 @@ summary(lh_pn_model)
 plot_model(lh_pn_model,
            type="re",
            show.values = T,
-           title = "random speaker intercepts")[3]
+           title = "random speaker intercepts")[2]
 
 ```
 
@@ -153,8 +153,24 @@ tidy_summary <- analyseModel(lh_pn_model,
                              is_GLM = TRUE,
                              type = "pred"
                              )
-plot_model(lh_pn_model, type = "pred", terms = c("wrd_end_syl", "gender"))
-plot_model(lh_pn_model, type = "pred", terms = c("foot_syls", "gender"))
+plot_model(lh_pn_model, type = "pred", terms = c("wrd_end_syl", "gender")) +
+        geom_text(aes(
+          label = percent(predicted, 0),
+          hjust = 1.2,
+          position = "dodge"),
+          check_overlap = T,
+          size=4) +
+        theme(axis.title.x=element_blank())
+
+plot_model(lh_pn_model, type = "pred", terms = c("foot_syls", "gender")) +
+        geom_text(aes(
+          label = percent(predicted, 0),
+          hjust = 1.2,
+          position = "dodge"),
+          check_overlap = T,
+          size=4) +
+        theme(axis.title.x=element_blank())
+
 tidy_summary$table
 
 charts <- getModelFixedFX(
@@ -202,6 +218,12 @@ h_star_model <- bglmer(
   family = binomial(link = "logit")
 )
 
+null_model <- bglmer(
+  null_equation,
+  data = pn,
+  family = binomial(link = "logit")
+)
+
 summary(h_star_model)
 ```
 
@@ -235,8 +257,23 @@ tidy_summary <- analyseModel(h_star_model,
                              is_GLM = TRUE,
                              type = "pred")
 
-plot_model(h_star_model, type = "pred", terms = c("wrd_end_syl", "gender"))
-plot_model(h_star_model, type = "pred", terms = c("foot_syls", "gender"))
+plot_model(h_star_model, type = "pred", terms = c("wrd_end_syl", "gender")) +
+        geom_text(aes(
+          label = percent(predicted, 0),
+          hjust = 1.2,
+          position = "dodge"),
+          check_overlap = T,
+          size=4) +
+        theme(axis.title.x=element_blank())
+
+plot_model(h_star_model, type = "pred", terms = c("foot_syls", "gender")) +
+        geom_text(aes(
+          label = percent(predicted, 0),
+          hjust = 1.2,
+          position = "dodge"),
+          check_overlap = T,
+          size=4) +
+        theme(axis.title.x=element_blank())
 tidy_summary$table
 
 charts <- getModelFixedFX(

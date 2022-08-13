@@ -1,0 +1,4 @@
+acc_phon,predicted,conf.low,conf.high,std.error
+H*,88.32,85.72,90.92,1.33
+\>H*,88.37,85.74,90.99,1.34
+L*H,88.28,85.69,90.88,1.32

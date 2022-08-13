@@ -125,6 +125,7 @@ optimizer = "optimx"
 ```
 
 - intercepts only model
+
 ```{r run l_t models, fig.height=3, fig.width=9}
 nuc_l_t_mdl = lmer(
   l_t_equation,
@@ -144,9 +145,12 @@ summariseLME(nuc_l_t_mdl, run_step = TRUE, write = "anovas/nuc_l_t.csv")
 ```
 
 
-```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
 plot_model(nuc_l_t_mdl, type = "re",
            title = "Random effects of preceding unstressed content")[2]
+
+tidyPrediction(nuc_l_t_mdl, write = "predictions/nuc_l_t_mdl")
+
 nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                 write="phonetic_models/nuc_l_t",
                                 type = "pred",
@@ -234,7 +238,8 @@ summariseLME(nuc_l_f0_mdl.trimmed,
 ```
 
 
-```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(nuc_l_f0_mdl.trimmed, write = "predictions/nuc_l_f0_mdl")
 
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                 write="phonetic_models/nuc_l_f0",
@@ -303,7 +308,8 @@ summariseLME(nuc_h_t_mdl, run_step = TRUE, write = "anovas/nuc_h_t.csv")
 ```
 
 
-```{r h_t model summary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(nuc_h_t_mdl, write = "predictions/nuc_h_t_mdl")
 
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="phonetic_models/nuc_h_t",
@@ -385,7 +391,9 @@ summariseLME(nuc_h_f0_mdl.trimmed,
 ```
 
 
-```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(nuc_h_f0_mdl, write = "predictions/nuc_h_f0_mdl")
+
 nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl,
                                 write="phonetic_models/nuc_h_f0",
                                 type = "pred"
@@ -469,7 +477,8 @@ summariseLME(nuc_e_t_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_e_t.csv")
 ```
 
 
-```{r e_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r e_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(nuc_e_t_mdl.trimmed, write = "predictions/nuc_e_t_mdl")
 
 nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 write="phonetic_models/nuc_e_t",
@@ -554,7 +563,8 @@ summariseLME(nuc_e_f0_mdl.trimmed,
 ```
 
 
-```{r e_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r e_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(nuc_e_f0_mdl, write = "predictions/nuc_e_f0_mdl")
 
 nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
                                 write="phonetic_models/nuc_e_f0",

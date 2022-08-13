@@ -180,7 +180,8 @@ summariseLME(pn_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_h_t.csv")
 ```
 
 
-```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
 
 pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
                                 write="phonetic_models/pn_h_t",
@@ -246,7 +247,8 @@ summariseLME(pn_h_f0_mdl,
 ```
 
 
-```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
 pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
                                 write="phonetic_models/pn_h_f0",
                                 type = "pred"
@@ -330,8 +332,8 @@ summariseLME(pn_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_l_t.csv")
 ```
 
 
-```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
-
+```{r l_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
 pn_l_t_mdl.tidy <- analyseModel(pn_l_t_mdl.trimmed,
                                 write="phonetic_models/pn_l_t",
                                 type = "pred",
@@ -419,8 +421,8 @@ summariseLME(pn_l_f0_mdl.trimmed,
 ```
 
 
-```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
-
+```{r l_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
+tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
 pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl.trimmed,
                                 write="phonetic_models/pn_l_f0",
                                 type = "pred"

@@ -790,8 +790,7 @@ analyseModel <-
           colors = "Black",
           axis.lim = axis.lim,
           type = type
-        ) %>%
-        print()
+        ) %>% print()
     }
 
     return(list(
@@ -1453,7 +1452,7 @@ adjustP_posthoc <-
       return(p_counts)
     }
   }
-###  Tidy Print Predictions ####################################################
+###  Tidy Predictions ####################################################
 tidyPrintPredictions <-
   function(model, caption_suffix, factor_matrix = F, is_LME=F) {
     require("ggeffects")
@@ -1647,36 +1646,61 @@ tidyLMEPredictions <- function(model, caption_suffix, factor_matrix = F) {
   }
 }
 
-
-tidyPrediction <- function(model) {
+tidyPrediction <- function(model, write = NULL) {
+  require("knitr")
+  require("kableExtra")
   require("ggeffects")
+
   pred_list <- ggpredict(model)
   obj_names <- names(pred_list)
   obj_i = 0
-  my_tibble <- tibble()
   for (cur_obj in pred_list)
   {
     obj_i = obj_i + 1
     cur_obj_name <- obj_names[obj_i]
+    cur_caption <- paste(cur_obj %>% get_title, "re", cur_obj_name)
+    save_address <- paste(write, "_", cur_obj_name, ".csv", sep = "")
     cur_obj_name = enquo(cur_obj_name)
-
-    my_tibble <- my_tibble %>%
-      rbind(
-        as_tibble(cur_obj) %>%
-          relocate(std.error, .after = conf.high) %>%
-          relocate(group, .before = x) %>%
-          mutate(std.error = if_else(
-            abs(std.error) < 0.001,
+    cur_table <- as_tibble(cur_obj) %>%
+      select(-group) %>%
+      relocate(std.error, .after = conf.high) %>%
+      mutate(
+        x = str_replace_all(x,
+                            "(\\_|\\[|\\]|\\$|\\^|\\>)",
+                            "\\\\\\1"),
+        std.error = if_else(
+          abs(std.error) < 0.001,
+          as.character(formatC(
+            std.error, format = "e", digits = 1
+          )),
+          as.character(round(std.error, 3), digits = 2)
+        ),
+        across(
+          c("std.error", "predicted", "conf.low", "conf.high"),
+          ~ as.numeric(.)
+        ),
+        across(
+          c("std.error", "predicted", "conf.low", "conf.high"),
+          ~ if_else(
+            abs(.) < 0.001,
             as.character(formatC(
-              std.error, format = "e", digits = 1
+              ., format = "e", digits = 1
             )),
-            as.character(round(std.error, 3))
-          )) %>%
-          rename(level = x,
-                 factor = group)
-      )
+            as.character(round(., 2))
+          )
+        )
+      ) %>%
+      rename(!!cur_obj_name := x)
+
+      cur_table %>%
+      knitr::kable(caption = cur_caption) %>%
+      kable_styling(full_width = FALSE, position = "left") %>%
+      print(cur_table)
+
+      if(!is.null(write)){write_csv(cur_table, save_address)}
+
+
   }
-  return(my_tibble)
 }
 
 
