@@ -1,1 +1,0 @@
-l_f0 ~ foot_syls + acc_phon + (1 | speaker)

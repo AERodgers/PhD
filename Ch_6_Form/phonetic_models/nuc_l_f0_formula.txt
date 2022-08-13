@@ -1,0 +1,1 @@
+l_f0 ~ pre_syls + foot_syls + fin_phon + (1 | speaker) + (1 | foot_dur)

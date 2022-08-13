@@ -1,0 +1,397 @@
+---
+title: "LME Analysis of NUCs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "ggeffects",
+    "optimx",
+    "MuMIn",
+    "dfoptim",
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+```
+
+## H targets
+
+```{r h Get data}
+# Get  data for analysis
+
+source("get_AH_corpora.R")
+
+rm(pn, nuc_foot, pn_lex, pn_ana, corpus, nuc_pre)
+
+nuc <- nuc %>%
+  select(
+    speaker,
+    gender,
+    pre_syls,
+    foot_syls,
+    fin_phon,
+    stim,
+    h_t,
+    h_f0,
+    l_t,
+    l_f0,
+    foot_dur,
+    speech_rate
+  )
+
+```
+
+### Analysis of H timing
+
+- Only intercepts only model avoided convergence and singularity issues
+- Random factors reduce 
+```{r set h_t equation}
+h_t_equation = formula(
+  h_t ~ pre_syls
+  + foot_syls
+  + fin_phon
+  + gender
+  + (1 + foot_syls | speaker)
+  + (1 | speech_rate)
+  + (1 | foot_dur)
+  )
+
+
+optimizer = "optimx"
+```
+
+- model needs trimming (residuals +/- 4 s.d.)
+```{r run h_t models, fig.height=3, fig.width=9}
+nuc_pre_h_t_mdl = lmer(
+  h_t_equation,
+  nuc,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+nuc_h_t.trimmed <-
+  nuc %>% filter(abs(scale(resid(nuc_pre_h_t_mdl))) <= 4)
+
+nuc_h_t_mdl.trimmed = lmer(
+  h_t_equation,
+  nuc_h_t.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(nuc_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_h_t.csv")
+```
+
+
+```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+
+nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl.trimmed,
+                                write="phonetic_models/nuc_h_t",
+                                type = "pred",
+                                factor_matrix = TRUE
+                                )
+nuc_h_t_mdl.tidy$table
+
+```
+
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  h_t_equation,
+  nuc_h_t.trimmed,
+  optimizer,
+  write="phonetic_models/nuc_h_t"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+
+
+### Analysis of H F0
+```{r set h_f0 equation}
+h_f0_equation = formula(
+  h_f0 ~ pre_syls + foot_syls + fin_phon
+  + (1 | speaker)
+  + (1 | speech_rate)
+  + (1 | foot_dur)
+  )
+
+optimizer = "optimx"
+```
+
+- model needs trimming (residuals +/- 4 s.d.)
+```{r run h_f0 models, fig.height=3, fig.width=9}
+nuc_h_f0_mdl = lmer(
+  h_f0_equation,
+  nuc,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+nuc_h_f0.trimmed <-
+  nuc %>% filter(abs(scale(resid(nuc_h_f0_mdl))) <= 4)
+
+nuc_h_f0_mdl.trimmed = lmer(
+  h_f0_equation,
+  nuc_h_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(nuc_h_f0_mdl.trimmed,
+             run_step = TRUE,
+             write = "anovas/nuc_h_f0.csv")
+```
+
+
+```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+nuc_h_f0_mdl.trimmed.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
+                                write="phonetic_models/nuc_h_f0",
+                                type = "pred"
+                                )
+nuc_h_f0_mdl.trimmed.tidy$table
+
+```
+
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  h_f0_equation,
+  nuc_h_f0.trimmed,
+  optimizer,
+  write="phonetic_models/nuc_h_f0"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+
+## L targets
+
+### Analysis of L timing
+
+```{r set l_t equation}
+l_t_equation = formula(
+  l_t ~ pre_syls
+  + foot_syls
+  + fin_phon
+  + gender
+  + (1 | speaker)
+  + (1 | speech_rate)
+  + (1 | foot_dur)
+  )
+
+optimizer = "optimx"
+```
+
+- intercepts only model
+```{r run l_t models, fig.height=3, fig.width=9}
+nuc_l_t_mdl = lmer(
+  l_t_equation,
+  nuc,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+nuc_l_t.trimmed <-
+  nuc %>% filter(abs(scale(resid(nuc_l_t_mdl))) <= 3.5)
+
+nuc_l_t_mdl.trimmed = lmer(
+  l_t_equation,
+  nuc_l_t.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(nuc_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_l_t.csv")
+```
+
+
+```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+
+nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl.trimmed,
+                                write="phonetic_models/nuc_l_t",
+                                type = "pred",
+                                factor_matrix = TRUE
+                                )
+nuc_l_t_mdl.tidy$table
+
+```
+
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  l_t_equation,
+  nuc_l_t.trimmed,
+  optimizer,
+  write="phonetic_models/nuc_l_t"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+
+
+### Analysis of L F0
+
+- Only intercepts only model avoided convergence and singularity issues
+- Speech rate caused massive estimation issues
+
+```{r set l_f0 equation}
+l_f0_equation = formula(
+  l_f0 ~ pre_syls
+  + foot_syls
+  + fin_phon
+  + (1 | speaker)
+  + (1 | foot_dur)
+  )
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3)
+```{r run l_f0 models, fig.height=3, fig.width=9}
+nuc_l_f0_mdl = lmer(
+  l_f0_equation,
+  nuc,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+nuc_l_f0.trimmed <-
+  nuc %>% filter(abs(scale(resid(nuc_l_f0_mdl))) <= 3)
+
+
+nuc_l_f0_mdl.trimmed = lmer(
+  l_f0_equation,
+  nuc_l_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+
+summariseLME(nuc_l_f0_mdl.trimmed,
+             run_step = TRUE,
+             write = "anovas/nuc_l_f0.csv")
+```
+
+
+```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+
+nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
+                                write="phonetic_models/nuc_l_f0",
+                                type = "pred"
+                                )
+nuc_l_f0_mdl.tidy$table
+
+```
+
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  l_f0_equation,
+  nuc_l_f0.trimmed,
+  optimizer,
+  write="phonetic_models/nuc_l_f0"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+

@@ -1,1 +1,0 @@
-l_f0 ~ acc_phon + foot_syls + (1 | gender) + (1 | speaker) + (1 | speech_rate)

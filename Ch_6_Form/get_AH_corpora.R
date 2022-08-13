@@ -19,6 +19,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     foot_syls,
     tot_syls,
     acc_phon,
+    ana_end_t,
     foot_start_t,
     foot_end_t,
     v_onset_t,
@@ -69,6 +70,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     # treat foot_syls and ana_syls as factor
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),
     foot_syls = factor(foot_syls, levels = unique(foot_syls)),
+    wrd_end_syl = factor(wrd_end_syl, levels = 1:3),
     # Ignore downstep.
     acc_phon = str_replace(acc_phon, "!", ""),
     # Arrange PA levels according to hypothesized hierarchy.
@@ -152,14 +154,16 @@ nuc <- filter(corpus, cur_foot == 2) %>%
         fin_phon,
         sep = " ",
         remove = FALSE) %>%
+  # Get number of preceding syllables from stim code
+  mutate(pre_syls = as.integer(str_sub(stim, 3, 3)) - 1,
+         pre_syls = factor(pre_syls, levels = unique(pre_syls))
+  ) %>%
   select(-c(s_f0, s_f0_z, s_t, s_grand_mean_t))
 
 # Make nuclear PA preceding syllable dataset.
 nuc_pre <- nuc %>%
-  filter(stim %in% c("A1111", "A0221", "A0321", "A0423")) %>%
-  # Get number of preceding syllables from stim code
-  mutate(pre_syls = str_sub(stim, 3, 3))  %>%
-  mutate(pre_syls = as.integer(pre_syls))
+  filter(stim %in% c("A1111", "A0221", "A0321", "A0423"))
+
 
 # Make nuclear PA foot size dataset.
 nuc_foot <- nuc %>%

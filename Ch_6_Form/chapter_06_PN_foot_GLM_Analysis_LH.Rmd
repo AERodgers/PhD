@@ -59,8 +59,8 @@ pn_foot <- select(pn_foot,
                    FALSE),
            levels = c(F, T)),
          foot_dur = foot_dur / 100,
-         gender = factor(gender, levels = c("F", "M")),
-         foot_syls = factor(foot_syls, levels = 1:4)
+         gender = factor(gender, levels = c("F", "M"))
+
          ) %>% 
   select(-acc_phon)
 

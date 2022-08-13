@@ -1,0 +1,1 @@
+h_t ~ pre_syls + foot_syls + fin_phon + gender + (1 + foot_syls | speaker) + (1 | speech_rate) + (1 | foot_dur)
