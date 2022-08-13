@@ -246,6 +246,8 @@ Formula (column range): "v_syl_ratio", "e_syl_ratio", "fixed$(self, 2)"
 @addGenF0Stats: output_table, gen_stats
 removeObject: gen_stats
 
+# Add info columns indentifying ana_syls_text and nuc_pre_text
+@addAnaNucPreText: output_table
 # remove unneeded columns
 cols_to_remove$# = {"s_syl", "e_syl",
 ... "v_syl_ratio", "l_syl_ratio", "h_syl_ratio", "s_syl_ratio", "e_syl_ratio",
@@ -1635,6 +1637,48 @@ procedure addGenF0Stats: .output_table, .gen_stats
         ... "if self$[""speaker""] = .speaker$ then .f0_SD else self endif"
     endfor
 endproc
+
+procedure addAnaNucPreText: .table
+    # Adds info about text in anacrusis and unstressed text before nuclear PA.
+
+    # Get look-up table.
+    ana_nuc_pre_table =
+    ...Read Table from comma-separated file: "AH_corpus_ana_pre_text.csv"
+    num_stims = Get number of rows
+
+    # Add info columns to main table
+    selectObject: .table
+    Insert column: 9, "ana_text"
+    Insert column: 10, "nuc_pre_text"
+    Insert column: 11, "ana_has_word_end"
+    Insert column: 12, "nuc_is_new_word"
+    num_rows = Get number of rows
+
+    for i to num_stims
+        # Get info for current target stim.
+        selectObject: ana_nuc_pre_table
+        cur_stim$ = Get value: i, "stim"
+        cur_ana_txt$ = Get value: i, "ana_text"
+        cur_pre_txt$ = Get value: i, "nuc_pre_text"
+        cur_ana_end$ = Get value: i, "ana_has_word_end"
+        cur_nuc_new$ = Get value: i, "nuc_is_new_word"
+
+        # add anacrusis and pre-nucleus text into to main table.
+        selectObject: .table
+        Formula: "ana_text",
+        ... "if self$[""stim""] == cur_stim$ then cur_ana_txt$ else self$ endif"
+        Formula: "nuc_pre_text",
+        ... "if self$[""stim""] == cur_stim$ then cur_pre_txt$ else self$ endif"
+        Formula: "ana_has_word_end",
+        ... "if self$[""stim""] == cur_stim$ then cur_ana_end$ else self$ endif"
+        Formula: "nuc_is_new_word",
+        ... "if self$[""stim""] == cur_stim$ then cur_nuc_new$ else self$ endif"
+
+    endfor
+    removeObject: ana_nuc_pre_table
+
+endproc
+
 
 include procs/getF0Stats.proc
 include procs/globalDictionaries.proc

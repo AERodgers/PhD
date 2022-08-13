@@ -18,6 +18,10 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     ana_syls,
     foot_syls,
     tot_syls,
+    ana_text,
+    ana_has_word_end,
+    nuc_pre_text,
+    nuc_is_new_word,
     acc_phon,
     ana_end_t,
     foot_start_t,
@@ -42,6 +46,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     spkr_f0_SD
 
   ) %>%
+  rename(ana_ends_word = ana_has_word_end) %>%
+  rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
     # create composite parameters for continuous data.
     foot_dur = foot_end_t - foot_start_t,
@@ -94,10 +100,15 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     ),
     gender = factor(gender, level = unique(gender)),
     fin_phon = factor(fin_phon, level = unique(fin_phon)),
-    foot_syls = factor(foot_syls, levels=(1:4))
+    foot_syls = factor(foot_syls, levels=(1:4)),
+    ana_text = if_else(is.na(ana_text), "0", ana_text),
+    ana_text = factor(ana_text, level = unique(ana_text)),
+    ana_ends_word = factor(ana_ends_word, level = 0:1),
+    nuc_pre_text = if_else(is.na(nuc_pre_text), "0", nuc_pre_text),
+    nuc_pre_text = factor(nuc_pre_text, level = unique(nuc_pre_text)),
+    nuc_new_word= factor(nuc_new_word, level = 0:1),
   ) %>%
-  #rename lh_slope!
-  rename(lh_slope = lh_slope) %>%
+
   # Remove columns which have outlived their use!
   select(-c(
     v_onset_t,

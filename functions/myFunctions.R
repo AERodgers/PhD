@@ -761,7 +761,9 @@ analyseModel <-
           my_plot <- ggpredict(my_model, terms = cur_factor) %>%
             plot() +
             ylim(0, 1) +
-            labs(caption = "", title="") +
+            labs(title = paste("Predicted probabilities re",
+                                 cur_factor),
+                 caption = "") +
             geom_text(aes(
               label = percent(predicted, 0),
               hjust = 1.5,

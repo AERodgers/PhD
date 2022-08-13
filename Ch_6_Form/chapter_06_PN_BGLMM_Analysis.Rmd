@@ -1,0 +1,252 @@
+---
+title: "BGLMM Analysis of PN Phonology"
+author: "AERodgers"
+date: "2/18/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE,}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = F,
+                      message = F)
+
+```
+
+
+```{r message=FALSE}
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "lmerTest",
+    "blme",
+    "optimx",
+    "MuMIn",
+    
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Get data frames for AH analysis
+source("get_AH_corpora.R")
+# Add isLH column
+
+
+pn <- pn %>%
+  select(
+    speaker,
+    gender,
+    ana_syls,
+    foot_syls,
+    acc_phon,
+    wrd_end_syl,
+    ana_text,
+    ana_ends_word,
+    acc_phon,
+    speech_rate,
+    ana_end_t,
+    foot_dur
+  ) %>%
+  mutate(
+    isLH = factor(if_else(acc_phon == "L*H",
+                          TRUE,
+                          FALSE),
+                  levels = c(F, T)),
+    isHStar = factor(if_else(acc_phon == "H*",
+                             TRUE,
+                             FALSE),
+                     levels = c(F, T)),
+    foot_dur = foot_dur / 100,
+    gender = factor(gender, levels = c("F", "M")),
+    foot_syls = factor(foot_syls, levels = 1:4)
+  )
+
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+
+
+```
+
+
+```{r set isLH equation}
+isLH_equation <- formula(isLH ~ 
+  + foot_syls
+  + wrd_end_syl
+  + gender
+  + (1 | speaker)
+  + (1 | speech_rate)
+# + (1 | ana_end_t)
+# + (1 | ana_text)
+# + (1 | foot_dur)
+  )
+
+null_equation <- formula(isLH ~ 
+  1
+  + (1 | speaker)
+  + (1 | speech_rate)
+# + (1 | ana_end_t)
+# + (1 | ana_text)
+# + (1 | foot_dur)
+  )
+  
+
+```
+
+```{r run isLH models}
+lh_pn_model <- bglmer(
+  isLH_equation,
+  data = pn,
+  fixef.prior = normal(),
+  family = binomial(link = "logit")
+)
+
+null_model <- bglmer(
+  null_equation,
+  data = pn,
+  family = binomial(link = "logit")
+)
+
+summary(lh_pn_model)
+```
+
+
+```{r random effect of prompt, fig.height=4, fig.width=5}
+plot_model(lh_pn_model,
+           type="re",
+           show.values = T,
+           title = "random speaker intercepts")[3]
+
+```
+
+```{r model charts and figures, fig.width = 5.5, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(lh_pn_model, tol=1e-5) -->",
+  isSingular(lh_pn_model, tol = 1e-5),
+  "\n"
+)
+
+# get, save, and print ANOVA of model
+anova(lh_pn_model, null_model, test="Chisq") %>%
+  outputChiSqResults(
+    lh_pn_model,
+    write="phonology_models/lh_pn_size",
+    post_hoc_method = "BH"
+  )
+
+tidy_summary <- analyseModel(lh_pn_model,
+                             write = "phonology_models/lh_pn_size",
+                             is_GLM = TRUE,
+                             type = "pred"
+                             )
+plot_model(lh_pn_model, type = "pred", terms = c("wrd_end_syl", "gender"))
+plot_model(lh_pn_model, type = "pred", terms = c("foot_syls", "gender"))
+tidy_summary$table
+
+charts <- getModelFixedFX(
+  isLH_equation,
+  pn,
+  write="phonology_models/lh_pn_size",
+  is_GLM=TRUE,
+  is_separation = T
+)
+
+charts$intercepts
+charts$slopes
+```
+
+- model won't converge with scalar random effects
+```{r set isHStar equation}
+isHStar_equation <- formula(isHStar ~ 
+  + foot_syls
+  + wrd_end_syl
+  + gender
+  + (1 | speaker)
+# + (1 | speech_rate)
+# + (1 | ana_end_t)
+# + (1 | ana_text)
+# + (1 | foot_dur)
+  )
+
+null_equation <- formula(isHStar ~ 
+  1
+  + (1 | speaker)
+# + (1 | speech_rate)
+# + (1 | ana_end_t)
+# + (1 | ana_text)
+# + (1 | foot_dur)
+  )
+  
+
+```
+
+```{r}
+h_star_model <- bglmer(
+  isHStar_equation,
+  pn,
+  fixef.prior = normal(),
+  family = binomial(link = "logit")
+)
+
+summary(h_star_model)
+```
+
+
+```{r fig.height=4, fig.width=5, results = "asis"}
+plot_model(h_star_model,
+           type="re",
+           show.values = T,
+           title = "random speaker intercepts")
+```
+
+```{r fig.width = 5.5, fig.height = 2.5, results="asis"}
+cat(
+  "isSingular(h_star_model, tol=1e-5) -->",
+  isSingular(h_star_model, tol = 1e-5),
+  "\n"
+)
+
+
+
+# get, save, and print ANOVA of model
+anova(h_star_model, null_model, test="Chisq") %>%
+  outputChiSqResults(
+    h_star_model,
+    write="phonology_models/h_star_model",
+    post_hoc_method = "BH"
+  )
+
+tidy_summary <- analyseModel(h_star_model,
+                             write = "phonology_models/h_star_model",
+                             is_GLM = TRUE,
+                             type = "pred")
+
+plot_model(h_star_model, type = "pred", terms = c("wrd_end_syl", "gender"))
+plot_model(h_star_model, type = "pred", terms = c("foot_syls", "gender"))
+tidy_summary$table
+
+charts <- getModelFixedFX(
+  isHStar_equation,
+  pn,
+  write="phonology_models/h_star_model",
+  is_GLM=TRUE,
+  is_separation = T
+)
+
+charts$intercepts
+charts$slopes
+```
