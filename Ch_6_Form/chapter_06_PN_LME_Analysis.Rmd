@@ -37,8 +37,6 @@ installMissingPackages(
   )
 )
 
-
-
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
@@ -56,7 +54,7 @@ pn <- pn %>%
          foot_syls,
          wrd_end_syl,
          ana_text,
-         ana_ends_word,
+         pn_new_word,
          acc_phon,
          speech_rate,
          ana_end_t,
@@ -64,7 +62,9 @@ pn <- pn %>%
          l_t,
          l_f0,
          h_t,
-         h_f0) %>%
+         h_f0,
+         lh_slope,
+         f0_exc) %>%
   mutate(
     foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
@@ -130,6 +130,7 @@ h_t_equation = formula(
   h_t ~ acc_phon
   + ana_syls
   + foot_syls
+  + pn_new_word
   + wrd_end_syl
   + gender
   + (1 | speaker)
@@ -182,6 +183,15 @@ summariseLME(pn_h_t_mdl.trimmed,
              write = "pn_anovas/pn_h_t_anova.csv")
 ```
 
+```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_t_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
@@ -191,6 +201,8 @@ pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
+
+
 pn_h_t_mdl.tidy$table
 
 ```
@@ -218,6 +230,7 @@ h_f0_equation = formula(
   + ana_syls
   + foot_syls
   + wrd_end_syl
+  + pn_new_word
   + (1 | speaker)
   + (1 | ana_text)
   #+ (1 | speech_rate)
@@ -249,7 +262,15 @@ summariseLME(pn_h_f0_mdl,
              extra_text = "[prenuclear PA]",
              write = "pn_anovas/pn_h_f0_anova.csv")
 ```
-
+```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_f0_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
@@ -286,6 +307,7 @@ l_t_equation = formula(
   + ana_syls
   + foot_syls
   + wrd_end_syl
+  + pn_new_word
   + gender
   + (1 | speaker)
   #+ (1 | speech_rate)
@@ -338,6 +360,15 @@ summariseLME(pn_l_t_mdl.trimmed,
              write = "pn_anovas/pn_l_t_anova.csv")
 ```
 
+```{r plot l_t estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_l_t_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
 
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
@@ -369,17 +400,20 @@ charts$slopes
 ### Analysis of L F0
 
 - Only intercepts only model avoided convergence and singularity issues
-- Speech rate caused massive estimation issues, removing non speaker random effects due to singularity (as per H F0)
+- Speech rate caused massive estimation issues
+- Removing + wrd_end_syl as it has little effect
+- removing ana_text to avoid error
 
 ```{r set l_f0 equation}
 l_f0_equation = formula(
   l_f0 ~ acc_phon
   + ana_syls
   + foot_syls
-  + wrd_end_syl
+  #+ wrd_end_syl
+  + pn_new_word
   + (1 | speaker)
   #+ (1 | speech_rate)
-  + (1 | ana_text)
+  #+ (1 | ana_text)
   #+ (1 | ana_end_t)
   #+ (1 | foot_dur)
   )
@@ -429,6 +463,17 @@ summariseLME(pn_l_f0_mdl.trimmed,
 ```
 
 
+```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_l_f0_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+
 ```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
 pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl.trimmed,
@@ -450,7 +495,191 @@ charts <- getModelFixedFX(
 charts$intercepts
 charts$slopes
 
-
 ```
 
 
+## Truncation and Compression Effects
+
+Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
+
+As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
+
+```{r get data ready for T and C analysis}
+pn_tnc_data <- pn_l_data %>% 
+  mutate(log_lh_slope = log(lh_slope)) %>% 
+  filter(acc_phon == "L*H")
+```
+ 
+### LH Excursion
+
+```{r set f0_exc equation}
+
+f0_exc_equation = formula(
+ f0_exc ~ foot_syls
+  + ana_syls
+  + pn_new_word
+  + wrd_end_syl
+  + gender
+  + (1 | speaker)
+ #+ (1 | speech_rate)
+ #+ (1 | ana_end_t)
+  + (1 | ana_text)
+  + (1 | foot_dur)
+  )
+
+optimizer = "optimx"
+```
+
+```{r run f0_exc models, fig.height=3, fig.width=9}
+pn_f0_exc_mdl = lmer(
+  f0_exc_equation,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+
+- model needs trimming (|sd| residuals > 3)
+```{r run lh_exc models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+pn_f0_exc.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 3)
+
+pn_f0_exc_mdl.trimmed = lmer(
+  f0_exc_equation,
+  pn_f0_exc.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(pn_f0_exc_mdl.trimmed,
+             run_step = TRUE,
+             write = "pn_anovas/pn_f0_exc_anova.csv")
+```
+
+```{r f0_exc model summary, fig.height=2.5, fig.width=4, results="asis"}
+
+pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
+                                write="pn_phonetic_models/pn_f0_exc",
+                                type = "pred"
+                                )
+pn_f0_exc_mdl.tidy$table
+##tidyPrediction(pn_f0_exc_mdl, write = "predictions/pn_f0_exc_mdl")
+
+```
+Results suggest it is in fact ana_syls which affects f0 excursions more!!!
+
+
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  f0_exc_equation,
+  pn_f0_exc.trimmed,
+  optimizer,
+  write="pn_phonetic_models/pn_f0_exc"
+  )
+charts$intercepts
+charts$slopes
+
+
+```
+
+### LH Slope
+
+
+```{r set lh_slope equation}
+lh_slope_equation = formula(log_lh_slope ~ foot_syls
+  + ana_syls
+  + pn_new_word
+  + wrd_end_syl
+  + gender
+  + (1 | speaker)
+ #+ (1 | speech_rate)
+ #+ (1 | ana_end_t)
+  + (1 | ana_text)
+  + (1 | foot_dur)
+  )
+
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3.5)
+```{r run lh_slope models, fig.height=3, fig.width=9}
+pn_lh_slope_mdl = lmer(
+  lh_slope_equation,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+- data needs trimming: residual SD > 4
+```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+pn_lh_slope.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
+
+pn_lh_slope_mdl.trimmed = lmer(
+  lh_slope_equation,
+  pn_lh_slope.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(pn_lh_slope_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "pn_anovas/pn_lh_slope_anova.csv")
+```
+
+```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
+##tidyPrediction(pn_lh_slope_mdl, write = "predictions/pn_lh_slope_mdl")
+
+pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
+                                write="pn_phonetic_models/pn_lh_slope",
+                                type = "pred"
+                                )
+pn_lh_slope_mdl.tidy$table
+
+```
+
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  lh_slope_equation,
+  pn_lh_slope.trimmed,
+  optimizer,
+  write="pn_phonetic_models/pn_lh_slope"
+)
+charts$intercepts
+charts$slopes
+
+
+```

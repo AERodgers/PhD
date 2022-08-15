@@ -1,0 +1,1 @@
+isLH ~ foot_syls + wrd_end_syl + ana_ends_word + (1 | speaker) + (1 | speech_rate)

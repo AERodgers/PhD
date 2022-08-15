@@ -384,7 +384,7 @@ Journal of the <em>Royal Statistical Society Series B,
 <h4>a. <span class="math inline">\(\beta_0\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. isHStar ~ foot_syls + wrd_end_syl + gender + (1 | speaker)
+1. isHStar ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -423,28 +423,27 @@ signif.
 foot_syls1
 </td>
 <td style="text-align:left;">
--1.622
+-0.08
 </td>
 <td style="text-align:left;">
--2.853
+-1.395
 </td>
 <td style="text-align:left;">
--0.392
+1.236
 </td>
 <td style="text-align:left;">
-0.628
+0.671
 </td>
 <td style="text-align:left;">
--2.584
+-0.119
 </td>
 <td style="text-align:left;">
-0.01
+0.906
 </td>
 <td style="text-align:left;">
-0.02
+0.925
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -452,25 +451,25 @@ p&lt;0.05
 foot_syls2
 </td>
 <td style="text-align:left;">
--0.723
+0.625
 </td>
 <td style="text-align:left;">
--1.883
+-0.625
 </td>
 <td style="text-align:left;">
-0.438
+1.876
 </td>
 <td style="text-align:left;">
-0.592
+0.638
 </td>
 <td style="text-align:left;">
--1.221
+0.98
 </td>
 <td style="text-align:left;">
-0.222
+0.327
 </td>
 <td style="text-align:left;">
-0.259
+0.572
 </td>
 <td style="text-align:left;">
 </td>
@@ -480,28 +479,27 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
--2.451
+-0.422
 </td>
 <td style="text-align:left;">
--3.712
+-1.845
 </td>
 <td style="text-align:left;">
--1.191
+1.001
 </td>
 <td style="text-align:left;">
-0.643
+0.726
 </td>
 <td style="text-align:left;">
--3.812
+-0.581
 </td>
 <td style="text-align:left;">
-1.4e-04
+0.561
 </td>
 <td style="text-align:left;">
-9.8e-04
+0.786
 </td>
 <td style="text-align:left;">
-p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -509,28 +507,27 @@ p&lt;0.001
 foot_syls4
 </td>
 <td style="text-align:left;">
--2.861
+-1.568
 </td>
 <td style="text-align:left;">
--4.521
+-3.27
 </td>
 <td style="text-align:left;">
--1.201
+0.134
 </td>
 <td style="text-align:left;">
-0.847
+0.869
 </td>
 <td style="text-align:left;">
--3.377
+-1.805
 </td>
 <td style="text-align:left;">
-7.3e-04
+0.071
 </td>
 <td style="text-align:left;">
-0.003
+0.269
 </td>
 <td style="text-align:left;">
-p&lt;0.01
 </td>
 </tr>
 <tr>
@@ -538,28 +535,27 @@ p&lt;0.01
 wrd_end_syl1
 </td>
 <td style="text-align:left;">
--1.622
+-0.08
 </td>
 <td style="text-align:left;">
--2.853
+-1.395
 </td>
 <td style="text-align:left;">
--0.392
+1.236
 </td>
 <td style="text-align:left;">
-0.628
+0.671
 </td>
 <td style="text-align:left;">
--2.584
+-0.119
 </td>
 <td style="text-align:left;">
-0.01
+0.906
 </td>
 <td style="text-align:left;">
-0.02
+0.925
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -567,28 +563,28 @@ p&lt;0.05
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
--4.033
+-2.554
 </td>
 <td style="text-align:left;">
--5.67
+-4.239
 </td>
 <td style="text-align:left;">
--2.396
+-0.869
 </td>
 <td style="text-align:left;">
-0.835
+0.86
 </td>
 <td style="text-align:left;">
--4.829
+-2.971
 </td>
 <td style="text-align:left;">
-1.4e-06
+0.003
 </td>
 <td style="text-align:left;">
-2.0e-05
+0.021
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -596,35 +592,34 @@ p&lt;0.001
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--4.501
+-2.74
 </td>
 <td style="text-align:left;">
--7.701
+-6.232
 </td>
 <td style="text-align:left;">
--1.301
+0.752
 </td>
 <td style="text-align:left;">
-1.633
+1.782
 </td>
 <td style="text-align:left;">
--2.757
+-1.538
 </td>
 <td style="text-align:left;">
-0.006
+0.124
 </td>
 <td style="text-align:left;">
-0.017
+0.269
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-2. isLH ~ foot_syls + wrd_end_syl + gender + (1 | speaker) + (1 |
+2. isLH ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker) + (1 |
 speech_rate)
 </caption>
 <thead>
@@ -664,25 +659,25 @@ signif.
 foot_syls1
 </td>
 <td style="text-align:left;">
-0.225
+-1.079
 </td>
 <td style="text-align:left;">
--1.274
+-2.493
 </td>
 <td style="text-align:left;">
-1.724
+0.334
 </td>
 <td style="text-align:left;">
-0.765
+0.721
 </td>
 <td style="text-align:left;">
-0.294
+-1.496
 </td>
 <td style="text-align:left;">
-0.769
+0.135
 </td>
 <td style="text-align:left;">
-0.769
+0.269
 </td>
 <td style="text-align:left;">
 </td>
@@ -692,27 +687,28 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
--1.112
+-2.245
 </td>
 <td style="text-align:left;">
--2.543
+-3.594
 </td>
 <td style="text-align:left;">
-0.32
+-0.896
 </td>
 <td style="text-align:left;">
-0.73
+0.688
 </td>
 <td style="text-align:left;">
--1.522
+-3.261
 </td>
 <td style="text-align:left;">
-0.128
+0.001
 </td>
 <td style="text-align:left;">
-0.163
+0.016
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -720,25 +716,25 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
-1.641
+-0.072
 </td>
 <td style="text-align:left;">
-0.132
+-1.576
 </td>
 <td style="text-align:left;">
-3.15
+1.433
 </td>
 <td style="text-align:left;">
-0.77
+0.768
 </td>
 <td style="text-align:left;">
-2.132
+-0.094
 </td>
 <td style="text-align:left;">
-0.033
+0.925
 </td>
 <td style="text-align:left;">
-0.056
+0.925
 </td>
 <td style="text-align:left;">
 </td>
@@ -748,25 +744,25 @@ foot_syls3
 foot_syls4
 </td>
 <td style="text-align:left;">
-1.462
+0.345
 </td>
 <td style="text-align:left;">
--0.329
+-1.336
 </td>
 <td style="text-align:left;">
-3.253
+2.025
 </td>
 <td style="text-align:left;">
-0.914
+0.857
 </td>
 <td style="text-align:left;">
-1.6
+0.402
 </td>
 <td style="text-align:left;">
-0.11
+0.688
 </td>
 <td style="text-align:left;">
-0.154
+0.875
 </td>
 <td style="text-align:left;">
 </td>
@@ -776,25 +772,25 @@ foot_syls4
 wrd_end_syl1
 </td>
 <td style="text-align:left;">
-0.225
+-1.079
 </td>
 <td style="text-align:left;">
--1.274
+-2.493
 </td>
 <td style="text-align:left;">
-1.724
+0.334
 </td>
 <td style="text-align:left;">
-0.765
+0.721
 </td>
 <td style="text-align:left;">
-0.294
+-1.496
 </td>
 <td style="text-align:left;">
-0.769
+0.135
 </td>
 <td style="text-align:left;">
-0.769
+0.269
 </td>
 <td style="text-align:left;">
 </td>
@@ -804,28 +800,27 @@ wrd_end_syl1
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
-2.712
+1.448
 </td>
 <td style="text-align:left;">
-0.902
+-0.259
 </td>
 <td style="text-align:left;">
-4.523
+3.155
 </td>
 <td style="text-align:left;">
-0.924
+0.871
 </td>
 <td style="text-align:left;">
-2.936
+1.662
 </td>
 <td style="text-align:left;">
-0.003
+0.096
 </td>
 <td style="text-align:left;">
-0.011
+0.269
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -833,25 +828,25 @@ p&lt;0.05
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
-2.492
+0.794
 </td>
 <td style="text-align:left;">
-0.167
+-1.56
 </td>
 <td style="text-align:left;">
-4.816
+3.148
 </td>
 <td style="text-align:left;">
-1.186
+1.201
 </td>
 <td style="text-align:left;">
-2.101
+0.661
 </td>
 <td style="text-align:left;">
-0.036
+0.509
 </td>
 <td style="text-align:left;">
-0.056
+0.786
 </td>
 <td style="text-align:left;">
 </td>
@@ -863,7 +858,7 @@ wrd_end_syl3
 <h4>b. <span class="math inline">\(\beta_1\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. isHStar ~ foot_syls + wrd_end_syl + gender + (1 | speaker)
+1. isHStar ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -908,57 +903,25 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
-0.92
+0.723
 </td>
 <td style="text-align:left;">
-0.317
+0.104
 </td>
 <td style="text-align:left;">
-1.522
+1.343
 </td>
 <td style="text-align:left;">
-0.308
+0.316
 </td>
 <td style="text-align:left;">
-2.99
+2.287
 </td>
 <td style="text-align:left;">
-0.003
+0.022
 </td>
 <td style="text-align:left;">
-0.007
-</td>
-<td style="text-align:left;">
-p&lt;0.01
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
--0.839
-</td>
-<td style="text-align:left;">
--1.549
-</td>
-<td style="text-align:left;">
--0.13
-</td>
-<td style="text-align:left;">
-0.362
-</td>
-<td style="text-align:left;">
--2.319
-</td>
-<td style="text-align:left;">
-0.02
-</td>
-<td style="text-align:left;">
-0.033
+0.034
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -969,30 +932,62 @@ p&lt;0.05
 foot_syls1
 </td>
 <td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+-0.338
+</td>
+<td style="text-align:left;">
+-1.115
+</td>
+<td style="text-align:left;">
+0.439
+</td>
+<td style="text-align:left;">
+0.396
+</td>
+<td style="text-align:left;">
+-0.853
+</td>
+<td style="text-align:left;">
+0.393
+</td>
+<td style="text-align:left;">
+0.437
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
 foot_syls4
 </td>
 <td style="text-align:left;">
--1.379
+-1.665
 </td>
 <td style="text-align:left;">
--2.673
+-2.99
 </td>
 <td style="text-align:left;">
--0.086
+-0.339
 </td>
 <td style="text-align:left;">
-0.66
+0.676
 </td>
 <td style="text-align:left;">
--2.09
+-2.461
 </td>
 <td style="text-align:left;">
-0.037
+0.014
 </td>
 <td style="text-align:left;">
-0.053
+0.024
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -1003,28 +998,28 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
--1.717
+-1.019
 </td>
 <td style="text-align:left;">
--2.363
+-1.781
 </td>
 <td style="text-align:left;">
--1.071
+-0.257
 </td>
 <td style="text-align:left;">
-0.33
+0.389
 </td>
 <td style="text-align:left;">
--5.208
+-2.622
 </td>
 <td style="text-align:left;">
-1.9e-07
+0.009
 </td>
 <td style="text-align:left;">
-1.9e-06
+0.019
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -1035,25 +1030,25 @@ foot_syls2
 foot_syls4
 </td>
 <td style="text-align:left;">
--2.218
+-2.323
 </td>
 <td style="text-align:left;">
--3.479
+-3.605
 </td>
 <td style="text-align:left;">
--0.957
+-1.04
 </td>
 <td style="text-align:left;">
-0.643
+0.654
 </td>
 <td style="text-align:left;">
--3.448
+-3.549
 </td>
 <td style="text-align:left;">
-5.7e-04
+3.9e-04
 </td>
 <td style="text-align:left;">
-0.001
+0.002
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -1067,27 +1062,28 @@ foot_syls3
 foot_syls4
 </td>
 <td style="text-align:left;">
--0.577
+-1.342
 </td>
 <td style="text-align:left;">
--1.658
+-2.546
 </td>
 <td style="text-align:left;">
-0.504
+-0.138
 </td>
 <td style="text-align:left;">
-0.551
+0.614
 </td>
 <td style="text-align:left;">
--1.046
+-2.185
 </td>
 <td style="text-align:left;">
-0.295
+0.029
 </td>
 <td style="text-align:left;">
-0.347
+0.041
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -1098,25 +1094,25 @@ wrd_end_syl1
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
--2.313
+-2.384
 </td>
 <td style="text-align:left;">
--3.355
+-3.447
 </td>
 <td style="text-align:left;">
--1.272
+-1.321
 </td>
 <td style="text-align:left;">
-0.531
+0.542
 </td>
 <td style="text-align:left;">
--4.353
+-4.396
 </td>
 <td style="text-align:left;">
-1.3e-05
+1.1e-05
 </td>
 <td style="text-align:left;">
-6.5e-05
+7.3e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1130,25 +1126,25 @@ wrd_end_syl1
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--3.02
+-2.717
 </td>
 <td style="text-align:left;">
--6.195
+-6.074
 </td>
 <td style="text-align:left;">
-0.156
+0.639
 </td>
 <td style="text-align:left;">
-1.62
+1.713
 </td>
 <td style="text-align:left;">
--1.864
+-1.587
 </td>
 <td style="text-align:left;">
-0.062
+0.113
 </td>
 <td style="text-align:left;">
-0.083
+0.141
 </td>
 <td style="text-align:left;">
 </td>
@@ -1161,25 +1157,25 @@ wrd_end_syl2
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--1.469
+-1.203
 </td>
 <td style="text-align:left;">
--5.736
+-5.927
 </td>
 <td style="text-align:left;">
-2.797
+3.521
 </td>
 <td style="text-align:left;">
-2.177
+2.41
 </td>
 <td style="text-align:left;">
--0.675
+-0.499
 </td>
 <td style="text-align:left;">
-0.5
+0.618
 </td>
 <td style="text-align:left;">
-0.556
+0.618
 </td>
 <td style="text-align:left;">
 </td>
@@ -1189,38 +1185,38 @@ wrd_end_syl3
 intercept
 </td>
 <td style="text-align:left;">
-genderM
+pn_new_word0
 </td>
 <td style="text-align:left;">
-2.317
+-1.017
 </td>
 <td style="text-align:left;">
-0.62
+-1.607
 </td>
 <td style="text-align:left;">
-4.013
+-0.427
 </td>
 <td style="text-align:left;">
-0.866
+0.301
 </td>
 <td style="text-align:left;">
-2.677
+-3.379
 </td>
 <td style="text-align:left;">
-0.007
+7.3e-04
 </td>
 <td style="text-align:left;">
-0.014
+0.002
 </td>
 <td style="text-align:left;">
-p&lt;0.05
+p&lt;0.01
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-2. isLH ~ foot_syls + wrd_end_syl + gender + (1 | speaker) + (1 |
+2. isLH ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker) + (1 |
 speech_rate)
 </caption>
 <thead>
@@ -1266,28 +1262,28 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
--1.411
+-1.24
 </td>
 <td style="text-align:left;">
--2.102
+-1.939
 </td>
 <td style="text-align:left;">
--0.72
+-0.541
 </td>
 <td style="text-align:left;">
-0.352
+0.357
 </td>
 <td style="text-align:left;">
--4.005
+-3.477
 </td>
 <td style="text-align:left;">
-6.2e-05
+5.1e-04
 </td>
 <td style="text-align:left;">
-2.1e-04
+0.002
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.01
 </td>
 </tr>
 <tr>
@@ -1298,28 +1294,28 @@ foot_syls1
 foot_syls3
 </td>
 <td style="text-align:left;">
-1.456
+1.043
 </td>
 <td style="text-align:left;">
-0.685
+0.223
 </td>
 <td style="text-align:left;">
-2.226
+1.862
 </td>
 <td style="text-align:left;">
-0.393
+0.418
 </td>
 <td style="text-align:left;">
-3.703
+2.494
 </td>
 <td style="text-align:left;">
-2.1e-04
+0.013
 </td>
 <td style="text-align:left;">
-6.0e-04
+0.024
 </td>
 <td style="text-align:left;">
-p&lt;0.001
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -1330,25 +1326,25 @@ foot_syls1
 foot_syls4
 </td>
 <td style="text-align:left;">
-1.35
+1.55
 </td>
 <td style="text-align:left;">
-0.124
+0.31
 </td>
 <td style="text-align:left;">
-2.576
+2.79
 </td>
 <td style="text-align:left;">
-0.626
+0.633
 </td>
 <td style="text-align:left;">
-2.158
+2.449
 </td>
 <td style="text-align:left;">
-0.031
+0.014
 </td>
 <td style="text-align:left;">
-0.048
+0.024
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -1362,25 +1358,25 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
-2.737
+2.164
 </td>
 <td style="text-align:left;">
-2.005
+1.338
 </td>
 <td style="text-align:left;">
-3.469
+2.989
 </td>
 <td style="text-align:left;">
-0.373
+0.421
 </td>
 <td style="text-align:left;">
-7.329
+5.138
 </td>
 <td style="text-align:left;">
-2.3e-13
+2.8e-07
 </td>
 <td style="text-align:left;">
-4.6e-12
+5.5e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1394,25 +1390,25 @@ foot_syls2
 foot_syls4
 </td>
 <td style="text-align:left;">
-2.591
+2.64
 </td>
 <td style="text-align:left;">
-1.395
+1.437
 </td>
 <td style="text-align:left;">
-3.786
+3.844
 </td>
 <td style="text-align:left;">
-0.61
+0.614
 </td>
 <td style="text-align:left;">
-4.248
+4.301
 </td>
 <td style="text-align:left;">
-2.2e-05
+1.7e-05
 </td>
 <td style="text-align:left;">
-8.8e-05
+8.5e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1426,25 +1422,25 @@ foot_syls3
 foot_syls4
 </td>
 <td style="text-align:left;">
--0.054
+0.558
 </td>
 <td style="text-align:left;">
--1.011
+-0.518
 </td>
 <td style="text-align:left;">
-0.903
+1.633
 </td>
 <td style="text-align:left;">
-0.488
+0.549
 </td>
 <td style="text-align:left;">
--0.111
+1.016
 </td>
 <td style="text-align:left;">
-0.912
+0.31
 </td>
 <td style="text-align:left;">
-0.959
+0.364
 </td>
 <td style="text-align:left;">
 </td>
@@ -1457,22 +1453,22 @@ wrd_end_syl1
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
-2.419
+2.469
 </td>
 <td style="text-align:left;">
-1.426
+1.473
 </td>
 <td style="text-align:left;">
-3.412
+3.466
 </td>
 <td style="text-align:left;">
-0.507
+0.509
 </td>
 <td style="text-align:left;">
-4.773
+4.856
 </td>
 <td style="text-align:left;">
-1.8e-06
+1.2e-06
 </td>
 <td style="text-align:left;">
 1.2e-05
@@ -1489,28 +1485,27 @@ wrd_end_syl1
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
-2.189
+1.753
 </td>
 <td style="text-align:left;">
-0.44
+-0.038
 </td>
 <td style="text-align:left;">
-3.939
+3.544
 </td>
 <td style="text-align:left;">
-0.893
+0.914
 </td>
 <td style="text-align:left;">
-2.453
+1.918
 </td>
 <td style="text-align:left;">
-0.014
+0.055
 </td>
 <td style="text-align:left;">
-0.025
+0.073
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -1521,25 +1516,25 @@ wrd_end_syl2
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--0.041
+-0.509
 </td>
 <td style="text-align:left;">
--1.602
+-2.124
 </td>
 <td style="text-align:left;">
-1.521
+1.106
 </td>
 <td style="text-align:left;">
-0.797
+0.824
 </td>
 <td style="text-align:left;">
--0.051
+-0.618
 </td>
 <td style="text-align:left;">
-0.959
+0.537
 </td>
 <td style="text-align:left;">
-0.959
+0.565
 </td>
 <td style="text-align:left;">
 </td>
@@ -1549,30 +1544,31 @@ wrd_end_syl3
 intercept
 </td>
 <td style="text-align:left;">
-genderM
+pn_new_word0
 </td>
 <td style="text-align:left;">
--1.923
+0.844
 </td>
 <td style="text-align:left;">
--4.045
+0.231
 </td>
 <td style="text-align:left;">
-0.2
+1.458
 </td>
 <td style="text-align:left;">
-1.083
+0.313
 </td>
 <td style="text-align:left;">
--1.775
+2.698
 </td>
 <td style="text-align:left;">
-0.076
+0.007
 </td>
 <td style="text-align:left;">
-0.095
+0.017
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 </tbody>
@@ -1582,7 +1578,7 @@ genderM
 <h3>c. ANOVAs</h3>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. isHStar ~ foot_syls + wrd_end_syl + gender + (1 | speaker)
+1. isHStar ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -1656,28 +1652,28 @@ NA
 8
 </td>
 <td style="text-align:left;">
-521.129
+516.711
 </td>
 <td style="text-align:left;">
-558.485
+554.067
 </td>
 <td style="text-align:left;">
--252.564
+-250.356
 </td>
 <td style="text-align:left;">
-505.129
+500.711
 </td>
 <td style="text-align:left;">
-256.936
+261.354
 </td>
 <td style="text-align:left;">
 6
 </td>
 <td style="text-align:left;">
-1.3e-52
+1.5e-53
 </td>
 <td style="text-align:left;">
-1.3e-52
+1.5e-53
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1687,7 +1683,7 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-2. isLH ~ foot_syls + wrd_end_syl + gender + (1 | speaker) + (1 |
+2. isLH ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker) + (1 |
 speech_rate)
 </caption>
 <thead>
@@ -1762,28 +1758,28 @@ NA
 9
 </td>
 <td style="text-align:left;">
-610.654
+607.738
 </td>
 <td style="text-align:left;">
-652.68
+649.764
 </td>
 <td style="text-align:left;">
--296.327
+-294.869
 </td>
 <td style="text-align:left;">
-592.654
+589.738
 </td>
 <td style="text-align:left;">
-331.3
+334.216
 </td>
 <td style="text-align:left;">
 6
 </td>
 <td style="text-align:left;">
-1.6e-68
+3.8e-69
 </td>
 <td style="text-align:left;">
-3.2e-68
+7.6e-69
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1799,8 +1795,391 @@ p&lt;0.001
 <h4>a. <span class="math inline">\(\beta_0\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text)
+1. f0_exc ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl + gender +
+(1 | speaker) + (1 | ana_text) + (1 | foot_dur)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+t.value
+</th>
+<th style="text-align:left;">
+df
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+1.298
+</td>
+<td style="text-align:left;">
+-6.356
+</td>
+<td style="text-align:left;">
+8.952
+</td>
+<td style="text-align:left;">
+1.321
+</td>
+<td style="text-align:left;">
+0.982
+</td>
+<td style="text-align:left;">
+1.54
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+1.405
+</td>
+<td style="text-align:left;">
+-6.419
+</td>
+<td style="text-align:left;">
+9.229
+</td>
+<td style="text-align:left;">
+1.313
+</td>
+<td style="text-align:left;">
+1.07
+</td>
+<td style="text-align:left;">
+1.51
+</td>
+<td style="text-align:left;">
+0.426
+</td>
+<td style="text-align:left;">
+0.446
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+1.888
+</td>
+<td style="text-align:left;">
+-5.504
+</td>
+<td style="text-align:left;">
+9.279
+</td>
+<td style="text-align:left;">
+1.331
+</td>
+<td style="text-align:left;">
+1.418
+</td>
+<td style="text-align:left;">
+1.59
+</td>
+<td style="text-align:left;">
+0.32
+</td>
+<td style="text-align:left;">
+0.351
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+1.721
+</td>
+<td style="text-align:left;">
+-5.82
+</td>
+<td style="text-align:left;">
+9.262
+</td>
+<td style="text-align:left;">
+1.326
+</td>
+<td style="text-align:left;">
+1.298
+</td>
+<td style="text-align:left;">
+1.56
+</td>
+<td style="text-align:left;">
+0.353
+</td>
+<td style="text-align:left;">
+0.381
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+1.298
+</td>
+<td style="text-align:left;">
+-6.356
+</td>
+<td style="text-align:left;">
+8.952
+</td>
+<td style="text-align:left;">
+1.321
+</td>
+<td style="text-align:left;">
+0.982
+</td>
+<td style="text-align:left;">
+1.54
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+1.529
+</td>
+<td style="text-align:left;">
+-0.463
+</td>
+<td style="text-align:left;">
+3.52
+</td>
+<td style="text-align:left;">
+0.581
+</td>
+<td style="text-align:left;">
+2.632
+</td>
+<td style="text-align:left;">
+2.66
+</td>
+<td style="text-align:left;">
+0.089
+</td>
+<td style="text-align:left;">
+0.125
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+3.328
+</td>
+<td style="text-align:left;">
+-1.375
+</td>
+<td style="text-align:left;">
+8.03
+</td>
+<td style="text-align:left;">
+0.876
+</td>
+<td style="text-align:left;">
+3.801
+</td>
+<td style="text-align:left;">
+1.63
+</td>
+<td style="text-align:left;">
+0.085
+</td>
+<td style="text-align:left;">
+0.123
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+2.901
+</td>
+<td style="text-align:left;">
+-1.809
+</td>
+<td style="text-align:left;">
+7.611
+</td>
+<td style="text-align:left;">
+0.875
+</td>
+<td style="text-align:left;">
+3.314
+</td>
+<td style="text-align:left;">
+1.63
+</td>
+<td style="text-align:left;">
+0.105
+</td>
+<td style="text-align:left;">
+0.145
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+1.298
+</td>
+<td style="text-align:left;">
+-6.356
+</td>
+<td style="text-align:left;">
+8.952
+</td>
+<td style="text-align:left;">
+1.321
+</td>
+<td style="text-align:left;">
+0.982
+</td>
+<td style="text-align:left;">
+1.54
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+1.402
+</td>
+<td style="text-align:left;">
+-6.055
+</td>
+<td style="text-align:left;">
+8.859
+</td>
+<td style="text-align:left;">
+1.329
+</td>
+<td style="text-align:left;">
+1.055
+</td>
+<td style="text-align:left;">
+1.58
+</td>
+<td style="text-align:left;">
+0.426
+</td>
+<td style="text-align:left;">
+0.446
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+2.361
+</td>
+<td style="text-align:left;">
+-4.81
+</td>
+<td style="text-align:left;">
+9.532
+</td>
+<td style="text-align:left;">
+1.341
+</td>
+<td style="text-align:left;">
+1.76
+</td>
+<td style="text-align:left;">
+1.64
+</td>
+<td style="text-align:left;">
+0.247
+</td>
+<td style="text-align:left;">
+0.284
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+2. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+(1 | speaker) + (1 | ana_text)
 </caption>
 <thead>
 <tr>
@@ -1842,28 +2221,28 @@ signif.
 acc_phonL*H
 </td>
 <td style="text-align:left;">
-88.3
+87.7
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.323
+1.424
 </td>
 <td style="text-align:left;">
-66.711
+61.611
 </td>
 <td style="text-align:left;">
-11.88
+10.43
 </td>
 <td style="text-align:left;">
-1.2e-16
+1.1e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+3.7e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1874,28 +2253,28 @@ p&lt;0.001
 acc_phon&amp;gt;H*
 </td>
 <td style="text-align:left;">
-88.4
+87.8
 </td>
 <td style="text-align:left;">
-85.5
+84.7
 </td>
 <td style="text-align:left;">
-91.3
+91
 </td>
 <td style="text-align:left;">
-1.34
+1.434
 </td>
 <td style="text-align:left;">
-65.931
+61.247
 </td>
 <td style="text-align:left;">
-12.49
+10.74
 </td>
 <td style="text-align:left;">
-2.9e-17
+5.2e-15
 </td>
 <td style="text-align:left;">
-3.3e-16
+2.4e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1906,28 +2285,28 @@ p&lt;0.001
 acc_phonH*
 </td>
 <td style="text-align:left;">
-88.3
+87.8
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.326
+1.421
 </td>
 <td style="text-align:left;">
-66.624
+61.78
 </td>
 <td style="text-align:left;">
-11.96
+10.36
 </td>
 <td style="text-align:left;">
-9.6e-17
+1.2e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+4.0e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1938,28 +2317,28 @@ p&lt;0.001
 ana_syls0
 </td>
 <td style="text-align:left;">
-88.3
+87.7
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.323
+1.424
 </td>
 <td style="text-align:left;">
-66.711
+61.611
 </td>
 <td style="text-align:left;">
-11.88
+10.43
 </td>
 <td style="text-align:left;">
-1.2e-16
+1.1e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+3.7e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -1970,28 +2349,28 @@ p&lt;0.001
 ana_syls1
 </td>
 <td style="text-align:left;">
-88.5
+88.3
 </td>
 <td style="text-align:left;">
-85.7
+85.5
 </td>
 <td style="text-align:left;">
-91.3
+91.2
 </td>
 <td style="text-align:left;">
-1.279
+1.288
 </td>
 <td style="text-align:left;">
-69.18
+68.57
 </td>
 <td style="text-align:left;">
-11.13
+11.35
 </td>
 <td style="text-align:left;">
-5.1e-16
+3.2e-16
 </td>
 <td style="text-align:left;">
-1.3e-15
+7.5e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2011,19 +2390,19 @@ ana_syls2
 91.4
 </td>
 <td style="text-align:left;">
-1.342
+1.34
 </td>
 <td style="text-align:left;">
-65.945
+66.041
 </td>
 <td style="text-align:left;">
-12.56
+12.08
 </td>
 <td style="text-align:left;">
-2.5e-17
+7.9e-17
 </td>
 <td style="text-align:left;">
-3.3e-16
+2.9e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2043,19 +2422,19 @@ ana_syls3
 90.7
 </td>
 <td style="text-align:left;">
-1.342
+1.34
 </td>
 <td style="text-align:left;">
-65.398
+65.493
 </td>
 <td style="text-align:left;">
-12.57
+12.1
 </td>
 <td style="text-align:left;">
-2.6e-17
+8.4e-17
 </td>
 <td style="text-align:left;">
-3.3e-16
+2.9e-15
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2066,28 +2445,28 @@ p&lt;0.001
 foot_syls1
 </td>
 <td style="text-align:left;">
-88.3
+87.7
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.323
+1.424
 </td>
 <td style="text-align:left;">
-66.711
+61.611
 </td>
 <td style="text-align:left;">
-11.88
+10.43
 </td>
 <td style="text-align:left;">
-1.2e-16
+1.1e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+3.7e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2098,28 +2477,28 @@ p&lt;0.001
 foot_syls2
 </td>
 <td style="text-align:left;">
-88.5
+88
 </td>
 <td style="text-align:left;">
-85.6
+84.9
 </td>
 <td style="text-align:left;">
-91.4
+91.1
 </td>
 <td style="text-align:left;">
-1.322
+1.416
 </td>
 <td style="text-align:left;">
-66.949
+62.146
 </td>
 <td style="text-align:left;">
-11.84
+10.27
 </td>
 <td style="text-align:left;">
-1.2e-16
+1.4e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+4.5e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2130,28 +2509,28 @@ p&lt;0.001
 foot_syls3
 </td>
 <td style="text-align:left;">
-89.2
+88.5
 </td>
 <td style="text-align:left;">
-86.3
+85.4
 </td>
 <td style="text-align:left;">
-92
+91.7
 </td>
 <td style="text-align:left;">
-1.321
+1.445
 </td>
 <td style="text-align:left;">
-67.49
+61.272
 </td>
 <td style="text-align:left;">
-11.78
+11.1
 </td>
 <td style="text-align:left;">
-1.3e-16
+2.1e-15
 </td>
 <td style="text-align:left;">
-4.6e-16
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2162,28 +2541,28 @@ p&lt;0.001
 foot_syls4
 </td>
 <td style="text-align:left;">
-89
+88.4
 </td>
 <td style="text-align:left;">
-86.1
+85.3
 </td>
 <td style="text-align:left;">
-91.9
+91.6
 </td>
 <td style="text-align:left;">
-1.335
+1.435
 </td>
 <td style="text-align:left;">
-66.647
+61.608
 </td>
 <td style="text-align:left;">
-12.31
+10.78
 </td>
 <td style="text-align:left;">
-4.0e-17
+4.4e-15
 </td>
 <td style="text-align:left;">
-3.3e-16
+2.4e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2194,28 +2573,28 @@ p&lt;0.001
 wrd_end_syl1
 </td>
 <td style="text-align:left;">
-88.3
+87.7
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.323
+1.424
 </td>
 <td style="text-align:left;">
-66.711
+61.611
 </td>
 <td style="text-align:left;">
-11.88
+10.43
 </td>
 <td style="text-align:left;">
-1.2e-16
+1.1e-14
 </td>
 <td style="text-align:left;">
-4.6e-16
+3.7e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2226,28 +2605,28 @@ p&lt;0.001
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
-88.3
+87.8
 </td>
 <td style="text-align:left;">
-85.4
+84.6
 </td>
 <td style="text-align:left;">
-91.2
+90.9
 </td>
 <td style="text-align:left;">
-1.337
+1.435
 </td>
 <td style="text-align:left;">
-66.102
+61.178
 </td>
 <td style="text-align:left;">
-12.36
+10.75
 </td>
 <td style="text-align:left;">
-3.9e-17
+5.1e-15
 </td>
 <td style="text-align:left;">
-3.3e-16
+2.4e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2258,28 +2637,28 @@ p&lt;0.001
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
-88.8
+88.2
 </td>
 <td style="text-align:left;">
-85.9
+85
 </td>
 <td style="text-align:left;">
-91.8
+91.4
 </td>
 <td style="text-align:left;">
-1.36
+1.463
 </td>
 <td style="text-align:left;">
-65.338
+60.325
 </td>
 <td style="text-align:left;">
-13.24
+11.65
 </td>
 <td style="text-align:left;">
-5.3e-18
+6.6e-16
 </td>
 <td style="text-align:left;">
-2.6e-16
+1.1e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2289,8 +2668,8 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-2. h_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | foot_dur)
+3. h_t ~ acc_phon + ana_syls + foot_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur)
 </caption>
 <thead>
 <tr>
@@ -2332,92 +2711,28 @@ signif.
 acc_phonL*H
 </td>
 <td style="text-align:left;">
-227.1
+186.2
 </td>
 <td style="text-align:left;">
-142.3
+57.3
 </td>
 <td style="text-align:left;">
-311.8
+315.1
 </td>
 <td style="text-align:left;">
-28.194
+32.165
 </td>
 <td style="text-align:left;">
-8.054
+5.789
 </td>
 <td style="text-align:left;">
-3.34
+2.16
 </td>
 <td style="text-align:left;">
-0.003
+0.024
 </td>
 <td style="text-align:left;">
-0.004
-</td>
-<td style="text-align:left;">
-p&lt;0.01
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-acc_phon&amp;gt;H*
-</td>
-<td style="text-align:left;">
-192.5
-</td>
-<td style="text-align:left;">
-109.5
-</td>
-<td style="text-align:left;">
-275.5
-</td>
-<td style="text-align:left;">
-28.893
-</td>
-<td style="text-align:left;">
-6.662
-</td>
-<td style="text-align:left;">
-3.69
-</td>
-<td style="text-align:left;">
-0.004
-</td>
-<td style="text-align:left;">
-0.005
-</td>
-<td style="text-align:left;">
-p&lt;0.01
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-acc_phonH*
-</td>
-<td style="text-align:left;">
-150.1
-</td>
-<td style="text-align:left;">
-65.9
-</td>
-<td style="text-align:left;">
-234.2
-</td>
-<td style="text-align:left;">
-28.407
-</td>
-<td style="text-align:left;">
-5.282
-</td>
-<td style="text-align:left;">
-3.44
-</td>
-<td style="text-align:left;">
-0.009
-</td>
-<td style="text-align:left;">
-0.012
+0.046
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -2425,34 +2740,96 @@ p&lt;0.05
 </tr>
 <tr>
 <td style="text-align:left;">
+acc_phon&amp;gt;H*
+</td>
+<td style="text-align:left;">
+151.3
+</td>
+<td style="text-align:left;">
+26.1
+</td>
+<td style="text-align:left;">
+276.6
+</td>
+<td style="text-align:left;">
+32.556
+</td>
+<td style="text-align:left;">
+4.649
+</td>
+<td style="text-align:left;">
+2.27
+</td>
+<td style="text-align:left;">
+0.034
+</td>
+<td style="text-align:left;">
+0.061
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+acc_phonH*
+</td>
+<td style="text-align:left;">
+108.1
+</td>
+<td style="text-align:left;">
+-21
+</td>
+<td style="text-align:left;">
+237.1
+</td>
+<td style="text-align:left;">
+32.138
+</td>
+<td style="text-align:left;">
+3.363
+</td>
+<td style="text-align:left;">
+2.16
+</td>
+<td style="text-align:left;">
+0.07
+</td>
+<td style="text-align:left;">
+0.103
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 ana_syls0
 </td>
 <td style="text-align:left;">
-227.1
+186.2
 </td>
 <td style="text-align:left;">
-142.3
+57.3
 </td>
 <td style="text-align:left;">
-311.8
+315.1
 </td>
 <td style="text-align:left;">
-28.194
+32.165
 </td>
 <td style="text-align:left;">
-8.054
+5.789
 </td>
 <td style="text-align:left;">
-3.34
+2.16
 </td>
 <td style="text-align:left;">
-0.003
+0.024
 </td>
 <td style="text-align:left;">
-0.004
+0.046
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2460,28 +2837,28 @@ p&lt;0.01
 ana_syls1
 </td>
 <td style="text-align:left;">
-160.1
+152
 </td>
 <td style="text-align:left;">
-119.3
+112.5
 </td>
 <td style="text-align:left;">
-201
+191.5
 </td>
 <td style="text-align:left;">
-17.243
+16.164
 </td>
 <td style="text-align:left;">
-9.287
+9.403
 </td>
 <td style="text-align:left;">
-6.9
+6.02
 </td>
 <td style="text-align:left;">
-3.8e-05
+8.0e-05
 </td>
 <td style="text-align:left;">
-7.3e-05
+2.4e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2492,28 +2869,28 @@ p&lt;0.001
 ana_syls2
 </td>
 <td style="text-align:left;">
-223.5
+224.3
 </td>
 <td style="text-align:left;">
-140.5
+151.9
 </td>
 <td style="text-align:left;">
-306.5
+296.8
 </td>
 <td style="text-align:left;">
-28.888
+22.977
 </td>
 <td style="text-align:left;">
-7.736
+9.763
 </td>
 <td style="text-align:left;">
-3.69
+3.05
 </td>
 <td style="text-align:left;">
 0.002
 </td>
 <td style="text-align:left;">
-0.003
+0.006
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2524,28 +2901,28 @@ p&lt;0.01
 ana_syls3
 </td>
 <td style="text-align:left;">
-236.4
+237.4
 </td>
 <td style="text-align:left;">
-153.5
+165
 </td>
 <td style="text-align:left;">
-319.4
+309.9
 </td>
 <td style="text-align:left;">
-28.892
+22.982
 </td>
 <td style="text-align:left;">
-8.184
+10.331
 </td>
 <td style="text-align:left;">
-3.69
+3.05
 </td>
 <td style="text-align:left;">
 0.002
 </td>
 <td style="text-align:left;">
-0.003
+0.005
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -2556,31 +2933,31 @@ p&lt;0.01
 foot_syls1
 </td>
 <td style="text-align:left;">
-227.1
+186.2
 </td>
 <td style="text-align:left;">
-142.3
+57.3
 </td>
 <td style="text-align:left;">
-311.8
+315.1
 </td>
 <td style="text-align:left;">
-28.194
+32.165
 </td>
 <td style="text-align:left;">
-8.054
+5.789
 </td>
 <td style="text-align:left;">
-3.34
+2.16
 </td>
 <td style="text-align:left;">
-0.003
+0.024
 </td>
 <td style="text-align:left;">
-0.004
+0.046
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2588,31 +2965,31 @@ p&lt;0.01
 foot_syls2
 </td>
 <td style="text-align:left;">
-258.1
+217.3
 </td>
 <td style="text-align:left;">
-173.2
+85.3
 </td>
 <td style="text-align:left;">
-342.9
+349.3
 </td>
 <td style="text-align:left;">
-28.161
+31.837
 </td>
 <td style="text-align:left;">
-9.164
+6.825
 </td>
 <td style="text-align:left;">
-3.32
+2.08
 </td>
 <td style="text-align:left;">
-0.002
+0.019
 </td>
 <td style="text-align:left;">
-0.003
+0.042
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2620,31 +2997,31 @@ p&lt;0.01
 foot_syls3
 </td>
 <td style="text-align:left;">
-282.6
+239.3
 </td>
 <td style="text-align:left;">
-197.8
+117.6
 </td>
 <td style="text-align:left;">
-367.5
+361.1
 </td>
 <td style="text-align:left;">
-28.158
+32.975
 </td>
 <td style="text-align:left;">
-10.037
+7.258
 </td>
 <td style="text-align:left;">
-3.32
+2.39
 </td>
 <td style="text-align:left;">
-0.001
+0.011
 </td>
 <td style="text-align:left;">
-0.002
+0.027
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2652,31 +3029,31 @@ p&lt;0.01
 foot_syls4
 </td>
 <td style="text-align:left;">
-296.4
+253.8
 </td>
 <td style="text-align:left;">
-212.9
+129.3
 </td>
 <td style="text-align:left;">
-379.8
+378.3
 </td>
 <td style="text-align:left;">
-28.672
+32.644
 </td>
 <td style="text-align:left;">
-10.336
+7.775
 </td>
 <td style="text-align:left;">
-3.58
+2.29
 </td>
 <td style="text-align:left;">
-8.6e-04
+0.011
 </td>
 <td style="text-align:left;">
-0.002
+0.027
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2684,31 +3061,31 @@ p&lt;0.01
 wrd_end_syl1
 </td>
 <td style="text-align:left;">
-227.1
+186.2
 </td>
 <td style="text-align:left;">
-142.3
+57.3
 </td>
 <td style="text-align:left;">
-311.8
+315.1
 </td>
 <td style="text-align:left;">
-28.194
+32.165
 </td>
 <td style="text-align:left;">
-8.054
+5.789
 </td>
 <td style="text-align:left;">
-3.34
+2.16
 </td>
 <td style="text-align:left;">
-0.003
+0.024
 </td>
 <td style="text-align:left;">
-0.004
+0.046
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2716,31 +3093,31 @@ p&lt;0.01
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
-213.1
+173.2
 </td>
 <td style="text-align:left;">
-129.7
+47.9
 </td>
 <td style="text-align:left;">
-296.4
+298.4
 </td>
 <td style="text-align:left;">
-28.736
+32.559
 </td>
 <td style="text-align:left;">
-7.415
+5.319
 </td>
 <td style="text-align:left;">
-3.61
+2.27
 </td>
 <td style="text-align:left;">
-0.003
+0.025
 </td>
 <td style="text-align:left;">
-0.004
+0.047
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -2748,39 +3125,38 @@ p&lt;0.01
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
-240.7
+200.6
 </td>
 <td style="text-align:left;">
-159
+82.5
 </td>
 <td style="text-align:left;">
-322.4
+318.7
 </td>
 <td style="text-align:left;">
-29.572
+33.508
 </td>
 <td style="text-align:left;">
-8.14
+5.987
 </td>
 <td style="text-align:left;">
-4.05
+2.55
 </td>
 <td style="text-align:left;">
-0.001
+0.015
 </td>
 <td style="text-align:left;">
-0.002
+0.035
 </td>
 <td style="text-align:left;">
-p&lt;0.01
+p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-3. l_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text)
+4. l_f0 ~ acc_phon + ana_syls + foot_syls + pn_new_word + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -2822,28 +3198,28 @@ signif.
 ana_syls0
 </td>
 <td style="text-align:left;">
-85.9
+85.2
 </td>
 <td style="text-align:left;">
-82.8
+82.2
 </td>
 <td style="text-align:left;">
-89
+88.3
 </td>
 <td style="text-align:left;">
-1.415
+1.373
 </td>
 <td style="text-align:left;">
-60.738
+62.079
 </td>
 <td style="text-align:left;">
-11.57
+10.82
 </td>
 <td style="text-align:left;">
-7.4e-16
+3.7e-15
 </td>
 <td style="text-align:left;">
-1.7e-15
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2854,28 +3230,28 @@ p&lt;0.001
 ana_syls1
 </td>
 <td style="text-align:left;">
-86.4
+86.1
 </td>
 <td style="text-align:left;">
-83.4
+83.1
 </td>
 <td style="text-align:left;">
-89.4
+89.1
 </td>
 <td style="text-align:left;">
-1.379
+1.359
 </td>
 <td style="text-align:left;">
-62.628
+63.359
 </td>
 <td style="text-align:left;">
-11.03
+10.4
 </td>
 <td style="text-align:left;">
-2.0e-15
+8.4e-15
 </td>
 <td style="text-align:left;">
-4.0e-15
+3.6e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2886,28 +3262,28 @@ p&lt;0.001
 ana_syls2
 </td>
 <td style="text-align:left;">
-85.4
+85.5
 </td>
 <td style="text-align:left;">
-82.3
+82.4
 </td>
 <td style="text-align:left;">
 88.5
 </td>
 <td style="text-align:left;">
-1.427
+1.372
 </td>
 <td style="text-align:left;">
-59.871
+62.269
 </td>
 <td style="text-align:left;">
-11.97
+10.81
 </td>
 <td style="text-align:left;">
-3.3e-16
+3.7e-15
 </td>
 <td style="text-align:left;">
-9.7e-16
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2921,25 +3297,25 @@ ana_syls3
 85.3
 </td>
 <td style="text-align:left;">
-82.2
+82.3
 </td>
 <td style="text-align:left;">
-88.4
+88.3
 </td>
 <td style="text-align:left;">
-1.427
+1.373
 </td>
 <td style="text-align:left;">
-59.757
+62.159
 </td>
 <td style="text-align:left;">
-11.99
+10.81
 </td>
 <td style="text-align:left;">
-3.3e-16
+3.7e-15
 </td>
 <td style="text-align:left;">
-9.7e-16
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2950,28 +3326,28 @@ p&lt;0.001
 foot_syls1
 </td>
 <td style="text-align:left;">
-85.9
+85.2
 </td>
 <td style="text-align:left;">
-82.8
+82.2
 </td>
 <td style="text-align:left;">
-89
+88.3
 </td>
 <td style="text-align:left;">
-1.415
+1.373
 </td>
 <td style="text-align:left;">
-60.738
+62.079
 </td>
 <td style="text-align:left;">
-11.57
+10.82
 </td>
 <td style="text-align:left;">
-7.4e-16
+3.7e-15
 </td>
 <td style="text-align:left;">
-1.7e-15
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -2982,28 +3358,28 @@ p&lt;0.001
 foot_syls2
 </td>
 <td style="text-align:left;">
-85.8
+85.1
 </td>
 <td style="text-align:left;">
-82.7
+82.1
 </td>
 <td style="text-align:left;">
-88.9
+88.2
 </td>
 <td style="text-align:left;">
-1.414
+1.374
 </td>
 <td style="text-align:left;">
-60.718
+61.949
 </td>
 <td style="text-align:left;">
-11.53
+10.86
 </td>
 <td style="text-align:left;">
-8.3e-16
+3.4e-15
 </td>
 <td style="text-align:left;">
-1.8e-15
+2.3e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -3014,28 +3390,28 @@ p&lt;0.001
 foot_syls3
 </td>
 <td style="text-align:left;">
-85.9
+85
 </td>
 <td style="text-align:left;">
-82.8
+82
 </td>
 <td style="text-align:left;">
-89
+88.1
 </td>
 <td style="text-align:left;">
-1.41
+1.39
 </td>
 <td style="text-align:left;">
-60.901
+61.167
 </td>
 <td style="text-align:left;">
-11.43
+11.37
 </td>
 <td style="text-align:left;">
-1.0e-15
+1.1e-15
 </td>
 <td style="text-align:left;">
-2.1e-15
+1.5e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -3046,124 +3422,28 @@ p&lt;0.001
 foot_syls4
 </td>
 <td style="text-align:left;">
-85.9
+85
 </td>
 <td style="text-align:left;">
-82.8
+81.9
 </td>
 <td style="text-align:left;">
-89
+88
 </td>
 <td style="text-align:left;">
-1.421
+1.368
 </td>
 <td style="text-align:left;">
-60.479
+62.102
 </td>
 <td style="text-align:left;">
-11.77
+10.67
 </td>
 <td style="text-align:left;">
-4.8e-16
+5.3e-15
 </td>
 <td style="text-align:left;">
-1.3e-15
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-85.9
-</td>
-<td style="text-align:left;">
-82.8
-</td>
-<td style="text-align:left;">
-89
-</td>
-<td style="text-align:left;">
-1.415
-</td>
-<td style="text-align:left;">
-60.738
-</td>
-<td style="text-align:left;">
-11.57
-</td>
-<td style="text-align:left;">
-7.4e-16
-</td>
-<td style="text-align:left;">
-1.7e-15
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
-85.7
-</td>
-<td style="text-align:left;">
-82.6
-</td>
-<td style="text-align:left;">
-88.8
-</td>
-<td style="text-align:left;">
-1.427
-</td>
-<td style="text-align:left;">
-60.065
-</td>
-<td style="text-align:left;">
-11.98
-</td>
-<td style="text-align:left;">
-3.1e-16
-</td>
-<td style="text-align:left;">
-9.7e-16
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
-85.5
-</td>
-<td style="text-align:left;">
-82.4
-</td>
-<td style="text-align:left;">
-88.7
-</td>
-<td style="text-align:left;">
-1.442
-</td>
-<td style="text-align:left;">
-59.305
-</td>
-<td style="text-align:left;">
-12.5
-</td>
-<td style="text-align:left;">
-1.1e-16
-</td>
-<td style="text-align:left;">
-4.6e-16
+2.4e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -3173,8 +3453,8 @@ p&lt;0.001
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-4. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | ana_end_t)
+5. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t)
 </caption>
 <thead>
 <tr>
@@ -3216,28 +3496,28 @@ signif.
 ana_syls0
 </td>
 <td style="text-align:left;">
-76.7
+87.5
 </td>
 <td style="text-align:left;">
--5.488
+-142.2
 </td>
 <td style="text-align:left;">
-158.8
+317.2
 </td>
 <td style="text-align:left;">
-30.139
+51.435
 </td>
 <td style="text-align:left;">
-2.544
+1.702
 </td>
 <td style="text-align:left;">
-4.2
+1.93
 </td>
 <td style="text-align:left;">
-0.061
+0.236
 </td>
 <td style="text-align:left;">
-0.066
+0.276
 </td>
 <td style="text-align:left;">
 </td>
@@ -3247,28 +3527,28 @@ ana_syls0
 ana_syls1
 </td>
 <td style="text-align:left;">
-26.3
+28.8
 </td>
 <td style="text-align:left;">
--15.7
+-47.7
 </td>
 <td style="text-align:left;">
-68.3
+105.4
 </td>
 <td style="text-align:left;">
-15.053
+20.638
 </td>
 <td style="text-align:left;">
-1.746
+1.398
 </td>
 <td style="text-align:left;">
-3.95
+2.38
 </td>
 <td style="text-align:left;">
-0.157
+0.278
 </td>
 <td style="text-align:left;">
-0.157
+0.31
 </td>
 <td style="text-align:left;">
 </td>
@@ -3278,28 +3558,28 @@ ana_syls1
 ana_syls2
 </td>
 <td style="text-align:left;">
-70.3
+70.2
 </td>
 <td style="text-align:left;">
--25.9
+-101.8
 </td>
 <td style="text-align:left;">
-166.4
+242.2
 </td>
 <td style="text-align:left;">
-26.191
+32.359
 </td>
 <td style="text-align:left;">
-2.682
+2.168
 </td>
 <td style="text-align:left;">
-2.41
+1.65
 </td>
 <td style="text-align:left;">
-0.095
+0.189
 </td>
 <td style="text-align:left;">
-0.097
+0.241
 </td>
 <td style="text-align:left;">
 </td>
@@ -3309,28 +3589,28 @@ ana_syls2
 ana_syls3
 </td>
 <td style="text-align:left;">
-80.1
+80
 </td>
 <td style="text-align:left;">
--16.1
+-92.2
 </td>
 <td style="text-align:left;">
-176.3
+252.2
 </td>
 <td style="text-align:left;">
-26.178
+32.349
 </td>
 <td style="text-align:left;">
-3.06
+2.474
 </td>
 <td style="text-align:left;">
-2.41
+1.65
 </td>
 <td style="text-align:left;">
-0.073
+0.158
 </td>
 <td style="text-align:left;">
-0.078
+0.21
 </td>
 <td style="text-align:left;">
 </td>
@@ -3340,25 +3620,782 @@ ana_syls3
 foot_syls1
 </td>
 <td style="text-align:left;">
-76.7
+87.5
 </td>
 <td style="text-align:left;">
--5.488
+-142.2
 </td>
 <td style="text-align:left;">
-158.8
+317.2
 </td>
 <td style="text-align:left;">
-30.139
+51.435
 </td>
 <td style="text-align:left;">
-2.544
+1.702
 </td>
 <td style="text-align:left;">
-4.2
+1.93
 </td>
 <td style="text-align:left;">
-0.061
+0.236
+</td>
+<td style="text-align:left;">
+0.276
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+96.4
+</td>
+<td style="text-align:left;">
+-135.9
+</td>
+<td style="text-align:left;">
+328.8
+</td>
+<td style="text-align:left;">
+51.207
+</td>
+<td style="text-align:left;">
+1.883
+</td>
+<td style="text-align:left;">
+1.9
+</td>
+<td style="text-align:left;">
+0.207
+</td>
+<td style="text-align:left;">
+0.26
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+102.9
+</td>
+<td style="text-align:left;">
+-124.3
+</td>
+<td style="text-align:left;">
+330.2
+</td>
+<td style="text-align:left;">
+51.601
+</td>
+<td style="text-align:left;">
+1.995
+</td>
+<td style="text-align:left;">
+1.95
+</td>
+<td style="text-align:left;">
+0.187
+</td>
+<td style="text-align:left;">
+0.241
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+122.1
+</td>
+<td style="text-align:left;">
+-106.5
+</td>
+<td style="text-align:left;">
+350.6
+</td>
+<td style="text-align:left;">
+51.516
+</td>
+<td style="text-align:left;">
+2.369
+</td>
+<td style="text-align:left;">
+1.94
+</td>
+<td style="text-align:left;">
+0.145
+</td>
+<td style="text-align:left;">
+0.197
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+87.5
+</td>
+<td style="text-align:left;">
+-142.2
+</td>
+<td style="text-align:left;">
+317.2
+</td>
+<td style="text-align:left;">
+51.435
+</td>
+<td style="text-align:left;">
+1.702
+</td>
+<td style="text-align:left;">
+1.93
+</td>
+<td style="text-align:left;">
+0.236
+</td>
+<td style="text-align:left;">
+0.276
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+87.3
+</td>
+<td style="text-align:left;">
+-139.9
+</td>
+<td style="text-align:left;">
+314.5
+</td>
+<td style="text-align:left;">
+51.626
+</td>
+<td style="text-align:left;">
+1.691
+</td>
+<td style="text-align:left;">
+1.95
+</td>
+<td style="text-align:left;">
+0.236
+</td>
+<td style="text-align:left;">
+0.276
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+79.6
+</td>
+<td style="text-align:left;">
+-144
+</td>
+<td style="text-align:left;">
+303.3
+</td>
+<td style="text-align:left;">
+51.895
+</td>
+<td style="text-align:left;">
+1.534
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+0.265
+</td>
+<td style="text-align:left;">
+0.3
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+6. log_lh_slope ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+t.value
+</th>
+<th style="text-align:left;">
+df
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+2.784
+</td>
+<td style="text-align:left;">
+-0.107
+</td>
+<td style="text-align:left;">
+5.676
+</td>
+<td style="text-align:left;">
+0.453
+</td>
+<td style="text-align:left;">
+6.149
+</td>
+<td style="text-align:left;">
+1.44
+</td>
+<td style="text-align:left;">
+0.053
+</td>
+<td style="text-align:left;">
+0.085
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+2.453
+</td>
+<td style="text-align:left;">
+-0.514
+</td>
+<td style="text-align:left;">
+5.421
+</td>
+<td style="text-align:left;">
+0.449
+</td>
+<td style="text-align:left;">
+5.461
+</td>
+<td style="text-align:left;">
+1.41
+</td>
+<td style="text-align:left;">
+0.065
+</td>
+<td style="text-align:left;">
+0.097
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+2.566
+</td>
+<td style="text-align:left;">
+-0.16
+</td>
+<td style="text-align:left;">
+5.291
+</td>
+<td style="text-align:left;">
+0.458
+</td>
+<td style="text-align:left;">
+5.6
+</td>
+<td style="text-align:left;">
+1.51
+</td>
+<td style="text-align:left;">
+0.055
+</td>
+<td style="text-align:left;">
+0.086
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+2.603
+</td>
+<td style="text-align:left;">
+-0.218
+</td>
+<td style="text-align:left;">
+5.424
+</td>
+<td style="text-align:left;">
+0.455
+</td>
+<td style="text-align:left;">
+5.72
+</td>
+<td style="text-align:left;">
+1.47
+</td>
+<td style="text-align:left;">
+0.056
+</td>
+<td style="text-align:left;">
+0.086
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+2.784
+</td>
+<td style="text-align:left;">
+-0.107
+</td>
+<td style="text-align:left;">
+5.676
+</td>
+<td style="text-align:left;">
+0.453
+</td>
+<td style="text-align:left;">
+6.149
+</td>
+<td style="text-align:left;">
+1.44
+</td>
+<td style="text-align:left;">
+0.053
+</td>
+<td style="text-align:left;">
+0.085
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+2.756
+</td>
+<td style="text-align:left;">
+2.06
+</td>
+<td style="text-align:left;">
+3.451
+</td>
+<td style="text-align:left;">
+0.211
+</td>
+<td style="text-align:left;">
+13.086
+</td>
+<td style="text-align:left;">
+2.82
+</td>
+<td style="text-align:left;">
+0.001
+</td>
+<td style="text-align:left;">
+0.004
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+3.246
+</td>
+<td style="text-align:left;">
+1.528
+</td>
+<td style="text-align:left;">
+4.964
+</td>
+<td style="text-align:left;">
+0.3
+</td>
+<td style="text-align:left;">
+10.811
+</td>
+<td style="text-align:left;">
+1.56
+</td>
+<td style="text-align:left;">
+0.019
+</td>
+<td style="text-align:left;">
+0.042
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+3.107
+</td>
+<td style="text-align:left;">
+1.389
+</td>
+<td style="text-align:left;">
+4.826
+</td>
+<td style="text-align:left;">
+0.3
+</td>
+<td style="text-align:left;">
+10.349
+</td>
+<td style="text-align:left;">
+1.56
+</td>
+<td style="text-align:left;">
+0.02
+</td>
+<td style="text-align:left;">
+0.044
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+2.784
+</td>
+<td style="text-align:left;">
+-0.107
+</td>
+<td style="text-align:left;">
+5.676
+</td>
+<td style="text-align:left;">
+0.453
+</td>
+<td style="text-align:left;">
+6.149
+</td>
+<td style="text-align:left;">
+1.44
+</td>
+<td style="text-align:left;">
+0.053
+</td>
+<td style="text-align:left;">
+0.085
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+2.93
+</td>
+<td style="text-align:left;">
+0.157
+</td>
+<td style="text-align:left;">
+5.702
+</td>
+<td style="text-align:left;">
+0.457
+</td>
+<td style="text-align:left;">
+6.413
+</td>
+<td style="text-align:left;">
+1.49
+</td>
+<td style="text-align:left;">
+0.046
+</td>
+<td style="text-align:left;">
+0.08
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+3.011
+</td>
+<td style="text-align:left;">
+0.404
+</td>
+<td style="text-align:left;">
+5.618
+</td>
+<td style="text-align:left;">
+0.463
+</td>
+<td style="text-align:left;">
+6.505
+</td>
+<td style="text-align:left;">
+1.57
+</td>
+<td style="text-align:left;">
+0.04
+</td>
+<td style="text-align:left;">
+0.071
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="b.-beta_1-1" class="section level4">
+<h4>b. <span class="math inline">\(\beta_1\)</span></h4>
+<table class="table" style="width: auto !important; ">
+<caption>
+1. f0_exc ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl + gender +
+(1 | speaker) + (1 | ana_text) + (1 | foot_dur)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+slope
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+t.value
+</th>
+<th style="text-align:left;">
+df
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+0.107
+</td>
+<td style="text-align:left;">
+-0.293
+</td>
+<td style="text-align:left;">
+0.507
+</td>
+<td style="text-align:left;">
+0.204
+</td>
+<td style="text-align:left;">
+0.527
+</td>
+<td style="text-align:left;">
+453.18
+</td>
+<td style="text-align:left;">
+0.599
+</td>
+<td style="text-align:left;">
+0.78
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+0.59
+</td>
+<td style="text-align:left;">
+0.182
+</td>
+<td style="text-align:left;">
+0.998
+</td>
+<td style="text-align:left;">
+0.208
+</td>
+<td style="text-align:left;">
+2.841
+</td>
+<td style="text-align:left;">
+455.38
+</td>
+<td style="text-align:left;">
+0.005
+</td>
+<td style="text-align:left;">
+0.023
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+0.423
+</td>
+<td style="text-align:left;">
+-0.013
+</td>
+<td style="text-align:left;">
+0.859
+</td>
+<td style="text-align:left;">
+0.222
+</td>
+<td style="text-align:left;">
+1.906
+</td>
+<td style="text-align:left;">
+439.37
+</td>
+<td style="text-align:left;">
+0.057
+</td>
+<td style="text-align:left;">
+0.173
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+0.483
+</td>
+<td style="text-align:left;">
+0.084
+</td>
+<td style="text-align:left;">
+0.881
+</td>
+<td style="text-align:left;">
+0.203
+</td>
+<td style="text-align:left;">
+2.378
+</td>
+<td style="text-align:left;">
+463.15
+</td>
+<td style="text-align:left;">
+0.018
 </td>
 <td style="text-align:left;">
 0.066
@@ -3371,28 +4408,31 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
-85.6
+foot_syls4
 </td>
 <td style="text-align:left;">
-3.344
+0.316
 </td>
 <td style="text-align:left;">
-167.8
+-0.133
 </td>
 <td style="text-align:left;">
-30.096
+0.765
 </td>
 <td style="text-align:left;">
-2.843
+0.228
 </td>
 <td style="text-align:left;">
-4.17
+1.382
 </td>
 <td style="text-align:left;">
-0.044
+451.62
 </td>
 <td style="text-align:left;">
-0.052
+0.168
+</td>
+<td style="text-align:left;">
+0.384
 </td>
 <td style="text-align:left;">
 </td>
@@ -3402,63 +4442,237 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
-91.8
+foot_syls4
 </td>
 <td style="text-align:left;">
-9.481
+-0.167
 </td>
 <td style="text-align:left;">
-174.2
+-0.493
 </td>
 <td style="text-align:left;">
-30.003
+0.16
 </td>
 <td style="text-align:left;">
-3.06
+0.166
 </td>
 <td style="text-align:left;">
-4.12
+-1.004
 </td>
 <td style="text-align:left;">
-0.036
+464.46
 </td>
 <td style="text-align:left;">
-0.044
+0.316
 </td>
 <td style="text-align:left;">
-p&lt;0.05
+0.591
+</td>
+<td style="text-align:left;">
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-foot_syls4
+ana_syls0
 </td>
 <td style="text-align:left;">
-111.1
+ana_syls1
 </td>
 <td style="text-align:left;">
-29.2
+0.231
 </td>
 <td style="text-align:left;">
-193.1
+-7.83
 </td>
 <td style="text-align:left;">
-30.268
+8.292
 </td>
 <td style="text-align:left;">
-3.672
+1.187
 </td>
 <td style="text-align:left;">
-4.27
+0.194
 </td>
 <td style="text-align:left;">
-0.019
+1.38
 </td>
 <td style="text-align:left;">
-0.024
+0.871
 </td>
 <td style="text-align:left;">
-p&lt;0.05
+0.906
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+2.03
+</td>
+<td style="text-align:left;">
+-7.716
+</td>
+<td style="text-align:left;">
+11.8
+</td>
+<td style="text-align:left;">
+1.556
+</td>
+<td style="text-align:left;">
+1.305
+</td>
+<td style="text-align:left;">
+1.46
+</td>
+<td style="text-align:left;">
+0.361
+</td>
+<td style="text-align:left;">
+0.616
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+1.603
+</td>
+<td style="text-align:left;">
+-8.151
+</td>
+<td style="text-align:left;">
+11.4
+</td>
+<td style="text-align:left;">
+1.556
+</td>
+<td style="text-align:left;">
+1.031
+</td>
+<td style="text-align:left;">
+1.46
+</td>
+<td style="text-align:left;">
+0.444
+</td>
+<td style="text-align:left;">
+0.648
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+1.799
+</td>
+<td style="text-align:left;">
+-3.867
+</td>
+<td style="text-align:left;">
+7.466
+</td>
+<td style="text-align:left;">
+1.005
+</td>
+<td style="text-align:left;">
+1.79
+</td>
+<td style="text-align:left;">
+1.57
+</td>
+<td style="text-align:left;">
+0.248
+</td>
+<td style="text-align:left;">
+0.511
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+1.372
+</td>
+<td style="text-align:left;">
+-4.3
+</td>
+<td style="text-align:left;">
+7.045
+</td>
+<td style="text-align:left;">
+1.005
+</td>
+<td style="text-align:left;">
+1.366
+</td>
+<td style="text-align:left;">
+1.57
+</td>
+<td style="text-align:left;">
+0.335
+</td>
+<td style="text-align:left;">
+0.595
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+-0.427
+</td>
+<td style="text-align:left;">
+-8.315
+</td>
+<td style="text-align:left;">
+7.461
+</td>
+<td style="text-align:left;">
+1.192
+</td>
+<td style="text-align:left;">
+-0.358
+</td>
+<td style="text-align:left;">
+1.41
+</td>
+<td style="text-align:left;">
+0.767
+</td>
+<td style="text-align:left;">
+0.877
+</td>
+<td style="text-align:left;">
 </td>
 </tr>
 <tr>
@@ -3466,30 +4680,68 @@ p&lt;0.05
 wrd_end_syl1
 </td>
 <td style="text-align:left;">
-76.7
+wrd_end_syl2
 </td>
 <td style="text-align:left;">
--5.488
+0.104
 </td>
 <td style="text-align:left;">
-158.8
+-0.179
 </td>
 <td style="text-align:left;">
-30.139
+0.388
 </td>
 <td style="text-align:left;">
-2.544
+0.144
 </td>
 <td style="text-align:left;">
-4.2
+0.721
 </td>
 <td style="text-align:left;">
-0.061
+459.93
 </td>
 <td style="text-align:left;">
-0.066
+0.471
 </td>
 <td style="text-align:left;">
+0.656
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+1.063
+</td>
+<td style="text-align:left;">
+0.608
+</td>
+<td style="text-align:left;">
+1.518
+</td>
+<td style="text-align:left;">
+0.232
+</td>
+<td style="text-align:left;">
+4.589
+</td>
+<td style="text-align:left;">
+462.79
+</td>
+<td style="text-align:left;">
+5.7e-06
+</td>
+<td style="text-align:left;">
+5.9e-05
+</td>
+<td style="text-align:left;">
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -3497,72 +4749,110 @@ wrd_end_syl1
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
-76.5
+wrd_end_syl3
 </td>
 <td style="text-align:left;">
--5.284
+0.959
 </td>
 <td style="text-align:left;">
-158.2
+0.599
 </td>
 <td style="text-align:left;">
-30.483
+1.319
 </td>
 <td style="text-align:left;">
-2.508
+0.183
 </td>
 <td style="text-align:left;">
-4.39
+5.231
 </td>
 <td style="text-align:left;">
-0.061
+467.3
 </td>
 <td style="text-align:left;">
-0.066
+2.6e-07
+</td>
+<td style="text-align:left;">
+5.3e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+pn_new_word0
+</td>
+<td style="text-align:left;">
+0.941
+</td>
+<td style="text-align:left;">
+-4.68
+</td>
+<td style="text-align:left;">
+6.563
+</td>
+<td style="text-align:left;">
+1.007
+</td>
+<td style="text-align:left;">
+0.935
+</td>
+<td style="text-align:left;">
+1.59
+</td>
+<td style="text-align:left;">
+0.47
+</td>
+<td style="text-align:left;">
+0.656
 </td>
 <td style="text-align:left;">
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-wrd_end_syl3
+intercept
 </td>
 <td style="text-align:left;">
-68.7
+genderM
 </td>
 <td style="text-align:left;">
--12.7
+0.513
 </td>
 <td style="text-align:left;">
-150.1
+-0.07
 </td>
 <td style="text-align:left;">
-30.829
+1.097
 </td>
 <td style="text-align:left;">
-2.229
+0.259
 </td>
 <td style="text-align:left;">
-4.6
+1.983
 </td>
 <td style="text-align:left;">
-0.081
+9.21
 </td>
 <td style="text-align:left;">
-0.084
+0.078
+</td>
+<td style="text-align:left;">
+0.223
 </td>
 <td style="text-align:left;">
 </td>
 </tr>
 </tbody>
 </table>
-</div>
-<div id="b.-beta_1-1" class="section level4">
-<h4>b. <span class="math inline">\(\beta_1\)</span></h4>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text)
+2. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+(1 | speaker) + (1 | ana_text)
 </caption>
 <thead>
 <tr>
@@ -3610,28 +4900,28 @@ acc_phonL*H
 acc_phon&amp;gt;H*
 </td>
 <td style="text-align:left;">
-0.086
+0.098
 </td>
 <td style="text-align:left;">
--0.387
+-0.377
 </td>
 <td style="text-align:left;">
-0.559
+0.573
 </td>
 <td style="text-align:left;">
-0.241
+0.242
 </td>
 <td style="text-align:left;">
-0.358
+0.405
 </td>
 <td style="text-align:left;">
-717.13
+715.08
 </td>
 <td style="text-align:left;">
-0.721
+0.685
 </td>
 <td style="text-align:left;">
-0.955
+0.842
 </td>
 <td style="text-align:left;">
 </td>
@@ -3644,28 +4934,28 @@ acc_phonL*H
 acc_phonH*
 </td>
 <td style="text-align:left;">
-0.041
+0.044
 </td>
 <td style="text-align:left;">
 -0.329
 </td>
 <td style="text-align:left;">
-0.41
+0.416
 </td>
 <td style="text-align:left;">
-0.188
+0.19
 </td>
 <td style="text-align:left;">
-0.217
+0.23
 </td>
 <td style="text-align:left;">
-713.67
+714.51
 </td>
 <td style="text-align:left;">
-0.828
+0.818
 </td>
 <td style="text-align:left;">
-0.955
+0.878
 </td>
 <td style="text-align:left;">
 </td>
@@ -3678,28 +4968,28 @@ acc_phon&amp;gt;H*
 acc_phonH*
 </td>
 <td style="text-align:left;">
--0.045
+-0.054
 </td>
 <td style="text-align:left;">
--0.548
+-0.557
 </td>
 <td style="text-align:left;">
-0.457
+0.449
 </td>
 <td style="text-align:left;">
 0.256
 </td>
 <td style="text-align:left;">
--0.177
+-0.212
 </td>
 <td style="text-align:left;">
-715.25
+714.24
 </td>
 <td style="text-align:left;">
-0.859
+0.832
 </td>
 <td style="text-align:left;">
-0.955
+0.883
 </td>
 <td style="text-align:left;">
 </td>
@@ -3712,28 +5002,28 @@ ana_syls0
 ana_syls1
 </td>
 <td style="text-align:left;">
-0.212
+0.615
 </td>
 <td style="text-align:left;">
--2.103
+-4.527
 </td>
 <td style="text-align:left;">
-2.528
+5.758
 </td>
 <td style="text-align:left;">
-0.484
+0.607
 </td>
 <td style="text-align:left;">
-0.439
+1.014
 </td>
 <td style="text-align:left;">
-1.8
+1.21
 </td>
 <td style="text-align:left;">
-0.708
+0.471
 </td>
 <td style="text-align:left;">
-0.955
+0.656
 </td>
 <td style="text-align:left;">
 </td>
@@ -3746,28 +5036,28 @@ ana_syls0
 ana_syls2
 </td>
 <td style="text-align:left;">
-0.2
+0.762
 </td>
 <td style="text-align:left;">
--2.389
+-4.525
 </td>
 <td style="text-align:left;">
-2.788
+6.05
 </td>
 <td style="text-align:left;">
-0.635
+0.819
 </td>
 <td style="text-align:left;">
-0.315
+0.931
 </td>
 <td style="text-align:left;">
-2.12
+1.43
 </td>
 <td style="text-align:left;">
-0.781
+0.482
 </td>
 <td style="text-align:left;">
-0.955
+0.662
 </td>
 <td style="text-align:left;">
 </td>
@@ -3780,28 +5070,28 @@ ana_syls0
 ana_syls3
 </td>
 <td style="text-align:left;">
--0.505
+0.057
 </td>
 <td style="text-align:left;">
--3.082
+-5.208
 </td>
 <td style="text-align:left;">
-2.072
+5.323
 </td>
 <td style="text-align:left;">
-0.636
+0.82
 </td>
 <td style="text-align:left;">
--0.794
+0.07
 </td>
 <td style="text-align:left;">
-2.13
+1.43
 </td>
 <td style="text-align:left;">
-0.506
+0.953
 </td>
 <td style="text-align:left;">
-0.738
+0.959
 </td>
 <td style="text-align:left;">
 </td>
@@ -3814,28 +5104,28 @@ ana_syls1
 ana_syls2
 </td>
 <td style="text-align:left;">
--0.013
+0.147
 </td>
 <td style="text-align:left;">
--1.836
+-2.524
 </td>
 <td style="text-align:left;">
-1.81
+2.818
 </td>
 <td style="text-align:left;">
-0.535
+0.55
 </td>
 <td style="text-align:left;">
--0.024
+0.267
 </td>
 <td style="text-align:left;">
-2.68
+1.78
 </td>
 <td style="text-align:left;">
-0.983
+0.817
 </td>
 <td style="text-align:left;">
-0.983
+0.878
 </td>
 <td style="text-align:left;">
 </td>
@@ -3848,28 +5138,28 @@ ana_syls1
 ana_syls3
 </td>
 <td style="text-align:left;">
--0.717
+-0.558
 </td>
 <td style="text-align:left;">
--2.534
+-3.212
 </td>
 <td style="text-align:left;">
-1.099
+2.096
 </td>
 <td style="text-align:left;">
-0.536
+0.551
 </td>
 <td style="text-align:left;">
--1.338
+-1.012
 </td>
 <td style="text-align:left;">
-2.7
+1.79
 </td>
 <td style="text-align:left;">
-0.282
+0.428
 </td>
 <td style="text-align:left;">
-0.504
+0.648
 </td>
 <td style="text-align:left;">
 </td>
@@ -3885,25 +5175,25 @@ ana_syls3
 -0.705
 </td>
 <td style="text-align:left;">
--3.167
+-4.573
 </td>
 <td style="text-align:left;">
-1.757
+3.163
+</td>
+<td style="text-align:left;">
+0.639
+</td>
+<td style="text-align:left;">
+-1.103
+</td>
+<td style="text-align:left;">
+1.49
+</td>
+<td style="text-align:left;">
+0.416
 </td>
 <td style="text-align:left;">
 0.648
-</td>
-<td style="text-align:left;">
--1.088
-</td>
-<td style="text-align:left;">
-2.3
-</td>
-<td style="text-align:left;">
-0.377
-</td>
-<td style="text-align:left;">
-0.628
 </td>
 <td style="text-align:left;">
 </td>
@@ -3916,28 +5206,28 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
-0.254
+0.276
 </td>
 <td style="text-align:left;">
--0.168
+-0.147
 </td>
 <td style="text-align:left;">
-0.676
+0.7
 </td>
 <td style="text-align:left;">
 0.215
 </td>
 <td style="text-align:left;">
-1.184
+1.283
 </td>
 <td style="text-align:left;">
-518.58
+471.63
 </td>
 <td style="text-align:left;">
-0.237
+0.2
 </td>
 <td style="text-align:left;">
-0.461
+0.439
 </td>
 <td style="text-align:left;">
 </td>
@@ -3950,28 +5240,28 @@ foot_syls1
 foot_syls3
 </td>
 <td style="text-align:left;">
-0.873
+0.814
 </td>
 <td style="text-align:left;">
-0.383
+0.311
 </td>
 <td style="text-align:left;">
-1.363
+1.318
 </td>
 <td style="text-align:left;">
-0.249
+0.256
 </td>
 <td style="text-align:left;">
-3.502
+3.177
 </td>
 <td style="text-align:left;">
-368.87
+714.42
 </td>
 <td style="text-align:left;">
-5.2e-04
+0.002
 </td>
 <td style="text-align:left;">
-0.003
+0.009
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -3985,28 +5275,28 @@ foot_syls1
 foot_syls4
 </td>
 <td style="text-align:left;">
-0.701
+0.715
 </td>
 <td style="text-align:left;">
-0.128
+0.141
 </td>
 <td style="text-align:left;">
-1.275
+1.289
 </td>
 <td style="text-align:left;">
 0.292
 </td>
 <td style="text-align:left;">
-2.401
+2.445
 </td>
 <td style="text-align:left;">
-713.96
+712.97
 </td>
 <td style="text-align:left;">
-0.017
+0.015
 </td>
 <td style="text-align:left;">
-0.063
+0.061
 </td>
 <td style="text-align:left;">
 </td>
@@ -4019,28 +5309,725 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
-0.619
+0.538
 </td>
 <td style="text-align:left;">
-0.153
+0.049
 </td>
 <td style="text-align:left;">
-1.085
+1.027
 </td>
 <td style="text-align:left;">
-0.236
+0.249
 </td>
 <td style="text-align:left;">
-2.622
+2.162
 </td>
 <td style="text-align:left;">
-170.49
+697.73
 </td>
 <td style="text-align:left;">
-0.01
+0.031
 </td>
 <td style="text-align:left;">
-0.041
+0.103
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+0.438
+</td>
+<td style="text-align:left;">
+-0.128
+</td>
+<td style="text-align:left;">
+1.005
+</td>
+<td style="text-align:left;">
+0.289
+</td>
+<td style="text-align:left;">
+1.519
+</td>
+<td style="text-align:left;">
+650.78
+</td>
+<td style="text-align:left;">
+0.129
+</td>
+<td style="text-align:left;">
+0.333
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+-0.1
+</td>
+<td style="text-align:left;">
+-0.573
+</td>
+<td style="text-align:left;">
+0.373
+</td>
+<td style="text-align:left;">
+0.241
+</td>
+<td style="text-align:left;">
+-0.413
+</td>
+<td style="text-align:left;">
+714.96
+</td>
+<td style="text-align:left;">
+0.68
+</td>
+<td style="text-align:left;">
+0.842
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+0.047
+</td>
+<td style="text-align:left;">
+-0.357
+</td>
+<td style="text-align:left;">
+0.452
+</td>
+<td style="text-align:left;">
+0.206
+</td>
+<td style="text-align:left;">
+0.229
+</td>
+<td style="text-align:left;">
+713.15
+</td>
+<td style="text-align:left;">
+0.819
+</td>
+<td style="text-align:left;">
+0.878
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+0.516
+</td>
+<td style="text-align:left;">
+-0.159
+</td>
+<td style="text-align:left;">
+1.19
+</td>
+<td style="text-align:left;">
+0.343
+</td>
+<td style="text-align:left;">
+1.501
+</td>
+<td style="text-align:left;">
+714.81
+</td>
+<td style="text-align:left;">
+0.134
+</td>
+<td style="text-align:left;">
+0.336
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+0.468
+</td>
+<td style="text-align:left;">
+-0.073
+</td>
+<td style="text-align:left;">
+1.01
+</td>
+<td style="text-align:left;">
+0.276
+</td>
+<td style="text-align:left;">
+1.699
+</td>
+<td style="text-align:left;">
+714.84
+</td>
+<td style="text-align:left;">
+0.09
+</td>
+<td style="text-align:left;">
+0.25
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+pn_new_word0
+</td>
+<td style="text-align:left;">
+0.583
+</td>
+<td style="text-align:left;">
+-2.123
+</td>
+<td style="text-align:left;">
+3.289
+</td>
+<td style="text-align:left;">
+0.546
+</td>
+<td style="text-align:left;">
+1.068
+</td>
+<td style="text-align:left;">
+1.75
+</td>
+<td style="text-align:left;">
+0.411
+</td>
+<td style="text-align:left;">
+0.648
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+3. h_t ~ acc_phon + ana_syls + foot_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+slope
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+t.value
+</th>
+<th style="text-align:left;">
+df
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+acc_phonL*H
+</td>
+<td style="text-align:left;">
+acc_phon&amp;gt;H*
+</td>
+<td style="text-align:left;">
+-34.9
+</td>
+<td style="text-align:left;">
+-48.3
+</td>
+<td style="text-align:left;">
+-21.5
+</td>
+<td style="text-align:left;">
+6.833
+</td>
+<td style="text-align:left;">
+-5.103
+</td>
+<td style="text-align:left;">
+708.68
+</td>
+<td style="text-align:left;">
+4.3e-07
+</td>
+<td style="text-align:left;">
+7.4e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+acc_phonL*H
+</td>
+<td style="text-align:left;">
+acc_phonH*
+</td>
+<td style="text-align:left;">
+-78.1
+</td>
+<td style="text-align:left;">
+-88.7
+</td>
+<td style="text-align:left;">
+-67.6
+</td>
+<td style="text-align:left;">
+5.371
+</td>
+<td style="text-align:left;">
+-14.547
+</td>
+<td style="text-align:left;">
+716.44
+</td>
+<td style="text-align:left;">
+3.4e-42
+</td>
+<td style="text-align:left;">
+3.5e-40
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+acc_phon&amp;gt;H*
+</td>
+<td style="text-align:left;">
+acc_phonH*
+</td>
+<td style="text-align:left;">
+-43.3
+</td>
+<td style="text-align:left;">
+-57.5
+</td>
+<td style="text-align:left;">
+-29
+</td>
+<td style="text-align:left;">
+7.241
+</td>
+<td style="text-align:left;">
+-5.974
+</td>
+<td style="text-align:left;">
+708.62
+</td>
+<td style="text-align:left;">
+3.7e-09
+</td>
+<td style="text-align:left;">
+9.4e-08
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+-34.2
+</td>
+<td style="text-align:left;">
+-181.1
+</td>
+<td style="text-align:left;">
+112.7
+</td>
+<td style="text-align:left;">
+27.814
+</td>
+<td style="text-align:left;">
+-1.231
+</td>
+<td style="text-align:left;">
+1.66
+</td>
+<td style="text-align:left;">
+0.365
+</td>
+<td style="text-align:left;">
+0.616
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+38.1
+</td>
+<td style="text-align:left;">
+-139.6
+</td>
+<td style="text-align:left;">
+215.8
+</td>
+<td style="text-align:left;">
+36.58
+</td>
+<td style="text-align:left;">
+1.042
+</td>
+<td style="text-align:left;">
+1.78
+</td>
+<td style="text-align:left;">
+0.418
+</td>
+<td style="text-align:left;">
+0.648
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+51.2
+</td>
+<td style="text-align:left;">
+-126.5
+</td>
+<td style="text-align:left;">
+228.9
+</td>
+<td style="text-align:left;">
+36.578
+</td>
+<td style="text-align:left;">
+1.4
+</td>
+<td style="text-align:left;">
+1.78
+</td>
+<td style="text-align:left;">
+0.31
+</td>
+<td style="text-align:left;">
+0.591
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+72.3
+</td>
+<td style="text-align:left;">
+-31.4
+</td>
+<td style="text-align:left;">
+176
+</td>
+<td style="text-align:left;">
+23.756
+</td>
+<td style="text-align:left;">
+3.044
+</td>
+<td style="text-align:left;">
+1.97
+</td>
+<td style="text-align:left;">
+0.095
+</td>
+<td style="text-align:left;">
+0.257
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+85.4
+</td>
+<td style="text-align:left;">
+-18.3
+</td>
+<td style="text-align:left;">
+189.2
+</td>
+<td style="text-align:left;">
+23.753
+</td>
+<td style="text-align:left;">
+3.597
+</td>
+<td style="text-align:left;">
+1.97
+</td>
+<td style="text-align:left;">
+0.071
+</td>
+<td style="text-align:left;">
+0.209
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+13.1
+</td>
+<td style="text-align:left;">
+-123.8
+</td>
+<td style="text-align:left;">
+150
+</td>
+<td style="text-align:left;">
+28.353
+</td>
+<td style="text-align:left;">
+0.463
+</td>
+<td style="text-align:left;">
+1.79
+</td>
+<td style="text-align:left;">
+0.694
+</td>
+<td style="text-align:left;">
+0.842
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+31.1
+</td>
+<td style="text-align:left;">
+18.9
+</td>
+<td style="text-align:left;">
+43.2
+</td>
+<td style="text-align:left;">
+6.186
+</td>
+<td style="text-align:left;">
+5.025
+</td>
+<td style="text-align:left;">
+663.96
+</td>
+<td style="text-align:left;">
+6.5e-07
+</td>
+<td style="text-align:left;">
+9.5e-06
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+53.1
+</td>
+<td style="text-align:left;">
+38.6
+</td>
+<td style="text-align:left;">
+67.6
+</td>
+<td style="text-align:left;">
+7.397
+</td>
+<td style="text-align:left;">
+7.182
+</td>
+<td style="text-align:left;">
+699.83
+</td>
+<td style="text-align:left;">
+1.8e-12
+</td>
+<td style="text-align:left;">
+6.0e-11
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+67.6
+</td>
+<td style="text-align:left;">
+51.1
+</td>
+<td style="text-align:left;">
+84.1
+</td>
+<td style="text-align:left;">
+8.401
+</td>
+<td style="text-align:left;">
+8.046
+</td>
+<td style="text-align:left;">
+690.75
+</td>
+<td style="text-align:left;">
+3.7e-15
+</td>
+<td style="text-align:left;">
+1.9e-13
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+22
+</td>
+<td style="text-align:left;">
+7.942
+</td>
+<td style="text-align:left;">
+36.1
+</td>
+<td style="text-align:left;">
+7.179
+</td>
+<td style="text-align:left;">
+3.07
+</td>
+<td style="text-align:left;">
+704.38
+</td>
+<td style="text-align:left;">
+0.002
+</td>
+<td style="text-align:left;">
+0.012
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -4054,829 +6041,165 @@ foot_syls2
 foot_syls4
 </td>
 <td style="text-align:left;">
-0.447
-</td>
-<td style="text-align:left;">
--0.117
-</td>
-<td style="text-align:left;">
-1.012
-</td>
-<td style="text-align:left;">
-0.288
-</td>
-<td style="text-align:left;">
-1.555
-</td>
-<td style="text-align:left;">
-664.32
-</td>
-<td style="text-align:left;">
-0.12
-</td>
-<td style="text-align:left;">
-0.331
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
-foot_syls4
-</td>
-<td style="text-align:left;">
--0.172
-</td>
-<td style="text-align:left;">
--0.632
-</td>
-<td style="text-align:left;">
-0.288
-</td>
-<td style="text-align:left;">
-0.234
-</td>
-<td style="text-align:left;">
--0.735
-</td>
-<td style="text-align:left;">
-356.08
-</td>
-<td style="text-align:left;">
-0.463
-</td>
-<td style="text-align:left;">
-0.705
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
-0.064
-</td>
-<td style="text-align:left;">
--0.34
-</td>
-<td style="text-align:left;">
-0.469
-</td>
-<td style="text-align:left;">
-0.206
-</td>
-<td style="text-align:left;">
-0.313
-</td>
-<td style="text-align:left;">
-714.4
-</td>
-<td style="text-align:left;">
-0.755
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
-0.551
-</td>
-<td style="text-align:left;">
--0.123
-</td>
-<td style="text-align:left;">
-1.224
-</td>
-<td style="text-align:left;">
-0.343
-</td>
-<td style="text-align:left;">
-1.605
-</td>
-<td style="text-align:left;">
-717
-</td>
-<td style="text-align:left;">
-0.109
-</td>
-<td style="text-align:left;">
-0.318
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
-0.486
-</td>
-<td style="text-align:left;">
--0.054
-</td>
-<td style="text-align:left;">
-1.026
-</td>
-<td style="text-align:left;">
-0.275
-</td>
-<td style="text-align:left;">
-1.768
-</td>
-<td style="text-align:left;">
-716.06
-</td>
-<td style="text-align:left;">
-0.077
-</td>
-<td style="text-align:left;">
-0.245
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-</tbody>
-</table>
-<table class="table" style="width: auto !important; ">
-<caption>
-2. h_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | foot_dur)
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-intercept
-</th>
-<th style="text-align:left;">
-slope
-</th>
-<th style="text-align:left;">
-estimate
-</th>
-<th style="text-align:left;">
-conf.low
-</th>
-<th style="text-align:left;">
-conf.high
-</th>
-<th style="text-align:left;">
-std.error
-</th>
-<th style="text-align:left;">
-t.value
-</th>
-<th style="text-align:left;">
-df
-</th>
-<th style="text-align:left;">
-p.value
-</th>
-<th style="text-align:left;">
-p.adj (BH)
-</th>
-<th style="text-align:left;">
-signif.
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-acc_phonL*H
-</td>
-<td style="text-align:left;">
-acc_phon&amp;gt;H*
-</td>
-<td style="text-align:left;">
--34.6
-</td>
-<td style="text-align:left;">
--47.9
-</td>
-<td style="text-align:left;">
--21.2
-</td>
-<td style="text-align:left;">
-6.814
-</td>
-<td style="text-align:left;">
--5.073
-</td>
-<td style="text-align:left;">
-708.8
-</td>
-<td style="text-align:left;">
-5.0e-07
-</td>
-<td style="text-align:left;">
-7.0e-06
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-acc_phonL*H
-</td>
-<td style="text-align:left;">
-acc_phonH*
-</td>
-<td style="text-align:left;">
--77
-</td>
-<td style="text-align:left;">
--87.5
-</td>
-<td style="text-align:left;">
--66.5
-</td>
-<td style="text-align:left;">
-5.339
-</td>
-<td style="text-align:left;">
--14.424
-</td>
-<td style="text-align:left;">
-716.28
-</td>
-<td style="text-align:left;">
-1.4e-41
-</td>
-<td style="text-align:left;">
-9.8e-40
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-acc_phon&amp;gt;H*
-</td>
-<td style="text-align:left;">
-acc_phonH*
-</td>
-<td style="text-align:left;">
--42.4
-</td>
-<td style="text-align:left;">
--56.6
-</td>
-<td style="text-align:left;">
--28.2
-</td>
-<td style="text-align:left;">
-7.229
-</td>
-<td style="text-align:left;">
--5.871
-</td>
-<td style="text-align:left;">
-707.35
-</td>
-<td style="text-align:left;">
-6.6e-09
-</td>
-<td style="text-align:left;">
-1.2e-07
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls0
-</td>
-<td style="text-align:left;">
-ana_syls1
-</td>
-<td style="text-align:left;">
--66.9
-</td>
-<td style="text-align:left;">
--170.4
-</td>
-<td style="text-align:left;">
 36.5
 </td>
 <td style="text-align:left;">
-29.463
+20.1
 </td>
 <td style="text-align:left;">
--2.272
+52.9
 </td>
 <td style="text-align:left;">
-2.56
+8.336
 </td>
 <td style="text-align:left;">
-0.123
+4.379
 </td>
 <td style="text-align:left;">
-0.331
+684.19
 </td>
 <td style="text-align:left;">
+1.4e-05
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-ana_syls0
-</td>
-<td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
--3.593
-</td>
-<td style="text-align:left;">
--132.8
-</td>
-<td style="text-align:left;">
-125.6
-</td>
-<td style="text-align:left;">
-37.528
-</td>
-<td style="text-align:left;">
--0.096
-</td>
-<td style="text-align:left;">
-2.64
-</td>
-<td style="text-align:left;">
-0.931
-</td>
-<td style="text-align:left;">
-0.977
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls0
-</td>
-<td style="text-align:left;">
-ana_syls3
-</td>
-<td style="text-align:left;">
-9.375
-</td>
-<td style="text-align:left;">
--119.8
-</td>
-<td style="text-align:left;">
-138.5
-</td>
-<td style="text-align:left;">
-37.534
-</td>
-<td style="text-align:left;">
-0.25
-</td>
-<td style="text-align:left;">
-2.64
-</td>
-<td style="text-align:left;">
-0.821
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls1
-</td>
-<td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
-63.3
-</td>
-<td style="text-align:left;">
--36.3
-</td>
-<td style="text-align:left;">
-162.9
-</td>
-<td style="text-align:left;">
-30.175
-</td>
-<td style="text-align:left;">
-2.099
-</td>
-<td style="text-align:left;">
-2.82
-</td>
-<td style="text-align:left;">
-0.132
-</td>
-<td style="text-align:left;">
-0.342
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls1
-</td>
-<td style="text-align:left;">
-ana_syls3
-</td>
-<td style="text-align:left;">
-76.3
-</td>
-<td style="text-align:left;">
--23.3
-</td>
-<td style="text-align:left;">
-175.9
-</td>
-<td style="text-align:left;">
-30.175
-</td>
-<td style="text-align:left;">
-2.529
-</td>
-<td style="text-align:left;">
-2.82
-</td>
-<td style="text-align:left;">
-0.091
-</td>
-<td style="text-align:left;">
-0.277
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
-ana_syls3
-</td>
-<td style="text-align:left;">
-13
-</td>
-<td style="text-align:left;">
--115.3
-</td>
-<td style="text-align:left;">
-141.2
-</td>
-<td style="text-align:left;">
-37.692
-</td>
-<td style="text-align:left;">
-0.344
-</td>
-<td style="text-align:left;">
-2.69
-</td>
-<td style="text-align:left;">
-0.756
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
-<td style="text-align:left;">
-foot_syls2
-</td>
-<td style="text-align:left;">
-31
-</td>
-<td style="text-align:left;">
-18.8
-</td>
-<td style="text-align:left;">
-43.1
-</td>
-<td style="text-align:left;">
-6.189
-</td>
-<td style="text-align:left;">
-5.006
-</td>
-<td style="text-align:left;">
-695.66
-</td>
-<td style="text-align:left;">
-7.1e-07
-</td>
-<td style="text-align:left;">
-7.7e-06
+1.3e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
 </td>
 </tr>
 <tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
 <td style="text-align:left;">
 foot_syls3
-</td>
-<td style="text-align:left;">
-55.6
-</td>
-<td style="text-align:left;">
-41.1
-</td>
-<td style="text-align:left;">
-70
-</td>
-<td style="text-align:left;">
-7.345
-</td>
-<td style="text-align:left;">
-7.565
-</td>
-<td style="text-align:left;">
-679.97
-</td>
-<td style="text-align:left;">
-1.3e-13
-</td>
-<td style="text-align:left;">
-3.0e-12
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
 </td>
 <td style="text-align:left;">
 foot_syls4
 </td>
 <td style="text-align:left;">
-69.3
+14.5
 </td>
 <td style="text-align:left;">
-52.8
+0.914
 </td>
 <td style="text-align:left;">
-85.8
+28
 </td>
 <td style="text-align:left;">
-8.41
+6.903
 </td>
 <td style="text-align:left;">
-8.238
+2.096
 </td>
 <td style="text-align:left;">
-689.12
+707.51
 </td>
 <td style="text-align:left;">
-8.8e-16
+0.036
 </td>
 <td style="text-align:left;">
-3.1e-14
+0.117
 </td>
 <td style="text-align:left;">
-p&lt;0.001
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-foot_syls2
+wrd_end_syl1
 </td>
 <td style="text-align:left;">
-foot_syls3
+wrd_end_syl2
 </td>
 <td style="text-align:left;">
-24.6
+-13.1
 </td>
 <td style="text-align:left;">
-10.7
+-24.7
 </td>
 <td style="text-align:left;">
-38.5
+-1.435
 </td>
 <td style="text-align:left;">
-7.082
+5.916
 </td>
 <td style="text-align:left;">
-3.471
+-2.206
 </td>
 <td style="text-align:left;">
-602.96
+701.71
 </td>
 <td style="text-align:left;">
-5.6e-04
+0.028
+</td>
+<td style="text-align:left;">
+0.095
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+14.4
+</td>
+<td style="text-align:left;">
+-4.78
+</td>
+<td style="text-align:left;">
+33.6
+</td>
+<td style="text-align:left;">
+9.767
+</td>
+<td style="text-align:left;">
+1.474
+</td>
+<td style="text-align:left;">
+703.44
+</td>
+<td style="text-align:left;">
+0.141
+</td>
+<td style="text-align:left;">
+0.346
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+27.4
+</td>
+<td style="text-align:left;">
+12.1
+</td>
+<td style="text-align:left;">
+42.8
+</td>
+<td style="text-align:left;">
+7.813
+</td>
+<td style="text-align:left;">
+3.513
+</td>
+<td style="text-align:left;">
+708.14
+</td>
+<td style="text-align:left;">
+4.7e-04
 </td>
 <td style="text-align:left;">
 0.003
-</td>
-<td style="text-align:left;">
-p&lt;0.01
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls2
-</td>
-<td style="text-align:left;">
-foot_syls4
-</td>
-<td style="text-align:left;">
-38.3
-</td>
-<td style="text-align:left;">
-21.9
-</td>
-<td style="text-align:left;">
-54.7
-</td>
-<td style="text-align:left;">
-8.349
-</td>
-<td style="text-align:left;">
-4.588
-</td>
-<td style="text-align:left;">
-688.79
-</td>
-<td style="text-align:left;">
-5.3e-06
-</td>
-<td style="text-align:left;">
-4.1e-05
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
-foot_syls4
-</td>
-<td style="text-align:left;">
-13.7
-</td>
-<td style="text-align:left;">
-0.262
-</td>
-<td style="text-align:left;">
-27.2
-</td>
-<td style="text-align:left;">
-6.855
-</td>
-<td style="text-align:left;">
-2.002
-</td>
-<td style="text-align:left;">
-690.1
-</td>
-<td style="text-align:left;">
-0.046
-</td>
-<td style="text-align:left;">
-0.153
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
--14
-</td>
-<td style="text-align:left;">
--25.7
-</td>
-<td style="text-align:left;">
--2.353
-</td>
-<td style="text-align:left;">
-5.933
-</td>
-<td style="text-align:left;">
--2.36
-</td>
-<td style="text-align:left;">
-701.29
-</td>
-<td style="text-align:left;">
-0.019
-</td>
-<td style="text-align:left;">
-0.066
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
-13.6
-</td>
-<td style="text-align:left;">
--5.546
-</td>
-<td style="text-align:left;">
-32.8
-</td>
-<td style="text-align:left;">
-9.771
-</td>
-<td style="text-align:left;">
-1.396
-</td>
-<td style="text-align:left;">
-702.71
-</td>
-<td style="text-align:left;">
-0.163
-</td>
-<td style="text-align:left;">
-0.368
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
-27.6
-</td>
-<td style="text-align:left;">
-12.3
-</td>
-<td style="text-align:left;">
-43
-</td>
-<td style="text-align:left;">
-7.8
-</td>
-<td style="text-align:left;">
-3.544
-</td>
-<td style="text-align:left;">
-707.62
-</td>
-<td style="text-align:left;">
-4.2e-04
-</td>
-<td style="text-align:left;">
-0.002
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -4887,42 +6210,40 @@ p&lt;0.01
 intercept
 </td>
 <td style="text-align:left;">
-genderM
+pn_new_word0
 </td>
 <td style="text-align:left;">
--73.5
+42.4
 </td>
 <td style="text-align:left;">
--105.3
+-62
 </td>
 <td style="text-align:left;">
--41.7
+146.8
 </td>
 <td style="text-align:left;">
-14.086
+23.686
 </td>
 <td style="text-align:left;">
--5.22
+1.791
 </td>
 <td style="text-align:left;">
-9.13
+1.95
 </td>
 <td style="text-align:left;">
-5.2e-04
+0.218
 </td>
 <td style="text-align:left;">
-0.003
+0.459
 </td>
 <td style="text-align:left;">
-p&lt;0.01
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-3. l_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text)
+4. l_f0 ~ acc_phon + ana_syls + foot_syls + pn_new_word + (1 | speaker)
 </caption>
 <thead>
 <tr>
@@ -4970,28 +6291,63 @@ ana_syls0
 ana_syls1
 </td>
 <td style="text-align:left;">
-0.462
+0.907
 </td>
 <td style="text-align:left;">
--2.352
+0.531
 </td>
 <td style="text-align:left;">
-3.276
+1.283
 </td>
 <td style="text-align:left;">
-0.478
+0.191
 </td>
 <td style="text-align:left;">
-0.967
+4.742
 </td>
 <td style="text-align:left;">
-1.52
+477.02
 </td>
 <td style="text-align:left;">
-0.462
+2.8e-06
 </td>
 <td style="text-align:left;">
-0.705
+3.2e-05
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+0.23
+</td>
+<td style="text-align:left;">
+-0.363
+</td>
+<td style="text-align:left;">
+0.824
+</td>
+<td style="text-align:left;">
+0.302
+</td>
+<td style="text-align:left;">
+0.763
+</td>
+<td style="text-align:left;">
+477.03
+</td>
+<td style="text-align:left;">
+0.446
+</td>
+<td style="text-align:left;">
+0.648
 </td>
 <td style="text-align:left;">
 </td>
@@ -5001,337 +6357,305 @@ ana_syls1
 ana_syls0
 </td>
 <td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
--0.512
-</td>
-<td style="text-align:left;">
--3.75
-</td>
-<td style="text-align:left;">
-2.726
-</td>
-<td style="text-align:left;">
-0.601
-</td>
-<td style="text-align:left;">
--0.853
-</td>
-<td style="text-align:left;">
-1.63
-</td>
-<td style="text-align:left;">
-0.501
-</td>
-<td style="text-align:left;">
-0.738
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls0
-</td>
-<td style="text-align:left;">
 ana_syls3
-</td>
-<td style="text-align:left;">
--0.655
-</td>
-<td style="text-align:left;">
--3.871
-</td>
-<td style="text-align:left;">
-2.562
-</td>
-<td style="text-align:left;">
-0.602
-</td>
-<td style="text-align:left;">
--1.088
-</td>
-<td style="text-align:left;">
-1.64
-</td>
-<td style="text-align:left;">
-0.411
-</td>
-<td style="text-align:left;">
-0.654
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls1
-</td>
-<td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
--0.974
-</td>
-<td style="text-align:left;">
--3.162
-</td>
-<td style="text-align:left;">
-1.213
-</td>
-<td style="text-align:left;">
-0.515
-</td>
-<td style="text-align:left;">
--1.893
-</td>
-<td style="text-align:left;">
-2.03
-</td>
-<td style="text-align:left;">
-0.197
-</td>
-<td style="text-align:left;">
-0.406
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls1
-</td>
-<td style="text-align:left;">
-ana_syls3
-</td>
-<td style="text-align:left;">
--1.116
-</td>
-<td style="text-align:left;">
--3.293
-</td>
-<td style="text-align:left;">
-1.06
-</td>
-<td style="text-align:left;">
-0.516
-</td>
-<td style="text-align:left;">
--2.165
-</td>
-<td style="text-align:left;">
-2.04
-</td>
-<td style="text-align:left;">
-0.16
-</td>
-<td style="text-align:left;">
-0.368
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls2
-</td>
-<td style="text-align:left;">
-ana_syls3
-</td>
-<td style="text-align:left;">
--0.142
-</td>
-<td style="text-align:left;">
--3.216
-</td>
-<td style="text-align:left;">
-2.931
-</td>
-<td style="text-align:left;">
-0.608
-</td>
-<td style="text-align:left;">
--0.234
-</td>
-<td style="text-align:left;">
-1.72
-</td>
-<td style="text-align:left;">
-0.84
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
-<td style="text-align:left;">
-foot_syls2
-</td>
-<td style="text-align:left;">
--0.103
-</td>
-<td style="text-align:left;">
--0.6
-</td>
-<td style="text-align:left;">
-0.394
-</td>
-<td style="text-align:left;">
-0.253
-</td>
-<td style="text-align:left;">
--0.409
-</td>
-<td style="text-align:left;">
-356.68
-</td>
-<td style="text-align:left;">
-0.683
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
--0.041
-</td>
-<td style="text-align:left;">
--0.558
-</td>
-<td style="text-align:left;">
-0.476
-</td>
-<td style="text-align:left;">
-0.263
-</td>
-<td style="text-align:left;">
--0.157
-</td>
-<td style="text-align:left;">
-278.99
-</td>
-<td style="text-align:left;">
-0.875
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls1
-</td>
-<td style="text-align:left;">
-foot_syls4
-</td>
-<td style="text-align:left;">
--0.011
-</td>
-<td style="text-align:left;">
--0.579
-</td>
-<td style="text-align:left;">
-0.557
-</td>
-<td style="text-align:left;">
-0.289
-</td>
-<td style="text-align:left;">
--0.038
-</td>
-<td style="text-align:left;">
-475.81
-</td>
-<td style="text-align:left;">
-0.97
-</td>
-<td style="text-align:left;">
-0.983
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls2
-</td>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
-0.062
-</td>
-<td style="text-align:left;">
--0.439
-</td>
-<td style="text-align:left;">
-0.563
-</td>
-<td style="text-align:left;">
-0.254
-</td>
-<td style="text-align:left;">
-0.245
-</td>
-<td style="text-align:left;">
-228.01
-</td>
-<td style="text-align:left;">
-0.807
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls2
-</td>
-<td style="text-align:left;">
-foot_syls4
 </td>
 <td style="text-align:left;">
 0.092
 </td>
 <td style="text-align:left;">
--0.486
+-0.503
 </td>
 <td style="text-align:left;">
-0.671
+0.687
 </td>
 <td style="text-align:left;">
-0.294
+0.303
 </td>
 <td style="text-align:left;">
-0.314
+0.304
 </td>
 <td style="text-align:left;">
-441.91
+477.03
 </td>
 <td style="text-align:left;">
-0.754
+0.761
 </td>
 <td style="text-align:left;">
-0.955
+0.877
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+-0.676
+</td>
+<td style="text-align:left;">
+-1.135
+</td>
+<td style="text-align:left;">
+-0.218
+</td>
+<td style="text-align:left;">
+0.233
+</td>
+<td style="text-align:left;">
+-2.901
+</td>
+<td style="text-align:left;">
+477.03
+</td>
+<td style="text-align:left;">
+0.004
+</td>
+<td style="text-align:left;">
+0.02
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+-0.815
+</td>
+<td style="text-align:left;">
+-1.276
+</td>
+<td style="text-align:left;">
+-0.354
+</td>
+<td style="text-align:left;">
+0.234
+</td>
+<td style="text-align:left;">
+-3.475
+</td>
+<td style="text-align:left;">
+477.03
+</td>
+<td style="text-align:left;">
+5.6e-04
+</td>
+<td style="text-align:left;">
+0.004
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+-0.138
+</td>
+<td style="text-align:left;">
+-0.613
+</td>
+<td style="text-align:left;">
+0.337
+</td>
+<td style="text-align:left;">
+0.242
+</td>
+<td style="text-align:left;">
+-0.572
+</td>
+<td style="text-align:left;">
+477.01
+</td>
+<td style="text-align:left;">
+0.568
+</td>
+<td style="text-align:left;">
+0.759
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+-0.096
+</td>
+<td style="text-align:left;">
+-0.577
+</td>
+<td style="text-align:left;">
+0.385
+</td>
+<td style="text-align:left;">
+0.245
+</td>
+<td style="text-align:left;">
+-0.393
+</td>
+<td style="text-align:left;">
+477.04
+</td>
+<td style="text-align:left;">
+0.695
+</td>
+<td style="text-align:left;">
+0.842
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+-0.201
+</td>
+<td style="text-align:left;">
+-0.679
+</td>
+<td style="text-align:left;">
+0.278
+</td>
+<td style="text-align:left;">
+0.244
+</td>
+<td style="text-align:left;">
+-0.823
+</td>
+<td style="text-align:left;">
+477.06
+</td>
+<td style="text-align:left;">
+0.411
+</td>
+<td style="text-align:left;">
+0.648
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+-0.265
+</td>
+<td style="text-align:left;">
+-0.683
+</td>
+<td style="text-align:left;">
+0.153
+</td>
+<td style="text-align:left;">
+0.213
+</td>
+<td style="text-align:left;">
+-1.244
+</td>
+<td style="text-align:left;">
+477.06
+</td>
+<td style="text-align:left;">
+0.214
+</td>
+<td style="text-align:left;">
+0.459
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+-0.104
+</td>
+<td style="text-align:left;">
+-0.57
+</td>
+<td style="text-align:left;">
+0.361
+</td>
+<td style="text-align:left;">
+0.237
+</td>
+<td style="text-align:left;">
+-0.441
+</td>
+<td style="text-align:left;">
+477.04
+</td>
+<td style="text-align:left;">
+0.66
+</td>
+<td style="text-align:left;">
+0.839
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+-0.169
+</td>
+<td style="text-align:left;">
+-0.583
+</td>
+<td style="text-align:left;">
+0.245
+</td>
+<td style="text-align:left;">
+0.211
+</td>
+<td style="text-align:left;">
+-0.801
+</td>
+<td style="text-align:left;">
+477.05
+</td>
+<td style="text-align:left;">
+0.424
+</td>
+<td style="text-align:left;">
+0.648
 </td>
 <td style="text-align:left;">
 </td>
@@ -5344,130 +6668,28 @@ foot_syls3
 foot_syls4
 </td>
 <td style="text-align:left;">
-0.03
+-0.064
 </td>
 <td style="text-align:left;">
--0.391
+-0.429
 </td>
 <td style="text-align:left;">
-0.451
-</td>
-<td style="text-align:left;">
-0.214
-</td>
-<td style="text-align:left;">
-0.142
-</td>
-<td style="text-align:left;">
-226.03
-</td>
-<td style="text-align:left;">
-0.887
-</td>
-<td style="text-align:left;">
-0.955
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl2
-</td>
-<td style="text-align:left;">
--0.205
-</td>
-<td style="text-align:left;">
--0.583
-</td>
-<td style="text-align:left;">
-0.173
-</td>
-<td style="text-align:left;">
-0.193
-</td>
-<td style="text-align:left;">
--1.065
-</td>
-<td style="text-align:left;">
-475.13
-</td>
-<td style="text-align:left;">
-0.288
-</td>
-<td style="text-align:left;">
-0.504
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl1
-</td>
-<td style="text-align:left;">
-wrd_end_syl3
-</td>
-<td style="text-align:left;">
--0.405
-</td>
-<td style="text-align:left;">
--1.004
-</td>
-<td style="text-align:left;">
-0.194
-</td>
-<td style="text-align:left;">
-0.305
-</td>
-<td style="text-align:left;">
--1.327
-</td>
-<td style="text-align:left;">
-476.59
+0.3
 </td>
 <td style="text-align:left;">
 0.185
 </td>
 <td style="text-align:left;">
-0.401
+-0.347
 </td>
 <td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl2
+477.03
 </td>
 <td style="text-align:left;">
-wrd_end_syl3
+0.729
 </td>
 <td style="text-align:left;">
--0.2
-</td>
-<td style="text-align:left;">
--0.67
-</td>
-<td style="text-align:left;">
-0.27
-</td>
-<td style="text-align:left;">
-0.239
-</td>
-<td style="text-align:left;">
--0.836
-</td>
-<td style="text-align:left;">
-473.39
-</td>
-<td style="text-align:left;">
-0.404
-</td>
-<td style="text-align:left;">
-0.654
+0.868
 </td>
 <td style="text-align:left;">
 </td>
@@ -5480,38 +6702,73 @@ intercept
 acc_phonL*
 </td>
 <td style="text-align:left;">
--0.216
+-0.155
 </td>
 <td style="text-align:left;">
--1.117
+-1.047
 </td>
 <td style="text-align:left;">
-0.685
+0.738
 </td>
 <td style="text-align:left;">
-0.459
+0.454
 </td>
 <td style="text-align:left;">
--0.472
+-0.341
 </td>
 <td style="text-align:left;">
-469.58
+477.17
 </td>
 <td style="text-align:left;">
-0.637
+0.734
 </td>
 <td style="text-align:left;">
-0.91
+0.868
 </td>
 <td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+pn_new_word0
+</td>
+<td style="text-align:left;">
+0.703
+</td>
+<td style="text-align:left;">
+0.199
+</td>
+<td style="text-align:left;">
+1.207
+</td>
+<td style="text-align:left;">
+0.257
+</td>
+<td style="text-align:left;">
+2.742
+</td>
+<td style="text-align:left;">
+477.03
+</td>
+<td style="text-align:left;">
+0.006
+</td>
+<td style="text-align:left;">
+0.03
+</td>
+<td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-4. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | ana_end_t)
+5. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t)
 </caption>
 <thead>
 <tr>
@@ -5559,28 +6816,28 @@ ana_syls0
 ana_syls1
 </td>
 <td style="text-align:left;">
--50.4
+-58.7
 </td>
 <td style="text-align:left;">
--144.8
+-276.8
 </td>
 <td style="text-align:left;">
-44
+159.4
 </td>
 <td style="text-align:left;">
-32.403
+47.161
 </td>
 <td style="text-align:left;">
--1.555
+-1.244
 </td>
 <td style="text-align:left;">
-3.57
+1.86
 </td>
 <td style="text-align:left;">
-0.203
+0.347
 </td>
 <td style="text-align:left;">
-0.406
+0.606
 </td>
 <td style="text-align:left;">
 </td>
@@ -5593,28 +6850,28 @@ ana_syls0
 ana_syls2
 </td>
 <td style="text-align:left;">
--6.417
+-17.4
 </td>
 <td style="text-align:left;">
--131.9
+-312.9
 </td>
 <td style="text-align:left;">
-119
+278.2
 </td>
 <td style="text-align:left;">
-38.872
+60.075
 </td>
 <td style="text-align:left;">
--0.165
+-0.289
 </td>
 <td style="text-align:left;">
-2.93
+1.76
 </td>
 <td style="text-align:left;">
-0.88
+0.803
 </td>
 <td style="text-align:left;">
-0.955
+0.878
 </td>
 <td style="text-align:left;">
 </td>
@@ -5627,28 +6884,28 @@ ana_syls0
 ana_syls3
 </td>
 <td style="text-align:left;">
-3.428
+-7.502
 </td>
 <td style="text-align:left;">
--122
+-303.2
 </td>
 <td style="text-align:left;">
-128.9
+288.1
 </td>
 <td style="text-align:left;">
-38.864
+60.069
 </td>
 <td style="text-align:left;">
-0.088
+-0.125
 </td>
 <td style="text-align:left;">
-2.93
+1.76
 </td>
 <td style="text-align:left;">
-0.935
+0.913
 </td>
 <td style="text-align:left;">
-0.977
+0.941
 </td>
 <td style="text-align:left;">
 </td>
@@ -5661,28 +6918,28 @@ ana_syls1
 ana_syls2
 </td>
 <td style="text-align:left;">
-44
+41.3
 </td>
 <td style="text-align:left;">
--68.3
+-161
 </td>
 <td style="text-align:left;">
-156.2
+243.6
 </td>
 <td style="text-align:left;">
-28.792
+37.267
 </td>
 <td style="text-align:left;">
-1.527
+1.109
 </td>
 <td style="text-align:left;">
-2.23
+1.62
 </td>
 <td style="text-align:left;">
-0.254
+0.405
 </td>
 <td style="text-align:left;">
-0.468
+0.648
 </td>
 <td style="text-align:left;">
 </td>
@@ -5695,28 +6952,28 @@ ana_syls1
 ana_syls3
 </td>
 <td style="text-align:left;">
-53.8
+51.2
 </td>
 <td style="text-align:left;">
--58.6
+-151.3
 </td>
 <td style="text-align:left;">
-166.2
+253.7
 </td>
 <td style="text-align:left;">
-28.781
+37.258
 </td>
 <td style="text-align:left;">
-1.87
+1.373
 </td>
 <td style="text-align:left;">
-2.23
+1.62
 </td>
 <td style="text-align:left;">
-0.189
+0.329
 </td>
 <td style="text-align:left;">
-0.401
+0.595
 </td>
 <td style="text-align:left;">
 </td>
@@ -5729,28 +6986,28 @@ ana_syls2
 ana_syls3
 </td>
 <td style="text-align:left;">
-9.844
+9.849
 </td>
 <td style="text-align:left;">
--138.2
+-259.7
 </td>
 <td style="text-align:left;">
-157.9
+279.4
 </td>
 <td style="text-align:left;">
-35.686
+44.671
 </td>
 <td style="text-align:left;">
-0.276
+0.22
 </td>
 <td style="text-align:left;">
-2.08
+1.5
 </td>
 <td style="text-align:left;">
-0.808
+0.852
 </td>
 <td style="text-align:left;">
-0.955
+0.895
 </td>
 <td style="text-align:left;">
 </td>
@@ -5763,28 +7020,28 @@ foot_syls1
 foot_syls2
 </td>
 <td style="text-align:left;">
-8.906
+8.922
 </td>
 <td style="text-align:left;">
--3.049
+-3.097
 </td>
 <td style="text-align:left;">
 20.9
 </td>
 <td style="text-align:left;">
-6.081
+6.114
 </td>
 <td style="text-align:left;">
-1.464
+1.459
 </td>
 <td style="text-align:left;">
-411.27
+415.36
 </td>
 <td style="text-align:left;">
-0.144
+0.145
 </td>
 <td style="text-align:left;">
-0.352
+0.348
 </td>
 <td style="text-align:left;">
 </td>
@@ -5797,25 +7054,25 @@ foot_syls1
 foot_syls3
 </td>
 <td style="text-align:left;">
-15.2
+15.4
 </td>
 <td style="text-align:left;">
-2.974
+3.189
 </td>
 <td style="text-align:left;">
-27.3
+27.6
 </td>
 <td style="text-align:left;">
-6.195
+6.22
 </td>
 <td style="text-align:left;">
-2.446
+2.478
 </td>
 <td style="text-align:left;">
-430.06
+427.49
 </td>
 <td style="text-align:left;">
-0.015
+0.014
 </td>
 <td style="text-align:left;">
 0.058
@@ -5837,22 +7094,22 @@ foot_syls4
 21
 </td>
 <td style="text-align:left;">
-48
+48.1
 </td>
 <td style="text-align:left;">
-6.879
+6.886
 </td>
 <td style="text-align:left;">
-5.011
+5.015
 </td>
 <td style="text-align:left;">
-463.39
+462.6
 </td>
 <td style="text-align:left;">
-7.7e-07
+7.6e-07
 </td>
 <td style="text-align:left;">
-7.7e-06
+9.8e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -5866,28 +7123,28 @@ foot_syls2
 foot_syls3
 </td>
 <td style="text-align:left;">
-6.244
+6.492
 </td>
 <td style="text-align:left;">
--5.56
+-5.432
 </td>
 <td style="text-align:left;">
-18
+18.4
 </td>
 <td style="text-align:left;">
-6.003
+6.064
 </td>
 <td style="text-align:left;">
-1.04
+1.071
 </td>
 <td style="text-align:left;">
-372.35
+381.93
 </td>
 <td style="text-align:left;">
-0.299
+0.285
 </td>
 <td style="text-align:left;">
-0.51
+0.554
 </td>
 <td style="text-align:left;">
 </td>
@@ -5906,19 +7163,19 @@ foot_syls4
 11.8
 </td>
 <td style="text-align:left;">
-39.3
+39.4
 </td>
 <td style="text-align:left;">
-6.981
+7.007
 </td>
 <td style="text-align:left;">
-3.662
+3.655
 </td>
 <td style="text-align:left;">
-426.6
+425.52
 </td>
 <td style="text-align:left;">
-2.8e-04
+2.9e-04
 </td>
 <td style="text-align:left;">
 0.002
@@ -5935,28 +7192,28 @@ foot_syls3
 foot_syls4
 </td>
 <td style="text-align:left;">
-19.3
+19.1
 </td>
 <td style="text-align:left;">
-9.692
+9.44
 </td>
 <td style="text-align:left;">
-28.9
+28.8
 </td>
 <td style="text-align:left;">
-4.897
+4.923
 </td>
 <td style="text-align:left;">
-3.945
+3.884
 </td>
 <td style="text-align:left;">
-387.73
+385.29
 </td>
 <td style="text-align:left;">
-9.5e-05
+1.2e-04
 </td>
 <td style="text-align:left;">
-6.6e-04
+9.6e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -5970,28 +7227,28 @@ wrd_end_syl1
 wrd_end_syl2
 </td>
 <td style="text-align:left;">
--0.212
+-0.232
 </td>
 <td style="text-align:left;">
--9.047
+-9.076
 </td>
 <td style="text-align:left;">
-8.622
+8.613
 </td>
 <td style="text-align:left;">
-4.495
+4.5
 </td>
 <td style="text-align:left;">
--0.047
+-0.051
 </td>
 <td style="text-align:left;">
-439.56
+439.09
 </td>
 <td style="text-align:left;">
-0.962
+0.959
 </td>
 <td style="text-align:left;">
-0.983
+0.959
 </td>
 <td style="text-align:left;">
 </td>
@@ -6004,28 +7261,28 @@ wrd_end_syl1
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--7.961
+-7.9
 </td>
 <td style="text-align:left;">
--21.6
+-21.5
 </td>
 <td style="text-align:left;">
-5.652
+5.732
 </td>
 <td style="text-align:left;">
-6.926
+6.935
 </td>
 <td style="text-align:left;">
--1.15
+-1.139
 </td>
 <td style="text-align:left;">
-415.85
+414.92
 </td>
 <td style="text-align:left;">
-0.251
+0.255
 </td>
 <td style="text-align:left;">
-0.468
+0.516
 </td>
 <td style="text-align:left;">
 </td>
@@ -6038,25 +7295,25 @@ wrd_end_syl2
 wrd_end_syl3
 </td>
 <td style="text-align:left;">
--7.749
+-7.669
 </td>
 <td style="text-align:left;">
--18.2
+-18.1
 </td>
 <td style="text-align:left;">
-2.701
+2.799
 </td>
 <td style="text-align:left;">
-5.316
+5.324
 </td>
 <td style="text-align:left;">
--1.458
+-1.44
 </td>
 <td style="text-align:left;">
-393.39
+392.15
 </td>
 <td style="text-align:left;">
-0.146
+0.151
 </td>
 <td style="text-align:left;">
 0.352
@@ -6072,28 +7329,28 @@ intercept
 acc_phonL*
 </td>
 <td style="text-align:left;">
-35.5
+35.8
 </td>
 <td style="text-align:left;">
-15.3
+15.5
 </td>
 <td style="text-align:left;">
-55.7
+56.1
 </td>
 <td style="text-align:left;">
-10.264
+10.324
 </td>
 <td style="text-align:left;">
-3.461
+3.466
 </td>
 <td style="text-align:left;">
-407.16
+401.36
 </td>
 <td style="text-align:left;">
 5.9e-04
 </td>
 <td style="text-align:left;">
-0.003
+0.004
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -6104,34 +7361,657 @@ p&lt;0.01
 intercept
 </td>
 <td style="text-align:left;">
-genderM
+pn_new_word0
 </td>
 <td style="text-align:left;">
--76.2
+-11
 </td>
 <td style="text-align:left;">
--92.9
+-214.5
 </td>
 <td style="text-align:left;">
--59.5
+192.5
 </td>
 <td style="text-align:left;">
-7.475
+37.205
 </td>
 <td style="text-align:left;">
--10.193
+-0.296
 </td>
 <td style="text-align:left;">
-9.67
+1.61
 </td>
 <td style="text-align:left;">
-1.7e-06
+0.801
 </td>
 <td style="text-align:left;">
-1.5e-05
+0.878
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+6. log_lh_slope ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+intercept
+</th>
+<th style="text-align:left;">
+slope
+</th>
+<th style="text-align:left;">
+estimate
+</th>
+<th style="text-align:left;">
+conf.low
+</th>
+<th style="text-align:left;">
+conf.high
+</th>
+<th style="text-align:left;">
+std.error
+</th>
+<th style="text-align:left;">
+t.value
+</th>
+<th style="text-align:left;">
+df
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+-0.331
+</td>
+<td style="text-align:left;">
+-0.496
+</td>
+<td style="text-align:left;">
+-0.165
+</td>
+<td style="text-align:left;">
+0.084
+</td>
+<td style="text-align:left;">
+-3.929
+</td>
+<td style="text-align:left;">
+445.68
+</td>
+<td style="text-align:left;">
+9.9e-05
+</td>
+<td style="text-align:left;">
+8.5e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+-0.219
+</td>
+<td style="text-align:left;">
+-0.388
+</td>
+<td style="text-align:left;">
+-0.05
+</td>
+<td style="text-align:left;">
+0.086
+</td>
+<td style="text-align:left;">
+-2.545
+</td>
+<td style="text-align:left;">
+460.3
+</td>
+<td style="text-align:left;">
+0.011
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls1
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+-0.182
+</td>
+<td style="text-align:left;">
+-0.362
+</td>
+<td style="text-align:left;">
+-0.001
+</td>
+<td style="text-align:left;">
+0.092
+</td>
+<td style="text-align:left;">
+-1.978
+</td>
+<td style="text-align:left;">
+447.37
+</td>
+<td style="text-align:left;">
+0.049
+</td>
+<td style="text-align:left;">
+0.152
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+0.112
+</td>
+<td style="text-align:left;">
+-0.053
+</td>
+<td style="text-align:left;">
+0.277
+</td>
+<td style="text-align:left;">
+0.084
+</td>
+<td style="text-align:left;">
+1.334
+</td>
+<td style="text-align:left;">
+464.07
+</td>
+<td style="text-align:left;">
+0.183
+</td>
+<td style="text-align:left;">
+0.409
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls2
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+0.149
+</td>
+<td style="text-align:left;">
+-0.036
+</td>
+<td style="text-align:left;">
+0.335
+</td>
+<td style="text-align:left;">
+0.094
+</td>
+<td style="text-align:left;">
+1.582
+</td>
+<td style="text-align:left;">
+450.78
+</td>
+<td style="text-align:left;">
+0.114
+</td>
+<td style="text-align:left;">
+0.302
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+0.037
+</td>
+<td style="text-align:left;">
+-0.098
+</td>
+<td style="text-align:left;">
+0.172
+</td>
+<td style="text-align:left;">
+0.069
+</td>
+<td style="text-align:left;">
+0.542
+</td>
+<td style="text-align:left;">
+468.85
+</td>
+<td style="text-align:left;">
+0.588
+</td>
+<td style="text-align:left;">
+0.777
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+-0.029
+</td>
+<td style="text-align:left;">
+-3.298
+</td>
+<td style="text-align:left;">
+3.241
+</td>
+<td style="text-align:left;">
+0.401
+</td>
+<td style="text-align:left;">
+-0.072
+</td>
+<td style="text-align:left;">
+1.24
+</td>
+<td style="text-align:left;">
+0.953
+</td>
+<td style="text-align:left;">
+0.959
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+0.462
+</td>
+<td style="text-align:left;">
+-3.327
+</td>
+<td style="text-align:left;">
+4.251
+</td>
+<td style="text-align:left;">
+0.53
+</td>
+<td style="text-align:left;">
+0.871
+</td>
+<td style="text-align:left;">
+1.34
+</td>
+<td style="text-align:left;">
+0.512
+</td>
+<td style="text-align:left;">
+0.694
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls0
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+0.323
+</td>
+<td style="text-align:left;">
+-3.468
+</td>
+<td style="text-align:left;">
+4.113
+</td>
+<td style="text-align:left;">
+0.53
+</td>
+<td style="text-align:left;">
+0.609
+</td>
+<td style="text-align:left;">
+1.34
+</td>
+<td style="text-align:left;">
+0.63
+</td>
+<td style="text-align:left;">
+0.811
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+0.491
+</td>
+<td style="text-align:left;">
+-1.616
+</td>
+<td style="text-align:left;">
+2.597
+</td>
+<td style="text-align:left;">
+0.347
+</td>
+<td style="text-align:left;">
+1.414
+</td>
+<td style="text-align:left;">
+1.49
+</td>
+<td style="text-align:left;">
+0.33
+</td>
+<td style="text-align:left;">
+0.595
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls1
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+0.352
+</td>
+<td style="text-align:left;">
+-1.756
+</td>
+<td style="text-align:left;">
+2.459
+</td>
+<td style="text-align:left;">
+0.347
+</td>
+<td style="text-align:left;">
+1.014
+</td>
+<td style="text-align:left;">
+1.49
+</td>
+<td style="text-align:left;">
+0.447
+</td>
+<td style="text-align:left;">
+0.648
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls2
+</td>
+<td style="text-align:left;">
+ana_syls3
+</td>
+<td style="text-align:left;">
+-0.139
+</td>
+<td style="text-align:left;">
+-3.285
+</td>
+<td style="text-align:left;">
+3.007
+</td>
+<td style="text-align:left;">
+0.404
+</td>
+<td style="text-align:left;">
+-0.344
+</td>
+<td style="text-align:left;">
+1.27
+</td>
+<td style="text-align:left;">
+0.779
+</td>
+<td style="text-align:left;">
+0.878
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+0.145
+</td>
+<td style="text-align:left;">
+0.028
+</td>
+<td style="text-align:left;">
+0.263
+</td>
+<td style="text-align:left;">
+0.06
+</td>
+<td style="text-align:left;">
+2.426
+</td>
+<td style="text-align:left;">
+466.51
+</td>
+<td style="text-align:left;">
+0.016
+</td>
+<td style="text-align:left;">
+0.062
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl1
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+0.227
+</td>
+<td style="text-align:left;">
+0.04
+</td>
+<td style="text-align:left;">
+0.413
+</td>
+<td style="text-align:left;">
+0.095
+</td>
+<td style="text-align:left;">
+2.386
+</td>
+<td style="text-align:left;">
+467.48
+</td>
+<td style="text-align:left;">
+0.017
+</td>
+<td style="text-align:left;">
+0.066
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl2
+</td>
+<td style="text-align:left;">
+wrd_end_syl3
+</td>
+<td style="text-align:left;">
+0.082
+</td>
+<td style="text-align:left;">
+-0.065
+</td>
+<td style="text-align:left;">
+0.228
+</td>
+<td style="text-align:left;">
+0.075
+</td>
+<td style="text-align:left;">
+1.091
+</td>
+<td style="text-align:left;">
+471.44
+</td>
+<td style="text-align:left;">
+0.276
+</td>
+<td style="text-align:left;">
+0.546
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+pn_new_word0
+</td>
+<td style="text-align:left;">
+0.137
+</td>
+<td style="text-align:left;">
+-1.935
+</td>
+<td style="text-align:left;">
+2.208
+</td>
+<td style="text-align:left;">
+0.348
+</td>
+<td style="text-align:left;">
+0.393
+</td>
+<td style="text-align:left;">
+1.51
+</td>
+<td style="text-align:left;">
+0.742
+</td>
+<td style="text-align:left;">
+0.869
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intercept
+</td>
+<td style="text-align:left;">
+genderM
+</td>
+<td style="text-align:left;">
+0.264
+</td>
+<td style="text-align:left;">
+0.044
+</td>
+<td style="text-align:left;">
+0.484
+</td>
+<td style="text-align:left;">
+0.098
+</td>
+<td style="text-align:left;">
+2.694
+</td>
+<td style="text-align:left;">
+9.36
+</td>
+<td style="text-align:left;">
+0.024
+</td>
+<td style="text-align:left;">
+0.085
+</td>
+<td style="text-align:left;">
 </td>
 </tr>
 </tbody>
@@ -6141,8 +8021,8 @@ p&lt;0.001
 <h3>c. ANOVAs</h3>
 <table class="table" style="width: auto !important; ">
 <caption>
-1. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text) [prenuclear PA]
+1. f0_exc ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl + gender +
+(1 | speaker) + (1 | ana_text) + (1 | foot_dur)
 </caption>
 <thead>
 <tr>
@@ -6178,30 +8058,31 @@ signif.
 <tbody>
 <tr>
 <td style="text-align:left;">
-acc_phon
+foot_syls
 </td>
 <td style="text-align:left;">
-0.319
+7.058
 </td>
 <td style="text-align:left;">
-0.159
+2.353
 </td>
 <td style="text-align:left;">
-2
+3
 </td>
 <td style="text-align:left;">
-716.151
+452.689
 </td>
 <td style="text-align:left;">
-0.07
+3.082
 </td>
 <td style="text-align:left;">
-0.932
+0.027
 </td>
 <td style="text-align:left;">
-0.979
+0.059
 </td>
 <td style="text-align:left;">
+(p&lt;0.1)
 </td>
 </tr>
 <tr>
@@ -6209,10 +8090,10 @@ acc_phon
 ana_syls
 </td>
 <td style="text-align:left;">
-4.436
+3.057
 </td>
 <td style="text-align:left;">
-1.479
+1.019
 </td>
 <td style="text-align:left;">
 3
@@ -6221,44 +8102,43 @@ ana_syls
 2
 </td>
 <td style="text-align:left;">
-0.651
+1.335
 </td>
 <td style="text-align:left;">
-0.653
+0.455
 </td>
 <td style="text-align:left;">
-0.735
+0.607
 </td>
 <td style="text-align:left;">
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-foot_syls
+pn_new_word
 </td>
 <td style="text-align:left;">
-28.882
+0.668
 </td>
 <td style="text-align:left;">
-9.627
+0.668
 </td>
 <td style="text-align:left;">
-3
+1
 </td>
 <td style="text-align:left;">
-287.463
+1.585
 </td>
 <td style="text-align:left;">
-4.241
+0.875
 </td>
 <td style="text-align:left;">
-0.006
+0.47
 </td>
 <td style="text-align:left;">
-0.014
+0.607
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 <tr>
@@ -6266,178 +8146,25 @@ p&lt;0.05
 wrd_end_syl
 </td>
 <td style="text-align:left;">
-7.325
+21.378
 </td>
 <td style="text-align:left;">
-3.663
-</td>
-<td style="text-align:left;">
-2
-</td>
-<td style="text-align:left;">
-716.834
-</td>
-<td style="text-align:left;">
-1.614
-</td>
-<td style="text-align:left;">
-0.2
-</td>
-<td style="text-align:left;">
-0.36
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-</tbody>
-</table>
-<table class="table" style="width: auto !important; ">
-<caption>
-2. h_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | foot_dur) [prenuclear PA]
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-term
-</th>
-<th style="text-align:left;">
-sumsq
-</th>
-<th style="text-align:left;">
-meansq
-</th>
-<th style="text-align:left;">
-NumDF
-</th>
-<th style="text-align:left;">
-DenDF
-</th>
-<th style="text-align:left;">
-F value
-</th>
-<th style="text-align:left;">
-p.value
-</th>
-<th style="text-align:left;">
-p.adj (BH)
-</th>
-<th style="text-align:left;">
-signif.
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-acc_phon
-</td>
-<td style="text-align:left;">
-352059.085
-</td>
-<td style="text-align:left;">
-176029.542
+10.689
 </td>
 <td style="text-align:left;">
 2
 </td>
 <td style="text-align:left;">
-713.408
+463.785
 </td>
 <td style="text-align:left;">
-104.211
+14.001
 </td>
 <td style="text-align:left;">
-2.0e-40
+1.2e-06
 </td>
 <td style="text-align:left;">
-3.6e-39
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ana_syls
-</td>
-<td style="text-align:left;">
-19024.546
-</td>
-<td style="text-align:left;">
-6341.515
-</td>
-<td style="text-align:left;">
-3
-</td>
-<td style="text-align:left;">
-2.691
-</td>
-<td style="text-align:left;">
-3.754
-</td>
-<td style="text-align:left;">
-0.169
-</td>
-<td style="text-align:left;">
-0.338
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls
-</td>
-<td style="text-align:left;">
-132724.014
-</td>
-<td style="text-align:left;">
-44241.338
-</td>
-<td style="text-align:left;">
-3
-</td>
-<td style="text-align:left;">
-658.674
-</td>
-<td style="text-align:left;">
-26.191
-</td>
-<td style="text-align:left;">
-5.2e-16
-</td>
-<td style="text-align:left;">
-4.7e-15
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-wrd_end_syl
-</td>
-<td style="text-align:left;">
-30446.067
-</td>
-<td style="text-align:left;">
-15223.033
-</td>
-<td style="text-align:left;">
-2
-</td>
-<td style="text-align:left;">
-704.17
-</td>
-<td style="text-align:left;">
-9.012
-</td>
-<td style="text-align:left;">
-1.4e-04
-</td>
-<td style="text-align:left;">
-5.0e-04
+9.7e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -6448,22 +8175,412 @@ p&lt;0.001
 gender
 </td>
 <td style="text-align:left;">
-46035.576
+3.003
 </td>
 <td style="text-align:left;">
-46035.576
+3.003
 </td>
 <td style="text-align:left;">
 1
 </td>
 <td style="text-align:left;">
-9.131
+9.207
 </td>
 <td style="text-align:left;">
-27.253
+3.934
 </td>
 <td style="text-align:left;">
-5.2e-04
+0.078
+</td>
+<td style="text-align:left;">
+0.151
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+2. h_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+(1 | speaker) + (1 | ana_text) [prenuclear PA]
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:left;">
+sumsq
+</th>
+<th style="text-align:left;">
+meansq
+</th>
+<th style="text-align:left;">
+NumDF
+</th>
+<th style="text-align:left;">
+DenDF
+</th>
+<th style="text-align:left;">
+F value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+acc_phon
+</td>
+<td style="text-align:left;">
+0.4
+</td>
+<td style="text-align:left;">
+0.2
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+715.719
+</td>
+<td style="text-align:left;">
+0.088
+</td>
+<td style="text-align:left;">
+0.916
+</td>
+<td style="text-align:left;">
+0.916
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls
+</td>
+<td style="text-align:left;">
+5.575
+</td>
+<td style="text-align:left;">
+1.858
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+0.818
+</td>
+<td style="text-align:left;">
+0.591
+</td>
+<td style="text-align:left;">
+0.719
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls
+</td>
+<td style="text-align:left;">
+23.93
+</td>
+<td style="text-align:left;">
+7.977
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+621.451
+</td>
+<td style="text-align:left;">
+3.51
+</td>
+<td style="text-align:left;">
+0.015
+</td>
+<td style="text-align:left;">
+0.039
+</td>
+<td style="text-align:left;">
+p&lt;0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl
+</td>
+<td style="text-align:left;">
+6.691
+</td>
+<td style="text-align:left;">
+3.345
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+714.121
+</td>
+<td style="text-align:left;">
+1.472
+</td>
+<td style="text-align:left;">
+0.23
+</td>
+<td style="text-align:left;">
+0.376
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pn_new_word
+</td>
+<td style="text-align:left;">
+2.592
+</td>
+<td style="text-align:left;">
+2.592
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1.748
+</td>
+<td style="text-align:left;">
+1.14
+</td>
+<td style="text-align:left;">
+0.411
+</td>
+<td style="text-align:left;">
+0.606
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+3. h_t ~ acc_phon + ana_syls + foot_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur) [prenuclear PA]
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:left;">
+sumsq
+</th>
+<th style="text-align:left;">
+meansq
+</th>
+<th style="text-align:left;">
+NumDF
+</th>
+<th style="text-align:left;">
+DenDF
+</th>
+<th style="text-align:left;">
+F value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+acc_phon
+</td>
+<td style="text-align:left;">
+359188.914
+</td>
+<td style="text-align:left;">
+179594.457
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+713.698
+</td>
+<td style="text-align:left;">
+105.962
+</td>
+<td style="text-align:left;">
+5.1e-41
+</td>
+<td style="text-align:left;">
+1.6e-39
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls
+</td>
+<td style="text-align:left;">
+31961.776
+</td>
+<td style="text-align:left;">
+10653.925
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+6.286
+</td>
+<td style="text-align:left;">
+0.14
+</td>
+<td style="text-align:left;">
+0.256
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls
+</td>
+<td style="text-align:left;">
+125844.882
+</td>
+<td style="text-align:left;">
+41948.294
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+687.241
+</td>
+<td style="text-align:left;">
+24.75
+</td>
+<td style="text-align:left;">
+3.2e-15
+</td>
+<td style="text-align:left;">
+5.0e-14
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pn_new_word
+</td>
+<td style="text-align:left;">
+5436.845
+</td>
+<td style="text-align:left;">
+5436.845
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1.951
+</td>
+<td style="text-align:left;">
+3.208
+</td>
+<td style="text-align:left;">
+0.218
+</td>
+<td style="text-align:left;">
+0.376
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl
+</td>
+<td style="text-align:left;">
+28982.687
+</td>
+<td style="text-align:left;">
+14491.344
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+704.554
+</td>
+<td style="text-align:left;">
+8.55
+</td>
+<td style="text-align:left;">
+2.1e-04
+</td>
+<td style="text-align:left;">
+9.5e-04
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:left;">
+45931.411
+</td>
+<td style="text-align:left;">
+45931.411
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+9.127
+</td>
+<td style="text-align:left;">
+27.1
+</td>
+<td style="text-align:left;">
+5.3e-04
 </td>
 <td style="text-align:left;">
 0.002
@@ -6476,8 +8593,8 @@ p&lt;0.01
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-3. l_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker)
-+ (1 | ana_text) [prenuclear PA]
+4. l_f0 ~ acc_phon + ana_syls + foot_syls + pn_new_word + (1 | speaker)
+[prenuclear PA]
 </caption>
 <thead>
 <tr>
@@ -6516,25 +8633,25 @@ signif.
 acc_phon
 </td>
 <td style="text-align:left;">
-0.335
+0.175
 </td>
 <td style="text-align:left;">
-0.335
+0.175
 </td>
 <td style="text-align:left;">
 1
 </td>
 <td style="text-align:left;">
-469.578
+477.168
 </td>
 <td style="text-align:left;">
-0.223
+0.116
 </td>
 <td style="text-align:left;">
-0.637
+0.734
 </td>
 <td style="text-align:left;">
-0.735
+0.794
 </td>
 <td style="text-align:left;">
 </td>
@@ -6544,27 +8661,28 @@ acc_phon
 ana_syls
 </td>
 <td style="text-align:left;">
-9.631
+55.319
 </td>
 <td style="text-align:left;">
-3.21
+18.44
 </td>
 <td style="text-align:left;">
 3
 </td>
 <td style="text-align:left;">
-2
+477.022
 </td>
 <td style="text-align:left;">
-2.131
+12.255
 </td>
 <td style="text-align:left;">
-0.335
+9.8e-08
 </td>
 <td style="text-align:left;">
-0.479
+1.0e-06
 </td>
 <td style="text-align:left;">
+p&lt;0.001
 </td>
 </tr>
 <tr>
@@ -6572,63 +8690,65 @@ ana_syls
 foot_syls
 </td>
 <td style="text-align:left;">
-0.286
+2.589
 </td>
 <td style="text-align:left;">
-0.095
+0.863
 </td>
 <td style="text-align:left;">
 3
 </td>
 <td style="text-align:left;">
-262.295
+477.046
 </td>
 <td style="text-align:left;">
-0.063
+0.574
 </td>
 <td style="text-align:left;">
-0.979
+0.633
 </td>
 <td style="text-align:left;">
-0.979
+0.726
 </td>
 <td style="text-align:left;">
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-wrd_end_syl
+pn_new_word
 </td>
 <td style="text-align:left;">
-2.797
+11.314
 </td>
 <td style="text-align:left;">
-1.398
+11.314
 </td>
 <td style="text-align:left;">
-2
+1
 </td>
 <td style="text-align:left;">
-476.922
+477.026
 </td>
 <td style="text-align:left;">
-0.928
+7.519
 </td>
 <td style="text-align:left;">
-0.396
+0.006
 </td>
 <td style="text-align:left;">
-0.509
+0.018
 </td>
 <td style="text-align:left;">
+p&lt;0.05
 </td>
 </tr>
 </tbody>
 </table>
 <table class="table" style="width: auto !important; ">
 <caption>
-4. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 |
-speaker) + (1 | ana_text) + (1 | ana_end_t) [prenuclear PA]
+5. l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word +
+gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) [prenuclear
+PA]
 </caption>
 <thead>
 <tr>
@@ -6667,19 +8787,19 @@ signif.
 acc_phon
 </td>
 <td style="text-align:left;">
-8440.079
+8484.475
 </td>
 <td style="text-align:left;">
-8440.079
+8484.475
 </td>
 <td style="text-align:left;">
 1
 </td>
 <td style="text-align:left;">
-407.156
+401.364
 </td>
 <td style="text-align:left;">
-11.98
+12.012
 </td>
 <td style="text-align:left;">
 5.9e-04
@@ -6696,25 +8816,25 @@ p&lt;0.01
 ana_syls
 </td>
 <td style="text-align:left;">
-4123.574
+2822.101
 </td>
 <td style="text-align:left;">
-1374.525
+940.7
 </td>
 <td style="text-align:left;">
 3
 </td>
 <td style="text-align:left;">
-2.192
+2
 </td>
 <td style="text-align:left;">
-1.951
+1.332
 </td>
 <td style="text-align:left;">
-0.343
+0.456
 </td>
 <td style="text-align:left;">
-0.479
+0.607
 </td>
 <td style="text-align:left;">
 </td>
@@ -6724,25 +8844,25 @@ ana_syls
 foot_syls
 </td>
 <td style="text-align:left;">
-19780.966
+19722.776
 </td>
 <td style="text-align:left;">
-6593.655
+6574.259
 </td>
 <td style="text-align:left;">
 3
 </td>
 <td style="text-align:left;">
-401.027
+402.411
 </td>
 <td style="text-align:left;">
-9.359
+9.307
 </td>
 <td style="text-align:left;">
-5.4e-06
+5.8e-06
 </td>
 <td style="text-align:left;">
-2.4e-05
+3.0e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -6753,25 +8873,53 @@ p&lt;0.001
 wrd_end_syl
 </td>
 <td style="text-align:left;">
-1499.985
+1468.502
 </td>
 <td style="text-align:left;">
-749.993
+734.251
 </td>
 <td style="text-align:left;">
 2
 </td>
 <td style="text-align:left;">
-418.266
+417.36
 </td>
 <td style="text-align:left;">
-1.065
+1.04
 </td>
 <td style="text-align:left;">
-0.346
+0.355
 </td>
 <td style="text-align:left;">
-0.479
+0.55
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pn_new_word
+</td>
+<td style="text-align:left;">
+61.795
+</td>
+<td style="text-align:left;">
+61.795
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1.611
+</td>
+<td style="text-align:left;">
+0.087
+</td>
+<td style="text-align:left;">
+0.801
+</td>
+<td style="text-align:left;">
+0.828
 </td>
 <td style="text-align:left;">
 </td>
@@ -6781,28 +8929,211 @@ wrd_end_syl
 gender
 </td>
 <td style="text-align:left;">
-73194.778
+72906.373
 </td>
 <td style="text-align:left;">
-73194.778
+72906.373
 </td>
 <td style="text-align:left;">
 1
 </td>
 <td style="text-align:left;">
-9.675
+9.672
 </td>
 <td style="text-align:left;">
-103.894
+103.217
 </td>
 <td style="text-align:left;">
-1.7e-06
+1.8e-06
 </td>
 <td style="text-align:left;">
-1.0e-05
+1.1e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="width: auto !important; ">
+<caption>
+6. log_lh_slope ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl +
+gender + (1 | speaker) + (1 | ana_text) + (1 | foot_dur) [nuclear
+contour]
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:left;">
+sumsq
+</th>
+<th style="text-align:left;">
+meansq
+</th>
+<th style="text-align:left;">
+NumDF
+</th>
+<th style="text-align:left;">
+DenDF
+</th>
+<th style="text-align:left;">
+F value
+</th>
+<th style="text-align:left;">
+p.value
+</th>
+<th style="text-align:left;">
+p.adj (BH)
+</th>
+<th style="text-align:left;">
+signif.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+foot_syls
+</td>
+<td style="text-align:left;">
+2.123
+</td>
+<td style="text-align:left;">
+0.708
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+454.502
+</td>
+<td style="text-align:left;">
+5.276
+</td>
+<td style="text-align:left;">
+0.001
+</td>
+<td style="text-align:left;">
+0.004
+</td>
+<td style="text-align:left;">
+p&lt;0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ana_syls
+</td>
+<td style="text-align:left;">
+0.316
+</td>
+<td style="text-align:left;">
+0.105
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+0.784
+</td>
+<td style="text-align:left;">
+0.603
+</td>
+<td style="text-align:left;">
+0.719
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pn_new_word
+</td>
+<td style="text-align:left;">
+0.021
+</td>
+<td style="text-align:left;">
+0.021
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1.511
+</td>
+<td style="text-align:left;">
+0.155
+</td>
+<td style="text-align:left;">
+0.742
+</td>
+<td style="text-align:left;">
+0.794
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wrd_end_syl
+</td>
+<td style="text-align:left;">
+0.96
+</td>
+<td style="text-align:left;">
+0.48
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+468.812
+</td>
+<td style="text-align:left;">
+3.58
+</td>
+<td style="text-align:left;">
+0.029
+</td>
+<td style="text-align:left;">
+0.059
+</td>
+<td style="text-align:left;">
+(p&lt;0.1)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:left;">
+0.973
+</td>
+<td style="text-align:left;">
+0.973
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+9.355
+</td>
+<td style="text-align:left;">
+7.257
+</td>
+<td style="text-align:left;">
+0.024
+</td>
+<td style="text-align:left;">
+0.057
+</td>
+<td style="text-align:left;">
+(p&lt;0.1)
 </td>
 </tr>
 </tbody>
@@ -7156,28 +9487,28 @@ signif.
 foot_syls1
 </td>
 <td style="text-align:left;">
-309
+313.3
 </td>
 <td style="text-align:left;">
-237.9
+257.5
 </td>
 <td style="text-align:left;">
-380.2
+369.1
 </td>
 <td style="text-align:left;">
-29.623
+23.911
 </td>
 <td style="text-align:left;">
-10.432
+13.104
 </td>
 <td style="text-align:left;">
-6.51
+7.5
 </td>
 <td style="text-align:left;">
-2.7e-05
+1.9e-06
 </td>
 <td style="text-align:left;">
-3.8e-05
+3.1e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7188,28 +9519,28 @@ p&lt;0.001
 foot_syls2
 </td>
 <td style="text-align:left;">
-319.7
+324
 </td>
 <td style="text-align:left;">
-214.6
+228.9
 </td>
 <td style="text-align:left;">
-424.8
+419.1
 </td>
 <td style="text-align:left;">
-42.265
+38.471
 </td>
 <td style="text-align:left;">
-7.565
+8.422
 </td>
 <td style="text-align:left;">
-5.63
+5.76
 </td>
 <td style="text-align:left;">
-3.7e-04
+1.9e-04
 </td>
 <td style="text-align:left;">
-4.7e-04
+2.4e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7220,28 +9551,28 @@ p&lt;0.001
 foot_syls3
 </td>
 <td style="text-align:left;">
-426.3
+430.5
 </td>
 <td style="text-align:left;">
-355.1
+374.8
 </td>
 <td style="text-align:left;">
-497.4
+486.3
 </td>
 <td style="text-align:left;">
-29.622
+23.909
 </td>
 <td style="text-align:left;">
-14.39
+18.008
 </td>
 <td style="text-align:left;">
-6.5
+7.5
 </td>
 <td style="text-align:left;">
-3.6e-06
+1.9e-07
 </td>
 <td style="text-align:left;">
-6.1e-06
+3.6e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7252,28 +9583,28 @@ p&lt;0.001
 foot_syls4
 </td>
 <td style="text-align:left;">
-567.9
+572.2
 </td>
 <td style="text-align:left;">
-472.8
+467.1
 </td>
 <td style="text-align:left;">
-663
+677.3
 </td>
 <td style="text-align:left;">
-38.475
+42.259
 </td>
 <td style="text-align:left;">
-14.761
+13.54
 </td>
 <td style="text-align:left;">
-5.76
+5.62
 </td>
 <td style="text-align:left;">
-8.5e-06
+1.7e-05
 </td>
 <td style="text-align:left;">
-1.4e-05
+2.4e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7284,28 +9615,28 @@ p&lt;0.001
 pre_syls0
 </td>
 <td style="text-align:left;">
-309
+313.3
 </td>
 <td style="text-align:left;">
-237.9
+257.5
 </td>
 <td style="text-align:left;">
-380.2
+369.1
 </td>
 <td style="text-align:left;">
-29.623
+23.911
 </td>
 <td style="text-align:left;">
-10.432
+13.104
 </td>
 <td style="text-align:left;">
-6.51
+7.5
 </td>
 <td style="text-align:left;">
-2.7e-05
+1.9e-06
 </td>
 <td style="text-align:left;">
-3.8e-05
+3.1e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7316,28 +9647,28 @@ p&lt;0.001
 pre_syls1
 </td>
 <td style="text-align:left;">
-278.1
+282.4
 </td>
 <td style="text-align:left;">
-207
+226.6
 </td>
 <td style="text-align:left;">
-349.3
+338.2
 </td>
 <td style="text-align:left;">
-29.633
+23.926
 </td>
 <td style="text-align:left;">
-9.386
+11.803
 </td>
 <td style="text-align:left;">
-6.51
+7.52
 </td>
 <td style="text-align:left;">
-5.1e-05
+4.0e-06
 </td>
 <td style="text-align:left;">
-6.9e-05
+6.3e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7348,28 +9679,28 @@ p&lt;0.001
 pre_syls2
 </td>
 <td style="text-align:left;">
-304.6
+308.9
 </td>
 <td style="text-align:left;">
-215.6
+225.7
 </td>
 <td style="text-align:left;">
-393.6
+392.1
 </td>
 <td style="text-align:left;">
-36.301
+34.134
 </td>
 <td style="text-align:left;">
-8.391
+9.049
 </td>
 <td style="text-align:left;">
-5.96
+6.1
 </td>
 <td style="text-align:left;">
-1.6e-04
+9.3e-05
 </td>
 <td style="text-align:left;">
-2.1e-04
+1.2e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7380,28 +9711,28 @@ p&lt;0.001
 pre_syls3
 </td>
 <td style="text-align:left;">
-268.5
+272.8
 </td>
 <td style="text-align:left;">
-179.5
+189.6
 </td>
 <td style="text-align:left;">
-357.5
+356
 </td>
 <td style="text-align:left;">
-36.301
+34.137
 </td>
 <td style="text-align:left;">
-7.396
+7.991
 </td>
 <td style="text-align:left;">
-5.96
+6.1
 </td>
 <td style="text-align:left;">
-3.2e-04
+1.9e-04
 </td>
 <td style="text-align:left;">
-4.1e-04
+2.4e-04
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -7975,7 +10306,7 @@ foot_syls2
 2.3e-05
 </td>
 <td style="text-align:left;">
-3.4e-05
+3.2e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8103,7 +10434,7 @@ pre_syls1
 2.6e-07
 </td>
 <td style="text-align:left;">
-4.8e-07
+4.6e-07
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8135,7 +10466,7 @@ pre_syls2
 1.8e-05
 </td>
 <td style="text-align:left;">
-2.8e-05
+2.6e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8167,7 +10498,7 @@ pre_syls3
 4.8e-05
 </td>
 <td style="text-align:left;">
-6.7e-05
+6.5e-05
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8220,28 +10551,28 @@ signif.
 foot_syls1
 </td>
 <td style="text-align:left;">
-82.8
+83
 </td>
 <td style="text-align:left;">
-79.5
+79.8
 </td>
 <td style="text-align:left;">
-86
+86.3
 </td>
 <td style="text-align:left;">
-1.475
+1.466
 </td>
 <td style="text-align:left;">
-56.102
+56.628
 </td>
 <td style="text-align:left;">
-10.6
+10.35
 </td>
 <td style="text-align:left;">
-1.8e-14
+3.1e-14
 </td>
 <td style="text-align:left;">
-4.3e-14
+7.1e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8252,89 +10583,25 @@ p&lt;0.001
 foot_syls2
 </td>
 <td style="text-align:left;">
-83.3
+83.5
 </td>
 <td style="text-align:left;">
-80
+80.2
 </td>
 <td style="text-align:left;">
-86.6
-</td>
-<td style="text-align:left;">
-1.5
-</td>
-<td style="text-align:left;">
-55.512
-</td>
-<td style="text-align:left;">
-11.26
-</td>
-<td style="text-align:left;">
-4.4e-15
-</td>
-<td style="text-align:left;">
-1.4e-14
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls3
-</td>
-<td style="text-align:left;">
-83.2
-</td>
-<td style="text-align:left;">
-80
-</td>
-<td style="text-align:left;">
-86.5
-</td>
-<td style="text-align:left;">
-1.475
-</td>
-<td style="text-align:left;">
-56.418
-</td>
-<td style="text-align:left;">
-10.6
-</td>
-<td style="text-align:left;">
-1.7e-14
-</td>
-<td style="text-align:left;">
-4.3e-14
-</td>
-<td style="text-align:left;">
-p&lt;0.001
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-foot_syls4
-</td>
-<td style="text-align:left;">
-83.6
-</td>
-<td style="text-align:left;">
-80.4
-</td>
-<td style="text-align:left;">
-86.9
+86.8
 </td>
 <td style="text-align:left;">
 1.491
 </td>
 <td style="text-align:left;">
-56.103
+56.021
 </td>
 <td style="text-align:left;">
 11.01
 </td>
 <td style="text-align:left;">
-6.9e-15
+7.0e-15
 </td>
 <td style="text-align:left;">
 2.2e-14
@@ -8345,31 +10612,95 @@ p&lt;0.001
 </tr>
 <tr>
 <td style="text-align:left;">
+foot_syls3
+</td>
+<td style="text-align:left;">
+83.5
+</td>
+<td style="text-align:left;">
+80.2
+</td>
+<td style="text-align:left;">
+86.7
+</td>
+<td style="text-align:left;">
+1.466
+</td>
+<td style="text-align:left;">
+56.945
+</td>
+<td style="text-align:left;">
+10.35
+</td>
+<td style="text-align:left;">
+2.9e-14
+</td>
+<td style="text-align:left;">
+7.1e-14
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foot_syls4
+</td>
+<td style="text-align:left;">
+83.9
+</td>
+<td style="text-align:left;">
+80.6
+</td>
+<td style="text-align:left;">
+87.2
+</td>
+<td style="text-align:left;">
+1.5
+</td>
+<td style="text-align:left;">
+55.92
+</td>
+<td style="text-align:left;">
+11.25
+</td>
+<td style="text-align:left;">
+4.1e-15
+</td>
+<td style="text-align:left;">
+1.3e-14
+</td>
+<td style="text-align:left;">
+p&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 pre_syls0
 </td>
 <td style="text-align:left;">
-82.8
+83
 </td>
 <td style="text-align:left;">
-79.5
+79.8
 </td>
 <td style="text-align:left;">
-86
+86.3
 </td>
 <td style="text-align:left;">
-1.475
+1.466
 </td>
 <td style="text-align:left;">
-56.102
+56.628
 </td>
 <td style="text-align:left;">
-10.6
+10.35
 </td>
 <td style="text-align:left;">
-1.8e-14
+3.1e-14
 </td>
 <td style="text-align:left;">
-4.3e-14
+7.1e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8380,28 +10711,28 @@ p&lt;0.001
 pre_syls1
 </td>
 <td style="text-align:left;">
-82.9
+83.1
 </td>
 <td style="text-align:left;">
-79.6
+79.9
 </td>
 <td style="text-align:left;">
-86.2
+86.4
 </td>
 <td style="text-align:left;">
-1.476
+1.466
 </td>
 <td style="text-align:left;">
-56.173
+56.699
 </td>
 <td style="text-align:left;">
-10.61
+10.36
 </td>
 <td style="text-align:left;">
-1.8e-14
+2.9e-14
 </td>
 <td style="text-align:left;">
-4.3e-14
+7.1e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8412,28 +10743,28 @@ p&lt;0.001
 pre_syls2
 </td>
 <td style="text-align:left;">
-82.6
+82.9
 </td>
 <td style="text-align:left;">
-79.3
+79.6
 </td>
 <td style="text-align:left;">
-85.9
+86.1
 </td>
 <td style="text-align:left;">
-1.489
+1.485
 </td>
 <td style="text-align:left;">
-55.479
+55.816
 </td>
 <td style="text-align:left;">
-10.98
+10.86
 </td>
 <td style="text-align:left;">
-8.5e-15
+1.1e-14
 </td>
 <td style="text-align:left;">
-2.4e-14
+3.0e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8444,28 +10775,28 @@ p&lt;0.001
 pre_syls3
 </td>
 <td style="text-align:left;">
-82.6
+82.9
 </td>
 <td style="text-align:left;">
-79.3
+79.6
 </td>
 <td style="text-align:left;">
-85.9
+86.1
 </td>
 <td style="text-align:left;">
-1.489
+1.485
 </td>
 <td style="text-align:left;">
-55.478
+55.817
 </td>
 <td style="text-align:left;">
-10.98
+10.86
 </td>
 <td style="text-align:left;">
-8.4e-15
+1.1e-14
 </td>
 <td style="text-align:left;">
-2.4e-14
+3.0e-14
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8518,25 +10849,25 @@ signif.
 foot_syls1
 </td>
 <td style="text-align:left;">
-124.2
+104
 </td>
 <td style="text-align:left;">
-67.1
+59.8
 </td>
 <td style="text-align:left;">
-181.4
+148.3
 </td>
 <td style="text-align:left;">
-22.779
+17.909
 </td>
 <td style="text-align:left;">
-5.454
+5.808
 </td>
 <td style="text-align:left;">
-5.44
+5.76
 </td>
 <td style="text-align:left;">
-0.002
+0.001
 </td>
 <td style="text-align:left;">
 0.002
@@ -8550,28 +10881,28 @@ p&lt;0.01
 foot_syls2
 </td>
 <td style="text-align:left;">
-126.4
+106.2
 </td>
 <td style="text-align:left;">
-41.5
+29.4
 </td>
 <td style="text-align:left;">
-211.3
+182.9
 </td>
 <td style="text-align:left;">
-33.272
+30.147
 </td>
 <td style="text-align:left;">
-3.798
+3.521
 </td>
 <td style="text-align:left;">
-5.12
+5.16
 </td>
 <td style="text-align:left;">
-0.012
+0.016
 </td>
 <td style="text-align:left;">
-0.013
+0.017
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -8582,28 +10913,28 @@ p&lt;0.05
 foot_syls3
 </td>
 <td style="text-align:left;">
-127.3
+107
 </td>
 <td style="text-align:left;">
-70.1
+62.8
 </td>
 <td style="text-align:left;">
-184.4
+151.3
 </td>
 <td style="text-align:left;">
-22.776
+17.908
 </td>
 <td style="text-align:left;">
-5.588
+5.977
 </td>
 <td style="text-align:left;">
-5.44
+5.76
 </td>
 <td style="text-align:left;">
-0.002
+0.001
 </td>
 <td style="text-align:left;">
-0.002
+0.001
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8614,28 +10945,28 @@ p&lt;0.01
 foot_syls4
 </td>
 <td style="text-align:left;">
-109.7
+89.5
 </td>
 <td style="text-align:left;">
-32.9
+4.577
 </td>
 <td style="text-align:left;">
-186.5
+174.4
 </td>
 <td style="text-align:left;">
-30.145
+33.27
 </td>
 <td style="text-align:left;">
-3.64
+2.69
 </td>
 <td style="text-align:left;">
-5.16
+5.12
 </td>
 <td style="text-align:left;">
-0.014
+0.042
 </td>
 <td style="text-align:left;">
-0.014
+0.043
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -8646,25 +10977,25 @@ p&lt;0.05
 pre_syls0
 </td>
 <td style="text-align:left;">
-124.2
+104
 </td>
 <td style="text-align:left;">
-67.1
+59.8
 </td>
 <td style="text-align:left;">
-181.4
+148.3
 </td>
 <td style="text-align:left;">
-22.779
+17.909
 </td>
 <td style="text-align:left;">
-5.454
+5.808
 </td>
 <td style="text-align:left;">
-5.44
+5.76
 </td>
 <td style="text-align:left;">
-0.002
+0.001
 </td>
 <td style="text-align:left;">
 0.002
@@ -8678,28 +11009,28 @@ p&lt;0.01
 pre_syls1
 </td>
 <td style="text-align:left;">
-116.5
+96.2
 </td>
 <td style="text-align:left;">
-59.3
+52
 </td>
 <td style="text-align:left;">
-173.6
+140.5
 </td>
 <td style="text-align:left;">
-22.784
+17.917
 </td>
 <td style="text-align:left;">
-5.112
+5.372
 </td>
 <td style="text-align:left;">
-5.45
+5.77
 </td>
 <td style="text-align:left;">
-0.003
+0.002
 </td>
 <td style="text-align:left;">
-0.003
+0.002
 </td>
 <td style="text-align:left;">
 p&lt;0.01
@@ -8710,28 +11041,28 @@ p&lt;0.01
 pre_syls2
 </td>
 <td style="text-align:left;">
-112.4
+92.2
 </td>
 <td style="text-align:left;">
-40.7
+25.2
 </td>
 <td style="text-align:left;">
-184.2
+159.3
 </td>
 <td style="text-align:left;">
-28.356
+26.552
 </td>
 <td style="text-align:left;">
-3.965
+3.473
 </td>
 <td style="text-align:left;">
-5.27
+5.32
 </td>
 <td style="text-align:left;">
-0.01
+0.016
 </td>
 <td style="text-align:left;">
-0.01
+0.017
 </td>
 <td style="text-align:left;">
 p&lt;0.05
@@ -8742,31 +11073,30 @@ p&lt;0.05
 pre_syls3
 </td>
 <td style="text-align:left;">
-86
+65.8
 </td>
 <td style="text-align:left;">
-14.2
+-1.252
 </td>
 <td style="text-align:left;">
-157.8
+132.8
 </td>
 <td style="text-align:left;">
-28.357
+26.555
 </td>
 <td style="text-align:left;">
-3.034
+2.478
 </td>
 <td style="text-align:left;">
-5.27
+5.32
 </td>
 <td style="text-align:left;">
-0.027
+0.053
 </td>
 <td style="text-align:left;">
-0.027
+0.053
 </td>
 <td style="text-align:left;">
-p&lt;0.05
 </td>
 </tr>
 </tbody>
@@ -8869,7 +11199,7 @@ foot_syls2
 1.1e-06
 </td>
 <td style="text-align:left;">
-1.9e-06
+1.8e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -8933,7 +11263,7 @@ foot_syls4
 6.0e-06
 </td>
 <td style="text-align:left;">
-1.0e-05
+9.2e-06
 </td>
 <td style="text-align:left;">
 p&lt;0.001
@@ -9961,22 +12291,22 @@ genderM
 intercept
 </td>
 <td style="text-align:left;">
-nuc_new_word1
+nuc_new_word0
 </td>
 <td style="text-align:left;">
-4.284
+-4.284
 </td>
 <td style="text-align:left;">
--40.7
+-49.2
 </td>
 <td style="text-align:left;">
-49.2
+40.7
 </td>
 <td style="text-align:left;">
-17.488
+17.487
 </td>
 <td style="text-align:left;">
-0.245
+-0.245
 </td>
 <td style="text-align:left;">
 5
@@ -11748,22 +14078,22 @@ fin_phonL%
 intercept
 </td>
 <td style="text-align:left;">
-nuc_new_word1
+nuc_new_word0
 </td>
 <td style="text-align:left;">
-0.245
+-0.245
 </td>
 <td style="text-align:left;">
--0.171
+-0.661
 </td>
 <td style="text-align:left;">
-0.661
+0.171
 </td>
 <td style="text-align:left;">
 0.166
 </td>
 <td style="text-align:left;">
-1.474
+-1.474
 </td>
 <td style="text-align:left;">
 5.51
@@ -12269,22 +14599,22 @@ fin_phonL%
 intercept
 </td>
 <td style="text-align:left;">
-nuc_new_word1
+nuc_new_word0
 </td>
 <td style="text-align:left;">
--20.2
+20.2
 </td>
 <td style="text-align:left;">
--56.5
+-16
 </td>
 <td style="text-align:left;">
-16
+56.5
 </td>
 <td style="text-align:left;">
 14.076
 </td>
 <td style="text-align:left;">
--1.437
+1.437
 </td>
 <td style="text-align:left;">
 4.97
@@ -12758,10 +15088,10 @@ signif.
 foot_syls
 </td>
 <td style="text-align:left;">
-636816.792
+636816.836
 </td>
 <td style="text-align:left;">
-212272.264
+212272.279
 </td>
 <td style="text-align:left;">
 3
@@ -12787,10 +15117,10 @@ p&lt;0.001
 pre_syls
 </td>
 <td style="text-align:left;">
-5448.478
+5448.484
 </td>
 <td style="text-align:left;">
-1816.159
+1816.161
 </td>
 <td style="text-align:left;">
 3
@@ -12843,10 +15173,10 @@ fin_phon
 gender
 </td>
 <td style="text-align:left;">
-7068.93
+7068.914
 </td>
 <td style="text-align:left;">
-7068.93
+7068.914
 </td>
 <td style="text-align:left;">
 1
@@ -13522,10 +15852,10 @@ foot_syls
 pre_syls
 </td>
 <td style="text-align:left;">
-3207.007
+3207.008
 </td>
 <td style="text-align:left;">
-1069.002
+1069.003
 </td>
 <td style="text-align:left;">
 3
@@ -13578,10 +15908,10 @@ fin_phon
 nuc_new_word
 </td>
 <td style="text-align:left;">
-1171.073
+1171.074
 </td>
 <td style="text-align:left;">
-1171.073
+1171.074
 </td>
 <td style="text-align:left;">
 1
@@ -13606,10 +15936,10 @@ nuc_new_word
 gender
 </td>
 <td style="text-align:left;">
-28808.669
+28808.63
 </td>
 <td style="text-align:left;">
-28808.669
+28808.63
 </td>
 <td style="text-align:left;">
 1

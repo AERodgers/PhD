@@ -1,1 +1,1 @@
-isLH ~ foot_syls + wrd_end_syl + gender + (1 | speaker) + (1 | speech_rate)
+isLH ~ foot_syls + wrd_end_syl + pn_new_word + (1 | speaker) + (1 | speech_rate)

@@ -1,0 +1,1 @@
+f0_exc ~ foot_syls + ana_syls + pn_new_word + wrd_end_syl + gender + (1 | speaker) + (1 | ana_text)

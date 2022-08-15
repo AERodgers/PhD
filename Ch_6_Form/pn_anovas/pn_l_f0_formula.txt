@@ -1,1 +1,1 @@
-l_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + (1 | speaker) + (1 | ana_text) [prenuclear PA]
+l_f0 ~ acc_phon + ana_syls + foot_syls + pn_new_word + (1 | speaker) [prenuclear PA]
