@@ -1,1 +1,1 @@
-isHStar ~ +foot_syls + wrd_end_syl + gender + (1 | speaker)
+isHStar ~ foot_syls + wrd_end_syl + gender + (1 | speaker)

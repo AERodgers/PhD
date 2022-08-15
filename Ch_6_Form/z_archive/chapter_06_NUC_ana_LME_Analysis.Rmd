@@ -119,7 +119,7 @@ summariseLME(nuc_pre_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_pre_h
 ```
 
 
-```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 nuc_pre_h_t_mdl.tidy <- analyseModel(nuc_pre_h_t_mdl.trimmed,
                                 write="phonetic_models/nuc_pre_h_t",
@@ -200,7 +200,7 @@ summariseLME(nuc_pre_h_f0_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_pre_
 ```
 
 
-```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 nuc_pre_h_f0_mdl.trimmed.tidy <- analyseModel(nuc_pre_h_f0_mdl.trimmed,
                                 write="phonetic_models/nuc_pre_h_f0",
@@ -288,7 +288,7 @@ summariseLME(nuc_pre_l_t_mdl, run_step = TRUE, write = "anovas/nuc_pre_l_t.csv")
 ```
 
 
-```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 nuc_pre_l_t_mdl.tidy <- analyseModel(nuc_pre_l_t_mdl,
                                 write="phonetic_models/nuc_pre_l_t",
@@ -374,7 +374,7 @@ allFit(nuc_pre_l_f0_mdl.trimmed)
 ```
 
 
-```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 nuc_pre_l_f0_mdl.tidy <- analyseModel(nuc_pre_l_f0_mdl.trimmed,
                                 write="phonetic_models/nuc_pre_l_f0",

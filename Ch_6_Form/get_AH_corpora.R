@@ -103,7 +103,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     foot_syls = factor(foot_syls, levels=(1:4)),
     ana_text = if_else(is.na(ana_text), "0", ana_text),
     ana_text = factor(ana_text, level = unique(ana_text)),
-    ana_ends_word = factor(ana_ends_word, level = 0:1),
+    ana_ends_word = factor(ana_ends_word, level = -1:1),
     nuc_pre_text = if_else(is.na(nuc_pre_text), "0", nuc_pre_text),
     nuc_pre_text = factor(nuc_pre_text, level = unique(nuc_pre_text)),
     nuc_new_word= factor(nuc_new_word, level = 0:1),

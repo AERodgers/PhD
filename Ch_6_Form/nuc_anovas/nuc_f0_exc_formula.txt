@@ -1,0 +1,1 @@
+f0_exc ~ foot_syls + pre_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text) [nuclear contour]

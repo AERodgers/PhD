@@ -1,1 +1,0 @@
-e_f0 ~ foot_syls + pre_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)

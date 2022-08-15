@@ -110,7 +110,7 @@ summariseLME(pn_foot_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_foot_h
 ```
 
 
-```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_foot_h_t_mdl.trimmed.tidy <- analyseModel(pn_foot_h_t_mdl.trimmed,
                                 write="phonetic_models/pn_foot_h_t",
@@ -188,7 +188,7 @@ allFit(pn_foot_h_f0_mdl.trimmed)
 ```
 
 
-```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_foot_h_f0_mdl.trimmed.tidy <- analyseModel(pn_foot_h_f0_mdl.trimmed,
                                 write="phonetic_models/pn_foot_h_f0",
@@ -290,7 +290,7 @@ summariseLME(pn_foot_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_foot_l
 ```
 
 
-```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_foot_l_t_mdl.trimmed.tidy <- analyseModel(pn_foot_l_t_mdl.trimmed,
                                 write="phonetic_models/pn_foot_l_t",
@@ -351,7 +351,7 @@ allFit(pn_foot_l_f0_mdl)
 ```
 
 
-```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_foot_l_f0_mdl.tidy <- analyseModel(pn_foot_l_f0_mdl,
                                 write="phonetic_models/pn_foot_l_f0",

@@ -1,0 +1,4 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+foot_syls,252.194,84.065,3,7.769,38.431,5.2e-05,2.4e-04,p<0.001
+pre_syls,1.923,0.641,3,5.758,0.293,0.829,0.864,
+fin_phon,8.594,8.594,1,765.429,3.929,0.048,0.102,

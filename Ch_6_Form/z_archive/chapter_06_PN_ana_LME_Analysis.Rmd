@@ -110,7 +110,7 @@ summariseLME(pn_ana_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_ana_h_t
 ```
 
 
-```{r h_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_ana_h_t_mdl.trimmed.tidy <- analyseModel(pn_ana_h_t_mdl.trimmed,
                                 write="phonetic_models/pn_ana_h_t",
@@ -187,7 +187,7 @@ allFit(pn_ana_h_f0_mdl.trimmed)
 ```
 
 
-```{r h_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r h_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_ana_h_f0_mdl.trimmed.tidy <- analyseModel(pn_ana_h_f0_mdl.trimmed,
                                 write="phonetic_models/pn_ana_h_f0",
@@ -286,7 +286,7 @@ summariseLME(pn_ana_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_ana_l_t
 ```
 
 
-```{r l_t model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_t model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_ana_l_t_mdl.trimmed.tidy <- analyseModel(pn_ana_l_t_mdl.trimmed,
                                 write="phonetic_models/pn_ana_l_t",
@@ -365,7 +365,7 @@ allFit(pn_ana_l_f0_mdl.trimmed)
 ```
 
 
-```{r l_f0 model symmary, fig.height=3.5, fig.width=7, results="asis"}
+```{r l_f0 model summary, fig.height=3.5, fig.width=7, results="asis"}
 
 pn_ana_l_f0_mdl.tidy <- analyseModel(pn_ana_l_f0_mdl,
                                 write="phonetic_models/pn_ana_l_f0",

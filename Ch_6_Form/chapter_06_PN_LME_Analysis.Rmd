@@ -46,8 +46,8 @@ theme_set(theme_minimal(base_size = 14))
 
 source("get_AH_corpora.R")
 
-h_star_type <-  c("H*", ">H*", "L*H")
-l_star_type <-  c("L*", "L*H")
+h_star_type <-  c("L*H", ">H*", "H*")
+l_star_type <-  c("L*H", "L*")
 
 pn <- pn %>%
   select(speaker,
@@ -81,7 +81,7 @@ pn_h_data <- pn %>%
   mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>% 
   select(-c(l_t, l_f0))
 
-rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
 
 ```
@@ -176,15 +176,18 @@ pn_h_t_mdl.trimmed = lmer(
     )
   )
 )
-summariseLME(pn_h_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_h_t.csv")
+summariseLME(pn_h_t_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_h_t_anova.csv")
 ```
 
 
-```{r h_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
+```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
 
 pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
-                                write="phonetic_models/pn_h_t",
+                                write="pn_phonetic_models/pn_h_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
@@ -198,7 +201,7 @@ charts <- getModelFixedFX(
   h_t_equation,
   pn_h_t.trimmed,
   optimizer,
-  write="phonetic_models/pn_h_t"
+  write="pn_phonetic_models/pn_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -243,14 +246,15 @@ pn_h_f0_mdl = lmer(
 
 summariseLME(pn_h_f0_mdl,
              run_step = TRUE,
-             write = "anovas/pn_h_f0.csv")
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_h_f0_anova.csv")
 ```
 
 
-```{r h_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
+```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
 pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
-                                write="phonetic_models/pn_h_f0",
+                                write="pn_phonetic_models/pn_h_f0",
                                 type = "pred"
                                 )
 pn_h_f0_mdl.tidy$table
@@ -263,7 +267,7 @@ charts <- getModelFixedFX(
   h_f0_equation,
   pn_h_data,
   optimizer,
-  write="phonetic_models/pn_h_f0"
+  write="pn_phonetic_models/pn_h_f0"
 )
 charts$intercepts
 charts$slopes
@@ -328,14 +332,17 @@ pn_l_t_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(pn_l_t_mdl.trimmed, run_step = TRUE, write = "anovas/pn_l_t.csv")
+summariseLME(pn_l_t_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_l_t_anova.csv")
 ```
 
 
-```{r l_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
+```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
 pn_l_t_mdl.tidy <- analyseModel(pn_l_t_mdl.trimmed,
-                                write="phonetic_models/pn_l_t",
+                                write="pn_phonetic_models/pn_l_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
@@ -349,7 +356,7 @@ charts <- getModelFixedFX(
   l_t_equation,
   pn_l_t.trimmed,
   optimizer,
-  write="phonetic_models/pn_l_t"
+  write="pn_phonetic_models/pn_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -417,14 +424,15 @@ pn_l_f0_mdl.trimmed = lmer(
 
 summariseLME(pn_l_f0_mdl.trimmed,
              run_step = TRUE,
-             write = "anovas/pn_l_f0.csv")
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_l_f0_anova.csv")
 ```
 
 
-```{r l_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
+```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
 pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl.trimmed,
-                                write="phonetic_models/pn_l_f0",
+                                write="pn_phonetic_models/pn_l_f0",
                                 type = "pred"
                                 )
 pn_l_f0_mdl.tidy$table
@@ -437,7 +445,7 @@ charts <- getModelFixedFX(
   l_f0_equation,
   pn_l_f0.trimmed,
   optimizer,
-  write="phonetic_models/pn_l_f0"
+  write="pn_phonetic_models/pn_l_f0"
 )
 charts$intercepts
 charts$slopes

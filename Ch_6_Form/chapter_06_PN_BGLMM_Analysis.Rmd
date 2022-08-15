@@ -85,7 +85,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```{r set isLH equation}
 isLH_equation <- formula(isLH ~ 
-  + foot_syls
+  foot_syls
   + wrd_end_syl
   + gender
   + (1 | speaker)
@@ -188,7 +188,7 @@ charts$slopes
 - model won't converge with scalar random effects
 ```{r set isHStar equation}
 isHStar_equation <- formula(isHStar ~ 
-  + foot_syls
+  foot_syls
   + wrd_end_syl
   + gender
   + (1 | speaker)

@@ -38,16 +38,12 @@ installMissingPackages(
   )
 )
 
-
-
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
 # Get  data for analysis
 
 source("get_AH_corpora.R")
-
-
 
 nuc_data <- nuc %>%
   select(
@@ -65,10 +61,12 @@ nuc_data <- nuc %>%
     l_f0,
     e_t,
     e_f0,
+    f0_exc,
+    lh_dur,
+    lh_slope,
     foot_dur,
     speech_rate
   )
-
 rm(pn, nuc, pn_ana, pn_foot, nuc_pre, nuc_foot, pn_lex, corpus)
 
 ```
@@ -141,18 +139,20 @@ nuc_l_t_mdl = lmer(
   )
 )
 
-summariseLME(nuc_l_t_mdl, run_step = TRUE, write = "anovas/nuc_l_t.csv")
+summariseLME(nuc_l_t_mdl,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_l_t_anova.csv")
 ```
 
-
-```{r l_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
+```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 plot_model(nuc_l_t_mdl, type = "re",
            title = "Random effects of preceding unstressed content")[2]
 
-tidyPrediction(nuc_l_t_mdl, write = "predictions/nuc_l_t_mdl")
+##tidyPrediction(nuc_l_t_mdl, write = "predictions/nuc_l_t_mdl")
 
 nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
-                                write="phonetic_models/nuc_l_t",
+                                write="nuc_phonetic_models/nuc_l_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
@@ -166,15 +166,13 @@ charts <- getModelFixedFX(
   l_t_equation,
   nuc_data,
   optimizer,
-  write="phonetic_models/nuc_l_t"
+  write="nuc_phonetic_models/nuc_l_t"
 )
 charts$intercepts
 charts$slopes
 
 
 ```
-
-
 
 ### Analysis of L F0
 
@@ -216,7 +214,6 @@ nuc_l_f0_mdl = lmer(
 nuc_l_f0.trimmed <-
   nuc_data %>% filter(abs(scale(resid(nuc_l_f0_mdl))) <= 3)
 
-
 nuc_l_f0_mdl.trimmed = lmer(
   l_f0_equation,
   nuc_l_f0.trimmed,
@@ -231,18 +228,17 @@ nuc_l_f0_mdl.trimmed = lmer(
   )
 )
 
-
 summariseLME(nuc_l_f0_mdl.trimmed,
              run_step = TRUE,
-             write = "anovas/nuc_l_f0.csv")
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_l_f0_anova.csv")
 ```
 
-
-```{r l_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(nuc_l_f0_mdl.trimmed, write = "predictions/nuc_l_f0_mdl")
+```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+##tidyPrediction(nuc_l_f0_mdl.trimmed, write = "predictions/nuc_l_f0_mdl")
 
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
-                                write="phonetic_models/nuc_l_f0",
+                                write="nuc_phonetic_models/nuc_l_f0",
                                 type = "pred"
                                 )
 nuc_l_f0_mdl.tidy$table
@@ -255,15 +251,13 @@ charts <- getModelFixedFX(
   l_f0_equation,
   nuc_l_f0.trimmed,
   optimizer,
-  write="phonetic_models/nuc_l_f0"
+  write="nuc_phonetic_models/nuc_l_f0"
 )
 charts$intercepts
 charts$slopes
 
 
 ```
-
-
 
 ## H targets
 
@@ -272,8 +266,6 @@ charts$slopes
 - Only intercepts only model avoided convergence and singularity issues
 - Singularity continues, so redundant `nuc_new_word` factor removed as per `step()` output 
 ```{r set h_t equation}
-
-
 h_t_equation = formula(
   h_t ~ foot_syls
   + pre_syls
@@ -304,15 +296,18 @@ nuc_h_t_mdl = lmer(
   )
 )
 
-summariseLME(nuc_h_t_mdl, run_step = TRUE, write = "anovas/nuc_h_t.csv")
+summariseLME(nuc_h_t_mdl,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_h_t_anova.csv")
 ```
 
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(nuc_h_t_mdl, write = "predictions/nuc_h_t_mdl")
+##tidyPrediction(nuc_h_t_mdl, write = "predictions/nuc_h_t_mdl")
 
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
-                                write="phonetic_models/nuc_h_t",
+                                write="nuc_phonetic_models/nuc_h_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
@@ -326,12 +321,10 @@ charts <- getModelFixedFX(
   h_t_equation,
   nuc_data,
   optimizer,
-  write="phonetic_models/nuc_h_t"
+  write="nuc_phonetic_models/nuc_h_t"
 )
 charts$intercepts
 charts$slopes
-
-
 ```
 
 ### Analysis of H F0
@@ -346,7 +339,6 @@ h_f0_equation = formula(
   + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
-
 
 optimizer = "optimx"
 ```
@@ -387,15 +379,14 @@ nuc_h_f0_mdl.trimmed = lmer(
 
 summariseLME(nuc_h_f0_mdl.trimmed,
              run_step = TRUE,
-             write = "anovas/nuc_h_f0.csv")
+             write = "nuc_anovas/nuc_h_f0_anova.csv")
 ```
 
-
-```{r h_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(nuc_h_f0_mdl, write = "predictions/nuc_h_f0_mdl")
+```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+##tidyPrediction(nuc_h_f0_mdl, write = "predictions/nuc_h_f0_mdl")
 
 nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl,
-                                write="phonetic_models/nuc_h_f0",
+                                write="nuc_phonetic_models/nuc_h_f0",
                                 type = "pred"
                                 )
 nuc_h_f0_mdl.tidy$table
@@ -408,15 +399,13 @@ charts <- getModelFixedFX(
   h_f0_equation,
   nuc_data,
   optimizer,
-  write="phonetic_models/nuc_h_f0"
+  write="nuc_phonetic_models/nuc_h_f0"
 )
 charts$intercepts
 charts$slopes
 
 
 ```
-
-
 
 ## E targets
 
@@ -473,15 +462,17 @@ nuc_e_t_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(nuc_e_t_mdl.trimmed, run_step = TRUE, write = "anovas/nuc_e_t.csv")
+summariseLME(nuc_e_t_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_e_t_anova.csv")
 ```
 
-
-```{r e_t model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(nuc_e_t_mdl.trimmed, write = "predictions/nuc_e_t_mdl")
+```{r e_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+##tidyPrediction(nuc_e_t_mdl.trimmed, write = "predictions/nuc_e_t_mdl")
 
 nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
-                                write="phonetic_models/nuc_e_t",
+                                write="nuc_phonetic_models/nuc_e_t",
                                 type = "pred",
                                 factor_matrix = TRUE
                                 )
@@ -495,15 +486,13 @@ charts <- getModelFixedFX(
   e_t_equation,
   nuc_e_t.trimmed,
   optimizer,
-  write="phonetic_models/nuc_e_t"
+  write="nuc_phonetic_models/nuc_e_t"
 )
 charts$intercepts
 charts$slopes
 
 
 ```
-
-
 
 ### Analysis of E F0
 
@@ -515,10 +504,7 @@ e_f0_equation = formula(
   e_f0 ~ foot_syls
   + pre_syls
   + fin_phon
- #+ nuc_new_word
   + (1 | speaker)
- #+ (1 | speech_rate)
- #+ (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
 optimizer = "optimx"
@@ -557,17 +543,19 @@ nuc_e_f0_mdl.trimmed = lmer(
     )
   )
 )
+
 summariseLME(nuc_e_f0_mdl.trimmed,
              run_step = TRUE,
-             write = "anovas/nuc_e_f0.csv")
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_e_f0_anova.csv")
 ```
 
 
-```{r e_f0 model symmary, fig.height=2.5, fig.width=5, results="asis"}
-tidyPrediction(nuc_e_f0_mdl, write = "predictions/nuc_e_f0_mdl")
+```{r e_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+##tidyPrediction(nuc_e_f0_mdl, write = "predictions/nuc_e_f0_mdl")
 
 nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
-                                write="phonetic_models/nuc_e_f0",
+                                write="nuc_phonetic_models/nuc_e_f0",
                                 type = "pred"
                                 )
 nuc_e_f0_mdl.tidy$table
@@ -580,7 +568,87 @@ charts <- getModelFixedFX(
   e_f0_equation,
   nuc_data,
   optimizer,
-  write="phonetic_models/nuc_e_f0"
+  write="nuc_phonetic_models/nuc_e_f0"
+)
+charts$intercepts
+charts$slopes
+```
+
+## LH Excursion
+
+```{r set f0_exc equation}
+
+f0_exc_equation = formula(
+ f0_exc ~ foot_syls
+ + pre_syls
+ + fin_phon
+ + (1 | speaker)
+ + (1 | nuc_pre_text)
+ )
+
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3.5)
+```{r run f0_exc models, fig.height=3, fig.width=9}
+nuc_f0_exc_mdl = lmer(
+  f0_exc_equation,
+  nuc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+
+```{r run lh_exc models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+nuc_f0_exc.trimmed <-
+  nuc_data %>% filter(abs(scale(resid(nuc_f0_exc_mdl))) <= 2.5)
+
+nuc_f0_exc_mdl.trimmed = lmer(
+  f0_exc_equation,
+  nuc_f0_exc.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(nuc_f0_exc_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_f0_exc_anova.csv")
+```
+
+```{r f0_exc model summary, fig.height=2.5, fig.width=4, results="asis"}
+
+nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
+                                write="nuc_phonetic_models/nuc_f0_exc",
+                                type = "pred"
+                                )
+nuc_f0_exc_mdl.tidy$table
+##tidyPrediction(nuc_f0_exc_mdl, write = "predictions/nuc_f0_exc_mdl")
+
+```
+
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  f0_exc_equation,
+  nuc_f0_exc.trimmed,
+  optimizer,
+  write="nuc_phonetic_models/nuc_f0_exc"
 )
 charts$intercepts
 charts$slopes
@@ -588,4 +656,83 @@ charts$slopes
 
 ```
 
+## LH Slope
 
+```{r set lh_slope equation}
+nuc_data <- nuc_data %>% 
+    mutate(log_lh_slope = log(lh_slope))
+
+lh_slope_equation = formula(log_lh_slope ~ foot_syls
+                            + pre_syls
+                            + fin_phon
+                            + (1 | speaker)
+                            + (1 | nuc_pre_text))
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3.5)
+```{r run lh_slope models, fig.height=3, fig.width=9}
+nuc_lh_slope_mdl = lmer(
+  lh_slope_equation,
+  nuc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+
+```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+nuc_lh_slope.trimmed <-
+  nuc_data %>% filter(abs(scale(resid(nuc_lh_slope_mdl))) <= 3)
+
+nuc_lh_slope_mdl.trimmed = lmer(
+  lh_slope_equation,
+  nuc_lh_slope.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(nuc_lh_slope_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "nuc_anovas/nuc_lh_slope_anova.csv")
+```
+
+```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
+##tidyPrediction(nuc_lh_slope_mdl, write = "predictions/nuc_lh_slope_mdl")
+
+nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
+                                write="nuc_phonetic_models/nuc_lh_slope",
+                                type = "pred"
+                                )
+nuc_lh_slope_mdl.tidy$table
+
+```
+
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  lh_slope_equation,
+  nuc_lh_slope.trimmed,
+  optimizer,
+  write="nuc_phonetic_models/nuc_lh_slope"
+)
+charts$intercepts
+charts$slopes
+
+
+```

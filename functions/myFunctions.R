@@ -586,7 +586,7 @@ summariseLME <-
       formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
         str_replace(".csv", ".txt")
       write(
-        paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep=""),
+        paste(str_replace_all(my_formula, "\\`", ""), extra_text),
         formula_save)
     }
 
@@ -773,9 +773,6 @@ analyseModel <-
             theme(axis.title.x=element_blank())
 
           print(my_plot)
-
-
-
         }
       }
     }
@@ -1379,11 +1376,10 @@ adjustP_posthoc <-
       mutate(
         # Add significance column.
         signif. = if_else(
-          p.adj < 0.0001, "p<0.0001", if_else(
             p.adj < 0.001, "p<0.001", if_else(
               p.adj < 0.01, "p<0.01", if_else(
                 p.adj < 0.05, "p<0.05", if_else(
-                  p.adj < 0.1 & marginal, "(p<0.1)",""))))),
+                  p.adj < 0.1 & marginal, "(p<0.1)","")))),
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
           as.character(formatC(p.adj, format="e", digits = 1)),
@@ -1654,6 +1650,7 @@ tidyPrediction <- function(model, write = NULL) {
   pred_list <- ggpredict(model)
   obj_names <- names(pred_list)
   obj_i = 0
+
   for (cur_obj in pred_list)
   {
     obj_i = obj_i + 1
@@ -1668,19 +1665,12 @@ tidyPrediction <- function(model, write = NULL) {
         x = str_replace_all(x,
                             "(\\_|\\[|\\]|\\$|\\^|\\>)",
                             "\\\\\\1"),
-        std.error = if_else(
-          abs(std.error) < 0.001,
-          as.character(formatC(
-            std.error, format = "e", digits = 1
-          )),
-          as.character(round(std.error, 3), digits = 2)
-        ),
         across(
-          c("std.error", "predicted", "conf.low", "conf.high"),
+          2:last_col(),
           ~ as.numeric(.)
         ),
         across(
-          c("std.error", "predicted", "conf.low", "conf.high"),
+          2:last_col(),
           ~ if_else(
             abs(.) < 0.001,
             as.character(formatC(
@@ -1735,10 +1725,7 @@ outputChiSqResults <- function(anova,
 
   # convert anova to formattable object
   anova <- anova %>%
-    formattable(caption = paste("ANOVA of model and null model: ",
-                                my_formula,
-                                extra_text,
-                                sep = "")) %>%
+    formattable(caption = paste("ANOVA:", my_formula, extra_text)) %>%
     # tidy up decimal places
     mutate(
       across(2:last_col(),

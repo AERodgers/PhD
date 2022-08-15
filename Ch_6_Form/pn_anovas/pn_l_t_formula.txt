@@ -1,0 +1,1 @@
+l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) [prenuclear PA]
