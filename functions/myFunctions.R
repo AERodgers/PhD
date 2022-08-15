@@ -810,6 +810,7 @@ getModelFixedFX <- function(my_equation,
                             optimizer = "optimx",
                             extra_text = "",
                             report = c("slopes", "intercepts"),
+                            ignore_list = NULL,
                             post_hoc_method = "BH")
 {
   require("formattable")
@@ -934,6 +935,10 @@ getModelFixedFX <- function(my_equation,
       str_squish() %>%
       str_split(" "))[[1]]
 
+  if (!is.null(ignore_list))
+  {
+    fixed_factors <- fixed_factors[fixed_factors %notin% ignore_list]
+  }
   # Get list of non-interaction factors
   multilevel_factors <-
     fixed_factors[fixed_factors %in% colnames(my_data)]

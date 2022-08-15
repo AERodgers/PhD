@@ -574,7 +574,14 @@ charts$intercepts
 charts$slopes
 ```
 
-## LH Excursion
+
+## Truncation and Compression Effects
+
+NB: only foot_syls is of interest here, not pre-syls or fin-phon
+However, to preserve previous models, they are included as fixed effects,
+but they are discarded.
+
+### LH Excursion
 
 ```{r set f0_exc equation}
 
@@ -648,7 +655,8 @@ charts <- getModelFixedFX(
   f0_exc_equation,
   nuc_f0_exc.trimmed,
   optimizer,
-  write="nuc_phonetic_models/nuc_f0_exc"
+  write="nuc_phonetic_models/nuc_f0_exc",
+  ignore_list = c("pre_syls", "fin_phon")
 )
 charts$intercepts
 charts$slopes
@@ -656,8 +664,12 @@ charts$slopes
 
 ```
 
-## LH Slope
 
+### LH Slope
+
+Based on results from tonal target analysis, it looksl like compression and truncation may be in effect.
+As compression leads to decrease in duration of rise (but not necessarily much descrease in excursion size),
+and as slope increases exponentially as duration decreases, slope has been logged here.
 ```{r set lh_slope equation}
 nuc_data <- nuc_data %>% 
     mutate(log_lh_slope = log(lh_slope))
@@ -729,7 +741,8 @@ charts <- getModelFixedFX(
   lh_slope_equation,
   nuc_lh_slope.trimmed,
   optimizer,
-  write="nuc_phonetic_models/nuc_lh_slope"
+  write="nuc_phonetic_models/nuc_lh_slope",
+  ignore_list = c("pre_syls", "fin_phon")
 )
 charts$intercepts
 charts$slopes
