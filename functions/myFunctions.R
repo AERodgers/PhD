@@ -1173,6 +1173,15 @@ getModelFixedFX <- function(my_equation,
     relocate(conf.low, .after = "std.error") %>%
     rename(!!my_stat := statistic,
            slope = term)
+  # put B1 only parameters at bottom of tibble
+  my_pairwise.temp <- my_pairwise %>%
+    filter(slope %in% (b1_only)) %>%
+    arrange(slope)
+  my_pairwise <- my_pairwise %>%
+    filter(slope %notin% (b1_only)) %>%
+    rbind(my_pairwise.temp)
+
+
   # bind two-level factor stats to my_pairwise
   my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
 
