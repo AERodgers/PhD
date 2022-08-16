@@ -619,7 +619,8 @@ analyseModel <-
            exponentiate = FALSE,
            show.intercept = FALSE,
            type = "est",
-           factor_matrix = FALSE)
+           factor_matrix = FALSE,
+           ci.lvl = 0.95)
   {
     require("formattable")
     require("tidyverse")
@@ -742,9 +743,11 @@ analyseModel <-
       fixed_factors = fixed_factors[fixed_factors != "*"]
 
       if (factor_matrix) {
-        my_plot <- ggpredict(my_model, terms = fixed_factors) %>%
+        my_plot <- ggpredict(my_model,
+                             terms = fixed_factors,
+                             ci.lvl = ci.lvl) %>%
           plot() +
-          ylim(0, 1) +
+          scale_y_continuous(labels = scales::percent) +
           labs(caption = "", title="") +
           geom_text(aes(
             label = percent(predicted, 0),
@@ -758,15 +761,17 @@ analyseModel <-
       }
       else{
         for (cur_factor in fixed_factors) {
-          my_plot <- ggpredict(my_model, terms = cur_factor) %>%
+          my_plot <- ggpredict(my_model,
+                               terms = cur_factor,
+                               ci.lvl = ci.lvl) %>%
             plot() +
-            ylim(0, 1) +
+            scale_y_continuous(labels = scales::percent) +
             labs(title = paste("Predicted probabilities re",
                                  cur_factor),
                  caption = "") +
             geom_text(aes(
               label = percent(predicted, 0),
-              hjust = 1.5,
+              hjust = -0.25,
               position = "dodge"),
               check_overlap = T,
               size=3) +
@@ -810,7 +815,8 @@ getModelFixedFX <- function(my_equation,
                             optimizer = "optimx",
                             extra_text = "",
                             report = c("slopes", "intercepts"),
-                            ignore_list = NULL,
+                            b1_only = NULL,
+                            ignore_list = "",
                             post_hoc_method = "BH")
 {
   require("formattable")
@@ -925,6 +931,8 @@ getModelFixedFX <- function(my_equation,
   }
 
 
+  # create empty tidy model output
+  all_models_tidy = tibble()
   # create list of fixed factors
   fixed_factors <-
     (str_replace_all(deparse(formula(
@@ -935,14 +943,15 @@ getModelFixedFX <- function(my_equation,
       str_squish() %>%
       str_split(" "))[[1]]
 
-  if (!is.null(ignore_list))
+  if (!is.null(b1_only))
   {
-    fixed_factors <- fixed_factors[fixed_factors %notin% ignore_list]
+    fixed_factors <- fixed_factors[fixed_factors %notin% b1_only]
   }
   # Get list of non-interaction factors
   multilevel_factors <-
     fixed_factors[fixed_factors %in% colnames(my_data)]
-
+  multilevel_factors <-
+    multilevel_factors[multilevel_factors %notin% ignore_list]
   # Get list of 2-level fixed factors.
   two_level_factors <- character()
   two_level_terms <- character()
@@ -959,9 +968,6 @@ getModelFixedFX <- function(my_equation,
   # remove 2-level factors from list of multilevel_factors
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% two_level_factors]
-
-  # create empty tibble for fixed factor output
-  all_models_tidy = tibble()
 
   # loop through each multilevel fixed factor of interest (multilevel_factors)
   for (cur_factor in multilevel_factors)
@@ -1086,11 +1092,10 @@ getModelFixedFX <- function(my_equation,
         cur_model_tidy <- cur_model_tidy %>%
           mutate(df = round(df, 2))
       }
-
       cur_model_tidy <- cur_model_tidy %>%
         # re-order columns
         select(!!!my_headers) %>%
-        filter((term %in% c(keep_terms, "(Intercept)"))) %>%
+        filter((term %in% c(keep_terms, b1_only, "(Intercept)"))) %>%
         # Prepare current model for pasting to all models output.
         # Make 'pairwise' column = intercept.
         mutate(
@@ -1098,7 +1103,7 @@ getModelFixedFX <- function(my_equation,
             if_else(
               term == "(Intercept)",
               "intercept",
-              if_else(term %notin% keep_terms,
+              if_else(term %notin% c(keep_terms, b1_only),
                       "N/A",
                       keep_terms[cur_level])
             ),
@@ -1109,7 +1114,7 @@ getModelFixedFX <- function(my_equation,
                     term)
         )
 
-      keep_comparisons = NULL
+      keep_comparisons = b1_only
       # make list of pairwise comparisons to keeps
       for (j in cur_level:(num_levels))
       {

@@ -11,6 +11,7 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     speaker,
     gender,
     stim,
+    sent,
     cur_foot,
     init_phon,
     fin_phon,

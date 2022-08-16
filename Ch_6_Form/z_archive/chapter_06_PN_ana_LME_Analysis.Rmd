@@ -48,7 +48,7 @@ theme_set(theme_minimal(base_size = 14))
 ```{r h Get data}
 # Get  data for analysis
 h_star_type <-  c("H*", ">H*", "L*H")
-source("get_AH_corpora.R")
+source("Ch_06_0_get_AH_corpora.R")
 
 rm(nuc_foot, nuc_pre, pn_lex, pn_foot, pn, corpus, nuc)
 

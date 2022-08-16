@@ -42,7 +42,7 @@ theme_set(theme_minimal(base_size = 14))
 
 # Get  data for analysis
 
-source("get_AH_corpora.R")
+source("Ch_06_0_get_AH_corpora.R")
 
 h_star_type <-  c("L*H", ">H*", "H*")
 l_star_type <-  c("L*H", "L*")
@@ -118,184 +118,6 @@ for (i in colnames(pn_h_data))
 
 
 ```
-
-## H targets
-
-### Analysis of H timing
-
-- Only intercepts only model avoided convergence and singularity issues
-- Random factors reduce 
-```{r set h_t equation}
-h_t_equation = formula(
-  h_t ~ acc_phon
-  + ana_syls
-  + foot_syls
-  + pn_new_word
-  + wrd_end_syl
-  + gender
-  + (1 | speaker)
- #+ (1 | speech_rate)
- #+ (1 | ana_end_t)
-  + (1 | ana_text)
-  + (1 | foot_dur)
-  )
-
-
-optimizer = "optimx"
-```
-
-- model needs trimming (residuals +/- 3 s.d.)
-```{r run h_t models, fig.height=3, fig.width=9}
-pn_h_t_mdl = lmer(
-  h_t_equation,
-  pn_h_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
-
-# model needs trimming
-pn_h_t.trimmed <-
-  pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 3)
-
-pn_h_t_mdl.trimmed = lmer(
-  h_t_equation,
-  pn_h_t.trimmed,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
-summariseLME(pn_h_t_mdl.trimmed,
-             run_step = TRUE,
-             extra_text = "[prenuclear PA]",
-             write = "pn_anovas/pn_h_t_anova.csv")
-```
-
-```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
-plot_model(
-  pn_h_t_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
-```
-
-```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
-
-pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
-                                write="pn_phonetic_models/pn_h_t",
-                                type = "pred",
-                                factor_matrix = TRUE
-                                )
-
-
-pn_h_t_mdl.tidy$table
-
-```
-
-```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
-
-charts <- getModelFixedFX(
-  h_t_equation,
-  pn_h_t.trimmed,
-  optimizer,
-  write="pn_phonetic_models/pn_h_t"
-)
-charts$intercepts
-charts$slopes
-
-
-```
-
-### Analysis of H F0
-
-- model dosn't work with SR, ana_end_t, or foot_dur (and suggested to be removed by step())
-```{r set h_f0 equation}
-h_f0_equation = formula(
-  h_f0 ~ acc_phon
-  + ana_syls
-  + foot_syls
-  + wrd_end_syl
-  + pn_new_word
-  + (1 | speaker)
-  + (1 | ana_text)
-  #+ (1 | speech_rate)
-  #+ (1 | ana_end_t)
-  #+ (1 | foot_dur)
-  )
-
-optimizer = "optimx"
-```
-
-```{r run h_f0 models, fig.height=3, fig.width=9}
-pn_h_f0_mdl = lmer(
-  h_f0_equation,
-  pn_h_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
-)
-
-
-summariseLME(pn_h_f0_mdl,
-             run_step = TRUE,
-             extra_text = "[prenuclear PA]",
-             write = "pn_anovas/pn_h_f0_anova.csv")
-```
-```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
-plot_model(
-  pn_h_f0_mdl,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
-```
-
-```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
-pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
-                                write="pn_phonetic_models/pn_h_f0",
-                                type = "pred"
-                                )
-pn_h_f0_mdl.tidy$table
-
-```
-
-```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
-
-charts <- getModelFixedFX(
-  h_f0_equation,
-  pn_h_data,
-  optimizer,
-  write="pn_phonetic_models/pn_h_f0"
-)
-charts$intercepts
-charts$slopes
-
-
-```
-
 
 ## L targets
 
@@ -494,6 +316,183 @@ charts <- getModelFixedFX(
 )
 charts$intercepts
 charts$slopes
+
+```
+
+## H targets
+
+### Analysis of H timing
+
+- Only intercepts only model avoided convergence and singularity issues
+- Random factors reduce 
+```{r set h_t equation}
+h_t_equation = formula(
+  h_t ~ acc_phon
+  + ana_syls
+  + foot_syls
+  + pn_new_word
+  + wrd_end_syl
+  + gender
+  + (1 | speaker)
+ #+ (1 | speech_rate)
+ #+ (1 | ana_end_t)
+  + (1 | ana_text)
+  + (1 | foot_dur)
+  )
+
+
+optimizer = "optimx"
+```
+
+- model needs trimming (residuals +/- 3 s.d.)
+```{r run h_t models, fig.height=3, fig.width=9}
+pn_h_t_mdl = lmer(
+  h_t_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_h_t.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 3)
+
+pn_h_t_mdl.trimmed = lmer(
+  h_t_equation,
+  pn_h_t.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(pn_h_t_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_h_t_anova.csv")
+```
+
+```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_t_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
+
+pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
+                                write="pn_phonetic_models/pn_h_t",
+                                type = "pred",
+                                factor_matrix = TRUE
+                                )
+
+
+pn_h_t_mdl.tidy$table
+
+```
+
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  h_t_equation,
+  pn_h_t.trimmed,
+  optimizer,
+  write="pn_phonetic_models/pn_h_t"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+### Analysis of H F0
+
+- model dosn't work with SR, ana_end_t, or foot_dur (and suggested to be removed by step())
+```{r set h_f0 equation}
+h_f0_equation = formula(
+  h_f0 ~ acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + (1 | speaker)
+  + (1 | ana_text)
+  #+ (1 | speech_rate)
+  #+ (1 | ana_end_t)
+  #+ (1 | foot_dur)
+  )
+
+optimizer = "optimx"
+```
+
+```{r run h_f0 models, fig.height=3, fig.width=9}
+pn_h_f0_mdl = lmer(
+  h_f0_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+
+summariseLME(pn_h_f0_mdl,
+             run_step = TRUE,
+             extra_text = "[prenuclear PA]",
+             write = "pn_anovas/pn_h_f0_anova.csv")
+```
+```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_f0_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+# tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
+pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
+                                write="pn_phonetic_models/pn_h_f0",
+                                type = "pred"
+                                )
+pn_h_f0_mdl.tidy$table
+
+```
+
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  h_f0_equation,
+  pn_h_data,
+  optimizer,
+  write="pn_phonetic_models/pn_h_f0"
+)
+charts$intercepts
+charts$slopes
+
 
 ```
 

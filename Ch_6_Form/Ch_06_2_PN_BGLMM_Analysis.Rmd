@@ -39,12 +39,13 @@ installMissingPackages(
 )
 
 # Get data frames for AH analysis
-source("get_AH_corpora.R")
+source("Ch_06_0_get_AH_corpora.R")
 # Add isLH column
 
 
 pn <- pn %>%
   select(
+    sent,
     speaker,
     gender,
     ana_syls,
@@ -52,6 +53,7 @@ pn <- pn %>%
     acc_phon,
     wrd_end_syl,
     ana_text,
+    nuc_pre_text,
     pn_new_word,
     acc_phon,
     speech_rate,
@@ -82,55 +84,66 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-- We know that gender has an effect (though also of speaker). Unfortunately, inclusion of gender causes a convergence error, so it is removed, and re by speaker are plotted.
-```{r set isLH equation}
-isLH_equation <- formula(isLH ~ 
-  foot_syls
-  + wrd_end_syl
-  + pn_new_word
-# + gender
-  + (1 | speaker)
-  + (1 | speech_rate)
-# + (1 | ana_end_t)
-# + (1 | ana_text)
-# + (1 | foot_dur)
-  )
+- As step cannot be used, effects were systematically removed and added piecewise till maximal working model was found.
+- There appears to be an interaction of foot_syls:pn_new_word but no independent effect of pn_new_word
+- Running bobyaqa optimizer works best.
 
-null_equation <- formula(isLH ~ 
-  1
-  + (1 | speaker)
-  + (1 | speech_rate)
-# + (1 | ana_end_t)
-# + (1 | ana_text)
-# + (1 | foot_dur)
-  )
+- Looking at fixed effects:
+    - pn_new_word no meaningful effect [est. 0.219, CIs -3.06, 3.50]
+    - gender weak: [est. -1.758, CIs -3.74, 0.22]
+
+- Looking at random effects:
+    - ana_end_t is negligible
+    - foot_dur is very weak
+
+```{r set isLH equation}
+isLH_equation <- formula(isLH ~ foot_syls
+                         + wrd_end_syl
+                         + speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
+
+null_equation <- formula(isLH ~  1
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
   
 
 ```
+
+#### Run isLH model
 
 ```{r run isLH models}
 lh_pn_model <- bglmer(
   isLH_equation,
   data = pn,
   fixef.prior = normal(),
-  family = binomial(link = "logit")
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
 )
+
 
 null_model <- bglmer(
   null_equation,
   data = pn,
-  family = binomial(link = "logit")
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
 )
-
 summary(lh_pn_model)
 ```
 
-
-```{r random effect of prompt, fig.height=4, fig.width=5}
+```{r random effect of prompt, fig.height=3, fig.width=4}
 plot_model(lh_pn_model,
            type="re",
-           show.values = T,
-           title = "random speaker intercepts")[2]
+           show.values = T, ci.lvl= 0.95,
+           transform = NULL
+           )[2:4]
 
 ```
 
@@ -164,24 +177,6 @@ plot_model(
   vline = "Red"
  )
 
-#plot_model(lh_pn_model, type = "pred", terms = c("wrd_end_syl", "gender")) +
-#        geom_text(aes(
-#          label = percent(predicted, 0),
-#          hjust = 1.2,
-#          position = "dodge"),
-#          check_overlap = T,
-#          size=4) +
-#        theme(axis.title.x=element_blank())
-
-#plot_model(lh_pn_model, type = "pred", terms = c("foot_syls", "gender")) +
-#        geom_text(aes(
-#          label = percent(predicted, 0),
-#          hjust = 1.2,
-#          position = "dodge"),
-#          check_overlap = T,
-#          size=4) +
-#        theme(axis.title.x=element_blank())
-
 tidy_summary$table
 
 charts <- getModelFixedFX(
@@ -189,35 +184,32 @@ charts <- getModelFixedFX(
   pn,
   write="phonology_models/lh_pn_size",
   is_GLM=TRUE,
-  is_separation = T
+  is_separation = T,
+  b1_only = "speech_rate"
 )
 
 charts$intercepts
 charts$slopes
 ```
 
-- model won't converge with scalar random effects
-```{r set isHStar equation}
-isHStar_equation <- formula(isHStar ~ 
-  foot_syls
-  + wrd_end_syl
-  + pn_new_word
-# + gender
-  + (1 | speaker)
-#  + (1 | speech_rate)
-# + (1 | ana_end_t)
-# + (1 | ana_text)
-# + (1 | foot_dur)
-  )
+## Run isHStar model
 
-null_equation <- formula(isHStar ~ 
-  1
-  + (1 | speaker)
-# + (1 | speech_rate)
-# + (1 | ana_end_t)
-# + (1 | ana_text)
-# + (1 | foot_dur)
-  )
+```{r set isHStar equation}
+isHStar_equation <- formula(isHStar ~ foot_syls
+                            + wrd_end_syl
+                            + speech_rate
+                            + gender
+                            + (1 | nuc_pre_text)
+                            + (1 | speaker)
+                            + (1 | ana_text)
+                            + (1 | foot_dur)
+                            )
+
+null_equation <- formula(isHStar ~ 1
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur))
   
 
 ```
@@ -227,13 +219,16 @@ h_star_model <- bglmer(
   isHStar_equation,
   pn,
   fixef.prior = normal(),
-  family = binomial(link = "logit")
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
 )
+
 
 null_model <- bglmer(
   null_equation,
   data = pn,
-  family = binomial(link = "logit")
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
 )
 
 summary(h_star_model)
@@ -243,11 +238,10 @@ summary(h_star_model)
 ```{r fig.height=4, fig.width=5, results = "asis"}
 plot_model(h_star_model,
            type="re",
-           show.values = T,
-           title = "random speaker intercepts")
+           show.values = T)[2:4]
 ```
 
-```{r fig.width = 5.5, fig.height = 2.5, results="asis"}
+```{r fig.width = 4, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(h_star_model, tol=1e-5) -->",
   isSingular(h_star_model, tol = 1e-5),
@@ -278,31 +272,13 @@ plot_model(
   vline = "Red"
  )
 
-#plot_model(h_star_model, type = "pred", terms = c("wrd_end_syl", "gender")) +
-#        geom_text(aes(
-#          label = percent(predicted, 0),
-#         hjust = 1.2,
-#          position = "dodge"),
-#          check_overlap = T,
-#          size=4) +
-#        theme(axis.title.x=element_blank())
-
-#plot_model(h_star_model, type = "pred", terms = c("foot_syls", "gender")) +
-#        geom_text(aes(
-#          label = percent(predicted, 0),
-#          hjust = 1.2,
-#          position = "dodge"),
-#          check_overlap = T,
-#          size=4) +
-#        theme(axis.title.x=element_blank())
-#tidy_summary$table
-
 charts <- getModelFixedFX(
   isHStar_equation,
   pn,
   write="phonology_models/h_star_model",
   is_GLM=TRUE,
-  is_separation = T
+  is_separation = T,
+  b1_only = "speech_rate"
 )
 
 charts$intercepts

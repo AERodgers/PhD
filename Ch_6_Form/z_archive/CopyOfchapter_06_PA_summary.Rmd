@@ -43,7 +43,7 @@ pitch_accent_colours <- c("(*)" = my_colours[1],
 ```{r warning=FALSE}
 # LOAD CORPUS
 # Read in AH corpus.
-source("get_AH_corpora.R")
+source("Ch_06_0_get_AH_corpora.R")
 
 # get pn by speaker
 pn_by_speaker <- pn %>%
