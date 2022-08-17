@@ -74,9 +74,15 @@ pn_wrd_data <- pn %>%
       pn_wrds = str_replace(pn_wrds, "elaine was a nanny", "elaine was a"),
       pn_wrds = str_replace(pn_wrds, "elaina's a nanny", "elaina's a"),
       pairing = pn_wrds,
-      pairing = str_replace(pairing, "lally's is in-|valerie's is", "Set 2"),      
-      pairing = str_replace(pairing, "val's is in-|lally's is", "Set 1"),
-      pairing = str_replace(pairing, "elaine was a|elaina's a", "Set 3"),
+      pairing = str_replace(pairing,
+                            "^lally's is in-|^valerie's is",
+                            "Lally's is in- | Valerie's is"),      
+      pairing = str_replace(pairing,
+                            "^val's is in-|^lally's is",
+                            "Val's is in- | Lally's is"),
+      pairing = str_replace(pairing,
+                            "^elaine was a|^elaina's a",
+                            "Elaine was a | Elaina's a"),
       pn_wrds = factor(pn_wrds, levels = pn_phr)
     ) %>% 
       filter(acc_phon %in% h_star_type,
@@ -109,7 +115,31 @@ pn_phr <- c(
   "lally's is",
   "valerie's is",
   "elaina's a")
-pn_wrd_data %>% mutate(pn_wrds = factor(pn_wrds, levels = pn_phr))
+pn_wrd_data %>%   
+  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr))  %>% 
+  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr),
+      pairing = pn_wrds,
+      pairing = str_replace(pairing,
+                            "^lally's is in-|^valerie's is",
+                            "Lally's is in- | Valerie's is"),      
+      pairing = str_replace(pairing,
+                            "^val's is in-|^lally's is",
+                            "Val's is in- | Lally's is"),
+      pairing = str_replace(pairing,
+                            "^elaine was a|^elaina's a",
+                            "Elaine was a | Elaina's a"),
+      wrd_end = pn_wrds,
+      wrd_end = str_replace(wrd_end, "lally's is in-", "early"),      
+      wrd_end = str_replace(wrd_end, "valerie's is", "late"),      
+      wrd_end = str_replace(wrd_end, "val's is in-", "early"),
+      wrd_end = str_replace(wrd_end, "lally's is", "late"),
+      wrd_end = str_replace(wrd_end, "elaine was a", "early"),
+      wrd_end = str_replace(wrd_end, "elaina's a", "late")
+      ) %>% 
+  arrange(pn_wrds)
+
+                       
+  
 pn_wrd_data_sum <- pn_wrd_data %>%
   group_by(speaker, acc_phon, pn_wrds) %>%
   summarise(mean_h_t = mean(mean_h_t)) %>% 
@@ -141,7 +171,7 @@ pn_wrd_data_sum <- pn_wrd_data %>%
 
 
 ```{r plot with mean data, width = 6.3, height = 5}
-ggplot(data = pn_wrd_data,
+ggplot(data = pn_wrd_data_sum,
        mapping = aes(x = mean_h_t, fill = pairing)) +
   geom_density(stat="density", alpha = 0.8) +
   facet_wrap(vars(pn_wrds)) +
@@ -149,5 +179,11 @@ ggplot(data = pn_wrd_data,
   theme(legend.position = "bottom") +
   labs(caption = "PN peak timing for L*H for H-corpus sentence pairs")
 
-
+ggplot(data = pn_wrd_data,
+       mapping = aes(x = mean_h_t, fill = pairing)) +
+  geom_density(stat="density", alpha = 0.8) +
+  facet_grid(rows = vars(wrd_end), cols = vars(pairing)) +
+  scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
+  theme(legend.position = "bottom") +
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs")
 ```
