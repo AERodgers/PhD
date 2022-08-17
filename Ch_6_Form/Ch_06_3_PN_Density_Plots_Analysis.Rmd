@@ -162,12 +162,12 @@ ggplot(data = pn_wrd_data_sum,
   facet_wrap(vars(pn_wrds)) +
   scale_fill_manual(values=c(brewer.pal(3, "Set2")), name=NULL,) +
   theme(legend.position = "none") +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (adjusted data)")
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (mean data)")
 
 
 ```
 
-```{r plot with mean data grouped, fig.width = 6.3, fig.height = 2.5}
+```{r plot with mean data grouped, fig.width = 6.3, fig.height = 2.2}
 #ggplot(data = pn_wrd_data %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)),
 #       mapping = aes(x = mean_h_t, fill = pairing)) +
 #  geom_density(stat="density") +
@@ -196,7 +196,8 @@ ggplot(data = pn_wrd_data_sum %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_
     name=NULL) +
   theme(legend.position = "right",
         legend.key.size = unit(0.4, "cm")) +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (adjusted data)")
+    xlim(0, 500) +
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (mean data)")
 
 
 ```
@@ -204,7 +205,7 @@ ggplot(data = pn_wrd_data_sum %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_
 Sets one and two are two different from each other, I think.
 Only set three is worth examining.
 
-```{r plot with mean data 3, fig.width = 4.3, fig.height = 3}
+```{r plot with mean data 3, fig.width = 3, fig.height = 2.5}
 #ggplot(data = pn_wrd_data %>% filter(pn_wrds %in% c("elaine was a",
 #                                                        "elaina's a")),
 #  mapping = aes(x = mean_h_t, fill = pn_wrds)) +
@@ -219,11 +220,14 @@ ggplot(data = pn_wrd_data_sum %>% filter(pn_wrds %in% c("elaine was a",
                                                         "elaina's a")
                                          ),
   mapping = aes(x = mean_h_t, fill = pn_wrds)) +
-  geom_density(stat="density", alpha = 0.75) +
+  geom_density(stat="density", alpha = 0.85) +
   scale_fill_manual(values=c(brewer.pal(8, "Dark2")[1],
                              brewer.pal(8, "Set2")[1]),
                     name=NULL) +
-  theme(legend.position = "right") +
-  labs(caption = "PN peak timing for L*H for 'Elaine was a' and 'Elaina's a' (adjusted data)")
+  theme(legend.position = "bottom",
+        legend.key.size = unit(0.4, "cm")) +
+  xlim(0, 450) +
+  labs(caption = "PN peak timing of L*H in 'Elaine was a' and 'Elaina's a'",
+       title = "Elaine was a | Elaina's a")
 
 ```
