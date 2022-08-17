@@ -1,0 +1,153 @@
+---
+title: "LME Analysis of PNs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "formattable",
+    
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+```
+
+
+```{r get data, include=FALSE}
+# Get  data for analysis
+
+source("Ch_06_0_get_AH_corpora.R")
+
+syl_edges = read_csv("data/h_corpus_syl_edges.csv")
+h_star_type <-  c("L*H", ">H*", "H*")
+h_star_type <-  c("L*H")
+
+pn_wrd_stims <- c("A0321", "H0322",
+                  "H0422", "A0423",
+                  "H1321", "H1322"
+                  )
+
+pn_wrd_sent <- c(
+  "val's is invalid", "lally's is valid",
+  "lally's is invalid","valerie's is valid",
+  "elaine was a nanny", "elaina's a nanny")
+
+pn_phr <- c(
+  "val's is in-", "lally's is",
+  "lally's is in-","valerie's is",
+  "elaine was a", "elaina's a")
+
+pn_wrd_data <- pn %>%
+  select(
+    sent,
+    speaker,
+    stim,
+    acc_phon,
+    wrd_end_syl,
+    h_grand_mean_t
+    ) %>%
+    mutate(
+      acc_phon = factor(acc_phon, levels = h_star_type),
+      pn_wrds = sent,
+      pn_wrds = str_replace(pn_wrds, "val's is invalid", "val's is in-"),
+      pn_wrds = str_replace(pn_wrds, "lally's is valid", "lally's is"),
+      pn_wrds = str_replace(pn_wrds, "lally's is invalid", "lally's is in-"),
+      pn_wrds = str_replace(pn_wrds, "valerie's is valid", "valerie's is"),
+      pn_wrds = str_replace(pn_wrds, "elaine was a nanny", "elaine was a"),
+      pn_wrds = str_replace(pn_wrds, "elaina's a nanny", "elaina's a"),
+      pairing = pn_wrds,
+      pairing = str_replace(pairing, "lally's is in-|valerie's is", "Set 2"),      
+      pairing = str_replace(pairing, "val's is in-|lally's is", "Set 1"),
+      pairing = str_replace(pairing, "elaine was a|elaina's a", "Set 3"),
+      pn_wrds = factor(pn_wrds, levels = pn_phr)
+    ) %>% 
+      filter(acc_phon %in% h_star_type,
+             stim %in% pn_wrd_stims) %>% 
+  rename(mean_h_t = h_grand_mean_t) %>% 
+    arrange(pn_wrds)
+
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+
+```
+
+```{r check data}
+pn_wrd_data %>%
+  group_by(pn_wrds, acc_phon) %>% 
+  summarise(acc_count = n()) %>% 
+  pivot_wider(names_from = acc_phon,
+              values_from = acc_count,
+              values_fill = 0) %>% 
+  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)) %>% 
+  arrange(pn_wrds) %>%
+  formattable()
+```
+
+```{r Get means etc }
+
+pn_phr <- c(
+  "val's is in-",
+  "lally's is in-",
+  "elaine was a",
+  "lally's is",
+  "valerie's is",
+  "elaina's a")
+
+pn_wrd_data_sum <- pn_wrd_data %>%
+  group_by(speaker, acc_phon, pn_wrds) %>%
+  summarise(mean_h_t = mean(mean_h_t)) %>% 
+  group_by(pn_wrds, speaker) %>%
+  summarise(mean_h_t = round(mean(mean_h_t), 0)) %>% 
+  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr),
+      pairing = pn_wrds,
+      pairing = str_replace(pairing,
+                            "^lally's is in-|^valerie's is",
+                            "Lally's is in- | Valerie's is"),      
+      pairing = str_replace(pairing,
+                            "^val's is in-|^lally's is",
+                            "Val's is in- | Lally's is"),
+      pairing = str_replace(pairing,
+                            "^elaine was a|^elaina's a",
+                            "Elaine was a | Elaina's a"),
+      wrd_end = pn_wrds,
+      wrd_end = str_replace(wrd_end, "lally's is in-", "early"),      
+      wrd_end = str_replace(wrd_end, "valerie's is", "late"),      
+      wrd_end = str_replace(wrd_end, "val's is in-", "early"),
+      wrd_end = str_replace(wrd_end, "lally's is", "late"),
+      wrd_end = str_replace(wrd_end, "elaine was a", "early"),
+      wrd_end = str_replace(wrd_end, "elaina's a", "late")
+      ) %>% 
+  arrange(pn_wrds)
+
+```
+
+
+
+```{r plot with mean data, width = 6.3, height = 5}
+ggplot(data = pn_wrd_data_sum,
+       mapping = aes(x = mean_h_t, fill = pairing)) +
+  geom_density(stat="density", alpha = 0.8) +
+  facet_wrap(vars(pn_wrds)) +
+  scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
+  theme(legend.position = "bottom") +
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs")
+
+
+```

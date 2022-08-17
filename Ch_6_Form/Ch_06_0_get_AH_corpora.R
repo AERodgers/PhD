@@ -78,6 +78,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),
     foot_syls = factor(foot_syls, levels = unique(foot_syls)),
     wrd_end_syl = factor(wrd_end_syl, levels = 1:3),
+    # remove errors in str
+    sent = str_replace(sent, "\\.", "") %>% tolower() %>% str_trim(),
     # Ignore downstep.
     acc_phon = str_replace(acc_phon, "!", ""),
     # Arrange PA levels according to hypothesized hierarchy.
