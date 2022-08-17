@@ -165,8 +165,17 @@ anova(lh_pn_model, null_model, test="Chisq") %>%
 tidy_summary <- analyseModel(lh_pn_model,
                              write = "phonology_models/lh_pn_size",
                              is_GLM = TRUE,
-                             type = "pred"
+                             type = "pred",
+                             ci.lvl=0.95
                              )
+ggpredict(lh_pn_model, terms = "speech_rate [all]", ci.lvl = 0.67) %>%
+  plot() +
+  xlim(2.874, 9.284) +
+  xlab("speech rate (syls/sec)") +
+  ylab("L*H") +
+  labs(title = "Predicted probabilities of L*H re speech rate",
+       caption = "Predicted probabilities of L*H re speech rate with 67% CIs") +
+  scale_y_continuous(labels = scales::percent)
 
 
 plot_model(
