@@ -37,7 +37,7 @@ theme_set(theme_minimal(base_size = 10))
 source("Ch_06_0_get_AH_corpora.R")
 
 syl_edges = read_csv("data/h_corpus_syl_edges.csv")
-h_star_type <-  c("L*H", ">H*", "H*")
+#h_star_type <-  c("L*H", ">H*", "H*")
 h_star_type <-  c("L*H")
 
 pn_wrd_stims <- c("A0321", "H0322",
@@ -177,13 +177,13 @@ ggplot(data = pn_wrd_data_sum,
   facet_wrap(vars(pn_wrds)) +
   scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs")
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (adjusted data)")
 
-ggplot(data = pn_wrd_data,
+ggplot(data = pn_wrd_data %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)),
        mapping = aes(x = mean_h_t, fill = pairing)) +
   geom_density(stat="density", alpha = 0.8) +
-  facet_grid(rows = vars(wrd_end), cols = vars(pairing)) +
+  facet_wrap(vars(pn_wrds)) +
   scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
   theme(legend.position = "bottom") +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs")
+  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (raw data)")
 ```
