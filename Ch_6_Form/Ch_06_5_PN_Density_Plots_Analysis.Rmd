@@ -109,7 +109,7 @@ pn_phr <- c(
   "lally's is",
   "valerie's is",
   "elaina's a")
-
+pn_wrd_data %>% mutate(pn_wrds = factor(pn_wrds, levels = pn_phr))
 pn_wrd_data_sum <- pn_wrd_data %>%
   group_by(speaker, acc_phon, pn_wrds) %>%
   summarise(mean_h_t = mean(mean_h_t)) %>% 
@@ -141,7 +141,7 @@ pn_wrd_data_sum <- pn_wrd_data %>%
 
 
 ```{r plot with mean data, width = 6.3, height = 5}
-ggplot(data = pn_wrd_data_sum,
+ggplot(data = pn_wrd_data,
        mapping = aes(x = mean_h_t, fill = pairing)) +
   geom_density(stat="density", alpha = 0.8) +
   facet_wrap(vars(pn_wrds)) +
