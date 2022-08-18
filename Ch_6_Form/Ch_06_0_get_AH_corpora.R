@@ -4,7 +4,7 @@
 ## Get per-speaker f0 stats.
 #gen_f0_stats <- as_tibble(read.csv("../data/GenStats_a_corpus.csv"))
 
-#corpus <- as_tibble(read.csv("CH_6_Form/data/a_corpus_audited.csv")) %>%
+#corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_6_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
   select(
@@ -37,6 +37,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     h_grand_mean_t,
     s_grand_mean_t,
     e_grand_mean_t,
+    h_syl,
+    h_syl_ratio,
     l_f0,
     h_f0,
     s_f0,

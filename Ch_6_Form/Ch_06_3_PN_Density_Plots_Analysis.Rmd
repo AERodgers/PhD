@@ -1,5 +1,5 @@
 ---
-title: "LME Analysis of PNs"
+title: "Visual Analysis of word boundaries in H-Corpus PNs"
 author: "Antoin Rodgers"
 date: "18.05.2022"
 output:
@@ -14,17 +14,7 @@ knitr::opts_chunk$set(echo = FALSE,
 # Get personal functions and install / load necessary packages.
 source("../functions/myFunctions.R")
 
-installMissingPackages(
-  c(
-
-    # Include packages for tidy output.
-    "tidyverse",
-    "formattable",
-    
-    # Include packages for %in% %notin% syntactic notation
-    "mefa4"
-  )
-)
+installMissingPackages(c("tidyverse", "formattable","janitor","mefa4"))
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
@@ -36,9 +26,18 @@ theme_set(theme_minimal(base_size = 10))
 
 source("Ch_06_0_get_AH_corpora.R")
 
-syl_edges = read_csv("data/h_corpus_syl_edges.csv")
-#h_star_type <-  c("L*H", ">H*", "H*")
-h_star_type <-  c("L*H")
+syl_edges = read_csv("data/h_corpus_syl_edges.csv") %>% 
+  pivot_longer(names_to = "target", cols = 1:last_col()) %>% 
+  mutate(target = str_replace(target, "A0321",  "val's is in-"),
+         target = str_replace(target, "H0322",  "lally's is"),
+         target = str_replace(target, "H0422",  "lally's is in-"),
+         target = str_replace(target, "A0423",  "valerie's is"),
+         target = str_replace(target, "H1321",  "elaine was a"),
+         target = str_replace(target, "H1322",  "elaina's a"))
+         
+         
+
+h_star_type <-  c("L*H", ">H*", "H*")
 
 pn_wrd_stims <- c("A0321", "H0322",
                   "H0422", "A0423",
@@ -63,9 +62,15 @@ pn_wrd_data <- pn %>%
     acc_phon,
     wrd_end_syl,
     h_t,
-    h_grand_mean_t
+    h_grand_mean_t,
+    h_syl,
+    h_syl_ratio,
+    ana_syls
     ) %>%
     mutate(
+      ana_syls = as.character(ana_syls) %>% as.numeric(),
+      h_syl_ft = as.integer(h_syl) - ana_syls,
+      h_syl_norm_t = h_syl_ft + h_syl_ratio - 1,
       acc_phon = factor(acc_phon, levels = h_star_type),
       pn_wrds = sent,
       pn_wrds = str_replace(pn_wrds, "val's is invalid", "val's is in-"),
@@ -88,8 +93,8 @@ pn_wrd_data <- pn %>%
     ) %>% 
       filter(acc_phon %in% h_star_type,
              stim %in% pn_wrd_stims) %>% 
-  rename(mean_h_t = h_t) %>% 
     arrange(pn_wrds)
+      
 
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
@@ -97,16 +102,79 @@ rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
 ```{r check data}
 pn_wrd_data %>%
-  group_by(pn_wrds, acc_phon) %>% 
-  summarise(acc_count = n()) %>% 
-  pivot_wider(names_from = acc_phon,
-              values_from = acc_count,
-              values_fill = 0) %>% 
-  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)) %>% 
-  arrange(pn_wrds) %>%
-  formattable()
+  filter(pn_wrds %in% pn_phr) %>%
+  group_by(speaker, pn_wrds) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1)  %>% 
+    mutate(
+      pairing = pn_wrds, .after = pn_wrds) %>% 
+  mutate(
+      pairing = str_replace(pairing,
+                            "^lally's is in-|^valerie's is",
+                            "Lally's is in- | Valerie's is"),      
+      pairing = str_replace(pairing,
+                            "^val's is in-|^lally's is",
+                            "Val's is in- | Lally's is"),
+      pairing = str_replace(pairing,
+                            "^elaine was a|^elaina's a",
+                            "Elaine was a | Elaina's a")
+  ) %>% 
+  mutate(wrd_end = pn_wrds, .after = pairing) %>% 
+  mutate(
+      wrd_end = str_replace(wrd_end, "lally's is in-", "early"),      
+      wrd_end = str_replace(wrd_end, "valerie's is", "late"),      
+      wrd_end = str_replace(wrd_end, "val's is in-", "early"),
+      wrd_end = str_replace(wrd_end, "lally's is", "late"),
+      wrd_end = str_replace(wrd_end, "elaine was a", "early"),
+      wrd_end = str_replace(wrd_end, "elaina's a", "late")
+    ) %>% 
+  adorn_totals("col") %>%
+  rename(`PN phrase` = pn_wrds,
+         `word boundary` = wrd_end) %>% 
+  formattable(caption = "L\\*H, \\>H\\*, and H\\*")
+
+uneven_raw <- c("lally's is in-", "valerie's is")
 ```
 
+
+```{r check data L*H}
+pn_wrd_data %>%
+  filter(pn_wrds %in% pn_phr,
+         acc_phon == "L*H") %>%
+  group_by(speaker, pn_wrds) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1)  %>% 
+    mutate(
+      pairing = pn_wrds, .after = pn_wrds) %>% 
+  mutate(
+      pairing = str_replace(pairing,
+                            "^lally's is in-|^valerie's is",
+                            "Lally's is in- | Valerie's is"),      
+      pairing = str_replace(pairing,
+                            "^val's is in-|^lally's is",
+                            "Val's is in- | Lally's is"),
+      pairing = str_replace(pairing,
+                            "^elaine was a|^elaina's a",
+                            "Elaine was a | Elaina's a")
+  ) %>% 
+  mutate(wrd_end = pn_wrds, .after = pairing) %>% 
+  mutate(
+      wrd_end = str_replace(wrd_end, "lally's is in-", "early"),      
+      wrd_end = str_replace(wrd_end, "valerie's is", "late"),      
+      wrd_end = str_replace(wrd_end, "val's is in-", "early"),
+      wrd_end = str_replace(wrd_end, "lally's is", "late"),
+      wrd_end = str_replace(wrd_end, "elaine was a", "early"),
+      wrd_end = str_replace(wrd_end, "elaina's a", "late")
+    ) %>% 
+  adorn_totals("col") %>%
+  rename(`PN phrase` = pn_wrds,
+         `word boundary` = wrd_end) %>% 
+  formattable(caption = "L\\*H only")
+```
+
+NB: There is an uneven distribution across h-like targets for the "lally's is in- | valerie's is" pairing.
 ```{r Get means etc }
 
 pn_phr <- c(
@@ -117,22 +185,23 @@ pn_phr <- c(
   "valerie's is",
   "lally's is")
 
+
 pn_wrd_data_sum <- pn_wrd_data %>%
   group_by(speaker, acc_phon, pn_wrds) %>%
-  summarise(mean_h_t = mean(mean_h_t)) %>% 
-  group_by(pn_wrds, speaker) %>%
-  summarise(mean_h_t = round(mean(mean_h_t), 0)) %>% 
+  summarise(mean_h_syl_norm_t = mean(h_syl_norm_t)) %>% 
+  #group_by(pn_wrds, speaker) %>%
+  #summarise(mean_h_t = round(mean(mean_h_t), 1)) %>% 
   mutate(pn_wrds = factor(pn_wrds, levels = pn_phr),
       pairing = pn_wrds,
       pairing = str_replace(pairing,
                             "^lally's is in-|^valerie's is",
-                            "Valerie's is | Lally's is in-"),      
+                            "Lally's is in- | Valerie's is"),      
       pairing = str_replace(pairing,
                             "^val's is in-|^lally's is",
-                            "Lally's is | Val's is in-"),
+                            "Val's is in- | Lally's is"),
       pairing = str_replace(pairing,
                             "^elaine was a|^elaina's a",
-                            "Elaina's a | Elaine was a"),
+                            "Elaine was a | Elaina's a"),
       wrd_end = pn_wrds,
       wrd_end = str_replace(wrd_end, "lally's is in-", "early"),      
       wrd_end = str_replace(wrd_end, "valerie's is", "late"),      
@@ -146,88 +215,206 @@ pn_wrd_data_sum <- pn_wrd_data %>%
 ```
 
 
-
-```{r plot with mean data all, fig.width = 6.3, fig.height = 5}
-#ggplot(data = pn_wrd_data %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)),
-#       mapping = aes(x = mean_h_t, fill = pairing)) +
-#  geom_density(stat="density") +
-#  facet_wrap(vars(pn_wrds)) +
-#  scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
-#  theme(legend.position = "none") +
-#  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (raw data)")
-
-ggplot(data = pn_wrd_data_sum,
-       mapping = aes(x = mean_h_t, fill = pairing)) +
-  geom_density(stat="density") +
-  facet_wrap(vars(pn_wrds)) +
-  scale_fill_manual(values=c(brewer.pal(3, "Set2")), name=NULL,) +
-  theme(legend.position = "none") +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (mean data)")
-
-
-```
-
-```{r plot with mean data grouped, fig.width = 6.3, fig.height = 2.2}
-#ggplot(data = pn_wrd_data %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)),
-#       mapping = aes(x = mean_h_t, fill = pairing)) +
-#  geom_density(stat="density") +
-#  facet_wrap(vars(pn_wrds)) +
-#  scale_fill_manual(values=c(brewer.pal(3, "Set2"), brewer.pal(3, "Dark2")), name=NULL) +
-#  theme(legend.position = "none") +
-#  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (raw data)")
+```{r plot all PN types association, fig.width = 5, fig.height = 2.5}
 pn_phr <- c(
-  "lally's is in-","valerie's is",
+  "elaine was a", "elaina's a",
   "val's is in-", "lally's is",
-  "elaine was a", "elaina's a")
+  "lally's is in-","valerie's is"
+)
 
-ggplot(data = pn_wrd_data_sum %>%  mutate(pn_wrds = factor(pn_wrds, levels = pn_phr)),
-       mapping = aes(x = mean_h_t, fill = pn_wrds)) +
-  geom_density(stat="density", alpha = 0.8) +
-  facet_wrap(vars(pairing)) +
-  scale_fill_manual(values=c(
-    brewer.pal(3, "Set2")[1],
-    brewer.pal(3, "Dark2")[1],
-    brewer.pal(3, "Set2")[3],
-    brewer.pal(3, "Dark2")[3],
-    brewer.pal(3, "Set2")[2],
-    brewer.pal(3, "Dark2")[2]
+pn_phr_cut <- c(
+  "elaine was a", "elaina's a",
+  "val's is in-", "lally's is"
+  )
+
+
+
+ggplot(
+  data = pn_wrd_data %>%
+    filter(pn_wrds %in% pn_phr_cut) %>%
+    mutate(
+      pn_wrds = factor(pn_wrds, levels = pn_phr_cut),
+      h_syl_ft = factor(h_syl_ft, levels = 1:4)
     ),
-    breaks = pn_phr[6:1],
-    name=NULL) +
-  theme(legend.position = "right",
-        legend.key.size = unit(0.4, "cm")) +
-    xlim(0, 500) +
-  labs(caption = "PN peak timing for L*H for H-corpus sentence pairs (mean data)")
+  
+  mapping = aes(x = h_syl_ft, fill = pn_wrds)
+) +
+  
+  geom_bar(stat = "count",
+           position = "dodge",
+           colour = "black") +
+  
+  geom_text(aes(
+    label = (..count..),
+    vjust = -0.5
+  ),
+  stat = "count",
+  position = position_dodge(.9),
+  size = 3) +
+  
+  facet_wrap(vars(pairing)) +
+  scale_fill_manual(
+    values = c(
+      brewer.pal(3, "Dark2")[1],
+      brewer.pal(3, "Set2")[1],
+      brewer.pal(3, "Dark2")[3],
+      brewer.pal(3, "Set2")[3]
+    ),
+    name = NULL
+  ) +
+  theme(
+    legend.position = "right",
+    legend.key.size = unit(0.4, "cm"),
+    panel.grid.major = element_blank()
+  ) +
+  ylim(0, 40) +
+  xlab("foot syllable") +
+  labs(title = "PN peak syllable association",
+       caption = "(syllable number, balanced pairs, includes L*H, >H*, and H*)") 
+```
 
+
+```{r plot all PN types density, fig.width = 5, fig.height = 2.5}
+ggplot(
+  data = pn_wrd_data_sum %>%
+        filter(pn_wrds %in% pn_phr_cut) %>%
+    mutate(
+      pn_wrds = factor(pn_wrds, levels = pn_phr_cut)),
+  mapping = aes(x = mean_h_syl_norm_t, fill = pn_wrds)
+) +
+  geom_density(stat = "density", alpha = 0.8) +
+  facet_wrap(vars(pairing)) +
+  scale_fill_manual(
+    values = c(
+      brewer.pal(3, "Dark2")[1],
+      brewer.pal(3, "Set2")[1],
+      brewer.pal(3, "Dark2")[3],
+      brewer.pal(3, "Set2")[3],
+      brewer.pal(3, "Dark2")[2],
+      brewer.pal(3, "Set2")[2]
+    ),
+  #  breaks = pn_phr[6:1],
+    name = NULL
+  ) +
+  theme(
+    legend.position = "right",
+    legend.key.size = unit(0.4, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()
+  ) +
+  xlim(0, 4) +
+  xlab("syllable normalised time (from onset of foot)") +
+  labs(caption = "(mean per speaker, syllable-normalised time)",
+       title = "PN peak syllable timing in of L*H, >H*, and H*")
+```
+
+```{r plot L star H only, fig.width = 5, fig.height = 2.5}
+
+ggplot(
+  data = pn_wrd_data_sum %>%
+        filter(pn_wrds %in% pn_phr_cut) %>%
+    mutate(
+      pn_wrds = factor(pn_wrds, levels = pn_phr_cut)) %>%
+    filter(acc_phon == "L*H"),
+  mapping = aes(x = mean_h_syl_norm_t, fill = pn_wrds)
+) +
+  geom_density(stat = "density", alpha = 0.8) +
+  facet_wrap(vars(pairing)) +
+  scale_fill_manual(
+    values = c(
+      brewer.pal(3, "Dark2")[1],
+      brewer.pal(3, "Set2")[1],
+      brewer.pal(3, "Dark2")[3],
+      brewer.pal(3, "Set2")[3],
+      brewer.pal(3, "Set2")[2],
+      brewer.pal(3, "Dark2")[2]
+    ),
+    name = NULL
+  ) +
+  theme(
+    legend.position = "right",
+    legend.key.size = unit(0.4, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()
+  ) +
+  xlim(0, 3) +
+  xlab("syllable normalised time (from onset of foot)") +
+  labs(caption = "(mean per speaker, syllable-normalised time)",
+       title = "PN peak syllable timing in L*H PAs")
 
 ```
 
-Sets one and two are two different from each other, I think.
-Only set three is worth examining.
+```{r plot with mean data 3, fig.width = 4, fig.height = 2.5, eval = F}
+ggplot(
+  data = pn_wrd_data %>% filter(pn_wrds %in% c("elaine was a",
+                                               "elaina's a")) %>%
+    filter(acc_phon == "L*H"),
+  mapping = aes(x = h_syl_ft, fill = pn_wrds)
+) +
+  geom_density(stat = "density", alpha = 0.8) +
+  scale_fill_manual(values = c(brewer.pal(8, "Dark2")[1],
+                               brewer.pal(8, "Set2")[5]),
+                    name = NULL) +
+  theme(
+    legend.position = "bottom",
+    legend.key.size = unit(0.4, "cm"),
+    panel.grid.minor.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.major = element_blank()
+  ) +
+  xlim(0.5, 3.5) +
+  xlab("foot syllable") +
+  labs(title = "Syllable association (raw data)",
+       caption = "(L*H only, 'Elaine was a' | 'Elaina's a')")
 
-```{r plot with mean data 3, fig.width = 3, fig.height = 2.5}
-#ggplot(data = pn_wrd_data %>% filter(pn_wrds %in% c("elaine was a",
-#                                                        "elaina's a")),
-#  mapping = aes(x = mean_h_t, fill = pn_wrds)) +
-#  geom_density(stat="density", alpha = 0.8) +
-#  scale_fill_manual(values=c(brewer.pal(8, "Dark2")[1],
-#                             brewer.pal(8, "Set2")[1]),
-#                    name=NULL) +
-#  theme(legend.position = "bottom") +
-#  labs(caption = "PN peak timing for L*H for 'Elaine was a' and 'Elaina's a' (raw data)")
 
-ggplot(data = pn_wrd_data_sum %>% filter(pn_wrds %in% c("elaine was a",
-                                                        "elaina's a")
-                                         ),
-  mapping = aes(x = mean_h_t, fill = pn_wrds)) +
-  geom_density(stat="density", alpha = 0.85) +
-  scale_fill_manual(values=c(brewer.pal(8, "Dark2")[1],
-                             brewer.pal(8, "Set2")[1]),
-                    name=NULL) +
-  theme(legend.position = "bottom",
-        legend.key.size = unit(0.4, "cm")) +
-  xlim(0, 450) +
-  labs(caption = "PN peak timing of L*H in 'Elaine was a' and 'Elaina's a'",
-       title = "Elaine was a | Elaina's a")
+
+ggplot(
+  data = pn_wrd_data_sum %>% filter(pn_wrds %in% c("elaine was a",
+                                                   "elaina's a")) %>%
+    filter(acc_phon == "L*H"),
+  mapping = aes(x = mean_h_syl_norm_t, fill = pn_wrds)
+) +
+  geom_density(stat = "density", alpha = 0.85) +
+  scale_fill_manual(values = c(brewer.pal(8, "Dark2")[1],
+                               brewer.pal(8, "Set2")[5]),
+                    name = NULL) +
+  theme(
+    legend.position = "bottom",
+    legend.key.size = unit(0.4, "cm"),
+    
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5)
+  ) +
+  xlim(0, 3) +
+  xlab("syllable normalised time (from onset of foot)") +
+  labs(title = "Syllable-normalised time (mean per speaker)",
+       caption = "(L*H only, 'Elaine was a' | 'Elaina's a')")
+
+
+
+ggplot(
+  data = pn_wrd_data %>% filter(pn_wrds %in% c("elaine was a",
+                                                   "elaina's a")) %>%
+    filter(acc_phon == "L*H"),
+  mapping = aes(x = h_syl_norm_t, fill = pn_wrds)
+) +
+  geom_density(stat = "density", alpha = 0.85) +
+  scale_fill_manual(values = c(brewer.pal(8, "Dark2")[1],
+                               brewer.pal(8, "Set2")[5]),
+                    name = NULL) +
+  theme(
+    legend.position = "bottom",
+    legend.key.size = unit(0.4, "cm"),
+    
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5)
+  ) +
+  xlim(0, 3) +
+  xlab("syllable normalised time (from onset of foot)") +
+  labs(title = "Syllable-normalised time (raw data)",
+       caption = "(L*H only, 'Elaine was a' | 'Elaina's a')")
 
 ```
