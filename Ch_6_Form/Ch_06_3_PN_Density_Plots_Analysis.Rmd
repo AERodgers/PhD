@@ -82,13 +82,13 @@ pn_wrd_data <- pn %>%
       pairing = pn_wrds,
       pairing = str_replace(pairing,
                             "^lally's is in-|^valerie's is",
-                            "Valerie's is | Lally's is in-"),      
+                            "Lally's is in- | Valerie's is"),      
       pairing = str_replace(pairing,
                             "^val's is in-|^lally's is",
-                            "Lally's is | Val's is in-"),
+                            "Val's is in- | Lally's is"),
       pairing = str_replace(pairing,
                             "^elaine was a|^elaina's a",
-                            "Elaina's a | Elaine was a"),
+                            "Elaine was a | Elaina's a"),
       pn_wrds = factor(pn_wrds, levels = pn_phr)
     ) %>% 
       filter(acc_phon %in% h_star_type,

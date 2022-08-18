@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
+knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
 
@@ -31,7 +31,7 @@ installMissingPackages(
     "sjPlot",
     "formattable",
     "knitr",
-    
+
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
@@ -71,14 +71,14 @@ pn <- pn %>%
     foot_syls = factor(foot_syls, levels = 1:4)
   )
 
-pn_l_data <- pn %>% 
-  filter(acc_phon %in% l_star_type) %>% 
-  mutate(acc_phon = factor(acc_phon, levels = l_star_type)) %>% 
+pn_l_data <- pn %>%
+  filter(acc_phon %in% l_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type)) %>%
   select(-c(h_t, h_f0))
-  
-pn_h_data <- pn %>% 
-  filter(acc_phon %in% h_star_type) %>% 
-  mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>% 
+
+pn_h_data <- pn %>%
+  filter(acc_phon %in% h_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>%
   select(-c(l_t, l_f0))
 
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
@@ -99,7 +99,7 @@ for (i in colnames(pn_l_data))
   {
     cat("\n", i)
     }
-  
+
 }
 
 cat("\n\nTibble factors for pn_h_data\n")
@@ -113,7 +113,7 @@ for (i in colnames(pn_h_data))
   {
     cat("\n", i)
     }
-  
+
 }
 
 
@@ -178,7 +178,6 @@ pn_l_t_mdl.trimmed = lmer(
 
 summariseLME(pn_l_t_mdl.trimmed,
              run_step = TRUE,
-             extra_text = "[prenuclear PA]",
              write = "pn_anovas/pn_l_t_anova.csv")
 ```
 
@@ -280,7 +279,6 @@ pn_l_f0_mdl.trimmed = lmer(
 
 summariseLME(pn_l_f0_mdl.trimmed,
              run_step = TRUE,
-             extra_text = "[prenuclear PA]",
              write = "pn_anovas/pn_l_f0_anova.csv")
 ```
 
@@ -324,7 +322,7 @@ charts$slopes
 ### Analysis of H timing
 
 - Only intercepts only model avoided convergence and singularity issues
-- Random factors reduce 
+- Random factors reduce
 ```{r set h_t equation}
 h_t_equation = formula(
   h_t ~ acc_phon
@@ -379,7 +377,6 @@ pn_h_t_mdl.trimmed = lmer(
 )
 summariseLME(pn_h_t_mdl.trimmed,
              run_step = TRUE,
-             extra_text = "[prenuclear PA]",
              write = "pn_anovas/pn_h_t_anova.csv")
 ```
 
@@ -459,7 +456,6 @@ pn_h_f0_mdl = lmer(
 
 summariseLME(pn_h_f0_mdl,
              run_step = TRUE,
-             extra_text = "[prenuclear PA]",
              write = "pn_anovas/pn_h_f0_anova.csv")
 ```
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
@@ -504,11 +500,11 @@ Based on results from tonal target analysis, it looks there is an element of tru
 As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
 
 ```{r get data ready for T and C analysis}
-pn_tnc_data <- pn_l_data %>% 
-  mutate(log_lh_slope = log(lh_slope)) %>% 
+pn_tnc_data <- pn_l_data %>%
+  mutate(log_lh_slope = log(lh_slope)) %>%
   filter(acc_phon == "L*H")
 ```
- 
+
 ### LH Excursion
 
 ```{r set f0_exc equation}

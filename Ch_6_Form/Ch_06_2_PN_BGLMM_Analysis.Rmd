@@ -202,7 +202,7 @@ charts$slopes
 ```
 
 ## Run isHStar model
-
+- Removed foot_dur as random slope due to estimation errors.
 ```{r set isHStar equation}
 isHStar_equation <- formula(isHStar ~ foot_syls
                             + wrd_end_syl
@@ -211,15 +211,15 @@ isHStar_equation <- formula(isHStar ~ foot_syls
                             + (1 | nuc_pre_text)
                             + (1 | speaker)
                             + (1 | ana_text)
-                            + (1 | foot_dur)
+                           # + (1 | foot_dur)
                             )
 
 null_equation <- formula(isHStar ~ 1
                          + (1 | nuc_pre_text)
                          + (1 | speaker)
                          + (1 | ana_text)
-                         + (1 | foot_dur))
-  
+                         #+ (1 | foot_dur)
+                            )
 
 ```
 
@@ -247,7 +247,7 @@ summary(h_star_model)
 ```{r fig.height=4, fig.width=5, results = "asis"}
 plot_model(h_star_model,
            type="re",
-           show.values = T)[2:4]
+           show.values = T)
 ```
 
 ```{r fig.width = 4, fig.height = 2.5, results="asis"}
@@ -272,6 +272,15 @@ tidy_summary <- analyseModel(h_star_model,
                              is_GLM = TRUE,
                              type = "pred")
 
+
+ggpredict(h_star_model, terms = "speech_rate [all]", ci.lvl = 0.67) %>%
+  plot() +
+  xlim(2.874, 9.284) +
+  xlab("speech rate (syls/sec)") +
+  ylab("H*") +
+  labs(title = "Predicted probabilities of H* re speech rate",
+       caption = "Predicted probabilities of H* re speech rate with 67% CIs") +
+  scale_y_continuous(labels = scales::percent)
 
 plot_model(
   h_star_model,
