@@ -22,10 +22,10 @@ sig_color <- x ~ style(color = if_else(
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ## set colours
-mode_colours <- c("MDC" = "#5e3c99",
-                  "WHQ" = "#e66101",
-                  "MYN" = "#fdb863",
-                  "MDQ" = "#b2abd2")
+mode_colours <- c("MDC" = brewer.pal(8, "Dark2")[3],
+                  "WHQ" = brewer.pal(8, "Dark2")[2],
+                  "MYN" = brewer.pal(8, "Dark2")[1],
+                  "MDQ" = brewer.pal(8, "Dark2")[4])
 
 p_color <- all_models_tidy ~ style(color =
                                      if_else(as.double(all_models_tidy) < 0.05,
@@ -34,40 +34,42 @@ p_color <- all_models_tidy ~ style(color =
 )
 
 
-pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
-                          "L*H"    = brewer.pal(6, "Set2")[3],
-                          "^[L*]H" = brewer.pal(6, "Set2")[6],
-                          ">H*"    = brewer.pal(6, "Set2")[4],
-                          "L*^[H]" = brewer.pal(6, "Set2")[2],
-                          "^[L*H]" = brewer.pal(6, "Set2")[1])
+pitch_accent_colours <- c("H*"     = brewer.pal(8, "Dark2")[2],
+                          "L*H"    = brewer.pal(8, "Dark2")[1],
+                          "^[L*]H" = brewer.pal(8, "Dark2")[6],
+                          ">H*"    = brewer.pal(8, "Dark2")[3],
+                          "L*^[H]" = brewer.pal(8, "Dark2")[5],
+                          "^[L*H]" = brewer.pal(8, "Dark2")[4],
+                          "L*"     = brewer.pal(8, "Dark2")[7],
+                          "(*)"    = brewer.pal(8, "Dark2")[8])
 
 
-nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(6, "Set2")[5],
-                                ">H* L%"    = brewer.pal(6, "Set2")[4],
-                                "^[L*]H L%" = brewer.pal(6, "Set2")[6],
-                                "L*H L%"    = brewer.pal(8, "Set2")[1],
-                                "L*^[H] L%" = brewer.pal(8, "Set2")[8],
-                                "^[L*H] L%" = brewer.pal(6, "Set2")[7],
-                                "L*^[H L]%" = brewer.pal(8, "Set2")[2],
-                                "^[L*H L]%" = brewer.pal(6, "Set2")[3],
-                                "L*H %"     = brewer.pal(6, "Set2")[3],
-                                "L*^[H] %" = brewer.pal(6, "Set2")[2],
-                                "^[L*H] %" = brewer.pal(6, "Set2")[7])
+# nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(8, "Set2")[5],
+#                                 ">H* L%"    = brewer.pal(8, "Set2")[4],
+#                                 "^[L*]H L%" = brewer.pal(8, "Set2")[6],
+#                                 "L*H L%"    = brewer.pal(8, "Set2")[1],
+#                                 "L*^[H] L%" = brewer.pal(8, "Set2")[8],
+#                                 "^[L*H] L%" = brewer.pal(8, "Set2")[7],
+#                                 "L*^[H L]%" = brewer.pal(8, "Set2")[2],
+#                                 "^[L*H L]%" = brewer.pal(8, "Set2")[3],
+#                                 "L*H %"     = brewer.pal(8, "Set2")[3],
+#                                 "L*^[H] %" = brewer.pal(8, "Set2")[2],
+#                                 "^[L*H] %" = brewer.pal(8, "Set2")[7])
 
 nuc_contour_colours <- c(
-  "L*H %"   = brewer.pal(6, "Set2")[3],
-  "L*H L%" = brewer.pal(8, "Set2")[7],
-  ">H* L%"  = brewer.pal(6, "Set2")[4],
-  "H* L%"   = brewer.pal(6, "Set2")[5],
-  "L*H H%" = brewer.pal(6, "Set2")[2],
-  "L*H HL%" = brewer.pal(8, "Set2")[8]
+  "L*H %"   = brewer.pal(8, "Dark2")[1],
+  "L*H L%" = brewer.pal(8, "Dark2")[6],
+  ">H* L%"  = brewer.pal(8, "Dark2")[3],
+  "H* L%"   = brewer.pal(8, "Dark2")[2],
+  "L*H H%" = brewer.pal(8, "Dark2")[5],
+  "L*H HL%" = brewer.pal(8, "Dark2")[4]
 )
 
 fin_phon_colours <- c(
-  "%"   = brewer.pal(6, "Set2")[3],
-  "L%" = brewer.pal(8, "Set2")[7],
-  "H%" = brewer.pal(6, "Set2")[2],
-  "HL%" = brewer.pal(8, "Set2")[8]
+  "%"   = brewer.pal(8, "Dark2")[1],
+  "L%" = brewer.pal(8, "Dark2")[6],
+  "H%" = brewer.pal(8, "Dark2")[5],
+  "HL%" = brewer.pal(8, "Dark2")[4]
 )
 
 

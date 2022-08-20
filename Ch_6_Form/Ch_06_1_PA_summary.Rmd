@@ -22,22 +22,12 @@ installMissingPackages(c("tidyverse",
                          "broomExtra",
                          "ggpubr",
                          "RColorBrewer",
-                         "tidymodels"))
+                         "tidymodels",
+                         "janitor"))
 
 # PRAAT DIRECTORY
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
-
-## set colours
-my_colours <- brewer.pal(5, "Spectral")
-pitch_accent_colours <- c("(*)" = my_colours[1],
-                          "L*" = my_colours[2],
-                          "H*" = my_colours[3],
-                          ">H*" = my_colours[4],
-                          "L*H" = my_colours[5],
-                          "L*H %" = my_colours[5],
-                          "L*H L%" = my_colours[2]
-                          )
 ```
 
 ```{r warning=FALSE}
@@ -100,8 +90,20 @@ nuc_by_speaker <- nuc %>%
   filter(stim %in% c("A1111", "A0221", "A0321", "A0423",  "A1211", "A1231", "A1241")) %>%
   select(speaker, nuc_contour, speech_rate)
 
+
+# limit colours
+pitch_accent_colours <-
+  pitch_accent_colours[c(unique(pn$acc_phon)) %>% as.vector()]
+
+nuc_contour_colours <-
+  nuc_contour_colours[c(unique(nuc_foot$nuc_contour)) %>% as.vector()]
+
+fin_phon_colours <- 
+  fin_phon_colours[c(unique(nuc_foot$fin_phon)) %>% as.vector()]
+
+
 # Remove unneeded variables from R Environment.
-#rm(corpus, nuc, pn)
+rm(corpus, nuc, pn)
 
 
 ```
@@ -126,13 +128,35 @@ pn_by_speaker_ratio <- pn_by_speaker %>%
     summarise(accCount = n(), .groups = "keep") %>%
     spread(acc_phon, accCount, is.na <- 0, drop = FALSE) %>% 
     mutate(tot_PAs = sum(c_across())) %>% 
-    mutate(across(1:last_col()-1, ~ round(. / tot_PAs * 100))) %>% 
+    mutate(across(1:last_col()-1, ~ round(. / tot_PAs * 35))) %>% 
     select(-tot_PAs) %>% 
   left_join(mean_speech_rate, "speaker")
 
 pn_by_speaker_ratio %>% 
   write_csv("output/pn_by_speaker.csv") %>%
-  kable()
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  adorn_totals(where = "row") %>% 
+  relocate(mean_speech_rate, .after = speaker) %>% 
+  select(-gender) %>% 
+  mutate(mean_speech_rate = str_replace(mean_speech_rate,
+                                 as.character(max(mean_speech_rate)),
+                                 "")) %>% 
+  rename(`mean speech rate (syls/sec)` = mean_speech_rate) %>% 
+  formattable(
+    caption = "Prenuclear pitch accent distribution (adjusted) and speech rate by speaker",
+    list(area(
+      col = 3:7, row = 1:nrow(.)-1
+      ) ~ color_bar("proportion",
+                    color = c(rep(brewer.pal(8, "Pastel2")[8], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[7], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                              )
+                    )
+      )
+    )
+
 
 pn_by_speaker_ratio_uncount <- pn_by_speaker_ratio %>%
   gather("acc_phon", "count",-c(speaker, mean_speech_rate, gender)) %>%
@@ -148,10 +172,9 @@ rm(mean_speech_rate)
 ```
 
 #### By speaker correlation between PN pitch accents per speaker and average speech rate 
-```{r warning=TRUE, fig.width = 8, fig.height = 3.5}
+```{r warning=TRUE, fig.width = 6.5, fig.height = 2.5}
 # Percentage Stacked bar
-
-# 
+ 
 ggplot(data = pn_by_speaker_ratio_uncount,
        aes(fill = acc_phon, x = speaker)) +
   geom_bar(
@@ -160,7 +183,7 @@ ggplot(data = pn_by_speaker_ratio_uncount,
     width = 0.30,
     colour = "black"
   ) +
-  scale_fill_manual(values = pitch_accent_colours[1:5]) +
+  scale_fill_manual(values = pitch_accent_colours, name = NULL) +
   labs(x = "Proportion of PAs per speaker",
        y = "Speaker") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -168,7 +191,7 @@ ggplot(data = pn_by_speaker_ratio_uncount,
 ```
 
 
-```{r warning=TRUE, fig.width = 4, fig.height = 4}
+```{r warning=TRUE, fig.width = 4, fig.height = 2.5}
 ggplot(pn_by_speaker_ratio,
        aes(y = mean_speech_rate, x = speaker)) +
   geom_boxplot()
@@ -176,7 +199,7 @@ ggplot(pn_by_speaker_ratio,
 ```
 
 
-```{r  fig.width = 4.5, fig.height = 4}
+```{r  fig.width = 4, fig.height = 3}
 # L*H
 ggplot(pn_by_speaker_ratio,
        aes(y = `L*H`, x = mean_speech_rate, label = speaker,)) +
@@ -193,6 +216,7 @@ ggplot(pn_by_speaker_ratio,
 cor.test(pn_by_speaker_ratio$`L*H`,
          pn_by_speaker_ratio$mean_speech_rate)
 
+summary(lm(`L*H` ~ mean_speech_rate, data = pn_by_speaker_ratio))
 
 # H*
 ggplot(pn_by_speaker_ratio,
@@ -210,7 +234,7 @@ ggplot(pn_by_speaker_ratio,
 cor.test(pn_by_speaker_ratio$`H*`,
          pn_by_speaker_ratio$mean_speech_rate)
 
-summary(lm(`L*H` ~ mean_speech_rate, data = pn_by_speaker_ratio))
+summary(lm(`H*` ~ mean_speech_rate, data = pn_by_speaker_ratio))
 ```
 
 ### chi squared test for gender ~ acc_phon on adjusted data
@@ -229,17 +253,24 @@ print(pn_by_speaker_ratio_uncount %>%
 ### Nuclear Contours
 ```{r warning=FALSE}
 nuc_by_speaker %>%
-    #filter (speaker == cur_speaker, .preserve = TRUE) %>%
-    group_by(speaker, nuc_contour) %>%
-    summarise(accCount = n()) %>%
-    spread(nuc_contour, accCount, is.na <- 0, drop = FALSE) %>% 
-    mutate(tot_PAs = sum(c_across())) %>% 
-    mutate(across(1:3, ~ round(. / tot_PAs * 100))) %>% 
-    select(-tot_PAs) %>% 
-    write_csv("output/nuc_by_speaker.csv") %>%
-    kable()
+  group_by(speaker, nuc_contour) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <- 0, drop = FALSE) %>%
+  mutate(tot_PAs = sum(c_across())) %>%
+  mutate(across(1:3, ~ round(. / tot_PAs * 35))) %>%
+  select(-tot_PAs) %>%
+  write_csv("output/nuc_by_speaker.csv") %>%
+  adorn_totals(where = "row") %>%
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
+  formattable(caption = "Nuclear contour distribution (adjusted) by speaker",
+              list(
+                area(col = 2:3, row = 1:nrow(.) - 1) ~ color_bar("proportion",
+                                                                 color = c(
+                                                                   rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                                                                   rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                                                                 ))
+              ))
 ```
-
 
 ## 1.2.2 Pre-nuclear Pitch Accents
 
@@ -253,7 +284,24 @@ nuc_by_speaker %>%
 
 balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
   write_csv("output/pn_foot_balanced.csv") %>%
-  kable()
+  adorn_totals(where = "row") %>% 
+  rename(`foot size (syls)` = foot_syls) %>% 
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  formattable(
+    caption = "Prenuclear pitch accent distribution (adjusted) by foot size",
+    list(area(
+      col = 2:6, row = 1:nrow(.)-1
+      ) ~ color_bar("proportion",
+                    color = c(rep(brewer.pal(8, "Pastel2")[8], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[7], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                              )
+                    )
+      )
+    )
+
 
 ```
 
@@ -266,7 +314,21 @@ balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
 
 balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
   write_csv("output/pn_ana_balanced.csv") %>%
-  kable()
+  adorn_totals(where = "row") %>% 
+  rename(`anacrusis (syls)` = ana_syls) %>% 
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  formattable(
+    caption = "Prenuclear pitch accent distribution (adjusted) by anacrusis",
+    list(area(
+      col = 2:4, row = 1:nrow(.)-1
+      ) ~ color_bar("proportion",
+                    color = c(rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                              )
+                    )
+      )
+    )
 
 
 ```
@@ -282,7 +344,20 @@ balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
 
 balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
   write_csv("output/nuc_foot_balanced.csv") %>%
-  kable()
+  adorn_totals(where = "row") %>% 
+  rename(`foot size (syls)` = foot_syls) %>% 
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  formattable(
+    caption = "Nuclear contour distribution (adjusted) by foot size",
+    list(area(
+      col = 2:3, row = 1:nrow(.)-1
+      ) ~ color_bar("proportion",
+                    color = c(rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                              )
+                    )
+      )
+    )
 
 
 ```
@@ -295,7 +370,20 @@ balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
 #  speaker per target variable.
 balancedData(nuc_pre, pre_syls, nuc_contour, "", 11, 5) %>%
   write_csv("output/nuc_pre_balanced.csv") %>%
-  kable()
+  adorn_totals(where = "row") %>% 
+  rename(`preceding syllables` = pre_syls) %>% 
+  rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  formattable(
+    caption = "Nuclear contour distribution (adjusted) by preceding syllables",
+    list(area(
+      col = 2:3, row = 1:nrow(.)-1
+      ) ~ color_bar("proportion",
+                    color = c(rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                              )
+                    )
+      )
+    )
 ```
 
 
@@ -324,7 +412,7 @@ pivot_longer(balancedData(pn_foot, foot_syls, acc_phon, "F", 6, 5),
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "acc_phon"
@@ -362,25 +450,31 @@ ggplot(all) +
 
 ### PNs across foot size conditions (adjusted) 
 
-```{r fig.height=2.5, fig.width=8}
+```{r fig.height=2, fig.width=6.5}
+# Set themes and colour schemes.
 ggplot(all) +
-  geom_bar(
-    mapping = aes(x = foot_syls, fill = acc_phon),
-    show.legend = FALSE,
-    colour = "black",
-    position = position_dodge2(preserve = "single")
-  ) +
+  
+  geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
+           colour = "black",
+           position = position_dodge2(preserve = "single"),
+           show.legend = FALSE) +
+  
+  geom_text(aes(x = foot_syls,y = (..count..),label = (..count..)),
+            stat = "count",
+            vjust = -0.7,
+            size = 3.5) +
+  
   facet_grid(cols = vars(acc_phon)) +
-  theme(
-    panel.border = element_rect(fill = NA),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16)
-    ) +
-  #ggtitle("PNs across foot size conditions (adjusted)") +
-  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "foot size (syllables)", y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
-    
+  
+  theme(panel.border = element_rect(fill = NA),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 10)) +
+  
+  scale_fill_manual(values = pitch_accent_colours, name = NULL) +
+  
+  scale_y_continuous(limits = c(0, 60)) +
+  
+  labs(x = "foot size (syllables)", y = "tokens (n)")
 
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
@@ -406,7 +500,7 @@ pivot_longer(balancedData(pn_ana, ana_syls, acc_phon, "F", 6, 5),
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "ana_syls"
 my_response <- "acc_phon"
@@ -427,43 +521,80 @@ all <- read_csv(my_table_g, show_col_types = FALSE) %>%
 ```
 
 
-```{r fig.height=4, fig.width=5.5, eval=FALSE}
+```{r fig.height=3, fig.width=4, eval=FALSE}
 ggplot(all) +
+  
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
     colour = "black",
     show.legend = FALSE,
     position = position_dodge2(preserve = "single")
   ) +
-  facet_grid(rows = vars(gender), cols = vars(acc_phon)) +
-  ggtitle("PNs by gender and anacrusis (adjusted)") +
+  
+  geom_text(
+    aes(
+      x = ana_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
+  ) +
+  
+  facet_grid(
+    rows = vars(gender),
+    cols = vars(acc_phon),
+    labeller = labeller(acc_phon = label_value, gender = label_both)
+  ) +
+  
+  labs(x = "anacrusis", y = "tokens (n)") +
+  
   scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "anacrusis and gender",
-       y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
+  
+  scale_y_continuous(limits = c(0, 40)) +
+  
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
 ```
 
 
-```{r fig.height=2.5, fig.width=5.5}
+```{r fig.height=2, fig.width=4.2}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
     show.legend = FALSE,
     colour = "black",
     position = position_dodge2(preserve = "single")
+  )  +
+    geom_text(
+    aes(
+      x = ana_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
   ) +
-  facet_grid(cols = vars(acc_phon)) +
-    theme(
-    panel.border = element_rect(fill = NA),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16)
-    ) +
-  theme(panel.border = element_rect(fill = NA)) +
+  
+  facet_grid(
+    cols = vars(acc_phon)) +
+  
+  labs(x = "anacrusis", y = "tokens (n)") +
+  
   scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "anacrusis (syllables)", y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
-
-unlink(c(my_table_m, my_table_f, my_table_g))
+  
+  scale_y_continuous(limits = c(0, 60)) +
+  
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
 ```
 
 ## 1.3.2 Nuclear Pitch Contours
@@ -487,7 +618,7 @@ pivot_longer(balancedData(nuc_foot, foot_syls, nuc_contour, "F", 6, 5),
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "nuc_contour"
@@ -504,8 +635,7 @@ praat_run(script,
 all <- read_csv(my_table_g, show_col_types = FALSE)
 ```
 
-
-```{r fig.height=4, fig.width=4.5, eval=F}
+```{r fig.height=3, fig.width=2.8}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = foot_syls, fill = nuc_contour),
@@ -513,34 +643,72 @@ ggplot(all) +
     show.legend = FALSE,
     position = position_dodge2(preserve = "single")
   ) +
-  facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuclear Contours by Gender and Foot Size (adjusted") +
-  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "foot size and gender",
+      geom_text(
+    aes(
+      x = foot_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
+  ) +
+
+  facet_grid(rows = vars(gender), cols = vars(nuc_contour),
+       labeller = labeller(acc_phon = label_value, gender = label_both)) +
+  
+  labs(x = "foot size",
        y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
-```
-
-
-```{r fig.height=2.5, fig.width=4}
-ggplot(all) +
-  geom_bar(
-    mapping = aes(x = foot_syls, fill = nuc_contour),
-    show.legend = FALSE,
-    colour = "black",
-    position = position_dodge2(preserve = "single")
-  ) +
-  facet_grid(cols = vars(nuc_contour)) +
-  theme(panel.border = element_rect(fill = NA)) +
-  ggtitle(
-    "Nuclear Contours by Foot Size (adjusted)"
-    ) +
-  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "foot size (syllables)", y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
+  
+  scale_fill_manual(values = nuc_contour_colours) +
+  
+  scale_y_continuous(limits = c(0, 40)) +
+   ggtitle("Nuclear Contours by Foot Size (adjusted") + 
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
 
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
+
+```{r fig.height=2, fig.width=2.8, eval=F}
+ggplot(all) +
+  geom_bar(
+    mapping = aes(x = foot_syls, fill = nuc_contour),
+    colour = "black",
+    show.legend = FALSE,
+    position = position_dodge2(preserve = "single")
+  ) +
+      geom_text(
+    aes(
+      x = foot_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
+  ) +
+
+  facet_grid(cols = vars(nuc_contour)) +
+  
+  labs(x = "foot size",
+       y = "tokens (n)") +
+  
+  scale_fill_manual(values = nuc_contour_colours) +
+  
+  scale_y_continuous(limits = c(0, 65)) +
+   ggtitle("Nuclear Contours by Foot Size (adjusted") + 
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
+```
+
+
 
 ### Nuclear Contours and Preceding Syllables
 ```{r warning=FALSE}
@@ -562,7 +730,7 @@ pivot_longer(balancedData(nuc_pre, pre_syls, nuc_contour, "F", 6, 5),
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "pre_syls"
 my_response <- "nuc_contour"
@@ -580,7 +748,7 @@ all <- read_csv(my_table_g, show_col_types = FALSE)
 ```
 
 
-```{r fig.height=4, fig.width=4.5, eval=F}
+```{r fig.height=3, fig.width=2.8, eval=F}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = pre_syls, fill = nuc_contour),
@@ -588,29 +756,73 @@ ggplot(all) +
     show.legend = FALSE,
     position = position_dodge2(preserve = "single")
   ) +
-  facet_grid(rows = vars(gender), cols = vars(nuc_contour)) +
-  ggtitle("Nuc Contours by Gender and prev. syls (adjusted)") +
-  scale_fill_brewer(palette = "Spectral", name = "Pitch Accent") +
-  labs(x = "foot size and gender",
+  
+  geom_text(
+    aes(
+      x = pre_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
+  ) +
+  
+  facet_grid(
+    rows = vars(gender),
+    cols = vars(nuc_contour),
+    labeller = labeller(acc_phon = label_value, gender = label_both)
+  ) +
+  
+  labs(x = "foot size",
        y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
+  
+  scale_fill_manual(values = nuc_contour_colours) +
+  
+  scale_y_continuous(limits = c(0, 35)) +
+  ggtitle("Nuc Contours by Gender and prev. syls (adjusted)") +
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
 ```
 
 
-```{r fig.height=2.5, fig.width=4}
+```{r fig.height=2, fig.width=2.8}
 ggplot(all) +
   geom_bar(
     mapping = aes(x = pre_syls, fill = nuc_contour),
-    show.legend = FALSE,
     colour = "black",
+    show.legend = FALSE,
     position = position_dodge2(preserve = "single")
   ) +
+  
+  geom_text(
+    aes(
+      x = pre_syls,
+      y = (..count..),
+      label = (..count..)
+    ),
+    stat = "count",
+    vjust = -0.7,
+    size = 3.5
+  ) +
+  
   facet_grid(cols = vars(nuc_contour)) +
-  theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("Nuclear contours by preceding syllables, adjusted") +
-  scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
-  labs(x = "foot size (syllables)", y = "tokens (n)") +
-  theme(panel.border = element_rect(fill = NA))
+  
+  labs(x = "foot size",
+       y = "tokens (n)") +
+  
+  scale_fill_manual(values = nuc_contour_colours) +
+  
+  scale_y_continuous(limits = c(0, 65)) +
+  ggtitle("Nuc Contours by preceding syls (adjusted)") +
+  theme(
+    panel.border = element_rect(fill = NA),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 10)
+  )
 
 unlink(c(my_table_m, my_table_f, my_table_g))
 
@@ -642,7 +854,7 @@ pn_downstep %>%
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "init_contour"
@@ -718,7 +930,7 @@ pn_downstep %>%
   write_csv(my_table_f)
 
 # run Praat script for generating representative fake balanced data.
-# (This was faster than doing it in R for me!)
+# (This was faster than doing it in R for me at the time!)
 script <- "../PraatScripts/adjustedSummaryByGender.praat"
 my_treatment <- "ana_syls"
 my_response <- "init_contour"
@@ -855,3 +1067,67 @@ for (cur_speaker in speaker_list)
 ```
 
 
+## **__C. Raw Data__**
+
+## Pre-nuclear Pitch Accents
+
+### PN Foot-size conditions
+```{r warning=FALSE}
+# Calculate the number of tokens of each PN PA as a function of foot size.
+# These are the raw, unadjusted values.
+
+pn_foot %>%
+  group_by(acc_phon, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  kable()
+```
+
+### PN Anacrusis conditions
+```{r warning=FALSE}
+pn_ana %>%
+  group_by(acc_phon, ana_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  kable()                             
+```
+
+## 1.1.2 Nuclear Pitch Accents
+
+### NUC Foot size
+```{r warning=FALSE}
+nuc_foot %>%
+  group_by(nuc_contour, foot_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <- 0) %>%
+  kable()
+```
+
+### NUC Preceding syllable count
+```{r warning=FALSE}
+nuc_pre %>%
+  group_by(nuc_contour, pre_syls) %>%
+  summarise(accCount = n()) %>%
+  spread(nuc_contour, accCount, is.na <- 0) %>%
+  kable()
+```
+
+## 1.1.3 Distribution PA and Nuclear Contour by speaker
+
+### PN accents
+```{r warning=FALSE}
+pn_by_speaker %>%
+  group_by(speaker, acc_phon) %>%
+  summarise(accCount = n(), .groups="keep") %>%
+  spread(acc_phon, accCount, is.na <- 0) %>%
+  kable()
+```
+
+### Nuclear Contours
+```{r warning=FALSE}
+nuc_by_speaker %>%
+  group_by(speaker, nuc_contour) %>%
+  summarise(nuc_count = n(), .groups="keep") %>%
+  spread(nuc_contour, nuc_count, is.na <- 0) %>%
+  kable()
+```
