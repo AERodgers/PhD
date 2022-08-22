@@ -256,7 +256,6 @@ pn_wrd_data_sum <- pn_wrd_data %>%
       wrd_end = str_replace(wrd_end, "elaina's a", "late")
       ) %>% 
   arrange(pn_wrds)
-
 ```
 
 
@@ -336,7 +335,7 @@ ggplot(
   %>% filter(acc_phon == "L*H"),
   mapping = aes(x = h_syl_norm_t, fill = pn_wrds)
 ) +
-  geom_dotplot(stat = "density", dotsize = 1.825, alpha = 0.75) +
+  geom_dotplot(dotsize = 1.825, alpha = 0.75) +
   facet_grid(rows =  vars(speaker), cols = vars(pairing)) +
   scale_fill_manual(
     values = c(
@@ -383,7 +382,7 @@ ggplot(
   %>% filter(acc_phon %in% c("H*", ">H*")),
   mapping = aes(x = h_syl_norm_t, fill = pn_wrds)
 ) +
-  geom_dotplot(stat = "density", dotsize = 1.825, alpha = 0.75) +
+  geom_dotplot(dotsize = 1.825, alpha = 0.75) +
   facet_grid(rows =  vars(speaker), cols = vars(pairing)) +
   scale_fill_manual(
     values = c(
@@ -448,7 +447,7 @@ ggplot(
   ) +
   theme(
     legend.position = "right",
-    legend.key.size = unit(0.4, "cm"),
+    legend.key.size = unit(0.3, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
     panel.grid.minor.x = element_blank()
@@ -485,7 +484,7 @@ ggplot(
   ) +
   theme(
     legend.position = "right",
-    legend.key.size = unit(0.4, "cm"),
+    legend.key.size = unit(0.3, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
     panel.grid.minor.x = element_blank()
@@ -527,7 +526,7 @@ ggplot(
                fill = brewer.pal(3, "Dark2")[2]) +
   geom_density(stat = "density",
                fill = brewer.pal(3, "Set2")[2],
-               alpha = 0.7) +
+               alpha = 0.5) +
   geom_vline(xintercept = 0, size = 0.5) +
   geom_vline(xintercept = 338, size = 0.5) +
   geom_vline(xintercept = 338 + 128, size = 0.5) +
@@ -688,6 +687,7 @@ ggplot(
 
 
 ggplot(
+  
   data = pn_wrd_data %>%
         filter(pn_wrds %in% pn_phr[2],
            speaker %in% c("F6", "F15", "F16", "M5", "M10"),
@@ -851,5 +851,168 @@ ggplot(
   ylab("density")# +
  # labs(caption = "Peak time of L*H in \"Elaina's a-\" (excl. M9)") 
 
+
 ```
 
+#### Hartigan dip test of unimodality / multimodality (Hartigan and Hartigan, 1985)
+
+NB: Hartigans' dip test is not suitable for these data as observations are not independent!
+However, it is included here as a general indicator.
+
+```{r sketchy hartigan, results = "asis"}
+require("diptest")
+
+vals_is <- pn_wrd_data %>%
+    filter(
+      pn_wrds %in% pn_phr_cut[3],
+      speaker %in% c("F5", "F6", "F12", "F15", "F16", "F17", "M10"),
+      acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+
+
+lallys_is = 
+pn_wrd_data %>%
+    filter(
+      pn_wrds %in% pn_phr_cut[3],
+      speaker %in% c("F6", "F12", "F15", "F16", "F17", "M5", "M8", "M10"),
+      acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+
+
+lallys_is_in = pn_wrd_data %>%
+        filter(pn_wrds %in% pn_phr[1],
+           speaker %notin% c("F5", "M9"),
+           acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+  
+valeries_is = pn_wrd_data %>%
+  filter(pn_wrds %in% pn_phr[2],
+         speaker %in% c("F6", "F15", "F16", "M5", "M10"),
+         acc_phon == "L*H")  %>% select(h_grand_mean_t)
+
+
+elaine_was = pn_wrd_data %>%
+    filter(
+      pn_wrds %in% pn_phr_cut[1],
+      speaker %in% c("F6", "F12", "F15", "F16", "M5", "M10"),
+      acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+
+elainas_a = pn_wrd_data %>%
+    filter(
+        pn_wrds %in% pn_phr_cut[2],
+        speaker != "M9",
+        acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+
+
+
+pn_phr <- c(
+  "val's is in-", "lally's is",
+  "lally's is in-","valerie's is",
+  "elaine was a", "elaina's a")
+
+D.value <- double()
+p.value <- double()
+observations <- double()
+
+
+dt <- dip.test(vals_is$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+dt <- dip.test(lallys_is$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+dt <- dip.test(lallys_is_in$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+dt <- dip.test(valeries_is$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+dt <- dip.test(elaine_was$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+dt <- dip.test(elainas_a$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+
+dip_test_summary <- tibble(`target phrase` = pn_phr,
+                           observations,
+                           D.value =  round(D.value, 2),
+                           p.value = round(p.value, 3),
+                           `p.adj (BH)` = round(p.adjust(p.value, "BH"), 3))
+dip_test_summary %>%
+  sigCodesTidy(`p.adj (BH)`, TRUE) %>% 
+kable(caption = "Hartigans' dip test for unimodality / multimodality. (Alternative hypothesis: non-unimodal, i.e., at least bimodal.)")
+
+```
+
+```{r sketchy hartigan sets, results = "asis", , fig.width = 3.5, fig.height = 2.2}
+require("diptest")
+
+set_1 <- rbind(vals_is, lallys_is)
+set_2 <- rbind(lallys_is_in, valeries_is)
+set_3 <- rbind(elaine_was, elainas_a)
+
+ggplot(
+  set_3,
+  mapping = aes(x = h_grand_mean_t)
+) +
+  geom_dotplot(alpha = 0.5) +
+  geom_density(stat = "density", fill = "grey", alpha = 0.5) + ylim(0, 0.01) +
+  xlim(0, 550) +
+  ylim(0, 0.01) +
+  xlab("grand mean syllable-normalised time (ms)") +
+  ylab("density")
+
+
+sets <- c("Set 1", "Set 2", "Set 3")
+
+D.value <- double()
+p.value <- double()
+observations <- double()
+
+
+dt <- dip.test(set_1$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+dt <- dip.test(set_2$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+
+dt <- dip.test(set_3$h_grand_mean_t)
+D.value <- c(D.value, as.numeric(dt[1]))
+p.value  <- c(p.value, as.numeric(dt[2]))
+observations <- c(observations, as.numeric(dt[3]))
+
+dip_test_summary <- tibble(set = sets,
+                           observations,
+                           D.value =  round(D.value, 2),
+                           p.value = round(p.value, 3),
+                           `p.adj (BH)` = round(p.adjust(p.value, "BH"), 3))
+dip_test_summary %>%
+  sigCodesTidy(`p.adj (BH)`, TRUE) %>% 
+kable(caption = "Hartigans' dip test for unimodality / multimodality. (Alternative hypothesis: non-unimodal, i.e., at least bimodal.)")
+
+```
