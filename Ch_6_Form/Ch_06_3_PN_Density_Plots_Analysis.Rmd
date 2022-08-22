@@ -532,6 +532,7 @@ ggplot(
   geom_vline(xintercept = 338, size = 0.5) +
   geom_vline(xintercept = 338 + 128, size = 0.5) +
   geom_vline(xintercept = 338 + 128 + 114, size = 0.5) +
+
   
   annotate(
     "rect",
@@ -550,7 +551,7 @@ ggplot(
           338 + 128 + 114 / 2),
     y =  0.04 * 0.94,
     
-    label = c("Val's", "is", "in")
+    label = c("Val's", "is", "in-")
   ) +
   
   theme(
@@ -558,7 +559,7 @@ ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
-  xlim(0, 550) +
+  xlim(0, 600) +
   ylim(0, 0.04) +
   xlab("grand mean syllable-normalised time (ms)") +
   ylab("density")# +
@@ -613,7 +614,7 @@ ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
-  xlim(0, 550) +
+  xlim(0, 600) +
   ylim(0, 0.04) +
   xlab("grand mean syllable-normalised time (ms)") +
   ylab("density")# +
@@ -678,7 +679,7 @@ ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
-  xlim(0, 600) +
+  xlim(0, 650) +
   ylim(0, 0.016) +
   xlab("grand mean syllable-normalised time (ms)") +
   ylab("density")# +
@@ -723,7 +724,7 @@ ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
-  xlim(0, 600) +
+  xlim(0, 650) +
   ylim(0, 0.016) +
   xlab("grand mean syllable-normalised time (ms)") +
   ylab("density")# +
