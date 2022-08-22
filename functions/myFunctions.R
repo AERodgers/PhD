@@ -619,7 +619,7 @@ analyseModel <-
            write = NULL,
            is_GLM = FALSE,
            axis.lim = NULL,
-           exponentiate = FALSE,
+           exponentiate = TRUE,
            show.intercept = FALSE,
            type = "est",
            factor_matrix = FALSE,
@@ -736,6 +736,7 @@ analyseModel <-
 
     if (is_GLM)
     {
+      dependent_var <- deparse(formula(my_model)[[2]])
       fixed_factors <- (str_replace_all(deparse(formula(
         my_model, fixed.only = TRUE
       )[3]),
@@ -750,10 +751,9 @@ analyseModel <-
                              terms = fixed_factors,
                              ci.lvl = ci.lvl) %>%
           plot() +
-          scale_y_continuous(labels = scales::percent) +
-          labs(caption = "", title="") +
+          ylim(0, 1) +
           geom_text(aes(
-            label = percent(predicted, 0),
+            label = round(predicted, 2),
             hjust = 1.5,
             position = "dodge"),
             check_overlap = T,
@@ -768,21 +768,25 @@ analyseModel <-
                                terms = cur_factor,
                                ci.lvl = ci.lvl) %>%
             plot() +
-            scale_y_continuous(labels = scales::percent) +
-            labs(title = paste("Predicted probabilities re",
-                                 cur_factor),
-                 caption = "") +
+            xlab(cur_factor) +
+            ylim(0,1) +
+            ylab("predicted probability") +
+            labs(title = paste ("predicted probability of",
+                                  dependent_var,
+                                  "re",
+                                  cur_factor)) +
             geom_text(aes(
-              label = percent(predicted, 0),
+              label = round(predicted, 2),
               hjust = -0.25,
               position = "dodge"),
               check_overlap = T,
               size=3) +
             theme(axis.title.x=element_blank())
 
-          print(my_plot)
+          my_plot %>% print()
+
         }
-      }
+        }
     }
     else
     {
@@ -814,7 +818,7 @@ getModelFixedFX <- function(my_equation,
                             write = NULL,
                             is_GLM = FALSE,
                             is_Bayesian = T,
-                            exponentiate = FALSE,
+                            exponentiate = TRUE,
                             optimizer = "optimx",
                             extra_text = "",
                             report = c("slopes", "intercepts"),
@@ -949,6 +953,16 @@ getModelFixedFX <- function(my_equation,
   if (!is.null(b1_only))
   {
     fixed_factors <- fixed_factors[fixed_factors %notin% b1_only]
+    two_level_factors <- b1_only
+    two_level_terms <- b1_only
+    # two_level_terms is the name of the factor, e.g., "gender"
+    # two_level_factors is the factor + the non-intercept level, e.g, "genderM",
+    # or the factor if it is continuous.
+  }
+  else
+  {
+    two_level_factors <- character()
+    two_level_terms <- character()
   }
   # Get list of non-interaction factors
   multilevel_factors <-
@@ -956,8 +970,9 @@ getModelFixedFX <- function(my_equation,
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% ignore_list]
   # Get list of 2-level fixed factors.
-  two_level_factors <- character()
-  two_level_terms <- character()
+
+
+
   for (cur_factor in multilevel_factors) {
     if (levels(my_data[[cur_factor]]) %>% length() == 2) {
       two_level_factors <- c(two_level_factors, cur_factor)
@@ -967,7 +982,6 @@ getModelFixedFX <- function(my_equation,
                                  sep = ""))
     }
   }
-
   # remove 2-level factors from list of multilevel_factors
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% two_level_factors]
@@ -1091,6 +1105,8 @@ getModelFixedFX <- function(my_equation,
         ) %>%
         rename(!!my_stat := statistic)
 
+
+
       if (!is_GLM) {
         cur_model_tidy <- cur_model_tidy %>%
           mutate(df = round(df, 2))
@@ -1145,18 +1161,34 @@ getModelFixedFX <- function(my_equation,
 
   # Get intercepts and pairwise comparisons tables
   all_models_tidy <- all_models_tidy %>%
-    relocate(pairwise)
+    relocate(pairwise) %>%
+    # remove continous variables which have crept into the model output.
+    filter(term %notin% b1_only)
 
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM = is_GLM)
 
-  two_level_factor_slopes <- tidy(base_model, conf.int = T) %>%
-    filter(effect %notin% "ran_pars") %>%
-    mutate(
-      estimate = round(estimate, 3),
-      std.error = round(std.error, 3),
-      statistic = round(statistic, 3)
-    )
+  if (is_GLM) {
+    two_level_factor_slopes <- tidy(base_model,
+                                    conf.int = T,
+                                    exponentiate = exponentiate) %>%
+      filter(effect %notin% "ran_pars") %>%
+      mutate(
+        estimate = round(estimate, 3),
+        std.error = round(std.error, 3),
+        statistic = round(statistic, 3)
+      )
+  }
+  else
+  {
+    two_level_factor_slopes <- tidy(base_model, conf.int = T) %>%
+      filter(effect %notin% "ran_pars") %>%
+      mutate(
+        estimate = round(estimate, 3),
+        std.error = round(std.error, 3),
+        statistic = round(statistic, 3)
+      )
+  }
 
   if (!is_GLM) {
     two_level_factor_slopes <- two_level_factor_slopes %>%
@@ -1310,11 +1342,11 @@ tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
 
 
 ###  Kable Chi Squared  ########################################################
-kable_chi_sq <- function(chi_sq_test)
+kable_chi_sq <- function(chi_sq_test, caption = "Pearson's Chi-squared test")
   {
     # returns a kable() object of the chi_sq_test input.
     require("knitr", "janitor")
-
+print(chi_sq_test)
     x2d <- round(chi_sq_test$statistic[1],10)
     names(x2d) <- NULL
 
@@ -1327,7 +1359,7 @@ kable_chi_sq <- function(chi_sq_test)
                     value=c(x2d, df, p))
 
     names(df) <- NULL
-    return(kable(df, caption="Pearson's Chi-squared test"))
+    return(kable(df, caption=caption))
 }
 
 
@@ -1353,6 +1385,7 @@ adjustP_posthoc <-
     require("knitr")
     require("kableExtra")
     require("performance")
+    require("tidyverse")
 
     # Abbreviate method where necessary.
     my_meth <- shortenPAdjMethod(method)
@@ -1410,9 +1443,8 @@ adjustP_posthoc <-
           !!p_column < 0.001,
           as.character(formatC(!!p_column, format="e", digits = 1)),
           as.character(round(!!p_column, 3), digits = 2))
-        ) %>%
-      # Change name of p.adj to indicate adjustment method.
-      rename(!!new_adj_col := p.adj)
+        )
+
 
       i = 0
       for (cur_file in unique(file_tibble$file_name))
@@ -1423,7 +1455,7 @@ adjustP_posthoc <-
 
         # Re-save updated tables as original file name.
         if (write) {
-          write_csv(cur_set, cur_file)
+          write_csv(cur_set %>% rename(!!new_adj_col := p.adj), cur_file)
         }
 
 
@@ -1446,19 +1478,24 @@ adjustP_posthoc <-
               across(
               any_of(c("estimate", "conf.low", "conf.high")),
               ~ if_else(
-                abs(.) < 0.001 | abs(.) > 100000,
+                abs(.) < 0.01 | abs(.) > 100000,
                 as.character(formatC(., format = "e", digits = 1)),
-                if_else(
-                  abs(.) < 10,
-                  as.character(round(., 3), digits = 3),
-                  as.character(round(., 1), digits = 1),
+                  as.character(round(., 2), digits = 2)
                 )
-              )
-            ),
+              ),
             across(
               everything(),
               ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
-            )) %>%
+            ),
+            p.adj = if_else(as.numeric(p.adj) < 0.001,
+                                     "<.001",
+                             p.adj),
+            !!p_column := if_else(as.numeric(!!p_column) < 0.001,
+                            "<.001",
+                            !!p_column)
+            ) %>%
+            rename(!!new_adj_col := p.adj) %>%
+
             knitr::kable(caption = my_caption) %>%
             kable_styling(full_width = FALSE, position = "left") %>%
             print()
@@ -1497,39 +1534,7 @@ tidyGLMPredictions <- function(model, caption_suffix, factor_matrix = F) {
       as_tibble() %>%
       relocate(std.error, .after = conf.high) %>%
       relocate(group , .before = x) %>%
-      mutate(
-        std.error = if_else(
-          abs(std.error) < 0.0001,
-          as.character(formatC(
-            std.error, format = "e", digits = 1
-          )),
-          as.character(round(std.error, 4), digits = 2)
-        ),
-        across(
-          c("predicted", "conf.low", "conf.high"),
-          ~ if_else(
-            . * 100 < 0.01,
-            paste(as.character(round(. * 100, digits = 4)),
-                  "%",
-                  sep = ""),
-            if_else(
-              . * 100 < 0.01,
-              paste(as.character(round(. * 100, digits = 3)),
-                    "%",
-                    sep = ""),
-              if_else(
-                . * 100 < 0.1,
-                paste(as.character(round(. * 100, digits = 2)),
-                      "%",
-                      sep = ""),
-                paste(as.character(round(. * 100, digits = 1)),
-                      "%",
-                      sep = "")
-              )
-            )
-          )
-        )
-      ) %>%
+      tidyNumbers() %>%
       rename(estimate = x) %>%
       arrange(group) %>%
       mutate(across(c(group, estimate),
@@ -1557,40 +1562,9 @@ tidyGLMPredictions <- function(model, caption_suffix, factor_matrix = F) {
         mutate(
           x = str_replace_all(x,
                               "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                              "\\\\\\1"),
-          std.error = if_else(
-            abs(std.error) < 0.0001,
-            as.character(formatC(
-              std.error, format = "e", digits = 1
-            )),
-            as.character(round(std.error, 4), digits = 2)
-          ),
-          across(
-            c("predicted", "conf.low", "conf.high"),
-            ~ if_else(
-              . * 100 < 0.01,
-              paste(
-                as.character(round(. * 100, digits = 4)),
-                "%",
-                sep = ""),
-              if_else(
-                . * 100 < 0.01,
-                paste(as.character(round(. * 100, digits = 3)),
-                      "%",
-                      sep = ""),
-                if_else(
-                  . * 100 < 0.1,
-                  paste(as.character(round(. * 100, digits = 2)),
-                        "%",
-                        sep = ""),
-                  paste(as.character(round(. * 100, digits = 1)),
-                        "%",
-                        sep = "")
-                )
-              )
-            )
-          )
+                              "\\\\\\1")
         ) %>%
+        tidyNumbers() %>%
         rename(!!cur_obj_name := x) %>%
         knitr::kable(caption = cur_caption) %>%
         kable_styling(full_width = FALSE, position = "left") %>%
@@ -1610,15 +1584,7 @@ tidyLMEPredictions <- function(model, caption_suffix, factor_matrix = F) {
       as_tibble() %>%
       relocate(std.error, .after = conf.high) %>%
       relocate(group , .before = x) %>%
-      mutate(
-        std.error = if_else(
-          abs(std.error) < 0.0001,
-          as.character(formatC(
-            std.error, format = "e", digits = 1
-          )),
-          as.character(round(std.error, 4), digits = 2)
-        )
-      ) %>%
+      tidyNumbers() %>%
       rename(estimate = x) %>%
       arrange(group) %>%
       mutate(across(c(group, estimate),
@@ -1646,15 +1612,8 @@ tidyLMEPredictions <- function(model, caption_suffix, factor_matrix = F) {
         mutate(
           x = str_replace_all(x,
                               "(\\%\\*|\\$|\\^|\\>)",
-                              "\\\\\\1"),
-          std.error = if_else(
-            abs(std.error) < 0.0001,
-            as.character(formatC(
-              std.error, format = "e", digits = 1
-            )),
-            as.character(round(std.error, 4), digits = 2)
-          )
-        ) %>%
+                              "\\\\\\1")) %>%
+        tidyNumbers() %>%
         rename(!!cur_obj_name := x) %>%
         knitr::kable(caption = cur_caption) %>%
         kable_styling(full_width = FALSE, position = "left") %>%
@@ -1771,3 +1730,39 @@ outputChiSqResults <- function(anova,
     # Return tidy anova.
     return(anova)
 }
+
+
+###  Tidy numbers in table #####################################################
+
+tidyNumbers <- function(data,
+                        p.value = "p.value",
+                        p.decimals = 3,
+                        abs.max = 10^4,
+                        abs.min = 0.01,
+                        digits = 2){
+
+  data %>%
+    mutate(
+      across(
+        any_of(p.value) & where(is.numeric),
+        ~ if_else(
+          . < 10 ^(-p.decimals),
+          paste("<", format(10^-p.decimals, scientific = F), sep="") %>%
+            str_replace("0\\.", "."),
+          as.character(round(., p.decimals))
+        )
+      ),
+      across(
+        where(is.numeric),
+        ~ if_else(abs(.) < abs.min | abs(.) >= abs.max,
+                  as.character(formatC(., format = "e", (digits - 1))),
+                  as.character(round(., digits))
+        )
+      )
+    ) %>%
+    return()
+
+}
+
+
+

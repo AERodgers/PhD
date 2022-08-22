@@ -1,6 +1,6 @@
 ---
-title: 'Chapter 06: Analysis of Form: Metrical and Lexical effects on the Phonology
-  and Phonetics of DCE Intonation'
+title: 'Chapter 06: Metrical and Lexical effects'
+subtitle: 'Overview'
 output:
   html_document: default
   word_document: default
@@ -108,14 +108,12 @@ rm(corpus, nuc, pn)
 
 ```
 
-## **__1 Adjusted Data__**
-These Tables summarize the number of PA tokens per condition once adjusted to take into account in the number of utterances per speaker per condition and the number of speakers per condition.
+## **__Adjusted Data__**
+These Tables summarize the number of PA tokens per condition adjusted to take into account in the number of utterances per speaker per condition and the number of speakers per condition.
 
-This is the distribution of PAs across conditions adjusted for number of speakers per target and number of repetitions per speaker. It is a better representation of the distribution of the PAs per foot-size condition, although it is not the set of actual values.
+### Distribution PA and Nuclear Contour by speaker
 
-## 1.1.1 Distribution PA and Nuclear Contour by speaker
-
-### PN accents
+#### PN accents
 ```{r warning=FALSE}
 mean_speech_rate <- pn_by_speaker %>%
     group_by(speaker, gender) %>%
@@ -190,8 +188,9 @@ ggplot(data = pn_by_speaker_ratio_uncount,
   scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
 ```
 
+\newpage
 
-```{r warning=TRUE, fig.width = 4, fig.height = 2.5}
+```{r warning=TRUE, fig.width = 4, fig.height = 2.5, eval = F}
 ggplot(pn_by_speaker_ratio,
        aes(y = mean_speech_rate, x = speaker)) +
   geom_boxplot()
@@ -202,55 +201,62 @@ ggplot(pn_by_speaker_ratio,
 ```{r  fig.width = 4, fig.height = 3}
 # L*H
 ggplot(pn_by_speaker_ratio,
-       aes(y = `L*H`, x = mean_speech_rate, label = speaker,)) +
+       aes(y = `L*H`, x = mean_speech_rate, label = speaker, )) +
   geom_text() +
   geom_smooth(method = "lm",
               col = "DarkRed") + stat_cor(method = "pearson",
                                           label.x = 5,
                                           label.y = 25) +
   xlab("speech rate (syls/sec)") +
-  ylab("proportion of L*H") + 
-  ggtitle("Correlation between L*H and speech rate") 
+  ylab("proportion of L*H") +
+  ggtitle("Correlation between L*H and speech rate")
 
-
-cor.test(pn_by_speaker_ratio$`L*H`,
-         pn_by_speaker_ratio$mean_speech_rate)
-
-summary(lm(`L*H` ~ mean_speech_rate, data = pn_by_speaker_ratio))
+summary(lm(`L*H` ~ mean_speech_rate, data = pn_by_speaker_ratio)) %>%
+  tidy() %>%
+  rename(`t value` = statistic) %>% 
+  tidyNumbers() %>% 
+  formattable(caption = "linear regresion of L\\*H ~ speech rate")
 
 # H*
 ggplot(pn_by_speaker_ratio,
-       aes(y = `H*`, x = mean_speech_rate, label = speaker,)) +
+       aes(y = `H*`, x = mean_speech_rate, label = speaker, )) +
   geom_text() +
   geom_smooth(method = "lm",
               col = "DarkRed") + stat_cor(method = "pearson",
                                           label.x = 5,
                                           label.y = 25) +
   xlab("speech rate (syls/sec)") +
-  ylab("proportion of H*") + 
-  ggtitle("Correlation between H* and speech rate") 
+  ylab("proportion of H*") +
+  ggtitle("Correlation between H* and speech rate")
 
-
-cor.test(pn_by_speaker_ratio$`H*`,
-         pn_by_speaker_ratio$mean_speech_rate)
-
-summary(lm(`H*` ~ mean_speech_rate, data = pn_by_speaker_ratio))
+summary(lm(`H*` ~ mean_speech_rate, data = pn_by_speaker_ratio)) %>%
+  tidy() %>%
+  rename(`t value` = statistic) %>% 
+  tidyNumbers() %>% 
+  formattable(caption = "linear regresion of H\\* ~ speech rate")
 ```
 
-### chi squared test for gender ~ acc_phon on adjusted data
+#### chi squared test for gender ~ acc_phon on adjusted data
 ```{r  fig.width = 4.5, fig.height = 4}
-print(pn_by_speaker_ratio_uncount %>%
+pn_by_speaker_ratio_uncount %>%
   ungroup() %>% 
   select(gender, acc_phon) %>% 
-  chisq_test(gender ~ acc_phon))
+  chisq_test(acc_phon ~ gender) %>% 
+  rename(`ChiSq` = statistic) %>% 
+  tidyNumbers("p_value", ) %>% 
+  formattable(caption = "Chi-Squared test of acc_phon ~ gender") 
 ```
 
 ### correlation between gender mean and speech rate on adjusted data
 ```{r  fig.width = 4.5, fig.height = 4}
-  summary(lm(mean_speech_rate ~ gender, data = pn_by_speaker_ratio))
+lm(mean_speech_rate ~ gender, data = pn_by_speaker_ratio) %>% 
+  tidy() %>%
+  rename(`t value` = statistic) %>% 
+  tidyNumbers() %>% 
+  formattable(caption = "linear regresion of mean_speech_rate ~ gender")
 ```
 
-### Nuclear Contours
+#### Nuclear Contours
 ```{r warning=FALSE}
 nuc_by_speaker %>%
   group_by(speaker, nuc_contour) %>%
@@ -272,9 +278,9 @@ nuc_by_speaker %>%
               ))
 ```
 
-## 1.2.2 Pre-nuclear Pitch Accents
+## Pre-nuclear Pitch Accents
 
-### PN Foot Size
+#### PN Foot Size
 
 ```{r warning=FALSE}
 # Calculate the adjusted number of tokens of each PN PA as a function of foot 
@@ -305,7 +311,7 @@ balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
 
 ```
 
-### PN Anacrusis
+#### PN Anacrusis
 ```{r warning=FALSE}
 # Calculate the adjusted number of tokens of each PN PA as a function of
 # anacrusis (the target variable). This takes into consideration the number of
@@ -333,9 +339,9 @@ balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
 
 ```
 
-## 1.2.3 Nuclear Pitch Accents
+### Nuclear Pitch Accents
 
-### NUC Foot size
+#### NUC Foot size
 ```{r warning=FALSE}
 # Calculate the adjusted number of tokens of each NUC PA as a function of foot 
 # size (the target variable). This takes into consideration the number of
@@ -362,7 +368,7 @@ balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
 
 ```
 
-### NUC Preceding syllable count
+#### NUC Preceding syllable count
 ```{r warning=FALSE}
 # Calculate the adjusted number of tokens of each NUC PA as a function of number
 # of syllables preceding the stressed syllable. This takes into consideration
@@ -387,12 +393,11 @@ balancedData(nuc_pre, pre_syls, nuc_contour, "", 11, 5) %>%
 ```
 
 
+## **__Graphical Summary__**
 
-## **__1.3 Graphical Summary of Balanced Data__**
+### Pre-nuclear Pitch Accents
 
-## 1.3.1 Pre-nuclear Pitch Accents
-
-### PNs and Foot Size
+#### PNs and Foot Size
 ```{r warning=FALSE}
 # creat temp file addresses
 my_table_m <- paste(getwd(), "/output/pn_foot_adj_M.csv", sep = "")
@@ -448,7 +453,7 @@ ggplot(all) +
   theme(panel.border = element_rect(fill = NA))
 ```
 
-### PNs across foot size conditions (adjusted) 
+#### PNs across foot size conditions (adjusted) 
 
 ```{r fig.height=2, fig.width=6.5}
 # Set themes and colour schemes.
@@ -479,7 +484,7 @@ ggplot(all) +
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
 
-### PNs and Anacrusis
+#### PNs and Anacrusis
 ```{r warning=FALSE}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/pn_ana_adj_M.csv", sep = "")
@@ -597,8 +602,9 @@ ggplot(all) +
   )
 ```
 
-## 1.3.2 Nuclear Pitch Contours
-### Nuclear Contours and Foot Size
+### Nuclear Pitch Contours
+
+#### Nuclear Contours and Foot Size
 ```{r, warning=FALSE}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/nuc_foot_adj_M.csv", sep = "")
@@ -710,7 +716,7 @@ ggplot(all) +
 
 
 
-### Nuclear Contours and Preceding Syllables
+#### Nuclear Contours and Preceding Syllables
 ```{r warning=FALSE}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/nuc_pre_adj_M.csv", sep = "")
@@ -830,8 +836,9 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 
 
 # APPENDICES
-# **__A. Initial boundary and downstep__**
-### foot size
+
+## **__A. Initial boundary and downstep__**
+#### foot size
 ```{r fig.height=2.5, fig.width=10.5}
 # create temp file addresses
 my_table_m <- paste(getwd(), "/output/M.csv", sep = "")
@@ -904,7 +911,7 @@ ggplot(all) +
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
 
-### anacrusis
+#### anacrusis
 ```{r fig.height=2.5, fig.width=8.1}
 # create temp file addresses
 my_table_m <-
@@ -1009,7 +1016,7 @@ pn_downstep %>%
 ```
 
 
-# **__B. Individiual Results__**
+## **__B. Individiual Results__**
 
 ```{r results = "asis",  warning=FALSE}
 # get vector of speakers
@@ -1069,9 +1076,9 @@ for (cur_speaker in speaker_list)
 
 ## **__C. Raw Data__**
 
-## Pre-nuclear Pitch Accents
+### Pre-nuclear Pitch Accents
 
-### PN Foot-size conditions
+#### PN Foot-size conditions
 ```{r warning=FALSE}
 # Calculate the number of tokens of each PN PA as a function of foot size.
 # These are the raw, unadjusted values.
@@ -1083,7 +1090,7 @@ pn_foot %>%
   kable()
 ```
 
-### PN Anacrusis conditions
+#### PN Anacrusis conditions
 ```{r warning=FALSE}
 pn_ana %>%
   group_by(acc_phon, ana_syls) %>%
@@ -1092,9 +1099,9 @@ pn_ana %>%
   kable()                             
 ```
 
-## 1.1.2 Nuclear Pitch Accents
+### 1.1.2 Nuclear Pitch Accents
 
-### NUC Foot size
+#### NUC Foot size
 ```{r warning=FALSE}
 nuc_foot %>%
   group_by(nuc_contour, foot_syls) %>%
@@ -1103,7 +1110,7 @@ nuc_foot %>%
   kable()
 ```
 
-### NUC Preceding syllable count
+#### NUC Preceding syllable count
 ```{r warning=FALSE}
 nuc_pre %>%
   group_by(nuc_contour, pre_syls) %>%
@@ -1112,9 +1119,9 @@ nuc_pre %>%
   kable()
 ```
 
-## 1.1.3 Distribution PA and Nuclear Contour by speaker
+### 1.1.3 Distribution PA and Nuclear Contour by speaker
 
-### PN accents
+#### PN accents
 ```{r warning=FALSE}
 pn_by_speaker %>%
   group_by(speaker, acc_phon) %>%
@@ -1123,7 +1130,7 @@ pn_by_speaker %>%
   kable()
 ```
 
-### Nuclear Contours
+#### Nuclear Contours
 ```{r warning=FALSE}
 nuc_by_speaker %>%
   group_by(speaker, nuc_contour) %>%

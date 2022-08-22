@@ -71,10 +71,10 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     l_t = l_t - v_onset_t,
     h_t = h_t - v_onset_t,
     e_t = e_t - v_onset_t,
-    s_grand_mean_t = s_grand_mean_t - v_grand_mean_t,
-    l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
-    h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
-    e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
+   # s_grand_mean_t = s_grand_mean_t - v_grand_mean_t,
+   # l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
+   # h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
+   # e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
 
     # treat foot_syls and ana_syls as factor
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),

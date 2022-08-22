@@ -32,6 +32,7 @@ installMissingPackages(
     "sjPlot",
     "formattable",
     "knitr",
+    "ggeffects",
     
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
@@ -144,7 +145,9 @@ plot_model(lh_pn_model,
            show.values = T, ci.lvl= 0.95,
            transform = NULL
            )[2:4]
-
+```
+```{r, results = "asis"}
+tidyPrintPredictions(lh_pn_model) 
 ```
 
 ```{r model charts and figures, fig.width = 4.5, fig.height = 2.5, results="asis"}
@@ -168,15 +171,15 @@ tidy_summary <- analyseModel(lh_pn_model,
                              type = "pred",
                              ci.lvl=0.95
                              )
-ggpredict(lh_pn_model, terms = "speech_rate [all]", ci.lvl = 0.67) %>%
+
+ggpredict(lh_pn_model, terms = "speech_rate [all]", ci.lvl = 0.95) %>%
   plot() +
   xlim(2.874, 9.284) +
   xlab("speech rate (syls/sec)") +
   ylab("L*H") +
   labs(title = "Predicted probabilities of L*H re speech rate",
-       caption = "Predicted probabilities of L*H re speech rate with 67% CIs") +
+       caption = "Predicted probabilities of L*H re speech rate with 95% CIs") +
   scale_y_continuous(labels = scales::percent)
-
 
 plot_model(
   lh_pn_model,
@@ -249,6 +252,10 @@ plot_model(h_star_model,
            type="re",
            show.values = T)
 ```
+```{r, results = "asis"}
+
+tidyPrintPredictions(h_star_model) 
+```
 
 ```{r fig.width = 4, fig.height = 2.5, results="asis"}
 cat(
@@ -273,14 +280,15 @@ tidy_summary <- analyseModel(h_star_model,
                              type = "pred")
 
 
-ggpredict(h_star_model, terms = "speech_rate [all]", ci.lvl = 0.67) %>%
+ggpredict(h_star_model, terms = "speech_rate [all]", ci.lvl = 0.95) %>%
   plot() +
   xlim(2.874, 9.284) +
   xlab("speech rate (syls/sec)") +
   ylab("H*") +
   labs(title = "Predicted probabilities of H* re speech rate",
-       caption = "Predicted probabilities of H* re speech rate with 67% CIs") +
+       caption = "Predicted probabilities of H* re speech rate with 95% CIs") +
   scale_y_continuous(labels = scales::percent)
+
 
 plot_model(
   h_star_model,
