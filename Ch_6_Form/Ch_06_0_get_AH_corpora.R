@@ -109,8 +109,8 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     ana_text = if_else(is.na(ana_text), "0", ana_text),
     ana_text = factor(ana_text, level = unique(ana_text)),
     # Make new new word the intercept.
-    pn_new_word = factor(pn_new_word, level = c(1, 0)),
-    nuc_new_word = factor(nuc_new_word, level = c(1, 0)),
+    pn_new_word = factor(as.logical(pn_new_word), level = c(F, T)),
+    nuc_new_word = factor(as.logical(nuc_new_word), level = c(F, T)),
     nuc_pre_text = if_else(is.na(nuc_pre_text), "0", nuc_pre_text),
     nuc_pre_text = factor(nuc_pre_text, level = unique(nuc_pre_text)),
   ) %>%
