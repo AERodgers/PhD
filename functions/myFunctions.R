@@ -953,7 +953,6 @@ getModelFixedFX <- function(my_equation,
   for (cur_list in all_fixed_factors)
   {fixed_factors <- c(fixed_factors, cur_list)}
 
-print(fixed_factors)
   if (!is.null(b1_only))
   {
     fixed_factors <- fixed_factors[fixed_factors %notin% b1_only]
