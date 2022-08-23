@@ -941,15 +941,19 @@ getModelFixedFX <- function(my_equation,
   # create empty tidy model output
   all_models_tidy = tibble()
   # create list of fixed factors
-  fixed_factors <-
+  all_fixed_factors <-
     (str_replace_all(deparse(formula(
       base_model, fixed.only = TRUE
     )[3]),
     "[\\(|\\)|+ ]",
     " ") %>%
       str_squish() %>%
-      str_split(" "))[[1]]
+      str_split(" "))
+  fixed_factors <- NULL
+  for (cur_list in all_fixed_factors)
+  {fixed_factors <- c(fixed_factors, cur_list)}
 
+print(fixed_factors)
   if (!is.null(b1_only))
   {
     fixed_factors <- fixed_factors[fixed_factors %notin% b1_only]
