@@ -497,33 +497,98 @@ ggplot(
 
 ## Grand mean time
 
-```{r plot peak LsH PN density 1 gmt, fig.width = 3.5, fig.height = 2.2}
+```{r plot peak LH 4 or more, fig.width = 3.5, fig.height = 2.2}
+pn_phr <- c(
+  "val's is in-", "lally's is",
+  "lally's is in-","valerie's is",
+  "elaine was a", "elaina's a")
+
+lh_tokens <- pn_wrd_data %>%
+  filter(acc_phon == "L*H") %>%
+  group_by(speaker, pn_wrds) %>%
+  summarise(count = n()) %>%
+  pivot_wider(values_from = count,
+              names_from = pn_wrds,
+              values_fill = 0)
+
+
 
 pn_wrd_data %>%
-  filter(pn_wrds %in% pn_phr_cut[3:4],
-         acc_phon == "L*H") %>%
-  
+  filter(acc_phon == "L*H") %>%
   group_by(speaker, pn_wrds) %>%
   summarise(count = n()) %>%
   pivot_wider(values_from = count,
               names_from = speaker,
-              values_fill = 0) %>%
-  formattable(caption = "Due to unequal distribition, only using tokens from speakers with at least 4 tokens for each utterance.")
+              values_fill = 0) %>% 
+  adorn_totals(where = "col") %>% 
+  formattable(caption = "Due to unequal distribition, only using tokens from speakers with at least 4 tokens for each utterance." )
+
+vals_is_in <- pn_wrd_data %>%
+  filter(
+    pn_wrds %in% pn_phr[1],
+    speaker %in% (
+      lh_tokens %>%
+        select(`val's is in-`) %>%
+        filter (`val's is in-` >= 4))$speaker,
+    acc_phon == "L*H"
+  ) %>%
+  select(h_grand_mean_t)
 
 
+lallys_is =
+  pn_wrd_data %>%
+  filter(
+    pn_wrds %in% pn_phr[2],
+    speaker %in% (
+      lh_tokens %>%
+        select(`lally's is`) %>%
+        filter (`lally's is` >= 4))$speaker,
+    acc_phon == "L*H"
+  ) %>%
+  select(h_grand_mean_t)
 
-ggplot(
-  data = pn_wrd_data %>%
+lallys_is_in = pn_wrd_data %>%
+  filter(pn_wrds %in% pn_phr[3],
+         speaker %in% (
+           lh_tokens %>%
+             select(`lally's is in-`) %>%
+             filter (`lally's is in-` >= 4))$speaker,
+         acc_phon == "L*H") %>%
+  select(h_grand_mean_t)
+  
+valeries_is = pn_wrd_data %>%
+  filter(pn_wrds %in% pn_phr[4],
+         speaker %in% (lh_tokens %>%
+                         select(`valerie's is`) %>%
+                         filter (`valerie's is` >= 4))$speaker,
+         acc_phon == "L*H")  %>%
+  select(h_grand_mean_t)
+
+elaine_was_a = pn_wrd_data %>%
     filter(
-      pn_wrds %in% pn_phr_cut[3],
-      speaker %in% c("F5", "F6", "F12", "F15", "F16", "F17", "M10"),
+      pn_wrds %in% pn_phr[5],
+      speaker %in% (lh_tokens %>%
+                         select(`elaine was a`) %>%
+                         filter (`elaine was a` >= 4))$speaker,
       acc_phon == "L*H"
-    ) %>%
-    mutate(pn_wrds = factor(pn_wrds, levels = pn_phr_cut)),
-  mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
-) +
-  geom_dotplot(stat = "density",
-               fill = brewer.pal(3, "Dark2")[2]) +
+    ) %>% select(h_grand_mean_t)
+
+elainas_a = pn_wrd_data %>%
+    filter(
+      pn_wrds %in% pn_phr[6],
+      speaker %in% (lh_tokens %>%
+                         select(`elaina's a`) %>%
+                         filter (`elaina's a` >= 4))$speaker,
+        acc_phon == "L*H"
+    ) %>% select(h_grand_mean_t)
+
+```
+
+
+```{r plot peak LsH PN density 1 gmt, fig.width = 3.5, fig.height = 2.2}
+ggplot(data = vals_is_in,
+       mapping = aes(x = h_grand_mean_t, fill = pn_wrds)) +
+  geom_dotplot(fill = brewer.pal(3, "Dark2")[2]) +
   geom_density(stat = "density",
                fill = brewer.pal(3, "Set2")[2],
                alpha = 0.5) +
@@ -531,8 +596,6 @@ ggplot(
   geom_vline(xintercept = 338, size = 0.5) +
   geom_vline(xintercept = 338 + 128, size = 0.5) +
   geom_vline(xintercept = 338 + 128 + 114, size = 0.5) +
-
-  
   annotate(
     "rect",
     xmin = 0,
@@ -542,7 +605,6 @@ ggplot(
     fill = brewer.pal(3, "Pastel2")[2],
     alpha = 0.25
   ) +
-  
   annotate(
     "text",
     x = c(338 / 2,
@@ -552,7 +614,6 @@ ggplot(
     
     label = c("Val's", "is", "in-")
   ) +
-  
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
@@ -561,33 +622,18 @@ ggplot(
   xlim(0, 600) +
   ylim(0, 0.04) +
   xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density")# +
- # labs(caption = "Peak time of L*H in \"Val's is in-\" (excl. M4, M5, M8, M9)" )
+  ylab("density")
 
-
-
-
-ggplot(
-  data = pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[3],
-      speaker %in% c("F6", "F12", "F15", "F16", "F17", "M5", "M8", "M10"),
-      acc_phon == "L*H"
-    ) %>%
-    mutate(pn_wrds = factor(pn_wrds, levels = pn_phr_cut)),
-  mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
-) +
-  geom_dotplot(stat = "density",
-               fill = brewer.pal(6, "Dark2")[6]) +
+ggplot(data = lallys_is,
+       mapping = aes(x = h_grand_mean_t, fill = pn_wrds)) +
+  geom_dotplot(fill = brewer.pal(6, "Dark2")[6]) +
   geom_density(stat = "density",
                fill = brewer.pal(6, "Set2")[6],
                alpha = 0.5) +
-  
   geom_vline(xintercept = 0, size = 0.5) +
   geom_vline(xintercept = 218, size = 0.5) +
   geom_vline(xintercept = 218 + 176, size = 0.5) +
   geom_vline(xintercept = 218 + 176 + 120, size = 0.5) +
-  
   annotate(
     "rect",
     xmin = 0,
@@ -597,7 +643,6 @@ ggplot(
     fill = brewer.pal(6, "Pastel2")[6],
     alpha = 0.25
   ) +
-  
   annotate(
     "text",
     x = c(218 / 2,
@@ -607,7 +652,6 @@ ggplot(
     
     label = c("Lall-", "y's", "is")
   ) +
-  
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
@@ -616,144 +660,100 @@ ggplot(
   xlim(0, 600) +
   ylim(0, 0.04) +
   xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density")# +
- # labs(caption = "Peak time of L*H in \"Lally's is-\" (excl. M4, M5, M9)", )
+  ylab("density")
 
 
 ```
 
 ```{r plot peak LsH PN density 2 gmt, fig.width = 3.5, fig.height = 2.2}
-pn_phr <- c(
-  "lally's is in-",
-  "valerie's is")
 
-pn_wrd_data %>%
-    filter(pn_wrds %in% pn_phr[1:2],
-           acc_phon == "L*H"
-    ) %>% 
-
-  group_by(speaker, pn_wrds) %>% 
-  summarise(count = n()) %>% 
-  pivot_wider(values_from = count,
-              names_from = speaker,
-              values_fill = 0) %>% 
-  formattable(caption = "Due to unequal distribition, results below not reliable.")
-
-ggplot(
-  data = pn_wrd_data %>%
-        filter(pn_wrds %in% pn_phr[1],
-           speaker %notin% c("F5", "M9"),
-           acc_phon == "L*H"
-    ) %>% 
-    mutate(
-      pn_wrds = factor(pn_wrds, levels = pn_phr)),
-  mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
-) +
-  geom_dotplot(stat = "density",
-               fill = brewer.pal(3, "Dark2")[3]) +
-    geom_density(stat = "density",
-               fill = brewer.pal(3, "Set2")[3], alpha = 0.5) +
+ggplot(data = lallys_is_in,
+       mapping = aes(x = h_grand_mean_t, fill = pn_wrds)) +
+  geom_dotplot(fill = brewer.pal(3, "Dark2")[3]) +
+  geom_density(stat = "density",
+               fill = brewer.pal(3, "Set2")[3],
+               alpha = 0.5) +
   geom_vline(xintercept = 0, size = 0.5) +
   geom_vline(xintercept = 214, size = 0.5) +
-  geom_vline(xintercept = 214+176, size = 0.5) +
-  geom_vline(xintercept = 214+176+127, size = 0.5) +
-  geom_vline(xintercept = 214+176+127+121, size = 0.5) +
-  
-    annotate("rect", xmin = 0, xmax = 218, ymin = 0, ymax = 0.016,
-           fill = brewer.pal(3, "Pastel2")[3],
-           alpha = 0.25) +
-  
-    annotate("text",
-           x = c(214/2,
-                 214 + 176 / 2,
-                 214 + 176 + 127 / 2,
-                 214+  176 + 127 + 121 / 2),
-           y =  0.016 * 0.94,
-           
-           label = c("Lall-", "y's", "is", "in-")) +
-  
-  
+  geom_vline(xintercept = 214 + 176, size = 0.5) +
+  geom_vline(xintercept = 214 + 176 + 127, size = 0.5) +
+  geom_vline(xintercept = 214 + 176 + 127 + 121, size = 0.5) +
+  annotate(
+    "rect",
+    xmin = 0,
+    xmax = 218,
+    ymin = 0,
+    ymax = 0.02,
+    fill = brewer.pal(3, "Pastel2")[3],
+    alpha = 0.25
+  ) +
+  annotate(
+    "text",
+    x = c(214 / 2,
+          214 + 176 / 2,
+          214 + 176 + 127 / 2,
+          214 +  176 + 127 + 121 / 2),
+    y =  0.02 * 0.94,
+    label = c("Lall-", "y's", "is", "in-")
+  ) +
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
   xlim(0, 650) +
-  ylim(0, 0.016) +
+  ylim(0, 0.02) +
   xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density")# +
- # labs(caption = "Peak time in \"Lally's is in-\" (excl. F5, M9)")
+  ylab("density")
 
 
-
-ggplot(
-  
-  data = pn_wrd_data %>%
-        filter(pn_wrds %in% pn_phr[2],
-           speaker %in% c("F6", "F15", "F16", "M5", "M10"),
-           acc_phon == "L*H") %>% 
-    mutate(
-      pn_wrds = factor(pn_wrds, levels = pn_phr)),
-  mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
-) +
-  geom_dotplot(stat = "density",
-               fill = brewer.pal(6, "Dark2")[4]) +
-    geom_density(stat = "density",
-               fill = brewer.pal(6, "Set2")[4], alpha = 0.5) +
+ggplot(data = valeries_is,
+       mapping = aes(x = h_grand_mean_t, fill = pn_wrds)) +
+  geom_dotplot(fill = brewer.pal(6, "Dark2")[4]) +
+  geom_density(stat = "density",
+               fill = brewer.pal(6, "Set2")[4],
+               alpha = 0.5) +
   geom_vline(xintercept = 0, size = 0.5) +
   geom_vline(xintercept = 210, size = 0.5) +
-  geom_vline(xintercept = 210+47, size = 0.5) +
-  geom_vline(xintercept = 210+47+208, size = 0.5) +
-  geom_vline(xintercept = 210+47+208+122, size = 0.5) +
-  
-      annotate("rect", xmin = 0, xmax = 208, ymin = 0, ymax = 0.016,
-           fill = brewer.pal(6, "Pastel2")[4],
-           alpha = 0.25) +
-  
-    annotate("text",
-           x = c(210/2,
-                 210 + 47 / 2,
-                 210 + 47 + 208 / 2,
-                 210+  47 + 208 + 122 / 2),
-           y =  0.016 * 0.94,
-           
-           label = c("Val-", "e-", "rie's", "is")) +
-  
+  geom_vline(xintercept = 210 + 47, size = 0.5) +
+  geom_vline(xintercept = 210 + 47 + 208, size = 0.5) +
+  geom_vline(xintercept = 210 + 47 + 208 + 122, size = 0.5) +
+  annotate(
+    "rect",
+    xmin = 0,
+    xmax = 208,
+    ymin = 0,
+    ymax = 0.02,
+    fill = brewer.pal(6, "Pastel2")[4],
+    alpha = 0.25
+  ) +
+  annotate(
+    "text",
+    x = c(210 / 2,
+          210 + 47 / 2,
+          210 + 47 + 208 / 2,
+          210 +  47 + 208 + 122 / 2),
+    y =  0.02 * 0.94,
+    
+    label = c("Val-", "e-", "rie's", "is")
+  ) +
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
   xlim(0, 650) +
-  ylim(0, 0.016) +
+  ylim(0, 0.02) +
   xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density")# +
- # labs(caption = "peak time in \"Valerie's is\" (F6, F15, F16, M5, M10)")
-
+  ylab("density")
 
 ```
 
 ```{r plot peak LsH PN density 3 gmt, fig.width = 3.5, fig.height = 2.2}
-pn_wrd_data %>%
-  filter(pn_wrds %in% pn_phr_cut[1:2],
-         acc_phon == "L*H") %>%
-  
-  group_by(speaker, pn_wrds) %>%
-  summarise(count = n()) %>%
-  pivot_wider(values_from = count,
-              names_from = speaker,
-              values_fill = 0) %>%
-  formattable(caption = "Due to unequal distribition, only speakers with at least 4 tokens of each utterances will be included in the density plot.")
 
 
 ggplot(
-  data = pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[1],
-      speaker %in% c("F6", "F12", "F15", "F16", "M5", "M10"),
-      acc_phon == "L*H"
-    ) %>%
-    mutate(pn_wrds = factor(pn_wrds, levels = pn_phr_cut)),
+  data = elaine_was_a,
   mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
 ) +
   geom_dotplot(stat = "density",
@@ -775,7 +775,6 @@ ggplot(
     fill = brewer.pal(3, "Pastel2")[1],
     alpha = 0.5
   ) +
-  
   annotate(
     "text",
     x = c(67 / 2,
@@ -786,28 +785,18 @@ ggplot(
     
     label = c("E-", "-laine", "was", "a")
   ) +
-  
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5)
   ) +
-
-  
   xlim(0, 550) +
   ylim(0, 0.01) +
   xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density") # +
- # labs(caption = "Peak time of L*H in \"Elaine was a-\" (F6, F12, F15, F16, M5, M10)")
+  ylab("density")
 
 ggplot(
-  data = pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[2],
-      speaker != "M9",
-      acc_phon == "L*H"
-    ) %>%
-    mutate(pn_wrds = factor(pn_wrds, levels = pn_phr_cut)),
+  data = elainas_a,
   mapping = aes(x = h_grand_mean_t, fill = pn_wrds)
 ) +
   geom_dotplot(stat = "density",
@@ -859,68 +848,25 @@ ggplot(
 NB: Hartigans' dip test is not suitable for these data as observations are not independent!
 However, it is included here as a general indicator.
 
-```{r sketchy hartigan, results = "asis"}
+```{r sketchy hartigan, results = "asis", fig.width = 3.5, fig.height = 2.2}
 require("diptest")
-
-vals_is <- pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[3],
-      speaker %in% c("F5", "F6", "F12", "F15", "F16", "F17", "M10"),
-      acc_phon == "L*H"
-    ) %>% select(h_grand_mean_t)
-
-
-lallys_is = 
-pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[3],
-      speaker %in% c("F6", "F12", "F15", "F16", "F17", "M5", "M8", "M10"),
-      acc_phon == "L*H"
-    ) %>% select(h_grand_mean_t)
-
-
-lallys_is_in = pn_wrd_data %>%
-        filter(pn_wrds %in% pn_phr[1],
-           speaker %notin% c("F5", "M9"),
-           acc_phon == "L*H"
-    ) %>% select(h_grand_mean_t)
-  
-valeries_is = pn_wrd_data %>%
-  filter(pn_wrds %in% pn_phr[2],
-         speaker %in% c("F6", "F15", "F16", "M5", "M10"),
-         acc_phon == "L*H")  %>% select(h_grand_mean_t)
-
-
-elaine_was = pn_wrd_data %>%
-    filter(
-      pn_wrds %in% pn_phr_cut[1],
-      speaker %in% c("F6", "F12", "F15", "F16", "M5", "M10"),
-      acc_phon == "L*H"
-    ) %>% select(h_grand_mean_t)
-
-elainas_a = pn_wrd_data %>%
-    filter(
-        pn_wrds %in% pn_phr_cut[2],
-        speaker != "M9",
-        acc_phon == "L*H"
-    ) %>% select(h_grand_mean_t)
 
 
 
 pn_phr <- c(
-  "val's is in-", "lally's is",
-  "lally's is in-","valerie's is",
+  "lally's is", "lally's is in-",
   "elaine was a", "elaina's a")
+
 
 D.value <- double()
 p.value <- double()
 observations <- double()
 
 
-dt <- dip.test(vals_is$h_grand_mean_t)
-D.value <- c(D.value, as.numeric(dt[1]))
-p.value <- c(p.value, as.numeric(dt[2]))
-observations <- c(observations, as.numeric(dt[3]))
+#dt <- dip.test(vals_is_in$h_grand_mean_t)
+#D.value <- c(D.value, as.numeric(dt[1]))
+#p.value <- c(p.value, as.numeric(dt[2]))
+#observations <- c(observations, as.numeric(dt[3]))
 
 dt <- dip.test(lallys_is$h_grand_mean_t)
 D.value <- c(D.value, as.numeric(dt[1]))
@@ -934,13 +880,13 @@ p.value  <- c(p.value, as.numeric(dt[2]))
 observations <- c(observations, as.numeric(dt[3]))
 
 
-dt <- dip.test(valeries_is$h_grand_mean_t)
-D.value <- c(D.value, as.numeric(dt[1]))
-p.value  <- c(p.value, as.numeric(dt[2]))
-observations <- c(observations, as.numeric(dt[3]))
+#dt <- dip.test(valeries_is$h_grand_mean_t)
+#D.value <- c(D.value, as.numeric(dt[1]))
+#p.value  <- c(p.value, as.numeric(dt[2]))
+#observations <- c(observations, as.numeric(dt[3]))
 
 
-dt <- dip.test(elaine_was$h_grand_mean_t)
+dt <- dip.test(elaine_was_a$h_grand_mean_t)
 D.value <- c(D.value, as.numeric(dt[1]))
 p.value  <- c(p.value, as.numeric(dt[2]))
 observations <- c(observations, as.numeric(dt[3]))
@@ -951,66 +897,12 @@ D.value <- c(D.value, as.numeric(dt[1]))
 p.value  <- c(p.value, as.numeric(dt[2]))
 observations <- c(observations, as.numeric(dt[3]))
 
-
-
-dip_test_summary <- tibble(`target phrase` = pn_phr,
+p.adj <- round(p.adjust(p.value, "BH"), 3)
+dip_test_summary <- tibble(set = c(pn_phr),
                            observations,
                            D.value =  round(D.value, 2),
                            p.value = round(p.value, 3),
-                           `p.adj (BH)` = round(p.adjust(p.value, "BH"), 3))
-dip_test_summary %>%
-  sigCodesTidy(`p.adj (BH)`, TRUE) %>% 
-kable(caption = "Hartigans' dip test for unimodality / multimodality. (Alternative hypothesis: non-unimodal, i.e., at least bimodal.)")
-
-```
-
-```{r sketchy hartigan sets, results = "asis", , fig.width = 3.5, fig.height = 2.2}
-require("diptest")
-
-set_1 <- rbind(vals_is, lallys_is)
-set_2 <- rbind(lallys_is_in, valeries_is)
-set_3 <- rbind(elaine_was, elainas_a)
-
-ggplot(
-  set_3,
-  mapping = aes(x = h_grand_mean_t)
-) +
-  geom_dotplot(alpha = 0.5) +
-  geom_density(stat = "density", fill = "grey", alpha = 0.5) + ylim(0, 0.01) +
-  xlim(0, 550) +
-  ylim(0, 0.01) +
-  xlab("grand mean syllable-normalised time (ms)") +
-  ylab("density")
-
-
-sets <- c("Set 1", "Set 2", "Set 3")
-
-D.value <- double()
-p.value <- double()
-observations <- double()
-
-
-dt <- dip.test(set_1$h_grand_mean_t)
-D.value <- c(D.value, as.numeric(dt[1]))
-p.value <- c(p.value, as.numeric(dt[2]))
-observations <- c(observations, as.numeric(dt[3]))
-
-dt <- dip.test(set_2$h_grand_mean_t)
-D.value <- c(D.value, as.numeric(dt[1]))
-p.value  <- c(p.value, as.numeric(dt[2]))
-observations <- c(observations, as.numeric(dt[3]))
-
-
-dt <- dip.test(set_3$h_grand_mean_t)
-D.value <- c(D.value, as.numeric(dt[1]))
-p.value  <- c(p.value, as.numeric(dt[2]))
-observations <- c(observations, as.numeric(dt[3]))
-
-dip_test_summary <- tibble(set = sets,
-                           observations,
-                           D.value =  round(D.value, 2),
-                           p.value = round(p.value, 3),
-                           `p.adj (BH)` = round(p.adjust(p.value, "BH"), 3))
+                           `p.adj (BH)` = p.adj)
 dip_test_summary %>%
   sigCodesTidy(`p.adj (BH)`, TRUE) %>% 
 kable(caption = "Hartigans' dip test for unimodality / multimodality. (Alternative hypothesis: non-unimodal, i.e., at least bimodal.)")
