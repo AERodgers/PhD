@@ -40,7 +40,7 @@ installMissingPackages(
 
 
 # Get data frames for AH analysis
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 # trim nuc_foot tbls
 nuc_foot <- select(nuc_foot,

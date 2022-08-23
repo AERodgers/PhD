@@ -47,7 +47,7 @@ theme_set(theme_minimal(base_size = 14))
 ```{r h Get data}
 # Get  data for analysis
 
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 #rm(pn, nuc_foot, pn_lex, pn_ana, corpus, nuc)
 
@@ -230,7 +230,7 @@ charts$slopes
 ```{r l Get data}
 # Get  data for analysis
 l_star_type <-  c("L*H", "L*")
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 rm(pn_foot, nuc_pre, pn_lex, pn_ana, pn, corpus, nuc)
 

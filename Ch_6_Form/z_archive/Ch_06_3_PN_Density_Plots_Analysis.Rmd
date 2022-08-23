@@ -24,7 +24,7 @@ theme_set(theme_minimal(base_size = 10))
 ```{r get data, include=FALSE}
 # Get  data for analysis
 
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 syl_edges = read_csv("data/h_corpus_syl_edges.csv") %>% 
   pivot_longer(names_to = "target", cols = 1:last_col()) %>% 

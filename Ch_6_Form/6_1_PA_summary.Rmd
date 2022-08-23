@@ -33,7 +33,7 @@ options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 ```{r warning=FALSE}
 # LOAD CORPUS
 # Read in AH corpus.
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 # get pn by speaker
 pn_by_speaker <- pn %>%

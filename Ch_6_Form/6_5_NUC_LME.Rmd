@@ -43,7 +43,7 @@ theme_set(theme_minimal(base_size = 14))
 
 # Get  data for analysis
 
-source("Ch_06_0_get_AH_corpora.R")
+source("6_0_get_AH.R")
 
 nuc_stress <- read_csv("data/stressed_syls.csv", col_types =)
 
