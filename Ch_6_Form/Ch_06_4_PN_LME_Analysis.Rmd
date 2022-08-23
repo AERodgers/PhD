@@ -50,11 +50,13 @@ l_star_type <-  c("L*H", "L*")
 pn <- pn %>%
   select(speaker,
          gender,
+         stim,
          ana_syls,
          foot_syls,
          wrd_end_syl,
          ana_text,
          pn_new_word,
+         nuc_pre_text,
          acc_phon,
          speech_rate,
          ana_end_t,
@@ -69,11 +71,38 @@ pn <- pn %>%
     foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
     foot_syls = factor(foot_syls, levels = 1:4)
-  )
+  ) 
+
+pn_stress <- read_csv("data/stressed_syls.csv", col_types =)
+
+pn <- pn %>%
+  # there must be a more efficient way of doing this but...
+  # Create column of stressed syllables in foot 1.
+  mutate(
+    str_syl = stim,
+    str_syl = str_replace(str_syl, pn_stress$stim[1], pn_stress$pn_syl[1]),
+    str_syl = str_replace(str_syl, pn_stress$stim[2], pn_stress$pn_syl[2]),
+    str_syl = str_replace(str_syl, pn_stress$stim[3], pn_stress$pn_syl[3]),
+    str_syl = str_replace(str_syl, pn_stress$stim[4], pn_stress$pn_syl[4]),
+    str_syl = str_replace(str_syl, pn_stress$stim[5], pn_stress$pn_syl[5]),
+    str_syl = str_replace(str_syl, pn_stress$stim[6], pn_stress$pn_syl[6]),
+    str_syl = str_replace(str_syl, pn_stress$stim[7], pn_stress$pn_syl[7]),
+    str_syl = str_replace(str_syl, pn_stress$stim[8], pn_stress$pn_syl[8]),
+    str_syl = str_replace(str_syl, pn_stress$stim[9], pn_stress$pn_syl[9]),
+    str_syl = str_replace(str_syl, pn_stress$stim[10], pn_stress$pn_syl[10]),
+    str_syl = str_replace(str_syl, pn_stress$stim[11], pn_stress$pn_syl[11]),
+    str_syl = str_replace(str_syl, pn_stress$stim[12], pn_stress$pn_syl[12]),
+    str_syl = str_replace(str_syl, pn_stress$stim[13], pn_stress$pn_syl[13]),
+    str_syl = str_replace(str_syl, pn_stress$stim[14], pn_stress$pn_syl[14]),
+    str_syl = str_replace(str_syl, pn_stress$stim[15], pn_stress$pn_syl[15]),
+    str_syl = factor(str_syl, levels = unique(str_syl))
+  ) %>%
+  select (-stim)
+
 
 pn_l_data <- pn %>%
   filter(acc_phon %in% l_star_type) %>%
-  mutate(acc_phon = factor(acc_phon, levels = l_star_type)) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type))%>%
   select(-c(h_t, h_f0))
 
 pn_h_data <- pn %>%
@@ -122,20 +151,22 @@ for (i in colnames(pn_h_data))
 ## L targets
 
 ### Analysis of L timing
-- removing SR and foot_dur for parity with h_t model (and also singularity)
+- Convergence issues. Removing re as per step(): speech_rate, foot_dur, str_syl
+
+initial step() model found:
+`l_t ~ acc_phon + gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) + (1 | nuc_pre_text)`
 ```{r set l_t equation}
-l_t_equation = formula(
-  l_t ~ acc_phon
-  + ana_syls
-  + foot_syls
+l_t_equation = formula(l_t ~ acc_phon + ana_syls + foot_syls
   + wrd_end_syl
   + pn_new_word
   + gender
-  + (1 | speaker)
-  #+ (1 | speech_rate)
+  + (1| speaker)
+# + (1 | speech_rate)
   + (1 | ana_text)
   + (1 | ana_end_t)
-  #+ (1 | foot_dur)
+# + (1 | foot_dur)
+  + (1 | nuc_pre_text)
+# + (1 | str_syl)
   )
 
 optimizer = "optimx"
@@ -225,18 +256,18 @@ charts$slopes
 - Removing + wrd_end_syl as it has little effect
 - removing ana_text to avoid error
 
+After initial full model, step() suggests: `l_f0 ~ ana_syls + pn_new_word + gender + (1 | speaker)`
 ```{r set l_f0 equation}
-l_f0_equation = formula(
-  l_f0 ~ acc_phon
-  + ana_syls
-  + foot_syls
-  #+ wrd_end_syl
+l_f0_equation = formula(l_f0 ~ acc_phon + ana_syls + foot_syls
+  + wrd_end_syl
   + pn_new_word
   + (1 | speaker)
-  #+ (1 | speech_rate)
-  #+ (1 | ana_text)
-  #+ (1 | ana_end_t)
-  #+ (1 | foot_dur)
+# + (1 | speech_rate)
+# + (1 | ana_text)
+# + (1 | ana_end_t)
+# + (1 | foot_dur)
+# + (1 | nuc_pre_text)
+# + (1 | str_syl)
   )
 optimizer = "optimx"
 ```
@@ -321,28 +352,27 @@ charts$slopes
 
 ### Analysis of H timing
 
-- Only intercepts only model avoided convergence and singularity issues
-- Random factors reduce
-```{r set h_t equation}
-h_t_equation = formula(
-  h_t ~ acc_phon
-  + ana_syls
-  + foot_syls
-  + pn_new_word
-  + wrd_end_syl
-  + gender
-  + (1 | speaker)
- #+ (1 | speech_rate)
- #+ (1 | ana_end_t)
-  + (1 | ana_text)
-  + (1 | foot_dur)
-  )
+- first test, step() found: `h_t ~ acc_phon + ana_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+- kept fixed all fixed factors and ana_text as a random factor for parity with l_t
 
+```{r set h_t equation}
+h_t_equation = formula(h_t ~ acc_phon + ana_syls + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1| speaker)
+# + (1 | speech_rate)
+  + (1 | ana_text)
+# + (1 | ana_end_t)
+# + (1 | foot_dur)
+  + (1 | nuc_pre_text)
+# + (1 | str_syl)
+ )
 
 optimizer = "optimx"
 ```
 
-- model needs trimming (residuals +/- 3 s.d.)
+- model needs trimming (residuals +/- 2.75 s.d.)
 ```{r run h_t models, fig.height=3, fig.width=9}
 pn_h_t_mdl = lmer(
   h_t_equation,
@@ -360,7 +390,7 @@ pn_h_t_mdl = lmer(
 
 # model needs trimming
 pn_h_t.trimmed <-
-  pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 3)
+  pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
 
 pn_h_t_mdl.trimmed = lmer(
   h_t_equation,
@@ -392,7 +422,6 @@ plot_model(
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
-
 pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
                                 write="pn_phonetic_models/pn_h_t",
                                 type = "pred",
@@ -405,7 +434,7 @@ pn_h_t_mdl.tidy$table
 ```
 
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
-
+print(h_t_equation)
 charts <- getModelFixedFX(
   h_t_equation,
   pn_h_t.trimmed,
@@ -420,23 +449,25 @@ charts$slopes
 
 ### Analysis of H F0
 
-- model dosn't work with SR, ana_end_t, or foot_dur (and suggested to be removed by step())
+- first run: step() suggests: `ana_syls + foot_syls + (1 | speaker) + (1 | str_syl)`
+- Keeping nuc_pre_text as also in l_f0
 ```{r set h_f0 equation}
-h_f0_equation = formula(
-  h_f0 ~ acc_phon
-  + ana_syls
-  + foot_syls
+h_f0_equation = formula(h_f0 ~ acc_phon + ana_syls + foot_syls
   + wrd_end_syl
   + pn_new_word
   + (1 | speaker)
-  + (1 | ana_text)
-  #+ (1 | speech_rate)
-  #+ (1 | ana_end_t)
-  #+ (1 | foot_dur)
+# + (1 | speech_rate)
+# + (1 | ana_text)
+# + (1 | ana_end_t)
+# + (1 | foot_dur)
+  + (1 | nuc_pre_text)
+  + (1 | str_syl)
   )
 
 optimizer = "optimx"
 ```
+
+model needs trimming: residuals > 3 s.d.
 
 ```{r run h_f0 models, fig.height=3, fig.width=9}
 pn_h_f0_mdl = lmer(
@@ -453,14 +484,31 @@ pn_h_f0_mdl = lmer(
   )
 )
 
+# model needs trimming
+pn_h_f0.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_f0_mdl))) <= 3)
 
-summariseLME(pn_h_f0_mdl,
+pn_h_f0_mdl.trimmed = lmer(
+  h_f0_equation,
+  pn_h_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(pn_h_f0_mdl.trimmed,
              run_step = TRUE,
              write = "pn_anovas/pn_h_f0_anova.csv")
 ```
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
-  pn_h_f0_mdl,
+  pn_h_f0_mdl.trimmed,
   type = "est",
   transform = NULL,
   show.values = T,
@@ -482,7 +530,7 @@ pn_h_f0_mdl.tidy$table
 
 charts <- getModelFixedFX(
   h_f0_equation,
-  pn_h_data,
+  pn_h_f0.trimmed,
   optimizer,
   write="pn_phonetic_models/pn_h_f0"
 )
@@ -507,19 +555,23 @@ pn_tnc_data <- pn_l_data %>%
 
 ### LH Excursion
 
+-  first run, step() suggests: `f0_exc ~ foot_syls + ana_syls + (1 | speaker) + (1 | str_syl)`
+
 ```{r set f0_exc equation}
 
 f0_exc_equation = formula(
- f0_exc ~ foot_syls
-  + ana_syls
+  f0_exc ~ foot_syls + ana_syls
   + pn_new_word
   + wrd_end_syl
   + gender
   + (1 | speaker)
- #+ (1 | speech_rate)
- #+ (1 | ana_end_t)
+# + (1 | speech_rate)
   + (1 | ana_text)
+# + (1 | ana_end_t)
   + (1 | foot_dur)
+# + (1 | nuc_pre_text)
+
+  + (1 | str_syl)
   )
 
 optimizer = "optimx"
@@ -542,11 +594,11 @@ pn_f0_exc_mdl = lmer(
 
 ```
 
-- model needs trimming (|sd| residuals > 3)
+- model needs trimming (|sd| residuals > 2.5)
 ```{r run lh_exc models trimmed, fig.height=3, fig.width=9}
 # model needs trimming
 pn_f0_exc.trimmed <-
-  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 3)
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.5)
 
 pn_f0_exc_mdl.trimmed = lmer(
   f0_exc_equation,
@@ -573,10 +625,8 @@ pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
                                 type = "pred"
                                 )
 pn_f0_exc_mdl.tidy$table
-##tidyPrediction(pn_f0_exc_mdl, write = "predictions/pn_f0_exc_mdl")
 
 ```
-Results suggest it is in fact ana_syls which affects f0 excursions more!!!
 
 
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
@@ -595,18 +645,21 @@ charts$slopes
 
 ### LH Slope
 
-
+- first run of step suggests: `log_lh_slope ~ foot_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+- Keeping all fixed effects to check effects.
 ```{r set lh_slope equation}
-lh_slope_equation = formula(log_lh_slope ~ foot_syls
-  + ana_syls
+lh_slope_equation = formula(
+  log_lh_slope ~ foot_syls + ana_syls
   + pn_new_word
   + wrd_end_syl
   + gender
   + (1 | speaker)
- #+ (1 | speech_rate)
- #+ (1 | ana_end_t)
-  + (1 | ana_text)
-  + (1 | foot_dur)
+# + (1 | speech_rate)
+# + (1 | ana_text)
+# + (1 | ana_end_t)
+# + (1 | foot_dur)
+  + (1 | nuc_pre_text)
+# + (1 | str_syl)
   )
 
 optimizer = "optimx"
@@ -633,7 +686,7 @@ pn_lh_slope_mdl = lmer(
 ```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
 # model needs trimming
 pn_lh_slope.trimmed <-
-  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
+  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4444)
 
 pn_lh_slope_mdl.trimmed = lmer(
   lh_slope_equation,

@@ -1,1 +1,1 @@
-e_f0 ~ foot_syls + pre_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text) [nuclear contour]
+e_f0 ~ foot_syls + pre_syls + fin_phon + nuc_new_word + (1 | speaker) + (1 | nuc_pre_text) [nuclear contour]
