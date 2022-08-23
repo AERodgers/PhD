@@ -46,10 +46,8 @@ source("Ch_06_0_get_AH_corpora.R")
 
 pn <- pn %>%
   select(
-    sent,
     speaker,
     gender,
-    ana_syls,
     foot_syls,
     acc_phon,
     wrd_end_syl,
@@ -98,7 +96,8 @@ theme_set(theme_minimal(base_size = 14))
     - foot_dur is very weak
 
 ```{r set isLH equation}
-isLH_equation <- formula(isLH ~ foot_syls
+isLH_equation <- formula(isLH ~
+                         foot_syls
                          + wrd_end_syl
                          + speech_rate
                          + gender
@@ -107,14 +106,6 @@ isLH_equation <- formula(isLH ~ foot_syls
                          + (1 | ana_text)
                          + (1 | foot_dur)
                          )
-
-null_equation <- formula(isLH ~  1
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
-                         + (1 | ana_text)
-                         + (1 | foot_dur)
-                         )
-  
 
 ```
 
@@ -129,14 +120,8 @@ lh_pn_model <- bglmer(
   glmerControl(optimizer = "bobyqa")
 )
 
-
-null_model <- bglmer(
-  null_equation,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
 summary(lh_pn_model)
+
 ```
 
 ```{r random effect of prompt, fig.height=3, fig.width=4}
@@ -146,8 +131,116 @@ plot_model(lh_pn_model,
            transform = NULL
            )[2:4]
 ```
+
 ```{r, results = "asis"}
 tidyPrintPredictions(lh_pn_model) 
+```
+
+```{r run null modelsLH anovas}
+isLH_null_eq_1 <- formula(isLH ~
+                         #foot_syls
+                         + wrd_end_syl
+                         + speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
+
+isLH_null_eq_2 <- formula(isLH ~
+                         foot_syls
+                         #+ wrd_end_syl
+                         + speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
+  
+isLH_null_eq_3 <- formula(isLH ~
+                         foot_syls
+                         + wrd_end_syl
+                         #+ speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
+
+isLH_null_eq_4 <- formula(isLH ~
+                         foot_syls
+                         + wrd_end_syl
+                         + speech_rate
+                         #+ gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         + (1 | foot_dur)
+                         )
+
+null_model_1 <- bglmer(
+  isLH_null_eq_1,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_2 <- bglmer(
+  isLH_null_eq_2,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_3 <- bglmer(
+  isLH_null_eq_3,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_4 <- bglmer(
+  isLH_null_eq_4,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+# get, save, and print ANOVA of model
+anova_1 <- anova(lh_pn_model, null_model_1, test="Chisq") %>% 
+  outputChiSqResults(lh_pn_model)
+  
+  
+anova_2 <- anova(lh_pn_model, null_model_2, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+anova_3 <- anova(lh_pn_model,
+           null_model_3, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+anova_4 <- anova(lh_pn_model,
+           null_model_4, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+
+write <- "phonology_models/lh_model"
+model_formula <- getModelFormula(lh_pn_model)
+
+cbind(
+  effect = c("foot_syls", "wrd_end_syl", "speech_rate", "gender"),
+  rbind(anova_1, anova_2, anova_3, anova_4) %>%
+    as_tibble %>% filter(!is.na(Chisq))
+) %>%
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  write_csv(paste(write, "_anova.csv", sep = "")) %>%
+  select(-c(`p.adj (BH)`, signif.))  %>%
+  formattable(caption = model_formula)
+
+ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
+          paste(write, "_formula.txt", sep = ""))
 ```
 
 ```{r model charts and figures, fig.width = 4.5, fig.height = 2.5, results="asis"}
@@ -157,16 +250,10 @@ cat(
   "\n"
 )
 
-# get, save, and print ANOVA of model
-anova(lh_pn_model, null_model, test="Chisq") %>%
-  outputChiSqResults(
-    lh_pn_model,
-    write="phonology_models/lh_pn_size",
-    post_hoc_method = "BH"
-  )
+
 
 tidy_summary <- analyseModel(lh_pn_model,
-                             write = "phonology_models/lh_pn_size",
+                             write = "phonology_models/lh_model",
                              is_GLM = TRUE,
                              type = "pred",
                              ci.lvl=0.95
@@ -194,7 +281,7 @@ tidy_summary$table
 charts <- getModelFixedFX(
   isLH_equation,
   pn,
-  write="phonology_models/lh_pn_size",
+  write="phonology_models/lh_model",
   is_GLM=TRUE,
   is_separation = T,
   b1_only = "speech_rate"
@@ -235,14 +322,6 @@ h_star_model <- bglmer(
   glmerControl(optimizer = "bobyqa")
 )
 
-
-null_model <- bglmer(
-  null_equation,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
 summary(h_star_model)
 ```
 
@@ -252,10 +331,123 @@ plot_model(h_star_model,
            type="re",
            show.values = T)
 ```
+
+
 ```{r, results = "asis"}
 
 tidyPrintPredictions(h_star_model) 
 ```
+
+```{r run models H anovas}
+
+
+isHStar_null_eq_1 <- formula(isHStar ~
+                           #foot_syls
+                          wrd_end_syl
+                         + speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         #+ (1 | foot_dur)
+                         )
+  
+isHStar_null_eq_2 <- formula(isHStar ~
+                           foot_syls
+                         #+ wrd_end_syl
+                         + speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         #+ (1 | foot_dur)
+                         )
+
+isHStar_null_eq_3 <- formula(isHStar ~
+                           foot_syls
+                         + wrd_end_syl
+                         #+ speech_rate
+                         + gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         #+ (1 | foot_dur)
+                         )
+
+isHStar_null_eq_4 <- formula(isHStar ~
+                           foot_syls
+                         + wrd_end_syl
+                         + speech_rate
+                         #+ gender
+                         + (1 | nuc_pre_text)
+                         + (1 | speaker)
+                         + (1 | ana_text)
+                         #+ (1 | foot_dur)
+                         )
+
+null_model_1 <- bglmer(
+  isHStar_null_eq_1,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_2 <- bglmer(
+  isHStar_null_eq_2,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_3 <- bglmer(
+  isHStar_null_eq_3,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+null_model_4 <- bglmer(
+  isHStar_null_eq_4,
+  data = pn,
+  family = binomial(link = "logit"),
+  glmerControl(optimizer = "bobyqa")
+)
+
+# get, save, and print ANOVA of model
+anova_1 <- anova(h_star_model, null_model_1, test="Chisq") %>% 
+  outputChiSqResults(lh_pn_model)
+  
+  
+anova_2 <- anova(h_star_model, null_model_2, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+anova_3 <- anova(h_star_model,
+           null_model_3, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+anova_4 <- anova(h_star_model,
+           null_model_4, test="Chisq") %>%
+  outputChiSqResults(lh_pn_model)
+
+
+write <- "phonology_models/h_star_model"
+model_formula <- getModelFormula(h_star_model)
+
+cbind(
+  effect = c("foot_syls", "wrd_end_syl", "speech_rate", "gender"),
+  rbind(anova_1, anova_2, anova_3, anova_4) %>%
+    as_tibble %>% filter(!is.na(Chisq))
+) %>%
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  write_csv(paste(write, "_anova.csv", sep = "")) %>%
+  select(-c(`p.adj (BH)`, signif.))  %>%
+  formattable(caption = model_formula)
+
+ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
+          paste(write, "_formula.txt", sep = ""))
+```
+
+
 
 ```{r fig.width = 4, fig.height = 2.5, results="asis"}
 cat(
@@ -263,16 +455,6 @@ cat(
   isSingular(h_star_model, tol = 1e-5),
   "\n"
 )
-
-
-
-# get, save, and print ANOVA of model
-anova(h_star_model, null_model, test="Chisq") %>%
-  outputChiSqResults(
-    h_star_model,
-    write="phonology_models/h_star_model",
-    post_hoc_method = "BH"
-  )
 
 tidy_summary <- analyseModel(h_star_model,
                              write = "phonology_models/h_star_model",
