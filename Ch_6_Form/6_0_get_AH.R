@@ -3,7 +3,7 @@
 
 ## Get per-speaker f0 stats.
 #gen_f0_stats <- as_tibble(read.csv("../data/GenStats_a_corpus.csv"))
-
+stress <- read_csv("data/stressed_syls.csv")
 #corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_6_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
@@ -52,6 +52,50 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   rename(pn_new_word = ana_has_word_end) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
+    # there must be a more efficient way of doing this but...
+    # Create column of stressed syllables in foot 1.
+    pn_str_syl = stim,
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[1], stress$pn_syl[1]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[2], stress$pn_syl[2]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[3], stress$pn_syl[3]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[4], stress$pn_syl[4]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[5], stress$pn_syl[5]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[6], stress$pn_syl[6]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[7], stress$pn_syl[7]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[8], stress$pn_syl[8]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[9], stress$pn_syl[9]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[10], stress$pn_syl[10]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[11], stress$pn_syl[11]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[12], stress$pn_syl[12]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[13], stress$pn_syl[13]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[14], stress$pn_syl[14]),
+    pn_str_syl = str_replace(pn_str_syl, stress$stim[15], stress$pn_syl[15]),
+    pn_str_syl = factor(pn_str_syl, levels = unique(pn_str_syl)),
+    # Create column of stressed syllables in foot 2.
+    nuc_str_syl = stim,
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[1], stress$nuc_syl[1]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[2], stress$nuc_syl[2]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[3], stress$nuc_syl[3]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[4], stress$nuc_syl[4]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[5], stress$nuc_syl[5]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[6], stress$nuc_syl[6]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[7], stress$nuc_syl[7]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[8], stress$nuc_syl[8]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[9], stress$nuc_syl[9]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[10], stress$nuc_syl[10]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[11], stress$nuc_syl[11]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[12], stress$nuc_syl[12]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[13], stress$nuc_syl[13]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[14], stress$nuc_syl[14]),
+    nuc_str_syl = str_replace(nuc_str_syl, stress$stim[15], stress$nuc_syl[15]),
+    nuc_str_syl = factor(nuc_str_syl, levels = unique(nuc_str_syl)),
+
+    # Make interlocutor gender column
+    partner_gender = factor(
+      if_else(speaker %in%  c("F17", "M04", "M05", "M08"), "M", "F"),
+      levels = c("F", "M")
+      ),
+
     # create composite parameters for continuous data.
     foot_dur = foot_end_t - foot_start_t,
     speech_rate = round(tot_syls / phr_end_t * 1000, 3),

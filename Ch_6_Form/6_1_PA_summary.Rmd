@@ -23,7 +23,9 @@ installMissingPackages(c("tidyverse",
                          "ggpubr",
                          "RColorBrewer",
                          "tidymodels",
-                         "janitor"))
+                         "janitor",
+                         "performance",
+                         "gridExtra"))
 
 # PRAAT DIRECTORY
 # Change this as required
@@ -35,6 +37,8 @@ options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 # Read in AH corpus.
 source("6_0_get_AH.R")
 
+sr_data <- pn %>% 
+  select("speaker", "stim", "speech_rate", "gender", "partner_gender")
 # get pn by speaker
 pn_by_speaker <- pn %>%
   filter(stim %in% c("A0423",
@@ -198,9 +202,9 @@ ggplot(pn_by_speaker_ratio,
 ```
 
 
-```{r  fig.width = 4, fig.height = 3}
+```{r  fig.width = 8, fig.height = 3}
 # L*H
-ggplot(pn_by_speaker_ratio,
+lh_plot <- ggplot(pn_by_speaker_ratio,
        aes(y = `L*H`, x = mean_speech_rate, label = speaker, )) +
   geom_text() +
   geom_smooth(method = "lm",
@@ -209,16 +213,11 @@ ggplot(pn_by_speaker_ratio,
                                           label.y = 25) +
   xlab("speech rate (syls/sec)") +
   ylab("proportion of L*H") +
-  ggtitle("Correlation between L*H and speech rate")
-
-summary(lm(`L*H` ~ mean_speech_rate, data = pn_by_speaker_ratio)) %>%
-  tidy() %>%
-  rename(`t value` = statistic) %>% 
-  tidyNumbers() %>% 
-  formattable(caption = "linear regresion of L\\*H ~ speech rate")
+  labs(caption = "a. Correlation between L*H and speech rate") +
+  theme(plot.caption=element_text(hjust = 0, size = 10))
 
 # H*
-ggplot(pn_by_speaker_ratio,
+h_plot <- ggplot(pn_by_speaker_ratio,
        aes(y = `H*`, x = mean_speech_rate, label = speaker, )) +
   geom_text() +
   geom_smooth(method = "lm",
@@ -227,34 +226,43 @@ ggplot(pn_by_speaker_ratio,
                                           label.y = 25) +
   xlab("speech rate (syls/sec)") +
   ylab("proportion of H*") +
-  ggtitle("Correlation between H* and speech rate")
+  labs(caption = "b. Correlation between H* and speech rate") +
+  theme(plot.caption=element_text(hjust = 0, size = 10))
 
-summary(lm(`H*` ~ mean_speech_rate, data = pn_by_speaker_ratio)) %>%
-  tidy() %>%
-  rename(`t value` = statistic) %>% 
-  tidyNumbers() %>% 
-  formattable(caption = "linear regresion of H\\* ~ speech rate")
+grid.arrange(lh_plot, h_plot, ncol = 2)
 ```
 
-#### chi squared test for gender ~ acc_phon on adjusted data
+
+### Effects of gender,partner_gender, and mean speech rate on L\*H and H\*
 ```{r  fig.width = 4.5, fig.height = 4}
-pn_by_speaker_ratio_uncount %>%
-  ungroup() %>% 
-  select(gender, acc_phon) %>% 
-  chisq_test(acc_phon ~ gender) %>% 
-  rename(`ChiSq` = statistic) %>% 
-  tidyNumbers("p_value", ) %>% 
-  formattable(caption = "Chi-Squared test of acc_phon ~ gender") 
+
+x <- lm(`L*H` ~ gender * mean_speech_rate,
+        data = pn_by_speaker_ratio)
+
+anova(x) %>% tidy() %>%
+  rename(`F value` = statistic) %>% 
+  tidyNumbers() %>%
+  sigCodesTidy(p_value = p.value, incl_marginal_sig = F) %>% 
+  formattable(caption = "ANOVA of model L\\*H ~ gender * mean_speech_rate")
+
+print(r2(x))
 ```
 
-### correlation between gender mean and speech rate on adjusted data
+
 ```{r  fig.width = 4.5, fig.height = 4}
-lm(mean_speech_rate ~ gender, data = pn_by_speaker_ratio) %>% 
+y <- lm(`H*` ~ gender * mean_speech_rate,
+        data = pn_by_speaker_ratio)
+anova(y) %>% 
   tidy() %>%
-  rename(`t value` = statistic) %>% 
-  tidyNumbers() %>% 
-  formattable(caption = "linear regresion of mean_speech_rate ~ gender")
+  rename(`F value` = statistic) %>% 
+  tidyNumbers() %>%
+  sigCodesTidy(p_value = p.value, incl_marginal_sig = F) %>% 
+  formattable(caption = "ANOVA of model H\\* ~ gender * mean_speech_rate")
+
+
+print(r2(y))
 ```
+
 
 #### Nuclear Contours
 ```{r warning=FALSE}

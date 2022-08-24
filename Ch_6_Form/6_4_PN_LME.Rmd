@@ -55,6 +55,7 @@ pn <- pn %>%
          foot_syls,
          wrd_end_syl,
          ana_text,
+         pn_str_syl,
          pn_new_word,
          nuc_pre_text,
          acc_phon,
@@ -72,33 +73,6 @@ pn <- pn %>%
     gender = factor(gender, levels = c("F", "M")),
     foot_syls = factor(foot_syls, levels = 1:4)
   ) 
-
-pn_stress <- read_csv("data/stressed_syls.csv", col_types =)
-
-pn <- pn %>%
-  # there must be a more efficient way of doing this but...
-  # Create column of stressed syllables in foot 1.
-  mutate(
-    str_syl = stim,
-    str_syl = str_replace(str_syl, pn_stress$stim[1], pn_stress$pn_syl[1]),
-    str_syl = str_replace(str_syl, pn_stress$stim[2], pn_stress$pn_syl[2]),
-    str_syl = str_replace(str_syl, pn_stress$stim[3], pn_stress$pn_syl[3]),
-    str_syl = str_replace(str_syl, pn_stress$stim[4], pn_stress$pn_syl[4]),
-    str_syl = str_replace(str_syl, pn_stress$stim[5], pn_stress$pn_syl[5]),
-    str_syl = str_replace(str_syl, pn_stress$stim[6], pn_stress$pn_syl[6]),
-    str_syl = str_replace(str_syl, pn_stress$stim[7], pn_stress$pn_syl[7]),
-    str_syl = str_replace(str_syl, pn_stress$stim[8], pn_stress$pn_syl[8]),
-    str_syl = str_replace(str_syl, pn_stress$stim[9], pn_stress$pn_syl[9]),
-    str_syl = str_replace(str_syl, pn_stress$stim[10], pn_stress$pn_syl[10]),
-    str_syl = str_replace(str_syl, pn_stress$stim[11], pn_stress$pn_syl[11]),
-    str_syl = str_replace(str_syl, pn_stress$stim[12], pn_stress$pn_syl[12]),
-    str_syl = str_replace(str_syl, pn_stress$stim[13], pn_stress$pn_syl[13]),
-    str_syl = str_replace(str_syl, pn_stress$stim[14], pn_stress$pn_syl[14]),
-    str_syl = str_replace(str_syl, pn_stress$stim[15], pn_stress$pn_syl[15]),
-    str_syl = factor(str_syl, levels = unique(str_syl))
-  ) %>%
-  select (-stim)
-
 
 pn_l_data <- pn %>%
   filter(acc_phon %in% l_star_type) %>%
@@ -151,7 +125,7 @@ for (i in colnames(pn_h_data))
 ## L targets
 
 ### Analysis of L timing
-- Convergence issues. Removing re as per step(): speech_rate, foot_dur, str_syl
+- Convergence issues. Removing re as per step(): speech_rate, foot_dur, pn_str_syl
 
 initial step() model found:
 `l_t ~ acc_phon + gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) + (1 | nuc_pre_text)`
@@ -161,12 +135,12 @@ l_t_equation = formula(l_t ~ acc_phon + ana_syls + foot_syls
   + pn_new_word
   + gender
   + (1| speaker)
-# + (1 | speech_rate)
++ speech_rate
   + (1 | ana_text)
   + (1 | ana_end_t)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
-# + (1 | str_syl)
+# + (1 | pn_str_syl)
   )
 
 optimizer = "optimx"
@@ -207,9 +181,10 @@ pn_l_t_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(pn_l_t_mdl.trimmed,
-             run_step = TRUE,
-             write = "pn_anovas/pn_l_t_anova.csv")
+summariseLME(pn_l_t_mdl.trimmed
+             ,run_step = TRUE
+            # ,write = "pn_anovas/pn_l_t_anova.csv"
+             )
 ```
 
 ```{r plot l_t estimated effects, fig.height=3.5, fig.width=5}
@@ -224,11 +199,12 @@ plot_model(
 
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
-pn_l_t_mdl.tidy <- analyseModel(pn_l_t_mdl.trimmed,
-                                write="pn_phonetic_models/pn_l_t",
-                                type = "pred",
-                                factor_matrix = TRUE
-                                )
+pn_l_t_mdl.tidy <- analyseModel(
+  pn_l_t_mdl.trimmed
+ # , write="pn_phonetic_models/pn_l_t"
+  , type = "pred"
+  , factor_matrix = TRUE
+  )
 pn_l_t_mdl.tidy$table
 
 ```
@@ -236,10 +212,11 @@ pn_l_t_mdl.tidy$table
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_t_equation,
-  pn_l_t.trimmed,
-  optimizer,
-  write="pn_phonetic_models/pn_l_t"
+  l_t_equation
+  , pn_l_t.trimmed
+  , optimizer
+  , b1_only = "speech_rate"
+  #, write="pn_phonetic_models/pn_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -262,12 +239,12 @@ l_f0_equation = formula(l_f0 ~ acc_phon + ana_syls + foot_syls
   + wrd_end_syl
   + pn_new_word
   + (1 | speaker)
-# + (1 | speech_rate)
+  + speech_rate
 # + (1 | ana_text)
 # + (1 | ana_end_t)
 # + (1 | foot_dur)
 # + (1 | nuc_pre_text)
-# + (1 | str_syl)
+# + (1 | pn_str_syl)
   )
 optimizer = "optimx"
 ```
@@ -308,29 +285,31 @@ pn_l_f0_mdl.trimmed = lmer(
 )
 
 
-summariseLME(pn_l_f0_mdl.trimmed,
-             run_step = TRUE,
-             write = "pn_anovas/pn_l_f0_anova.csv")
+summariseLME(pn_l_f0_mdl.trimmed
+             , run_step = TRUE
+           #  , write = "pn_anovas/pn_l_f0_anova.csv"
+             )
 ```
 
 
 ```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
-  pn_l_f0_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
+  pn_l_f0_mdl.trimmed
+  , type = "est"
+  , transform = NULL
+  , show.values = T
+  , vline = "Red"
  )
 ```
 
 
 ```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
-pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl.trimmed,
-                                write="pn_phonetic_models/pn_l_f0",
-                                type = "pred"
-                                )
+pn_l_f0_mdl.tidy <- analyseModel(
+  pn_l_f0_mdl.trimmed
+ # , write="pn_phonetic_models/pn_l_f0"
+  , type = "pred"
+  )
 pn_l_f0_mdl.tidy$table
 
 ```
@@ -338,10 +317,11 @@ pn_l_f0_mdl.tidy$table
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_f0_equation,
-  pn_l_f0.trimmed,
-  optimizer,
-  write="pn_phonetic_models/pn_l_f0"
+  l_f0_equation
+  , pn_l_f0.trimmed
+  , optimizer
+  , b1_only = "speech_rate"
+ # , write="pn_phonetic_models/pn_l_f0"
 )
 charts$intercepts
 charts$slopes
@@ -361,12 +341,12 @@ h_t_equation = formula(h_t ~ acc_phon + ana_syls + foot_syls
   + pn_new_word
   + gender
   + (1| speaker)
-# + (1 | speech_rate)
+  + speech_rate
   + (1 | ana_text)
 # + (1 | ana_end_t)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
-# + (1 | str_syl)
+# + (1 | pn_str_syl)
  )
 
 optimizer = "optimx"
@@ -405,9 +385,11 @@ pn_h_t_mdl.trimmed = lmer(
     )
   )
 )
-summariseLME(pn_h_t_mdl.trimmed,
-             run_step = TRUE,
-             write = "pn_anovas/pn_h_t_anova.csv")
+summariseLME(
+  pn_h_t_mdl.trimmed
+  , run_step = TRUE
+  #, write = "pn_anovas/pn_h_t_anova.csv"
+  )
 ```
 
 ```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
@@ -422,11 +404,12 @@ plot_model(
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
-pn_h_t_mdl.tidy <- analyseModel(pn_h_t_mdl.trimmed,
-                                write="pn_phonetic_models/pn_h_t",
-                                type = "pred",
-                                factor_matrix = TRUE
-                                )
+pn_h_t_mdl.tidy <- analyseModel(
+  pn_h_t_mdl.trimmed
+ # , write="pn_phonetic_models/pn_h_t"
+  , type = "pred"
+  , factor_matrix = TRUE
+  )
 
 
 pn_h_t_mdl.tidy$table
@@ -436,10 +419,11 @@ pn_h_t_mdl.tidy$table
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
 print(h_t_equation)
 charts <- getModelFixedFX(
-  h_t_equation,
-  pn_h_t.trimmed,
-  optimizer,
-  write="pn_phonetic_models/pn_h_t"
+  h_t_equation
+  , pn_h_t.trimmed
+  , optimizer
+  , b1_only = "speech_rate"
+ # , write="pn_phonetic_models/pn_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -449,19 +433,19 @@ charts$slopes
 
 ### Analysis of H F0
 
-- first run: step() suggests: `ana_syls + foot_syls + (1 | speaker) + (1 | str_syl)`
+- first run: step() suggests: `ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
 - Keeping nuc_pre_text as also in l_f0
 ```{r set h_f0 equation}
 h_f0_equation = formula(h_f0 ~ acc_phon + ana_syls + foot_syls
   + wrd_end_syl
   + pn_new_word
   + (1 | speaker)
-# + (1 | speech_rate)
+  + speech_rate
 # + (1 | ana_text)
 # + (1 | ana_end_t)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
-  + (1 | str_syl)
+  + (1 | pn_str_syl)
   )
 
 optimizer = "optimx"
@@ -502,9 +486,10 @@ pn_h_f0_mdl.trimmed = lmer(
   )
 )
 
-summariseLME(pn_h_f0_mdl.trimmed,
-             run_step = TRUE,
-             write = "pn_anovas/pn_h_f0_anova.csv")
+summariseLME(pn_h_f0_mdl.trimmed
+             , run_step = TRUE
+             , write = "pn_anovas/pn_h_f0_anova.csv"
+             )
 ```
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
@@ -532,6 +517,7 @@ charts <- getModelFixedFX(
   h_f0_equation,
   pn_h_f0.trimmed,
   optimizer,
+  b1_only = "speech_rate", 
   write="pn_phonetic_models/pn_h_f0"
 )
 charts$intercepts
@@ -555,7 +541,7 @@ pn_tnc_data <- pn_l_data %>%
 
 ### LH Excursion
 
--  first run, step() suggests: `f0_exc ~ foot_syls + ana_syls + (1 | speaker) + (1 | str_syl)`
+-  first run, step() suggests: `f0_exc ~ foot_syls + ana_syls + (1 | speaker) + (1 | pn_str_syl)`
 
 ```{r set f0_exc equation}
 
@@ -571,7 +557,7 @@ f0_exc_equation = formula(
   + (1 | foot_dur)
 # + (1 | nuc_pre_text)
 
-  + (1 | str_syl)
+  + (1 | pn_str_syl)
   )
 
 optimizer = "optimx"
@@ -659,7 +645,7 @@ lh_slope_equation = formula(
 # + (1 | ana_end_t)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
-# + (1 | str_syl)
+# + (1 | pn_str_syl)
   )
 
 optimizer = "optimx"

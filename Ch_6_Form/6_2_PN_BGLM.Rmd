@@ -52,6 +52,7 @@ pn <- pn %>%
     acc_phon,
     wrd_end_syl,
     ana_text,
+    pn_str_syl,
     nuc_pre_text,
     pn_new_word,
     acc_phon,
@@ -101,9 +102,10 @@ isLH_equation <- formula(isLH ~
                          + wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
                          + (1 | foot_dur)
                          )
 
@@ -129,7 +131,7 @@ plot_model(lh_pn_model,
            type="re",
            show.values = T, ci.lvl= 0.95,
            transform = NULL
-           )[2:4]
+           )[2:5]
 ```
 
 ```{r, results = "asis"}
@@ -142,9 +144,10 @@ isLH_null_eq_1 <- formula(isLH ~
                          + wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
                          + (1 | foot_dur)
                          )
 
@@ -153,9 +156,10 @@ isLH_null_eq_2 <- formula(isLH ~
                          #+ wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
                          + (1 | foot_dur)
                          )
   
@@ -164,9 +168,10 @@ isLH_null_eq_3 <- formula(isLH ~
                          + wrd_end_syl
                          #+ speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
                          + (1 | foot_dur)
                          )
 
@@ -175,9 +180,10 @@ isLH_null_eq_4 <- formula(isLH ~
                          + wrd_end_syl
                          + speech_rate
                          #+ gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
                          + (1 | foot_dur)
                          )
 
@@ -243,7 +249,7 @@ cbind(
           paste(write, "_formula.txt", sep = ""))
 ```
 
-```{r model charts and figures, fig.width = 4.5, fig.height = 2.5, results="asis"}
+```{r model charts and figures, fig.width = 2.95276, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(lh_pn_model, tol=1e-5) -->",
   isSingular(lh_pn_model, tol = 1e-5),
@@ -292,23 +298,16 @@ charts$slopes
 ```
 
 ## Run isHStar model
-- Removed foot_dur as random slope due to estimation errors.
 ```{r set isHStar equation}
 isHStar_equation <- formula(isHStar ~ foot_syls
                             + wrd_end_syl
                             + speech_rate
                             + gender
-                            + (1 | nuc_pre_text)
-                            + (1 | speaker)
-                            + (1 | ana_text)
-                           # + (1 | foot_dur)
-                            )
-
-null_equation <- formula(isHStar ~ 1
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
-                         #+ (1 | foot_dur)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
+                         + (1 | foot_dur)
                             )
 
 ```
@@ -329,7 +328,7 @@ summary(h_star_model)
 ```{r fig.height=4, fig.width=5, results = "asis"}
 plot_model(h_star_model,
            type="re",
-           show.values = T)
+           show.values = T)[2:5]
 ```
 
 
@@ -346,10 +345,11 @@ isHStar_null_eq_1 <- formula(isHStar ~
                           wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
-                         #+ (1 | foot_dur)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
+                         + (1 | foot_dur)
                          )
   
 isHStar_null_eq_2 <- formula(isHStar ~
@@ -357,10 +357,11 @@ isHStar_null_eq_2 <- formula(isHStar ~
                          #+ wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
-                         #+ (1 | foot_dur)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
+                         + (1 | foot_dur)
                          )
 
 isHStar_null_eq_3 <- formula(isHStar ~
@@ -368,10 +369,11 @@ isHStar_null_eq_3 <- formula(isHStar ~
                          + wrd_end_syl
                          #+ speech_rate
                          + gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
-                         #+ (1 | foot_dur)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
+                         + (1 | foot_dur)
                          )
 
 isHStar_null_eq_4 <- formula(isHStar ~
@@ -379,10 +381,11 @@ isHStar_null_eq_4 <- formula(isHStar ~
                          + wrd_end_syl
                          + speech_rate
                          #+ gender
-                         + (1 | nuc_pre_text)
-                         + (1 | speaker)
                          + (1 | ana_text)
-                         #+ (1 | foot_dur)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         + (1 | speaker)
+                         + (1 | foot_dur)
                          )
 
 null_model_1 <- bglmer(
@@ -449,7 +452,7 @@ cbind(
 
 
 
-```{r fig.width = 4, fig.height = 2.5, results="asis"}
+```{r fig.width = 2.95276, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(h_star_model, tol=1e-5) -->",
   isSingular(h_star_model, tol = 1e-5),
