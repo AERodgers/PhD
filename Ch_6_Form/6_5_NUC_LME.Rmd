@@ -34,16 +34,9 @@ installMissingPackages(
     "janitor",
     
     # Include packages for %in% %notin% syntactic notation
-    "mefa4",
-    
-    # for efficiency
-    "parallel"
+    "mefa4"
   )
 )
-
-
-# get COU core count
-ncores <- detectCores()
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
@@ -51,7 +44,31 @@ theme_set(theme_minimal(base_size = 14))
 # Get  data for analysis
 
 source("6_0_get_AH.R")
+
+nuc_stress <- read_csv("data/stressed_syls.csv", col_types =)
+
 nuc_data <- nuc %>%
+  # there must be a more efficient way of doing this but...
+  # Create column of stressed syllables in foot 2.
+  mutate(
+    str_syl = stim,
+    str_syl = str_replace(str_syl, nuc_stress$stim[1], nuc_stress$nuc_syl[1]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[2], nuc_stress$nuc_syl[2]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[3], nuc_stress$nuc_syl[3]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[4], nuc_stress$nuc_syl[4]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[5], nuc_stress$nuc_syl[5]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[6], nuc_stress$nuc_syl[6]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[7], nuc_stress$nuc_syl[7]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[8], nuc_stress$nuc_syl[8]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[9], nuc_stress$nuc_syl[9]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[10], nuc_stress$nuc_syl[10]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[11], nuc_stress$nuc_syl[11]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[12], nuc_stress$nuc_syl[12]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[13], nuc_stress$nuc_syl[13]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[14], nuc_stress$nuc_syl[14]),
+    str_syl = str_replace(str_syl, nuc_stress$stim[15], nuc_stress$nuc_syl[15]),
+    str_syl = factor(str_syl, levels = unique(str_syl))
+  ) %>% 
     select(
     stim,
     speaker,
@@ -60,7 +77,7 @@ nuc_data <- nuc %>%
     foot_syls,
     nuc_pre_text,
     nuc_new_word,
-    nuc_str_syl,
+    str_syl,
     fin_phon,
     stim,
     h_t,
@@ -118,7 +135,7 @@ nuc_data %>%
 
 ### Analysis of L timing
 
-- initial run, step() found: `l_t ~ pre_syls + gender + (1 | speaker) + (1 | nuc_str_syl)`
+- initial run, step() found: `l_t ~ pre_syls + gender + (1 | speaker) + (1 | str_syl)`
 - 
 ```{r set l_t equation}
 l_t_equation = formula(
@@ -127,11 +144,11 @@ l_t_equation = formula(
   + fin_phon
   + nuc_new_word
   + gender
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
+# + (1 | speech_rate)
+  + (1 | str_syl)
   + (1 | foot_dur)
- + (1 | nuc_pre_text)
+# + (1 | nuc_pre_text)
   )
 
 optimizer = "optimx"
@@ -149,7 +166,8 @@ nuc_l_t_mdl = lmer(
     optCtrl = list(
       method = "nlminb",
       starttests = FALSE,
-      kkt = FALSE)
+      kkt = FALSE
+    )
   )
 )
 
@@ -173,26 +191,11 @@ nuc_l_t_mdl = lmer(
 summariseLME(nuc_l_t_mdl,
              run_step = TRUE,
              write = "nuc_anovas/nuc_l_t_anova.csv")
-
-### https://joshua-nugent.github.io/allFit/
-
-diff_optims <- allFit(nuc_l_t_mdl, maxfun = 1e5, parallel = 'multicore', ncpus = ncores)
-print(diff_optims)
-diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
-lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
-convergence_results <- lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
-working_indices <- sapply(convergence_results, is.null)
-if(sum(working_indices) == 0){
-  print("No algorithms from allFit converged. You may still be able to use the results, but proceed with extreme caution.")
-  first_fit <- NULL
-} else {
-  first_fit <- diff_optims[working_indices][[1]]
-}
-nuc_l_t_mdl <- first_fit
 ```
 
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
-plot_model(nuc_l_t_mdl, type = "re")[2:3]
+plot_model(nuc_l_t_mdl, type = "re",
+           caption = "Random effects of stressed syllable")[3]
 
 ##tidyPrediction(nuc_l_t_mdl, write = "predictions/nuc_l_t_mdl")
 
@@ -211,8 +214,7 @@ charts <- getModelFixedFX(
   l_t_equation,
   nuc_data,
   optimizer,
-  write="nuc_phonetic_models/nuc_l_t",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -229,17 +231,17 @@ charts$slopes
 
 ```{r set l_f0 equation}
 
-l_f0_equation  <-  formula(l_f0 ~
-                             foot_syls
-                           + pre_syls
-                           + fin_phon
-                           + nuc_new_word
-                           + speech_rate
-                           + (1 | speaker)
-                           + (1 | nuc_str_syl)
-                           + (1 | foot_dur)
-                           + (1 | nuc_pre_text)
-                           )
+l_f0_equation = formula(
+l_f0 ~ foot_syls
+  + pre_syls
+  + fin_phon
+  + nuc_new_word
+  + (1 | speaker)
+ # + (1 | speech_rate)
+ # + (1 | str_syl)
+  + (1 | foot_dur)
+  + (1 | nuc_pre_text)
+  )
 optimizer = "optimx"
 ```
 
@@ -284,8 +286,6 @@ summariseLME(nuc_l_f0_mdl.trimmed,
 
 ```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 ##tidyPrediction(nuc_l_f0_mdl.trimmed, write = "predictions/nuc_l_f0_mdl")
-plot_model(nuc_l_f0_mdl, type = "re")[2:4]
-
 
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                 write="nuc_phonetic_models/nuc_l_f0",
@@ -301,8 +301,7 @@ charts <- getModelFixedFX(
   l_f0_equation,
   nuc_l_f0.trimmed,
   optimizer,
-  write="nuc_phonetic_models/nuc_l_f0",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_l_f0"
 )
 charts$intercepts
 charts$slopes
@@ -324,17 +323,17 @@ h_t_equation = formula(
   + fin_phon
   + nuc_new_word
   + gender
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
-  + (1 | foot_dur)
-  #+ (1 | nuc_pre_text)
-)
+# + (1 | speech_rate)
+  + (1 | str_syl)
+# + (1 | foot_dur)
+# + (1 | nuc_pre_text)
+  )
 
 optimizer = "optimx"
 ```
 
--  model needs trimming (residual sd > 3)
+-  model needs trimming (residual sd > 3.5)
 
 ```{r run h_t models, fig.height=3, fig.width=9}
 nuc_h_t_mdl = lmer(
@@ -353,7 +352,7 @@ nuc_h_t_mdl = lmer(
 
 # model needs trimming
 nuc_h_t_data.trimmed <-
-  nuc_data %>% filter(abs(scale(resid(nuc_h_t_mdl))) <= 3)
+  nuc_data %>% filter(abs(scale(resid(nuc_h_t_mdl))) <= 3.5)
 
 nuc_h_t_mdl = lmer(
   h_t_equation,
@@ -377,9 +376,6 @@ summariseLME(nuc_h_t_mdl,
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 ##tidyPrediction(nuc_h_t_mdl, write = "predictions/nuc_h_t_mdl")
-plot_model(nuc_h_t_mdl,
-           type="re",
-           show.values = T)[2:3]
 
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="nuc_phonetic_models/nuc_h_t",
@@ -387,8 +383,6 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 factor_matrix = TRUE
                                 )
 nuc_h_t_mdl.tidy$table
-
-
 
 ```
 
@@ -398,8 +392,7 @@ charts <- getModelFixedFX(
   h_t_equation,
   nuc_data,
   optimizer,
-  write="nuc_phonetic_models/nuc_h_t",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -408,25 +401,25 @@ charts$slopes
 ### Analysis of H F0
 
 step() suggests: `h_f0 ~ foot_syls + fin_phon + gender + (1 | speaker) + (1 | nuc_pre_text)`
-- singularity likely false positive as allFit() results are good. 
+- but retaining all fixed effects, and only removing `(1 | foot_dur) + (1 | nuc_pre_text)`
 
 ```{r set h_f0 equation}
-h_f0_equation <- formula(
+h_f0_equation = formula(
   h_f0 ~ foot_syls
   + pre_syls
   + fin_phon
   + nuc_new_word
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
-  + (1 | foot_dur)
-  + (1 | nuc_pre_text)
+  + (1 | speech_rate)
+  + (1 | str_syl)
+  #+ (1 | foot_dur)
+  #+ (1 | nuc_pre_text)
   )
 
 optimizer = "optimx"
 ```
 
-- model needs trimming (residuals +/- 3.5 s.d.)
+- model needs trimming (residuals +/- 4 s.d.)
 ```{r run h_f0 models, fig.height=3, fig.width=9}
 nuc_h_f0_mdl = lmer(
   h_f0_equation,
@@ -444,7 +437,7 @@ nuc_h_f0_mdl = lmer(
 
 # model needs trimming
 nuc_h_f0.trimmed <-
-  nuc_data %>% filter(abs(scale(resid(nuc_h_f0_mdl))) <= 3.5)
+  nuc_data %>% filter(abs(scale(resid(nuc_h_f0_mdl))) <= 4)
 
 nuc_h_f0_mdl.trimmed = lmer(
   h_f0_equation,
@@ -463,8 +456,6 @@ nuc_h_f0_mdl.trimmed = lmer(
 summariseLME(nuc_h_f0_mdl.trimmed,
              run_step = TRUE,
              write = "nuc_anovas/nuc_h_f0_anova.csv")
-
-allFit(nuc_h_f0_mdl.trimmed) %>% print() 
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
@@ -484,8 +475,7 @@ charts <- getModelFixedFX(
   h_f0_equation,
   nuc_data,
   optimizer,
-  write="nuc_phonetic_models/nuc_h_f0",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_h_f0"
 )
 charts$intercepts
 charts$slopes
@@ -499,21 +489,23 @@ charts$slopes
 
 - NB, E timing is not of interest!
 -  initial step() suggests:
--  `e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur)`
+-  `e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) `
 
-- However, complete model words, so retaining it.
+- rerunning without `(1 | speech_rate)`, it suggests:
+`e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur)`
+
+- However, model words, so retaining it.
 
 ```{r set e_t equation}
 e_t_equation = formula(
-  e_t ~
-    foot_syls
+  e_t ~ foot_syls
   + pre_syls
   + fin_phon
   + nuc_new_word
   + gender
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
+ #  (1 | speech_rate)
+  + (1 | str_syl)
   + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
@@ -580,8 +572,7 @@ charts <- getModelFixedFX(
   e_t_equation,
   nuc_e_t.trimmed,
   optimizer,
-  write="nuc_phonetic_models/nuc_e_t",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_e_t"
 )
 charts$intercepts
 charts$slopes
@@ -592,20 +583,20 @@ charts$slopes
 ### Analysis of E F0
 
 - Only intercepts only model avoided convergence and singularity issues
-- initial step() suggested: `e_f0 ~ foot_syls + fin_phon + speech_rate + (1 | speaker) + (1 | nuc_pre_text)`
-- removing foot_dur only way to remove singularity
+- initial step() suggested: `e_f0 ~ foot_syls + fin_phon + gender + (1 | speaker) + (1 | nuc_pre_text)`
+- model words once random intercepts of speech_rate and str_syl are removed
+- foot_dur removed to prevent singularity in getModelFixedFX()
 
 ```{r set e_f0 equation}
 e_f0_equation = formula(
-  e_f0 ~
-    foot_syls
+  e_f0 ~ foot_syls
   + pre_syls
   + fin_phon
   + nuc_new_word
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
-# + (1 | foot_dur)
+# +  (1 | speech_rate)
+#  + (1 | str_syl)
+#  + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
 
@@ -670,8 +661,7 @@ charts <- getModelFixedFX(
   e_f0_equation,
   nuc_data,
   optimizer,
-  write="nuc_phonetic_models/nuc_e_f0",
-  b1_only = "speech_rate"
+  write="nuc_phonetic_models/nuc_e_f0"
 )
 charts$intercepts
 charts$slopes
@@ -685,22 +675,21 @@ However, to preserve previous models, they are included as fixed effects,
 but they are discarded.
 
 - step() suggests: `f0_exc ~ foot_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)`
-- BUT full model works so retaining it.
+- model works after removing random intercepts of speech_rate, str_syl, and foot_dur.
 ### LH Excursion
 
 ```{r set f0_exc equation}
 
 f0_exc_equation = formula(
- f0_exc ~ 
-    foot_syls
+ f0_exc ~ foot_syls
   + pre_syls
   + fin_phon
   + nuc_new_word
   + gender
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
-  + (1 | foot_dur)
+# + (1 | speech_rate)
+#  + (1 | str_syl)
+# + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
 
@@ -766,8 +755,7 @@ charts <- getModelFixedFX(
   nuc_f0_exc.trimmed,
   optimizer,
   write="nuc_phonetic_models/nuc_f0_exc",
-  ignore_list = c("pre_syls", "fin_phon"),
-  b1_only = "speech_rate"
+  ignore_list = c("pre_syls", "fin_phon")
 )
 charts$intercepts
 charts$slopes
@@ -782,23 +770,22 @@ Based on results from tonal target analysis, it looksl like compression and trun
 As compression leads to decrease in duration of rise (but not necessarily much descrease in excursion size),
 and as slope increases exponentially as duration decreases, slope has been logged here.
 
-initial step() suggests: `log_lh_slope ~ foot_syls + speech_rate + (1 | speaker) + (1 | nuc_pre_text)`
-- model works so keeping it.
+initial step() suggests: `log_lh_slope ~ foot_syls + (1 | speaker) + (1 | nuc_pre_text)`
+- model works once random intercepts of speech_rate and foot_dur removed
 ```{r set lh_slope equation}
 nuc_data <- nuc_data %>% 
     mutate(log_lh_slope = log(lh_slope))
 
 lh_slope_equation = formula(
-  log_lh_slope ~
-    foot_syls
+  log_lh_slope ~ foot_syls
   + pre_syls
   + fin_phon
   + nuc_new_word
   + gender
-  + speech_rate
   + (1 | speaker)
-  + (1 | nuc_str_syl)
-  + (1 | foot_dur)
+# + (1 | speech_rate)
+  + (1 | str_syl)
+# + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
 optimizer = "optimx"
@@ -863,8 +850,7 @@ charts <- getModelFixedFX(
   nuc_lh_slope.trimmed,
   optimizer,
   write="nuc_phonetic_models/nuc_lh_slope",
-  ignore_list = c("pre_syls", "fin_phon"),
-  b1_only = "speech_rate"
+  ignore_list = c("pre_syls", "fin_phon")
 )
 charts$intercepts
 charts$slopes

@@ -1,1 +1,1 @@
-e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + speech_rate + (1 | speaker) + (1 | nuc_str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) [nuclear contour]
+e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) [nuclear contour]

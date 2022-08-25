@@ -1,1 +1,1 @@
-l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word + gender + speech_rate + (1 + acc_phon | speaker) + (1 | ana_text) + (1 | ana_end_t) + (1 | nuc_pre_text)
+l_t ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word + gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) + (1 | nuc_pre_text)
