@@ -35,10 +35,7 @@ installMissingPackages(
     "ggeffects",
     
     # Include packages for %in% %notin% syntactic notation
-    "mefa4",
-    
-    # Efficiency
-    "parallel"
+    "mefa4"
   )
 )
 
@@ -124,21 +121,6 @@ lh_pn_model <- bglmer(
   family = binomial(link = "logit"),
   glmerControl(optimizer = "bobyqa")
 )
-
-### https://joshua-nugent.github.io/allFit/
-system.time(diff_optims <- allFit(lh_pn_model, maxfun = 1e5, parallel = 'multicore', ncpus = ncores, verbose = F))
-print(diff_optims)
-diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
-lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
-convergence_results <- lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
-working_indices <- sapply(convergence_results, is.null)
-if(sum(working_indices) == 0){
-  print("No algorithms from allFit converged. You may still be able to use the results, but proceed with extreme caution.")
-  first_fit <- NULL
-} else {
-  first_fit <- diff_optims[working_indices][[1]]
-}
-nuc_l_t_mdl <- first_fit
 
 summary(lh_pn_model)
 
