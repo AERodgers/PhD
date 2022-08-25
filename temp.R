@@ -106,7 +106,6 @@ tryOptimx <- function(model)
                                    maxit = 1e9)
                 )
             )
-
         print(paste0("Testing optimx: ", optimx_options[i]))
 
         }
@@ -114,6 +113,7 @@ tryOptimx <- function(model)
     return(model)
     }
 
-system.time(optimizeLme(lh_pn_model))
+optimizeLme(lh_pn_model)
+
 
 
