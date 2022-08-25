@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = FALSE,
                       warning = F,
                       message = F)
-
+start <- Sys.time()
 ```
 
 
@@ -494,4 +494,9 @@ charts <- getModelFixedFX(
 
 charts$intercepts
 charts$slopes
+
+finish <- Sys.time()
+cat(paste(start), "\n")
+cat(paste(finish), "\n")
+cat(paste("Time elapsed:", round((finish-start)/100,3), "\n"))
 ```
