@@ -496,7 +496,7 @@ charts$intercepts
 charts$slopes
 
 finish <- Sys.time()
-cat(paste(start), "\n")
-cat(paste(finish), "\n")
-cat(paste("Time elapsed:", round((finish-start)/100,3), "\n"))
+cat("\n",paste(start), "\n")
+cat("\n",paste(finish), "\n")
+cat("\n",paste("Time elapsed:", (finish-start), "\n"))
 ```
