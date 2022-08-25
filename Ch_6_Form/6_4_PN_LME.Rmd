@@ -134,8 +134,8 @@ l_t_equation = formula(l_t ~ acc_phon + ana_syls + foot_syls
   + wrd_end_syl
   + pn_new_word
   + gender
-  + (1| speaker)
-+ speech_rate
+  + speech_rate
+  + (1 + acc_phon | speaker)
   + (1 | ana_text)
   + (1 | ana_end_t)
 # + (1 | foot_dur)
@@ -183,7 +183,7 @@ pn_l_t_mdl.trimmed = lmer(
 
 summariseLME(pn_l_t_mdl.trimmed
              ,run_step = TRUE
-            # ,write = "pn_anovas/pn_l_t_anova.csv"
+             ,write = "pn_anovas/pn_l_t_anova.csv"
              )
 ```
 
@@ -201,7 +201,7 @@ plot_model(
 # tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed
- # , write="pn_phonetic_models/pn_l_t"
+  , write="pn_phonetic_models/pn_l_t"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -216,7 +216,7 @@ charts <- getModelFixedFX(
   , pn_l_t.trimmed
   , optimizer
   , b1_only = "speech_rate"
-  #, write="pn_phonetic_models/pn_l_t"
+  , write="pn_phonetic_models/pn_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -287,7 +287,7 @@ pn_l_f0_mdl.trimmed = lmer(
 
 summariseLME(pn_l_f0_mdl.trimmed
              , run_step = TRUE
-           #  , write = "pn_anovas/pn_l_f0_anova.csv"
+             , write = "pn_anovas/pn_l_f0_anova.csv"
              )
 ```
 
@@ -307,7 +307,7 @@ plot_model(
 # tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl.trimmed
- # , write="pn_phonetic_models/pn_l_f0"
+  , write="pn_phonetic_models/pn_l_f0"
   , type = "pred"
   )
 pn_l_f0_mdl.tidy$table
@@ -321,7 +321,7 @@ charts <- getModelFixedFX(
   , pn_l_f0.trimmed
   , optimizer
   , b1_only = "speech_rate"
- # , write="pn_phonetic_models/pn_l_f0"
+  , write="pn_phonetic_models/pn_l_f0"
 )
 charts$intercepts
 charts$slopes
@@ -388,7 +388,7 @@ pn_h_t_mdl.trimmed = lmer(
 summariseLME(
   pn_h_t_mdl.trimmed
   , run_step = TRUE
-  #, write = "pn_anovas/pn_h_t_anova.csv"
+  , write = "pn_anovas/pn_h_t_anova.csv"
   )
 ```
 
@@ -406,7 +406,7 @@ plot_model(
 # tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed
- # , write="pn_phonetic_models/pn_h_t"
+  , write="pn_phonetic_models/pn_h_t"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -423,8 +423,9 @@ charts <- getModelFixedFX(
   , pn_h_t.trimmed
   , optimizer
   , b1_only = "speech_rate"
- # , write="pn_phonetic_models/pn_h_t"
+  , write="pn_phonetic_models/pn_h_t"
 )
+
 charts$intercepts
 charts$slopes
 

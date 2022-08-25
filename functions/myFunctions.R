@@ -831,6 +831,9 @@ getModelFixedFX <- function(my_equation,
   require("mefa4")
   require("lme4")
   require("blme")
+  require("parallel")
+
+  ncores <- detectCores()
 
   my_stat <- ifelse(is_GLM, "z.value", "t.value")
 
@@ -937,6 +940,22 @@ getModelFixedFX <- function(my_equation,
     )
   }
 
+
+  ### https://joshua-nugent.github.io/allFit/
+
+  diff_optims <- allFit(base_model, maxfun = 1e5, parallel = 'multicore', ncpus = ncores)
+  print(diff_optims)
+  diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
+  lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
+  convergence_results <- lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
+  working_indices <- sapply(convergence_results, is.null)
+  if(sum(working_indices) == 0){
+    print("No algorithms from allFit converged. You may still be able to use the results, but proceed with extreme caution.")
+    first_fit <- NULL
+  } else {
+    first_fit <- diff_optims[working_indices][[1]]
+  }
+  base_model <- first_fit
 
   # create empty tidy model output
   all_models_tidy = tibble()
@@ -1082,6 +1101,22 @@ getModelFixedFX <- function(my_equation,
           )
         )
       }
+
+      ### https://joshua-nugent.github.io/allFit/
+
+      diff_optims <- allFit(cur_model, maxfun = 1e5, parallel = 'multicore', ncpus = ncores)
+      print(diff_optims)
+      diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
+      lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
+      convergence_results <- lapply(diff_optims_OK, function(x) x@optinfo$conv$lme4$messages)
+      working_indices <- sapply(convergence_results, is.null)
+      if(sum(working_indices) == 0){
+        print("No algorithms from allFit converged. You may still be able to use the results, but proceed with extreme caution.")
+        first_fit <- NULL
+      } else {
+        first_fit <- diff_optims[working_indices][[1]]
+      }
+      cur_model <- first_fit
 
       # Tidy the model.
       # Decide whether or not to exponentiate GLM data
