@@ -99,10 +99,10 @@ theme_set(theme_minimal(base_size = 14))
 ```{r set isLH equation}
 isLH_equation <- formula(isLH ~
                          foot_syls
-                         + wrd_end_syl
+                         * wrd_end_syl
                          + speech_rate
                          + gender
-                         + (1 | ana_text)
+                         + (1 + foot_syls | ana_text)
                          + (1 | nuc_pre_text)
                          + (1 | pn_str_syl)
                          + (1 | speaker)
@@ -119,7 +119,8 @@ lh_pn_model <- bglmer(
   data = pn,
   fixef.prior = normal(),
   family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
+  glmerControl(optimizer = "bobyqa",
+               optCtrl = list(maxit = 1e9, maxfun = 1e9))
 )
 
 summary(lh_pn_model)
