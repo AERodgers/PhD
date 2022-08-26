@@ -45,30 +45,9 @@ theme_set(theme_minimal(base_size = 14))
 
 source("6_0_get_AH.R")
 
-nuc_stress <- read_csv("data/stressed_syls.csv", col_types =)
-
 nuc_data <- nuc %>%
   # there must be a more efficient way of doing this but...
   # Create column of stressed syllables in foot 2.
-  mutate(
-    str_syl = stim,
-    str_syl = str_replace(str_syl, nuc_stress$stim[1], nuc_stress$nuc_syl[1]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[2], nuc_stress$nuc_syl[2]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[3], nuc_stress$nuc_syl[3]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[4], nuc_stress$nuc_syl[4]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[5], nuc_stress$nuc_syl[5]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[6], nuc_stress$nuc_syl[6]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[7], nuc_stress$nuc_syl[7]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[8], nuc_stress$nuc_syl[8]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[9], nuc_stress$nuc_syl[9]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[10], nuc_stress$nuc_syl[10]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[11], nuc_stress$nuc_syl[11]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[12], nuc_stress$nuc_syl[12]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[13], nuc_stress$nuc_syl[13]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[14], nuc_stress$nuc_syl[14]),
-    str_syl = str_replace(str_syl, nuc_stress$stim[15], nuc_stress$nuc_syl[15]),
-    str_syl = factor(str_syl, levels = unique(str_syl))
-  ) %>% 
     select(
     stim,
     speaker,
@@ -77,7 +56,7 @@ nuc_data <- nuc %>%
     foot_syls,
     nuc_pre_text,
     nuc_new_word,
-    str_syl,
+    nuc_str_syl,
     fin_phon,
     stim,
     h_t,
@@ -135,7 +114,7 @@ nuc_data %>%
 
 ### Analysis of L timing
 
-- initial run, step() found: `l_t ~ pre_syls + gender + (1 | speaker) + (1 | str_syl)`
+- initial run, step() found: `l_t ~ pre_syls + gender + (1 | speaker) + (1 | nuc_str_syl)`
 - 
 ```{r set l_t equation}
 l_t_equation = formula(
@@ -146,7 +125,7 @@ l_t_equation = formula(
   + gender
   + (1 | speaker)
 # + (1 | speech_rate)
-  + (1 | str_syl)
+  + (1 | nuc_str_syl)
   + (1 | foot_dur)
 # + (1 | nuc_pre_text)
   )
@@ -227,7 +206,7 @@ charts$slopes
 - Only intercepts only model avoided convergence and singularity issues
 - step() suggests: `l_f0 ~ foot_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
 - but random intercepts only model words
-- removed  speech_rate and str_syl random effects to eliminate singularity in getModelFixedFX()
+- removed  speech_rate and nuc_str_syl random effects to eliminate singularity in getModelFixedFX()
 
 ```{r set l_f0 equation}
 
@@ -238,7 +217,7 @@ l_f0 ~ foot_syls
   + nuc_new_word
   + (1 | speaker)
  # + (1 | speech_rate)
- # + (1 | str_syl)
+ # + (1 | nuc_str_syl)
   + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
@@ -314,7 +293,7 @@ charts$slopes
 ### Analysis of H timing
 
 - Only intercepts only model avoided convergence and singularity issues
-- step() suggests: `h_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | str_syl)`
+- step() suggests: `h_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | nuc_str_syl)`
 - Removing speech_rate, foot_dur, and nuc_pre_text random intercepts
 ```{r set h_t equation}
 h_t_equation = formula(
@@ -325,7 +304,7 @@ h_t_equation = formula(
   + gender
   + (1 | speaker)
 # + (1 | speech_rate)
-  + (1 | str_syl)
+  + (1 | nuc_str_syl)
 # + (1 | foot_dur)
 # + (1 | nuc_pre_text)
   )
@@ -411,7 +390,7 @@ h_f0_equation = formula(
   + nuc_new_word
   + (1 | speaker)
   + (1 | speech_rate)
-  + (1 | str_syl)
+  + (1 | nuc_str_syl)
   #+ (1 | foot_dur)
   #+ (1 | nuc_pre_text)
   )
@@ -489,10 +468,10 @@ charts$slopes
 
 - NB, E timing is not of interest!
 -  initial step() suggests:
--  `e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) `
+-  `e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | nuc_str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) `
 
 - rerunning without `(1 | speech_rate)`, it suggests:
-`e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | str_syl) + (1 | foot_dur)`
+`e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | nuc_str_syl) + (1 | foot_dur)`
 
 - However, model words, so retaining it.
 
@@ -505,7 +484,7 @@ e_t_equation = formula(
   + gender
   + (1 | speaker)
  #  (1 | speech_rate)
-  + (1 | str_syl)
+  + (1 | nuc_str_syl)
   + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
@@ -584,7 +563,7 @@ charts$slopes
 
 - Only intercepts only model avoided convergence and singularity issues
 - initial step() suggested: `e_f0 ~ foot_syls + fin_phon + gender + (1 | speaker) + (1 | nuc_pre_text)`
-- model words once random intercepts of speech_rate and str_syl are removed
+- model words once random intercepts of speech_rate and nuc_str_syl are removed
 - foot_dur removed to prevent singularity in getModelFixedFX()
 
 ```{r set e_f0 equation}
@@ -595,7 +574,7 @@ e_f0_equation = formula(
   + nuc_new_word
   + (1 | speaker)
 # +  (1 | speech_rate)
-#  + (1 | str_syl)
+#  + (1 | nuc_str_syl)
 #  + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
@@ -675,7 +654,7 @@ However, to preserve previous models, they are included as fixed effects,
 but they are discarded.
 
 - step() suggests: `f0_exc ~ foot_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)`
-- model works after removing random intercepts of speech_rate, str_syl, and foot_dur.
+- model works after removing random intercepts of speech_rate, nuc_str_syl, and foot_dur.
 ### LH Excursion
 
 ```{r set f0_exc equation}
@@ -688,7 +667,7 @@ f0_exc_equation = formula(
   + gender
   + (1 | speaker)
 # + (1 | speech_rate)
-#  + (1 | str_syl)
+#  + (1 | nuc_str_syl)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
@@ -784,7 +763,7 @@ lh_slope_equation = formula(
   + gender
   + (1 | speaker)
 # + (1 | speech_rate)
-  + (1 | str_syl)
+  + (1 | nuc_str_syl)
 # + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
