@@ -716,17 +716,17 @@ analyseModel <-
           ))
     }
 
-    r2_nakagawa <- knitr::kable(
-      r2_nakagawa(my_model),
+    r2 <- knitr::kable(
+      r2(my_model),
       caption = "Conditional and marginal R^2^ of model",
       digits = 2,
       align = "l"
     )  %>% kable_styling(full_width = FALSE, position = "left") %>%
       remove_column(3)
-    print(r2_nakagawa)
+    print(r2)
 
     if (!is.null(write)) {
-      do.call(rbind, r2_nakagawa(my_model))[, 1] %>%
+      do.call(rbind, r2(my_model))[, 1] %>%
         write.csv(paste(write, "_r2.csv", sep = ""))
 
       ## This doesn't work correctly with interactions
@@ -803,7 +803,7 @@ analyseModel <-
     }
 
     return(list(
-      "r2" = r2_nakagawa,
+      "r2" = r2,
       "table" = tidy_model,
       "plot" = my_plot
     ))
@@ -832,7 +832,7 @@ getModelFixedFX <- function(my_equation,
   require("lme4")
   require("blme")
 
-  my_stat <- ifelse(is_GLM, "z.value", "t.value")
+    my_stat <- ifelse(is_GLM, "z.value", "t.value")
 
   my_headers <- c(
     "term",
