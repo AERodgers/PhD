@@ -1,1 +1,1 @@
-h_f0 ~ foot_syls + pre_syls + fin_phon + nuc_new_word + (1 | speaker) + (1 | speech_rate) + (1 | str_syl) 
+h_f0 ~ foot_syls + pre_syls + fin_phon + nuc_new_word + (1 | speaker) + (1 | speech_rate) + (1 | nuc_str_syl) 

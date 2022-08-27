@@ -114,13 +114,13 @@ isLH_equation <- formula(isLH ~
 #### Run isLH model
 
 ```{r run isLH models}
-system.time(lh_pn_model <- bglmer(
+lh_pn_model <- bglmer(
   isLH_equation,
   data = pn,
   fixef.prior = normal(),
   family = binomial(link = "logit"),
   glmerControl(optimizer = "bobyqa")
-))
+)
 
 summary(lh_pn_model)
 
@@ -284,14 +284,7 @@ plot_model(
 
 tidy_summary$table
 
-charts <- getModelFixedFX(
-  isLH_equation,
-  pn,
-  write="phonology_models/lh_model",
-  is_GLM=TRUE,
-  is_separation = T,
-  b1_only = "speech_rate"
-)
+charts <- getModelFixedFX(lh_pn_model, write="phonology_models/lh_model")
 
 charts$intercepts
 charts$slopes
@@ -483,14 +476,7 @@ plot_model(
   vline = "Red"
  )
 
-charts <- getModelFixedFX(
-  isHStar_equation,
-  pn,
-  write="phonology_models/h_star_model",
-  is_GLM=TRUE,
-  is_separation = T,
-  b1_only = "speech_rate"
-)
+charts <- getModelFixedFX(h_star_model, write="phonology_models/h_star_model")
 
 charts$intercepts
 charts$slopes

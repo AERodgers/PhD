@@ -60,8 +60,6 @@ pn <- pn %>%
          nuc_pre_text,
          acc_phon,
          speech_rate,
-         ana_end_t,
-         foot_dur,
          l_t,
          l_f0,
          h_t,
@@ -69,7 +67,6 @@ pn <- pn %>%
          lh_slope,
          f0_exc) %>%
   mutate(
-    foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
     foot_syls = factor(foot_syls, levels = 1:4)
   ) 
@@ -125,22 +122,25 @@ for (i in colnames(pn_h_data))
 ## L targets
 
 ### Analysis of L timing
-- Convergence issues. Removing re as per step(): speech_rate, foot_dur, pn_str_syl
 
 initial step() model found:
-`l_t ~ acc_phon + gender + (1 | speaker) + (1 | ana_text) + (1 | ana_end_t) + (1 | nuc_pre_text)`
+`l_t ~ acc_phon + gender + (1 | speaker) + (1 | ana_text) + (1 | nuc_pre_text)`
+
+
 ```{r set l_t equation}
-l_t_equation = formula(l_t ~ acc_phon + ana_syls + foot_syls
+l_t_equation = formula(
+  l_t ~
+    acc_phon
+  + ana_syls
+  + foot_syls
   + wrd_end_syl
   + pn_new_word
   + gender
   + (1| speaker)
-  + (1 | ana_text)
+  #+ (1 | ana_text)
   + (1 | pn_str_syl)
   + (1 | nuc_pre_text)
   #+ (1 | speech_rate)
-  + (1 | ana_end_t)
-  #+ (1 | foot_dur)
   )
 
 optimizer = "optimx"
@@ -200,10 +200,10 @@ plot_model(
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
 pn_l_t_mdl.tidy <- analyseModel(
-  pn_l_t_mdl.trimmed
-  , write="pn_phonetic_models/pn_l_t"
-  , type = "pred"
-  , factor_matrix = TRUE
+  pn_l_t_mdl.trimmed,
+  write="pn_phonetic_models/pn_l_t",
+  type = "pred",
+  factor_matrix = TRUE
   )
 pn_l_t_mdl.tidy$table
 
@@ -212,11 +212,8 @@ pn_l_t_mdl.tidy$table
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_t_equation
-  , pn_l_t.trimmed
-  , optimizer
-  , b1_only = "speech_rate"
-  , write="pn_phonetic_models/pn_l_t"
+  pn_l_t_mdl.trimmed,
+  write="pn_phonetic_models/pn_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -228,23 +225,22 @@ charts$slopes
 
 ### Analysis of L F0
 
-- Only intercepts only model avoided convergence and singularity issues
-- Speech rate caused massive estimation issues
-- Removing + wrd_end_syl as it has little effect
-- removing ana_text to avoid error
+After initial full model, step() suggests: `l_f0 ~ ana_syls + pn_new_word + (1 | speaker)`
+Model works with single random intercept but with all fixed factors.
 
-After initial full model, step() suggests: `l_f0 ~ ana_syls + pn_new_word + gender + (1 | speaker)`
 ```{r set l_f0 equation}
-l_f0_equation = formula(l_f0 ~ acc_phon + ana_syls + foot_syls
+l_f0_equation = formula(
+  l_f0 ~
+    acc_phon
+  + ana_syls
+  + foot_syls
   + wrd_end_syl
   + pn_new_word
-  + (1 | speaker)
-    + (1 | speech_rate)
-# + (1 | ana_text)
-# + (1 | ana_end_t)
-# + (1 | foot_dur)
-# + (1 | nuc_pre_text)
-# + (1 | pn_str_syl)
+  + (1| speaker)
+  #+ (1 | ana_text)
+  #+ (1 | pn_str_syl)
+  #+ (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
   )
 optimizer = "optimx"
 ```
@@ -317,11 +313,8 @@ pn_l_f0_mdl.tidy$table
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_f0_equation
-  , pn_l_f0.trimmed
-  , optimizer
-  , b1_only = "speech_rate"
-  , write="pn_phonetic_models/pn_l_f0"
+  pn_l_f0_mdl.trimmed,
+  write = "pn_phonetic_models/pn_l_f0"
 )
 charts$intercepts
 charts$slopes
@@ -332,22 +325,24 @@ charts$slopes
 
 ### Analysis of H timing
 
-- first test, step() found: `h_t ~ acc_phon + ana_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
-- kept fixed all fixed factors and ana_text as a random factor for parity with l_t
+first test, step() found: `h_t ~ acc_phon + ana_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+
 
 ```{r set h_t equation}
-h_t_equation = formula(h_t ~ acc_phon + ana_syls + foot_syls
+h_t_equation = formula(
+  h_t ~
+    acc_phon
+  + ana_syls
+  + foot_syls
   + wrd_end_syl
   + pn_new_word
   + gender
   + (1| speaker)
-    + (1 | speech_rate)
   + (1 | ana_text)
-# + (1 | ana_end_t)
-# + (1 | foot_dur)
+  #+ (1 | pn_str_syl)
   + (1 | nuc_pre_text)
-# + (1 | pn_str_syl)
- )
+  + (1 | speech_rate)
+  )
 
 optimizer = "optimx"
 ```
@@ -419,11 +414,8 @@ pn_h_t_mdl.tidy$table
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
 print(h_t_equation)
 charts <- getModelFixedFX(
-  h_t_equation
-  , pn_h_t.trimmed
-  , optimizer
-  , b1_only = "speech_rate"
-  , write="pn_phonetic_models/pn_h_t"
+  pn_h_t_mdl.trimmed,
+  write="pn_phonetic_models/pn_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -433,24 +425,28 @@ charts$slopes
 
 ### Analysis of H F0
 
-- first run: step() suggests: `ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
-- Keeping nuc_pre_text as also in l_f0
+first run: step() suggests: `h_f0 ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
+
+
 ```{r set h_f0 equation}
-h_f0_equation = formula(h_f0 ~ acc_phon + ana_syls + foot_syls
+h_f0_equation = formula(
+  h_f0 ~
+    acc_phon
+  + ana_syls
+  + foot_syls
   + wrd_end_syl
   + pn_new_word
-  + (1 | speaker)
-    + (1 | speech_rate)
-# + (1 | ana_text)
-# + (1 | ana_end_t)
-# + (1 | foot_dur)
-  + (1 | nuc_pre_text)
+  + (1| speaker)
+  #+ (1 | ana_text)
   + (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
   )
 
 optimizer = "optimx"
 ```
 
+  
 model needs trimming: residuals > 3 s.d.
 
 ```{r run h_f0 models, fig.height=3, fig.width=9}
@@ -503,7 +499,7 @@ plot_model(
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 # tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
-pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
+pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl.trimmed,
                                 write="pn_phonetic_models/pn_h_f0",
                                 type = "pred"
                                 )
@@ -514,10 +510,7 @@ pn_h_f0_mdl.tidy$table
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  h_f0_equation,
-  pn_h_f0.trimmed,
-  optimizer,
-  b1_only = "speech_rate", 
+  pn_h_f0_mdl.trimmed, 
   write="pn_phonetic_models/pn_h_f0"
 )
 charts$intercepts
@@ -541,23 +534,23 @@ pn_tnc_data <- pn_l_data %>%
 
 ### LH Excursion
 
--  first run, step() suggests: `f0_exc ~ foot_syls + ana_syls + (1 | speaker) + (1 | pn_str_syl)`
+-  first run, step() suggests: `f0_exc ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
 
 ```{r set f0_exc equation}
 
 f0_exc_equation = formula(
-  f0_exc ~ foot_syls + ana_syls
-  + pn_new_word
+  f0_exc ~ 
+  ana_syls
+  + foot_syls
   + wrd_end_syl
+  + pn_new_word
   + gender
-  + (1 | speaker)
-#   + (1 | speech_rate)
-  + (1 | ana_text)
-# + (1 | ana_end_t)
-  + (1 | foot_dur)
-# + (1 | nuc_pre_text)
-
+  + (1| speaker)
+  #+ (1 | ana_text)
   + (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  + (1 | speech_rate)
+
   )
 
 optimizer = "optimx"
@@ -618,9 +611,7 @@ pn_f0_exc_mdl.tidy$table
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  f0_exc_equation,
-  pn_f0_exc.trimmed,
-  optimizer,
+  pn_f0_exc_mdl.trimmed,
   write="pn_phonetic_models/pn_f0_exc"
   )
 charts$intercepts
@@ -635,18 +626,20 @@ charts$slopes
 - Keeping all fixed effects to check effects.
 ```{r set lh_slope equation}
 lh_slope_equation = formula(
-  log_lh_slope ~ foot_syls + ana_syls
-  + pn_new_word
+  log_lh_slope ~
+  ana_syls
+  + foot_syls
   + wrd_end_syl
+  + pn_new_word
   + gender
-  + (1 | speaker)
-#   + (1 | speech_rate)
-# + (1 | ana_text)
-# + (1 | ana_end_t)
-# + (1 | foot_dur)
+  + (1| speaker)
+  #+ (1 | ana_text)
+  #+ (1 | pn_str_syl)
   + (1 | nuc_pre_text)
-# + (1 | pn_str_syl)
+  #+ (1 | speech_rate)
+
   )
+
 
 optimizer = "optimx"
 ```
@@ -672,7 +665,7 @@ pn_lh_slope_mdl = lmer(
 ```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
 # model needs trimming
 pn_lh_slope.trimmed <-
-  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4444)
+  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
 
 pn_lh_slope_mdl.trimmed = lmer(
   lh_slope_equation,
@@ -707,9 +700,7 @@ pn_lh_slope_mdl.tidy$table
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  lh_slope_equation,
-  pn_lh_slope.trimmed,
-  optimizer,
+  pn_lh_slope_mdl.trimmed,
   write="pn_phonetic_models/pn_lh_slope"
 )
 charts$intercepts

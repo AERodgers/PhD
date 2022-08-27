@@ -812,7 +812,6 @@ analyseModel <-
 
 
 ###  Get Fixed Effects of LME/GLMM Model #######################################
-###  Get Fixed Effects of LME/GLMM Model #######################################
 getModelFixedFX <- function(model,
                             write = NULL,
                             exponentiate = TRUE,
@@ -828,12 +827,12 @@ getModelFixedFX <- function(model,
   require("blme")
 
   # Get information from model
-  model_elements <- getModelElements(model)
-  formula <- model_elements$formula
-  data = model_elements$frame
-  factor_info <- tibble(factors = colnames(frame),
-                        categorical = sapply(frame, is.factor)
-  )
+  formula <- formula(model)
+  data = model@frame
+  factor_info <- tibble(factors = colnames(data),
+                        categorical = sapply(data, is.factor)
+                        )
+
 
   fixed_factors <-
     (str_replace_all(deparse(formula(model, fixed.only = TRUE)[3]),
@@ -900,7 +899,7 @@ getModelFixedFX <- function(model,
 
   # set first keep_terms list to include 2-level terms and continuous factors.
   initial_keep_terms <- c(two_level_terms)
-  all_models_tidy <- NULL
+  all_models_tidy <- tibble()
   # loop through each multilevel fixed factor of interest (multilevel_factors)
   for (cur_factor in multilevel_factors)
   {
@@ -1132,18 +1131,6 @@ getModelFixedFX <- function(model,
 }
 
 
-
-
-### Get Model Elements #########################################################
-getModelElements <- function(model) {
-  # Get elements of a model used for functions associated with optLme4Mdl
-  ans <- list("formula" =  formula <- formula(model),
-              "optimizer" =  model@optinfo$optimizer,
-              "frame" =  model@frame,
-              "maxfun" = model@optinfo$control$maxfun,
-              "package" = model@resp$.objectPackage)
-  return(ans)
-}
 ###  Tidy Intercepts of multiple analyses  #####################################
 tidyIntercepts <- function(all_models_tidy)
   {

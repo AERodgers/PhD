@@ -124,10 +124,9 @@ l_t_equation = formula(
   + nuc_new_word
   + gender
   + (1 | speaker)
-# + (1 | speech_rate)
+  + (1 | speech_rate)
   + (1 | nuc_str_syl)
-  + (1 | foot_dur)
-# + (1 | nuc_pre_text)
+ #+ (1 | nuc_pre_text)
   )
 
 optimizer = "optimx"
@@ -190,9 +189,7 @@ nuc_l_t_mdl.tidy$table
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_t_equation,
-  nuc_data,
-  optimizer,
+  nuc_l_t_mdl,
   write="nuc_phonetic_models/nuc_l_t"
 )
 charts$intercepts
@@ -204,7 +201,7 @@ charts$slopes
 ### Analysis of L F0
 
 - Only intercepts only model avoided convergence and singularity issues
-- step() suggests: `l_f0 ~ foot_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+- step() suggests: `l_f0 ~ foot_syls + (1 | speaker) + (1 | nuc_pre_text)`
 - but random intercepts only model words
 - removed  speech_rate and nuc_str_syl random effects to eliminate singularity in getModelFixedFX()
 
@@ -216,9 +213,8 @@ l_f0 ~ foot_syls
   + fin_phon
   + nuc_new_word
   + (1 | speaker)
- # + (1 | speech_rate)
- # + (1 | nuc_str_syl)
-  + (1 | foot_dur)
+  + (1 | speech_rate)
+  + (1 | nuc_str_syl)
   + (1 | nuc_pre_text)
   )
 optimizer = "optimx"
@@ -277,9 +273,7 @@ nuc_l_f0_mdl.tidy$table
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  l_f0_equation,
-  nuc_l_f0.trimmed,
-  optimizer,
+  nuc_l_f0_mdl.trimmed,
   write="nuc_phonetic_models/nuc_l_f0"
 )
 charts$intercepts
@@ -303,10 +297,9 @@ h_t_equation = formula(
   + nuc_new_word
   + gender
   + (1 | speaker)
-# + (1 | speech_rate)
+  + (1 | speech_rate)
   + (1 | nuc_str_syl)
-# + (1 | foot_dur)
-# + (1 | nuc_pre_text)
+ #+ (1 | nuc_pre_text)
   )
 
 optimizer = "optimx"
@@ -368,9 +361,7 @@ nuc_h_t_mdl.tidy$table
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  h_t_equation,
-  nuc_data,
-  optimizer,
+  nuc_h_t_mdl,
   write="nuc_phonetic_models/nuc_h_t"
 )
 charts$intercepts
@@ -379,8 +370,8 @@ charts$slopes
 
 ### Analysis of H F0
 
-step() suggests: `h_f0 ~ foot_syls + fin_phon + gender + (1 | speaker) + (1 | nuc_pre_text)`
-- but retaining all fixed effects, and only removing `(1 | foot_dur) + (1 | nuc_pre_text)`
+step() suggests: `h_f0 ~ foot_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)`
+This is very odd. So, removing (1 | nuc_pre_text)!!
 
 ```{r set h_f0 equation}
 h_f0_equation = formula(
@@ -391,7 +382,6 @@ h_f0_equation = formula(
   + (1 | speaker)
   + (1 | speech_rate)
   + (1 | nuc_str_syl)
-  #+ (1 | foot_dur)
   #+ (1 | nuc_pre_text)
   )
 
@@ -440,7 +430,7 @@ summariseLME(nuc_h_f0_mdl.trimmed,
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 ##tidyPrediction(nuc_h_f0_mdl, write = "predictions/nuc_h_f0_mdl")
 
-nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl,
+nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 write="nuc_phonetic_models/nuc_h_f0",
                                 type = "pred"
                                 )
@@ -451,9 +441,7 @@ nuc_h_f0_mdl.tidy$table
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  h_f0_equation,
-  nuc_data,
-  optimizer,
+  nuc_h_f0_mdl.trimmed,
   write="nuc_phonetic_models/nuc_h_f0"
 )
 charts$intercepts
@@ -466,14 +454,12 @@ charts$slopes
 
 ### Analysis of E timing
 
-- NB, E timing is not of interest!
--  initial step() suggests:
--  `e_t ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | nuc_str_syl) + (1 | foot_dur) + (1 | nuc_pre_text) `
+NB, E timing is not of interest!
 
-- rerunning without `(1 | speech_rate)`, it suggests:
-`e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | nuc_str_syl) + (1 | foot_dur)`
+initial step() suggests:
 
-- However, model words, so retaining it.
+ `e_t ~ foot_syls + pre_syls + gender + (1 | speaker) + (1 | nuc_str_syl)`
+
 
 ```{r set e_t equation}
 e_t_equation = formula(
@@ -483,10 +469,10 @@ e_t_equation = formula(
   + nuc_new_word
   + gender
   + (1 | speaker)
- #  (1 | speech_rate)
+  + (1 | speech_rate)
   + (1 | nuc_str_syl)
-  + (1 | foot_dur)
-  + (1 | nuc_pre_text)
+
+  #+ (1 | nuc_pre_text)
   )
 
 optimizer = "optimx"
@@ -548,9 +534,7 @@ nuc_e_t_mdl.tidy$table
 ```{r do e_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  e_t_equation,
-  nuc_e_t.trimmed,
-  optimizer,
+  nuc_e_t_mdl.trimmed,
   write="nuc_phonetic_models/nuc_e_t"
 )
 charts$intercepts
@@ -561,10 +545,9 @@ charts$slopes
 
 ### Analysis of E F0
 
-- Only intercepts only model avoided convergence and singularity issues
-- initial step() suggested: `e_f0 ~ foot_syls + fin_phon + gender + (1 | speaker) + (1 | nuc_pre_text)`
-- model words once random intercepts of speech_rate and nuc_str_syl are removed
-- foot_dur removed to prevent singularity in getModelFixedFX()
+
+initial step() suggested: `e_f0 ~ foot_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)`
+
 
 ```{r set e_f0 equation}
 e_f0_equation = formula(
@@ -573,9 +556,8 @@ e_f0_equation = formula(
   + fin_phon
   + nuc_new_word
   + (1 | speaker)
-# +  (1 | speech_rate)
-#  + (1 | nuc_str_syl)
-#  + (1 | foot_dur)
+ +  (1 | speech_rate)
+  + (1 | nuc_str_syl)
   + (1 | nuc_pre_text)
   )
 
@@ -637,9 +619,7 @@ nuc_e_f0_mdl.tidy$table
 ```{r do e_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  e_f0_equation,
-  nuc_data,
-  optimizer,
+  nuc_e_f0_mdl.trimmed,
   write="nuc_phonetic_models/nuc_e_f0"
 )
 charts$intercepts
@@ -648,10 +628,6 @@ charts$slopes
 
 
 ## Truncation and Compression Effects
-
-NB: only foot_syls is of interest here, not pre-syls or fin-phon
-However, to preserve previous models, they are included as fixed effects,
-but they are discarded.
 
 - step() suggests: `f0_exc ~ foot_syls + fin_phon + (1 | speaker) + (1 | nuc_pre_text)`
 - model works after removing random intercepts of speech_rate, nuc_str_syl, and foot_dur.
@@ -666,9 +642,8 @@ f0_exc_equation = formula(
   + nuc_new_word
   + gender
   + (1 | speaker)
-# + (1 | speech_rate)
-#  + (1 | nuc_str_syl)
-# + (1 | foot_dur)
+  + (1 | speech_rate)
+  + (1 | nuc_str_syl)
   + (1 | nuc_pre_text)
   )
 
@@ -730,11 +705,8 @@ nuc_f0_exc_mdl.tidy$table
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  f0_exc_equation,
-  nuc_f0_exc.trimmed,
-  optimizer,
-  write="nuc_phonetic_models/nuc_f0_exc",
-  ignore_list = c("pre_syls", "fin_phon")
+  nuc_f0_exc_mdl.trimmed,
+  write="nuc_phonetic_models/nuc_f0_exc"
 )
 charts$intercepts
 charts$slopes
@@ -762,9 +734,8 @@ lh_slope_equation = formula(
   + nuc_new_word
   + gender
   + (1 | speaker)
-# + (1 | speech_rate)
+  + (1 | speech_rate)
   + (1 | nuc_str_syl)
-# + (1 | foot_dur)
   + (1 | nuc_pre_text)
   )
 optimizer = "optimx"
@@ -825,11 +796,8 @@ nuc_lh_slope_mdl.tidy$table
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
-  lh_slope_equation,
-  nuc_lh_slope.trimmed,
-  optimizer,
-  write="nuc_phonetic_models/nuc_lh_slope",
-  ignore_list = c("pre_syls", "fin_phon")
+  nuc_lh_slope_mdl.trimmed,
+  write="nuc_phonetic_models/nuc_lh_slope"
 )
 charts$intercepts
 charts$slopes
