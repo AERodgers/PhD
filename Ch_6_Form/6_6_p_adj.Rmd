@@ -12,13 +12,15 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 source("../functions/myFunctions.R") 
 
-installMissingPackages("tidyverse")
+installMissingPackages(c("tidyverse", "weights"))
 
 ```
 
 Adjust all p values using false discovery rate (FDR). $\beta_0$, $\beta_1$, and model ANOVAs are processed separately.
 
 c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
+
+\newpage
 
 ## 1. Phonology Models
 
@@ -29,7 +31,7 @@ adjustP_posthoc("phonology_models/",
                 p.value,
                 print = T,
                 marginal = F,
-                suffix_id = "_b0")
+                suffix_id = "_b0",)
 ```
 
 #### b. $\beta_1$
@@ -51,6 +53,7 @@ adjustP_posthoc("phonology_models/",
                 print = TRUE)
 ```
 
+\newpage
 
 ## 2. PN Phonetic Models
 
@@ -83,6 +86,7 @@ adjustP_posthoc("pn_anovas/",
                 print = TRUE)
 ```
 
+\newpage
 
 ## 3. NUC Phonetic Models
 

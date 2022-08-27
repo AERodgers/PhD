@@ -1030,6 +1030,7 @@ adjustP_posthoc <-
     require("kableExtra")
     require("performance")
     require("tidyverse")
+    require("weights")
 
     # Abbreviate method where necessary.
     my_meth <- shortPAdjMeth(method)
@@ -1075,10 +1076,10 @@ adjustP_posthoc <-
       mutate(
         # Add significance column.
         signif. = if_else(
-            p.adj < 0.001, "p<0.001", if_else(
-              p.adj < 0.01, "p<0.01", if_else(
-                p.adj < 0.05, "p<0.05", if_else(
-                  p.adj < 0.1 & marginal, "(p<0.1)","")))),
+            p.adj < 0.001, "p<.001", if_else(
+              p.adj < 0.01, "p<.01", if_else(
+                p.adj < 0.05, "p<.05", if_else(
+                  p.adj < 0.1 & marginal, "(p<.1)","")))),
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
           as.character(formatC(p.adj, format="e", digits = 1)),
@@ -1133,10 +1134,10 @@ adjustP_posthoc <-
             ),
             p.adj = if_else(as.numeric(p.adj) < 0.001,
                                      "<.001",
-                             p.adj),
+                             rd(as.numeric(p.adj), digits = 3)),
             !!p_column := if_else(as.numeric(!!p_column) < 0.001,
                             "<.001",
-                            !!p_column)
+                            rd(as.numeric(!!p_column), digits = 3))
             ) %>%
             rename(!!new_adj_col := p.adj) %>%
 
