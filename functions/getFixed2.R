@@ -85,7 +85,7 @@ getModelFixedFX <- function(my_equation,
     my_stat = enquo(my_stat)
 
     post_hoc_method <- paste("p.adj (",
-                             shortPAsjMeth(post_hoc_method),
+                             shortPAdjMeth(post_hoc_method),
                              ")",
                              sep="")
     post_hoc_method <- enquo(post_hoc_method)

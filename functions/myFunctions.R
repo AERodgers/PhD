@@ -6,17 +6,10 @@
 require("tidyverse")
 require("RColorBrewer")
 
-
 ###  Set themes, colours schemes, and formatters ###############################
 
 # Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
-
-sig_color <- x ~ style(color = if_else(
-  x == "p<0.001" | x == "p<0.05" | x == "p<0.01",
-  "green",
-  "orange"))
-
 
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
@@ -26,12 +19,6 @@ mode_colours <- c("MDC" = brewer.pal(8, "Dark2")[3],
                   "WHQ" = brewer.pal(8, "Dark2")[2],
                   "MYN" = brewer.pal(8, "Dark2")[1],
                   "MDQ" = brewer.pal(8, "Dark2")[4])
-
-p_color <- all_models_tidy ~ style(color =
-                                     if_else(as.double(all_models_tidy) < 0.05,
-                                             "green",
-                                             "red")
-)
 
 
 pitch_accent_colours <- c("H*"     = brewer.pal(8, "Dark2")[2],
@@ -186,51 +173,6 @@ balancedData <- function(data_set,
 }
 
 
-###  Draw Residuals  #########################################################
-drawResiduals <- function(myModel)
-{
-  myResiduals <- residuals(myModel)
-  par(mfrow = c(1, 3))
-  hist(myResiduals,
-       xlab = "Residuals",
-       main = "(a) Histogram of residuals")
-  qqnorm(myResiduals,
-         main = "(b) Q-Q Plot of residuals")
-  qqline(myResiduals,
-         xlab = "Fitted values",
-         ylab = "Residuals")
-  plot(fitted(myModel),
-       myResiduals,
-       main = "(c) Residual plot")
-}
-
-
-###  Bonferonni Adjustment  ####################################################
-bonferroniAdjust <- function(myTibble,
-                             bonferroniMultiplier=0,
-                             exclude_terms = NULL,
-                             p.adj="p.adj")
-  {
-  if (bonferroniMultiplier)
-    {
-    p.adj = enquo(p.adj)
-
-    myTibble <- mutate(myTibble,
-                       !!p.adj := if_else(
-                         !is_null(exclude_terms) & term %in% exclude_terms,
-                         NA_real_,
-                         if_else(
-                           p.value * bonferroniMultiplier > 1,
-                           1,
-                           p.value * bonferroniMultiplier
-                           )
-                         )
-                       )
-    }
-    return(myTibble)
-  }
-
-
 ###  Significance Code Tidy  ###################################################
 sigCodesTidy <-
   function(my_tibble,
@@ -282,85 +224,6 @@ sigCodesTidy <-
 
 
     return(my_tibble)
-  }
-
-
-###  Parameter Summary ##########################################################
-param_summary <-
-  function(df, treatment, phonology, is_nucleus = FALSE)
-  {
-    # Summarise dataset by speaker, treatment variable, and phonology
-    treatment <- enquo(treatment)
-    phonology  <- enquo(phonology)
-
-    if (is_nucleus == TRUE)
-    {
-      ans <- df %>%
-        group_by(speaker, !!treatment, !!phonology) %>%
-        summarise(
-          l_t = round(mean(l_t), 2),
-          h_t = round(mean(h_t), 2),
-          lh_dur = round(mean(lh_dur), 2),
-          l_f0 = round(mean(l_f0), 2),
-          l_f0_z = round(mean(l_f0_z), 3),
-          h_f0 = round(mean(h_f0), 2),
-          h_f0_z = round(mean(h_f0_z), 3),
-          e_f0 = round(mean(e_f0, 2)),
-          e_f0_z = round(mean(e_f0_z, 3)),
-          e_f0_exc_z = round(mean(e_f0_exc_z, 3)),
-          e_t = round(mean(e_t, 2)),
-          he_dur = round(mean(he_dur, 2)),
-          f0_exc = round(mean(f0_exc), 2),
-          f0_exc_z = round(mean(f0_exc_z), 3),
-          lh_slope = round(mean(lh_slope), 2),
-          .groups = "keep"
-        )
-    } else {
-      ans <- df %>%
-        group_by(speaker, !!treatment, !!phonology) %>%
-        summarise(
-          s_t = round(mean(s_t, 2)),
-          s_f0_z = round(mean(s_f0_z, 3)),
-          l_t = round(mean(l_t), 2),
-          h_t = round(mean(h_t), 2),
-          lh_dur = round(mean(lh_dur), 2),
-          l_f0 = round(mean(l_f0), 2),
-          l_f0_z = round(mean(l_f0_z), 3),
-          h_f0 = round(mean(h_f0), 2),
-          h_f0_z = round(mean(h_f0_z), 3),
-          f0_exc = round(mean(f0_exc), 2),
-          f0_exc_z = round(mean(f0_exc_z), 3),
-          lh_slope = round(mean(lh_slope), 2),
-          .groups = "keep"
-        )
-    }
-
-    return(ans)
-
-  }
-
-
-###  Get Parameter Means  ######################################################
-param_means <-
-  function(df,
-           phonet_param,
-           hor_param,
-           vert_param,
-           rounding = 2)
-  {
-    # Return a horizontal x vertical tibble summarising mean parameter phonetic.
-
-    phonet_param <- enquo(phonet_param)
-    hor_param  <- enquo(hor_param)
-    vert_param  <- enquo(vert_param)
-
-    return(
-      df %>%
-        group_by(!!hor_param, !!vert_param) %>%
-        summarise(new_means = round(mean(!!phonet_param), rounding),
-                  .groups = "keep") %>%
-        pivot_wider(names_from = !!hor_param, values_from = new_means)
-    )
   }
 
 
@@ -538,12 +401,6 @@ getModelFormula <-function(my_model) {
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
   return(my_formula)
 }
-
-###  Get Data object name as String from LME/GLM model #########################
-getModelDataName <-function(my_model) {
-  return(my_model@call[["data"]])
-}
-
 ###  Summarise LME  ############################################################
 summariseLME <-
   function(my_model,
@@ -560,14 +417,31 @@ summariseLME <-
     require("stringr")
     require("broomExtra")
 
+    # inner function
+    drawResiduals <- function(myModel)
+    {
+      myResiduals <- residuals(myModel)
+      par(mfrow = c(1, 3))
+      hist(myResiduals,
+           xlab = "Residuals",
+           main = "(a) Histogram of residuals")
+      qqnorm(myResiduals,
+             main = "(b) Q-Q Plot of residuals")
+      qqline(myResiduals,
+             xlab = "Fitted values",
+             ylab = "Residuals")
+      plot(fitted(myModel),
+           myResiduals,
+           main = "(c) Residual plot")
+    }
+
     post_hoc_method <- paste("p.adj (",
-                             shortPAsjMeth(post_hoc_method),
+                             shortPAdjMeth(post_hoc_method),
                              ")",
                              sep="")
     post_hoc_method <- enquo(post_hoc_method)
 
     my_formula <- getModelFormula(my_model)
-    my_data_name <- getModelDataName(my_model)
     # output results
     drawResiduals(my_model)
     cat(c("Formula: ", my_formula, "\n\n"))
@@ -728,10 +602,6 @@ analyseModel <-
     if (!is.null(write)) {
       do.call(rbind, r2(my_model))[, 1] %>%
         write.csv(paste(write, "_r2.csv", sep = ""))
-
-      ## This doesn't work correctly with interactions
-      # tidyPrediction(my_model) %>%
-      #    write.csv(paste(write, "_pred.csv", sep = ""))
     }
 
     if (is_GLM)
@@ -860,7 +730,7 @@ getModelFixedFX <- function(model,
   }
 
   my_stat = enquo(my_stat)
-  post_hoc_method <- paste0("p.adj (", shortPAsjMeth(post_hoc_method),  ")")
+  post_hoc_method <- paste0("p.adj (", shortPAdjMeth(post_hoc_method),  ")")
   post_hoc_method <- enquo(post_hoc_method)
   my_headers = enquos(my_headers)
 
@@ -993,8 +863,13 @@ getModelFixedFX <- function(model,
   # Get intercepts and pairwise comparisons tables
   all_models_tidy <- all_models_tidy %>% relocate(pairwise)
 
-  my_intercepts <- tidyIntercepts(all_models_tidy)
-  my_pairwise <- tidyPairwise(all_models_tidy, is_GLM = is_GLM)
+  my_intercepts <- filter(all_models_tidy, pairwise == "intercept") %>%
+    select(-pairwise) %>%
+    rename(intercept = term)
+
+  my_pairwise <-
+    filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
+    rename(intercept = pairwise, slope = term)
 
   if (is_GLM) {
     two_level_factor_slopes <- tidy(model,
@@ -1131,65 +1006,6 @@ getModelFixedFX <- function(model,
 }
 
 
-###  Tidy Intercepts of multiple analyses  #####################################
-tidyIntercepts <- function(all_models_tidy)
-  {
-  return(
-      filter(all_models_tidy, pairwise == "intercept") %>%
-      select(-pairwise) %>%
-      rename(intercept = term)
-      )
-}
-
-
-###  Tidy Pairwise Tables of multiple analyses  ################################
-tidyPairwise <- function(all_models_tidy, is_GLM = FALSE)
-{
-
-  my_stat <- ifelse(is_GLM, "z.value", "t.value")
-  my_headers <- c(
-    "pairwise",
-    "term",
-    "estimate",
-    "conf.low",
-    "conf.high",
-    "std.error",
-    eval(my_stat),
-    "df",
-    "p.value"
-  )
-
-  if (is_GLM){my_headers <- my_headers [my_headers != "df"]}
-  my_headers = enquos(my_headers)
-    return(
-    filter(all_models_tidy, pairwise %notin% c("intercept", "N/A")) %>%
-      select(!!!my_headers) %>%
-      rename(intercept = pairwise, slope = term)
-    )
-}
-
-
-###  Kable Chi Squared  ########################################################
-kable_chi_sq <- function(chi_sq_test, caption = "Pearson's Chi-squared test")
-  {
-    # returns a kable() object of the chi_sq_test input.
-    require("knitr", "janitor")
-print(chi_sq_test)
-    x2d <- round(chi_sq_test$statistic[1],10)
-    names(x2d) <- NULL
-
-    df <- chi_sq_test$parameter[1]
-    names(df) <- NULL
-
-    p <-chi_sq_test$p.value[1]
-
-    df <- data.frame(term=c("Chi-squared", "df", "p.value"),
-                    value=c(x2d, df, p))
-
-    names(df) <- NULL
-    return(kable(df, caption=caption))
-}
-
 
 ###  Bulk Adjust p Value   ####################################################
 adjustP_posthoc <-
@@ -1216,7 +1032,7 @@ adjustP_posthoc <-
     require("tidyverse")
 
     # Abbreviate method where necessary.
-    my_meth <- shortPAsjMeth(method)
+    my_meth <- shortPAdjMeth(method)
 
 
     # Enquote variables which whose values will be evaluated as variables.
@@ -1337,174 +1153,61 @@ adjustP_posthoc <-
   }
 ###  Tidy Predictions ####################################################
 tidyPrintPredictions <-
-  function(model, caption_suffix, factor_matrix = F, is_LME=F) {
+  function(model, caption_suffix, factor_matrix = F) {
     require("ggeffects")
     require("tidyverse")
     require("knitr")
     require("kableExtra")
 
 
-    if (is_LME) {
-      tidyLMEPredictions(model, caption_suffix, factor_matrix)
-    }
-    else{
-      tidyGLMPredictions(model, caption_suffix, factor_matrix)
-    }
+      pred_list <- ggpredict(model)
+      obj_names <- names(pred_list)
+      obj_i = 0
+      if (factor_matrix) {
+        ggpredict(model, terms = obj_names) %>%
+          as_tibble() %>%
+          relocate(std.error, .after = conf.high) %>%
+          relocate(group , .before = x) %>%
+          tidyNumbers() %>%
+          rename(estimate = x) %>%
+          arrange(group) %>%
+          mutate(across(c(group, estimate),
+                        ~ str_replace_all(.,
+                                          "(\\_|\\[|\\]|\\$|\\^|\\>)",
+                                          "\\\\\\1"))) %>%
+          knitr::kable(caption = paste("predicted probability of",
+                                       response_labels(model))) %>%
+          kable_styling(full_width = FALSE, position = "left") %>%
+          print()
+      }
+      else
+      {
+        for (cur_obj in pred_list)
+        {
+          obj_i = obj_i + 1
+          cur_obj_name <- obj_names[obj_i]
+          cur_obj_name = enquo(cur_obj_name)
+          cur_caption <- cur_obj %>% get_title
+
+          as_tibble(cur_obj) %>%
+            select(-group) %>%
+            relocate(std.error, .after = conf.high) %>%
+            mutate(
+              x = str_replace_all(x,
+                                  "(\\_|\\[|\\]|\\$|\\^|\\>)",
+                                  "\\\\\\1")
+            ) %>%
+            tidyNumbers() %>%
+            rename(!!cur_obj_name := x) %>%
+            knitr::kable(caption = cur_caption) %>%
+            kable_styling(full_width = FALSE, position = "left") %>%
+            print()
+
+        }
+      }
   }
-
-
-tidyGLMPredictions <- function(model, caption_suffix, factor_matrix = F) {
-  pred_list <- ggpredict(model)
-  obj_names <- names(pred_list)
-  obj_i = 0
-  if (factor_matrix) {
-    ggpredict(model, terms = obj_names) %>%
-      as_tibble() %>%
-      relocate(std.error, .after = conf.high) %>%
-      relocate(group , .before = x) %>%
-      tidyNumbers() %>%
-      rename(estimate = x) %>%
-      arrange(group) %>%
-      mutate(across(c(group, estimate),
-                    ~ str_replace_all(.,
-                                      "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                                      "\\\\\\1"))) %>%
-      knitr::kable(caption = paste("predicted probability of",
-                                   response_labels(model))) %>%
-      kable_styling(full_width = FALSE, position = "left") %>%
-      print()
-  }
-
-  else
-  {
-    for (cur_obj in pred_list)
-    {
-      obj_i = obj_i + 1
-      cur_obj_name <- obj_names[obj_i]
-      cur_obj_name = enquo(cur_obj_name)
-      cur_caption <- cur_obj %>% get_title
-
-      as_tibble(cur_obj) %>%
-        select(-group) %>%
-        relocate(std.error, .after = conf.high) %>%
-        mutate(
-          x = str_replace_all(x,
-                              "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                              "\\\\\\1")
-        ) %>%
-        tidyNumbers() %>%
-        rename(!!cur_obj_name := x) %>%
-        knitr::kable(caption = cur_caption) %>%
-        kable_styling(full_width = FALSE, position = "left") %>%
-        print()
-
-    }
-  }
-
-}
-
-tidyLMEPredictions <- function(model, caption_suffix, factor_matrix = F) {
-  pred_list <- ggpredict(model)
-  obj_names <- names(pred_list)
-  obj_i = 0
-  if (factor_matrix) {
-    ggpredict(model, terms = obj_names, ci.lvl=0.95) %>%
-      as_tibble() %>%
-      relocate(std.error, .after = conf.high) %>%
-      relocate(group , .before = x) %>%
-      tidyNumbers() %>%
-      rename(estimate = x) %>%
-      arrange(group) %>%
-      mutate(across(c(group, estimate),
-                    ~ str_replace_all(.,
-                                      "(\\%\\*|\\$|\\^|\\>)",
-                                      "\\\\\\1"))) %>%
-      knitr::kable(caption = paste("predicted probability of",
-                                   response_labels(model))) %>%
-      kable_styling(full_width = FALSE, position = "left") %>%
-      print()
-  }
-
-  else
-  {
-    for (cur_obj in pred_list)
-    {
-      obj_i = obj_i + 1
-      cur_obj_name <- obj_names[obj_i]
-      cur_obj_name = enquo(cur_obj_name)
-      cur_caption <- cur_obj %>% get_title
-
-      as_tibble(cur_obj) %>%
-        select(-group) %>%
-        relocate(std.error, .after = conf.high) %>%
-        mutate(
-          x = str_replace_all(x,
-                              "(\\%\\*|\\$|\\^|\\>)",
-                              "\\\\\\1")) %>%
-        tidyNumbers() %>%
-        rename(!!cur_obj_name := x) %>%
-        knitr::kable(caption = cur_caption) %>%
-        kable_styling(full_width = FALSE, position = "left") %>%
-        print()
-
-    }
-  }
-}
-
-tidyPrediction <- function(model, write = NULL) {
-  require("knitr")
-  require("kableExtra")
-  require("ggeffects")
-
-  pred_list <- ggpredict(model)
-  obj_names <- names(pred_list)
-  obj_i = 0
-
-  for (cur_obj in pred_list)
-  {
-    obj_i = obj_i + 1
-    cur_obj_name <- obj_names[obj_i]
-    cur_caption <- paste(cur_obj %>% get_title, "re", cur_obj_name)
-    save_address <- paste(write, "_", cur_obj_name, ".csv", sep = "")
-    cur_obj_name = enquo(cur_obj_name)
-    cur_table <- as_tibble(cur_obj) %>%
-      select(-group) %>%
-      relocate(std.error, .after = conf.high) %>%
-      mutate(
-        x = str_replace_all(x,
-                            "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                            "\\\\\\1"),
-        across(
-          2:last_col(),
-          ~ as.numeric(.)
-        ),
-        across(
-          2:last_col(),
-          ~ if_else(
-            abs(.) < 0.001,
-            as.character(formatC(
-              ., format = "e", digits = 1
-            )),
-            as.character(round(., 2))
-          )
-        )
-      ) %>%
-      rename(!!cur_obj_name := x)
-
-      cur_table %>%
-      knitr::kable(caption = cur_caption) %>%
-      kable_styling(full_width = FALSE, position = "left") %>%
-      print(cur_table)
-
-      if(!is.null(write)){write_csv(cur_table, save_address)}
-
-
-  }
-}
-
-
 ###  Shorten P Adjustment method name #########################################
-shortPAsjMeth <- function(method){
+shortPAdjMeth <- function(method){
   require("mefa4")
   if(method %in% c("hochberg", "hommel", "bonferroni")) {
     short_meth <- switch(method,
@@ -1514,8 +1217,6 @@ shortPAsjMeth <- function(method){
   }
   else{short_meth <- method}
   return(short_meth)}
-
-
 outputChiSqResults <- function(anova,
                                model,
                                extra_text = "",
@@ -1527,7 +1228,7 @@ outputChiSqResults <- function(anova,
   my_formula <- getModelFormula(model)
 
   post_hoc_method <- paste("p.adj (",
-                           shortPAsjMeth(post_hoc_method),
+                           shortPAdjMeth(post_hoc_method),
                            ")",
                            sep = "")
   post_hoc_method <- enquo(post_hoc_method)
@@ -1561,7 +1262,6 @@ outputChiSqResults <- function(anova,
 
 
 ###  Tidy numbers in table #####################################################
-
 tidyNumbers <- function(data,
                         p.value = "p.value",
                         p.decimals = 3,

@@ -198,7 +198,6 @@ plot_model(
 ```
 
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_l_t_mdl.trimmed, write = "predictions/pn_l_t_mdl")
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="pn_phonetic_models/pn_l_t",
@@ -300,7 +299,6 @@ plot_model(
 
 
 ```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_l_f0_mdl.trimmed, write = "predictions/pn_l_f0_mdl")
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl.trimmed
   , write="pn_phonetic_models/pn_l_f0"
@@ -398,7 +396,6 @@ plot_model(
 ```
 
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_h_t_mdl.trimmed, write = "predictions/pn_h_t_mdl")
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed
   , write="pn_phonetic_models/pn_h_t"
@@ -498,7 +495,6 @@ plot_model(
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
-# tidyPrediction(pn_h_f0_mdl, write = "predictions/pn_h_f0_mdl")
 pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl.trimmed,
                                 write="pn_phonetic_models/pn_h_f0",
                                 type = "pred"
@@ -687,8 +683,6 @@ summariseLME(pn_lh_slope_mdl.trimmed,
 ```
 
 ```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
-##tidyPrediction(pn_lh_slope_mdl, write = "predictions/pn_lh_slope_mdl")
-
 pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
                                 write="pn_phonetic_models/pn_lh_slope",
                                 type = "pred"
