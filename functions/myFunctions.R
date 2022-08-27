@@ -561,7 +561,7 @@ summariseLME <-
     require("broomExtra")
 
     post_hoc_method <- paste("p.adj (",
-                             shortenPAdjMethod(post_hoc_method),
+                             shortPAsjMeth(post_hoc_method),
                              ")",
                              sep="")
     post_hoc_method <- enquo(post_hoc_method)
@@ -812,17 +812,12 @@ analyseModel <-
 
 
 ###  Get Fixed Effects of LME/GLMM Model #######################################
-getModelFixedFX <- function(my_equation,
-                            my_data,
-                            is_separation = FALSE,
+###  Get Fixed Effects of LME/GLMM Model #######################################
+getModelFixedFX <- function(model,
                             write = NULL,
-                            is_GLM = FALSE,
-                            is_Bayesian = T,
                             exponentiate = TRUE,
-                            optimizer = "optimx",
                             extra_text = "",
                             report = c("slopes", "intercepts"),
-                            b1_only = NULL,
                             ignore_list = "",
                             post_hoc_method = "BH")
 {
@@ -832,8 +827,24 @@ getModelFixedFX <- function(my_equation,
   require("lme4")
   require("blme")
 
-    my_stat <- ifelse(is_GLM, "z.value", "t.value")
+  # Get information from model
+  model_elements <- getModelElements(model)
+  formula <- model_elements$formula
+  data = model_elements$frame
+  factor_info <- tibble(factors = colnames(frame),
+                        categorical = sapply(frame, is.factor)
+  )
 
+  fixed_factors <-
+    (str_replace_all(deparse(formula(model, fixed.only = TRUE)[3]),
+                     "[\\(|\\)|+ ]",
+                     " ") %>%
+       str_squish() %>%
+       str_split(" ")) %>%
+    unlist ()
+
+  is_GLM <- isGLMM(model)
+  my_stat <- ifelse(is_GLM, "z.value", "t.value")
   my_headers <- c(
     "term",
     "estimate",
@@ -845,290 +856,103 @@ getModelFixedFX <- function(my_equation,
     "p.value"
   )
 
-  my_stat = enquo(my_stat)
-
-  post_hoc_method <- paste("p.adj (",
-                           shortenPAdjMethod(post_hoc_method),
-                           ")",
-                           sep="")
-  post_hoc_method <- enquo(post_hoc_method)
-
   if (is_GLM) {
     my_headers <- my_headers[my_headers != "df"]
   }
+
+  my_stat = enquo(my_stat)
+  post_hoc_method <- paste0("p.adj (", shortPAsjMeth(post_hoc_method),  ")")
+  post_hoc_method <- enquo(post_hoc_method)
   my_headers = enquos(my_headers)
 
 
-  # run base model.
-  if (is_GLM) {
-
-    # RUN BLGMER
-    if (!is_separation & is_Bayesian) {
-      # don't use prior
-      base_model <- bglmer(
-        my_equation,
-        data = my_data,
-        family = binomial(link = "logit"),
-        # Change optimizer to avoid convergence errors/
-        control = glmerControl(
-          optimizer = optimizer,
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
-      )
-    }
-    else if (is_separation & is_Bayesian)
-    {
-      # Use prior
-      base_model <- bglmer(
-        my_equation,
-        data = my_data,
-        family = binomial(link = "logit"),
-        fixef.prior = normal(),
-        # Change optimizer to avoid convergence errors/
-        control = glmerControl(
-          optimizer = optimizer,
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
-      )
-    }
-    # USE GLMER (not bayesian)
-    else  {
-      base_model <- glmer(
-        my_equation,
-        data = my_data,
-        family = binomial(link = "logit"),
-        # Change optimizer to avoid convergence errors/
-        control = glmerControl(
-          optimizer = optimizer,
-          calc.derivs = FALSE,
-          optCtrl = list(
-            method = "nlminb",
-            starttests = FALSE,
-            kkt = FALSE
-          )
-        )
-      )
-    }
-  }
-  # RUN LMER
-  else {
-    base_model <- lmer(
-      my_equation,
-      data = my_data,
-      control = lmerControl(
-        optimizer = optimizer,
-        calc.derivs = FALSE,
-        optCtrl = list(
-          method = "nlminb",
-          starttests = FALSE,
-          kkt = FALSE
-        )
-      )
-    )
-  }
+  # include continuous fixed factors as two_level_factors.
+  cont_fixed_factors <-
+    fixed_factors[fixed_factors %in% (factor_info %>%
+                                        filter(!categorical))$factors]
+  two_level_factors <- cont_fixed_factors
+  two_level_terms <- cont_fixed_factors
 
 
-  # create empty tidy model output
-  all_models_tidy = tibble()
-  # create list of fixed factors
-  all_fixed_factors <-
-    (str_replace_all(deparse(formula(
-      base_model, fixed.only = TRUE
-    )[3]),
-    "[\\(|\\)|+ ]",
-    " ") %>%
-      str_squish() %>%
-      str_split(" "))
-  fixed_factors <- NULL
-  for (cur_list in all_fixed_factors)
-  {fixed_factors <- c(fixed_factors, cur_list)}
 
-  if (!is.null(b1_only))
-  {
-    fixed_factors <- fixed_factors[fixed_factors %notin% b1_only]
-    two_level_factors <- b1_only
-    two_level_terms <- b1_only
-    # two_level_terms is the name of the factor, e.g., "gender"
-    # two_level_factors is the factor + the non-intercept level, e.g, "genderM",
-    # or the factor if it is continuous.
-  }
-  else
-  {
-    two_level_factors <- character()
-    two_level_terms <- character()
-  }
-  # Get list of non-interaction factors
+  # Get list of multi-level factors and exclude continuous factors.
   multilevel_factors <-
-    fixed_factors[fixed_factors %in% colnames(my_data)]
+    fixed_factors[fixed_factors %in% (factor_info %>%
+                                        filter(categorical))$factors]
+  # Exclude factors on ignore list.
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% ignore_list]
-  # Get list of 2-level fixed factors.
 
-
-
+  # Add two-level fixed factors to two_level_factors & two_level_terms.
   for (cur_factor in multilevel_factors) {
-    if (levels(my_data[[cur_factor]]) %>% length() == 2) {
+
+    if (levels(data[[cur_factor]]) %>% length() == 2) {
       two_level_factors <- c(two_level_factors, cur_factor)
       two_level_terms <- c(two_level_terms,
-                           paste(cur_factor,
-                                 levels(my_data[[cur_factor]])[2],
-                                 sep = ""))
+                           paste0(cur_factor,
+                                  levels(data[[cur_factor]])[2]))
     }
   }
+
   # remove 2-level factors from list of multilevel_factors
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% two_level_factors]
 
+  # set first keep_terms list to include 2-level terms and continuous factors.
+  initial_keep_terms <- c(two_level_terms)
+  all_models_tidy <- NULL
   # loop through each multilevel fixed factor of interest (multilevel_factors)
   for (cur_factor in multilevel_factors)
   {
     # Get levels for current factor
-    cur_levels = levels(my_data[[cur_factor]])
+    cur_levels = levels(data[[cur_factor]])
     num_levels = length(cur_levels)
+
+    keep_terms = NULL
     # Make list of terms to keep
-    keep_terms = character()
     for (level_name in cur_levels) {
       keep_terms = c(keep_terms, paste(cur_factor, level_name, sep = ""))
     }
+    keep_terms <- c(keep_terms, initial_keep_terms)
     # loop through dataframe, reordering levels of current factor each time.
-    for (cur_level in 1:(num_levels))
-    {
-      # Run current model.
+    for (cur_level in 1:(num_levels)) {
+
+      model <- update(model, data = data)
+
+      # Get tidy model.
       if (is_GLM) {
-        if (!is_separation & is_Bayesian)
-          # RUN BGLMER W/O SEPARATION ISSUE
-        {
-          # don't use prior
-          cur_model <- bglmer(
-            my_equation,
-            data = my_data,
-            family = binomial(link = "logit"),
-            # Change optimizer to avoid convergence errors/
-            control = glmerControl(
-              optimizer = optimizer,
-              calc.derivs = FALSE,
-              optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-              )
-            )
-          )
-        }
-        else if (is_separation & is_Bayesian)
-          # RUN BGLMER WITH SEPARATION ISSUE
-        {
-          # Use prior
-          cur_model <- bglmer(
-            my_equation,
-            data = my_data,
-            family = binomial(link = "logit"),
-            fixef.prior = normal(),
-            # Change optimizer to avoid convergence errors/
-            control = glmerControl(
-              optimizer = optimizer,
-              calc.derivs = FALSE,
-              optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-              )
-            )
-          )
-        }
-        else
-          # RUN GLMER (NON-BAYESIAN)
-        {
-          cur_model <- glmer(
-            my_equation,
-            data = my_data,
-            family = binomial(link = "logit"),
-            # Change optimizer to avoid convergence errors/
-            control = glmerControl(
-              optimizer = optimizer,
-              calc.derivs = FALSE,
-              optCtrl = list(
-                method = "nlminb",
-                starttests = FALSE,
-                kkt = FALSE
-              )
-            )
-          )
-        }
+        model_tidy <- tidy(model,
+                           exponentiate = exponentiate,
+                           conf.int = T)
       }
-      # RUN LME
       else {
-        cur_model <- lmer(
-          my_equation,
-          data = my_data,
-          control = lmerControl(
-            optimizer = optimizer,
-            calc.derivs = FALSE,
-            optCtrl = list(
-              method = "nlminb",
-              starttests = FALSE,
-              kkt = FALSE
-            )
-          )
-        )
+        model_tidy <- tidy(model, conf.int = T)
       }
 
-      # Tidy the model.
-      # Decide whether or not to exponentiate GLM data
-      if (is_GLM) {
-        cur_model_tidy <-
-          tidy(cur_model,
-               exponentiate = exponentiate,
-               conf.int = T)
-      }
-      else{
-        cur_model_tidy <- tidy(cur_model, conf.int = T)
-      }
-
-      cur_model_tidy <- cur_model_tidy %>%
+      model_tidy <- model_tidy %>%
         # Retain fixed factors only
         filter(effect == "fixed") %>%
         # remove unnecessary columns
         select(-c(effect, group)) %>%
         # Tidy up numbers.
-        mutate(
-          estimate = round(estimate, 3),
-          std.error = round(std.error, 3),
-          statistic = round(statistic, 3)
-        ) %>%
+        mutate(across(
+          any_of(c("df", "estimate", "std.error", "statistic")),
+          ~ round(., 2))) %>%
         rename(!!my_stat := statistic)
 
-
-
-      if (!is_GLM) {
-        cur_model_tidy <- cur_model_tidy %>%
-          mutate(df = round(df, 2))
-      }
-      cur_model_tidy <- cur_model_tidy %>%
+      model_tidy <- model_tidy %>%
         # re-order columns
         select(!!!my_headers) %>%
-        filter((term %in% c(keep_terms, b1_only, "(Intercept)"))) %>%
+        filter((term %in% c(keep_terms, "(Intercept)"))) %>%
         # Prepare current model for pasting to all models output.
         # Make 'pairwise' column = intercept.
         mutate(
           pairwise =
-            if_else(
-              term == "(Intercept)",
-              "intercept",
-              if_else(term %notin% c(keep_terms, b1_only),
-                      "N/A",
-                      keep_terms[cur_level])
-            ),
+            if_else(term == "(Intercept)",
+                    "intercept",
+                    if_else(term %notin% c(keep_terms),
+                            "N/A",
+                            keep_terms[cur_level])),
           # change 'term' so "intercept" states the target condition name.
           term =
             if_else(term == "(Intercept)",
@@ -1136,7 +960,7 @@ getModelFixedFX <- function(my_equation,
                     term)
         )
 
-      keep_comparisons = b1_only
+      keep_comparisons = NULL
       # make list of pairwise comparisons to keeps
       for (j in cur_level:(num_levels))
       {
@@ -1144,35 +968,37 @@ getModelFixedFX <- function(my_equation,
       }
 
       # remove pairwise comparisons which have already been done
-      cur_model_tidy <-
-        filter(cur_model_tidy, term %in% keep_comparisons)
+      model_tidy <-
+        filter(model_tidy, term %in% keep_comparisons)
 
       # add remaining pairwise comparisons to main tibble.
-      all_models_tidy <- bind_rows(all_models_tidy, cur_model_tidy)
+      all_models_tidy <- bind_rows(all_models_tidy, model_tidy)
 
-      # restructure the order of levels for next LME cur_model.
+      # restructure the order of levels for next LME model.
       cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
 
       factor_var <- sym(cur_factor)
       factor_var_name <- quo_name(cur_factor)
 
-      my_data <- my_data %>%
+
+      data <- data %>%
         mutate(!!factor_var := factor(!!factor_var,
                                       levels = cur_levels))
+
     }
+
+    # Reset initial_keep_terms to it doesn't contain 2-level or continuous factors.
+    initial_keep_terms <- NULL
   }
 
   # Get intercepts and pairwise comparisons tables
-  all_models_tidy <- all_models_tidy %>%
-    relocate(pairwise) %>%
-    # remove continous variables which have crept into the model output.
-    filter(term %notin% b1_only)
+  all_models_tidy <- all_models_tidy %>% relocate(pairwise)
 
   my_intercepts <- tidyIntercepts(all_models_tidy)
   my_pairwise <- tidyPairwise(all_models_tidy, is_GLM = is_GLM)
 
   if (is_GLM) {
-    two_level_factor_slopes <- tidy(base_model,
+    two_level_factor_slopes <- tidy(model,
                                     conf.int = T,
                                     exponentiate = exponentiate) %>%
       filter(effect %notin% "ran_pars") %>%
@@ -1184,7 +1010,7 @@ getModelFixedFX <- function(my_equation,
   }
   else
   {
-    two_level_factor_slopes <- tidy(base_model, conf.int = T) %>%
+    two_level_factor_slopes <- tidy(model, conf.int = T) %>%
       filter(effect %notin% "ran_pars") %>%
       mutate(
         estimate = round(estimate, 3),
@@ -1213,10 +1039,10 @@ getModelFixedFX <- function(my_equation,
            slope = term)
   # put B1 only parameters at bottom of tibble
   my_pairwise.temp <- my_pairwise %>%
-    filter(slope %in% (b1_only)) %>%
+    filter(slope %in% c(two_level_terms, cont_fixed_factors)) %>%
     arrange(slope)
   my_pairwise <- my_pairwise %>%
-    filter(slope %notin% (b1_only)) %>%
+    filter(slope %notin% c(two_level_terms, cont_fixed_factors)) %>%
     rbind(my_pairwise.temp)
 
 
@@ -1224,7 +1050,7 @@ getModelFixedFX <- function(my_equation,
   my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
 
   # Write tables to file
-  my_formula <- getModelFormula(base_model)
+  my_formula <- getModelFormula(model)
   if (!is.null(write))
   {
     write(
@@ -1301,11 +1127,23 @@ getModelFixedFX <- function(my_equation,
   return(list(
     "intercepts" = my_intercepts,
     "slopes" = my_pairwise,
-    "model" = base_model
+    "model" = model
   ))
 }
 
 
+
+
+### Get Model Elements #########################################################
+getModelElements <- function(model) {
+  # Get elements of a model used for functions associated with optLme4Mdl
+  ans <- list("formula" =  formula <- formula(model),
+              "optimizer" =  model@optinfo$optimizer,
+              "frame" =  model@frame,
+              "maxfun" = model@optinfo$control$maxfun,
+              "package" = model@resp$.objectPackage)
+  return(ans)
+}
 ###  Tidy Intercepts of multiple analyses  #####################################
 tidyIntercepts <- function(all_models_tidy)
   {
@@ -1391,7 +1229,7 @@ adjustP_posthoc <-
     require("tidyverse")
 
     # Abbreviate method where necessary.
-    my_meth <- shortenPAdjMethod(method)
+    my_meth <- shortPAsjMeth(method)
 
 
     # Enquote variables which whose values will be evaluated as variables.
@@ -1679,7 +1517,7 @@ tidyPrediction <- function(model, write = NULL) {
 
 
 ###  Shorten P Adjustment method name #########################################
-shortenPAdjMethod <- function(method){
+shortPAsjMeth <- function(method){
   require("mefa4")
   if(method %in% c("hochberg", "hommel", "bonferroni")) {
     short_meth <- switch(method,
@@ -1702,7 +1540,7 @@ outputChiSqResults <- function(anova,
   my_formula <- getModelFormula(model)
 
   post_hoc_method <- paste("p.adj (",
-                           shortenPAdjMethod(post_hoc_method),
+                           shortPAsjMeth(post_hoc_method),
                            ")",
                            sep = "")
   post_hoc_method <- enquo(post_hoc_method)
