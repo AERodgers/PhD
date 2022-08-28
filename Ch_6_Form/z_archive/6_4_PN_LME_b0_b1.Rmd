@@ -181,25 +181,13 @@ pn_l_t_mdl.trimmed = lmer(
   )
 )
 
-x <- summariseLME(pn_l_t_mdl.trimmed
+summariseLME(pn_l_t_mdl.trimmed
              ,run_step = TRUE
              ,write = "pn_anovas/pn_l_t_anova.csv"
              )
-
-
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_l_t_anova.csv") %>%
-  tidyStatNumbers() %>%
-formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_l_t_mdl.trimmed)))
-
 ```
 
-```{r plot l_t estimated effects, fig.height=3.5, fig.width=4}
+```{r plot l_t estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
   pn_l_t_mdl,
   type = "est",
@@ -209,7 +197,7 @@ plot_model(
  )
 ```
 
-```{r l_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="pn_phonetic_models/pn_l_t",
@@ -220,7 +208,7 @@ pn_l_t_mdl.tidy$table
 
 ```
 
-```{r do l_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
   pn_l_t_mdl.trimmed,
@@ -292,24 +280,14 @@ pn_l_f0_mdl.trimmed = lmer(
 )
 
 
-x <- summariseLME(pn_l_f0_mdl.trimmed
+summariseLME(pn_l_f0_mdl.trimmed
              , run_step = TRUE
              , write = "pn_anovas/pn_l_f0_anova.csv"
              )
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_l_f0_anova.csv") %>%
-  tidyStatNumbers() %>%
-formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_l_f0_mdl.trimmed)))
-
 ```
 
 
-```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=4}
+```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
   pn_l_f0_mdl.trimmed
   , type = "est"
@@ -320,7 +298,7 @@ plot_model(
 ```
 
 
-```{r l_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl.trimmed
   , write="pn_phonetic_models/pn_l_f0"
@@ -330,7 +308,7 @@ pn_l_f0_mdl.tidy$table
 
 ```
 
-```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
   pn_l_f0_mdl.trimmed,
@@ -400,23 +378,14 @@ pn_h_t_mdl.trimmed = lmer(
     )
   )
 )
-x <- summariseLME(
+summariseLME(
   pn_h_t_mdl.trimmed
   , run_step = TRUE
   , write = "pn_anovas/pn_h_t_anova.csv"
   )
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_h_t_anova.csv") %>%
-  tidyStatNumbers() %>%
-formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_h_t_mdl.trimmed)))
 ```
 
-```{r plot h_t estimated effects, fig.height=3.5, fig.width=4}
+```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
   pn_h_t_mdl.trimmed,
   type = "est",
@@ -426,7 +395,7 @@ plot_model(
  )
 ```
 
-```{r h_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed
   , write="pn_phonetic_models/pn_h_t"
@@ -439,7 +408,7 @@ pn_h_t_mdl.tidy$table
 
 ```
 
-```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
 charts <- getModelFixedFX(
   pn_h_t_mdl.trimmed,
   write="pn_phonetic_models/pn_h_t"
@@ -450,9 +419,7 @@ charts$slopes
 
 ```
 
-## H timing original data 
-
-This is to check the extent to which the previous results re ana_syls are an artefact of the larger dataset. This goes for other results too, but as ana_syls has such odd results, it was worth checking.
+#### H_t original data 
 
 ```{r orig model test, fig.height=3, fig.width=9}
 
@@ -466,7 +433,7 @@ h_t_orig_equation = formula(
   + ana_syls
   + wrd_end_syl
   + gender
-  + (1 | speaker)
+  + (1 + ana_syls + wrd_end_syl | speaker)
   )
 
 optimizer = "optimx"
@@ -504,27 +471,17 @@ pn_h_t_orig_mdl.trimmed = lmer(
   )
 )
 
-x <- summariseLME(
+summariseLME(
   pn_h_t_orig_mdl.trimmed
   , run_step = TRUE
-  , write = "pn_anovas/pn_h_t_orig_anova.csv"
-  , extra_text = "[using original model]"
+  ,# write = "pn_anovas/pn_h_t_orig_anova.csv"
   )
 
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_h_t_orig_anova.csv") %>%
-  tidyStatNumbers() %>%
-  formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_h_t_orig_mdl.trimmed)))
-
 ```
-```{r horig model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r horig model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_t_orig_mdl.tidy <- analyseModel(
   pn_h_t_orig_mdl.trimmed
-  , write="pn_phonetic_models/pn_h_t_orig"
+  #, write="pn_phonetic_models/pn_h_t_orig"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -534,8 +491,7 @@ pn_h_t_orig_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_h_t_orig_mdl.trimmed,
-  write="pn_phonetic_models/pn_h_t_orig",
-  extra_text = "[using original model]"
+ # write="pn_phonetic_models/pn_h_t_orig"
 )
 charts$intercepts
 charts$slopes
@@ -602,24 +558,12 @@ pn_h_f0_mdl.trimmed = lmer(
   )
 )
 
-x <- summariseLME(
-  pn_h_f0_mdl.trimmed
-  , run_step = TRUE
-  , write = "pn_anovas/pn_h_f0_anova.csv"
-  )
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_h_f0_anova.csv") %>%
-  tidyStatNumbers() %>%
-formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_h_f0_mdl.trimmed)))
-
+summariseLME(pn_h_f0_mdl.trimmed
+             , run_step = TRUE
+             , write = "pn_anovas/pn_h_f0_anova.csv"
+             )
 ```
-
-```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=4}
+```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
 plot_model(
   pn_h_f0_mdl.trimmed,
   type = "est",
@@ -629,7 +573,7 @@ plot_model(
  )
 ```
 
-```{r h_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl.trimmed,
                                 write="pn_phonetic_models/pn_h_f0",
                                 type = "pred"
@@ -638,7 +582,7 @@ pn_h_f0_mdl.tidy$table
 
 ```
 
-```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
   pn_h_f0_mdl.trimmed, 
@@ -723,32 +667,12 @@ pn_f0_exc_mdl.trimmed = lmer(
     )
   )
 )
-x <- summariseLME(pn_f0_exc_mdl.trimmed,
+summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = TRUE,
              write = "pn_anovas/pn_f0_exc_anova.csv")
-
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_f0_exc_anova.csv") %>%
-  tidyStatNumbers() %>%
-  formattable(caption = paste("ANOVA of model:",
-                              getModelFormula(pn_f0_exc_mdl.trimmed)))
 ```
 
-```{r plot f0 exc estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
-  pn_f0_exc_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
-```
-
-```{r f0_exc model summary, fig.height=2.5, fig.width=3.051181, , results="asis"}
+```{r f0_exc model summary, fig.height=2.5, fig.width=4, results="asis"}
 
 pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
                                 write="pn_phonetic_models/pn_f0_exc",
@@ -759,7 +683,7 @@ pn_f0_exc_mdl.tidy$table
 ```
 
 
-```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
   pn_f0_exc_mdl.trimmed,
@@ -831,32 +755,13 @@ pn_lh_slope_mdl.trimmed = lmer(
     )
   )
 )
-x <- summariseLME(pn_lh_slope_mdl.trimmed,
+summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = TRUE,
              extra_text = "[nuclear contour]",
              write = "pn_anovas/pn_lh_slope_anova.csv")
-
-adjustP_posthoc("pn_anovas/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("pn_anovas/pn_lh_slope_anova.csv") %>%
-  tidyStatNumbers() %>%
-  formattable(caption = paste("ANOVA of model:",
-                              getModelFormula(pn_lh_slope_mdl.trimmed)))
 ```
 
-```{r plot lh slope estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
-  pn_lh_slope_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
-```
-
-```{r lh_slope model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
 pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
                                 write="pn_phonetic_models/pn_lh_slope",
                                 type = "pred"
@@ -865,7 +770,7 @@ pn_lh_slope_mdl.tidy$table
 
 ```
 
-```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
 
 charts <- getModelFixedFX(
   pn_lh_slope_mdl.trimmed,

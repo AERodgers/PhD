@@ -181,27 +181,45 @@ pn <- filter(corpus, cur_foot == 1) %>%
         acc_phon,
         sep = " ",
         remove = FALSE) %>%
-  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur))
-# Get subset of all data for PN analysis
+  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur)) %>%
+  select(speaker,
+         gender,
+         partner_gender,
+         sent,
+         stim,
+         ana_syls,
+         foot_syls,
+         wrd_end_syl,
+         ana_text,
+         pn_str_syl,
+         pn_new_word,
+         nuc_pre_text,
+         acc_phon,
+         speech_rate,
+         ana_end_t,
+         foot_dur,
+         l_t,
+         l_f0,
+         h_t,
+         h_f0,
+         lh_slope,
+         f0_exc,
+         h_grand_mean_t,
+         h_syl,
+         h_syl_ratio)
 
 # Extract PN anacrusis data.
 pn_ana <- pn %>%
-  filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%
-  # Remove columns which are no longer needed for pn_ana analysis.
-  select(-c(cur_foot, wrd_end_syl, foot_syls))
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422"))
+
 
 # Make PN foot-size dataset.
 pn_foot <- pn %>%
-  filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
-  # remove columns no longer needed for pn_foot analysis.
-  select(-c(ana_syls,fin_phon, wrd_end_syl,cur_foot)) %>%
-  mutate(foot_syls = factor(foot_syls, levels = c(1, 2, 3, 4)))
-
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423"))
 
 # Make PN word-boundary dataset.
 pn_lex <- pn %>% filter(stim %in% c(
-  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
-))
+  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"))
 
 # CREATE NUCLEAR PA SUBSETS
 # -------------------------

@@ -453,7 +453,7 @@ summariseLME <-
       formattable(
         caption=paste(
           "Anova of model", my_formula, sep=": ")
-        ) %>%
+      ) %>%
       sigCodesTidy(p.value, FALSE) %>%
       rename(`F value` = statistic)
     if(!is_null(write)){
@@ -465,14 +465,20 @@ summariseLME <-
       write(
         paste(str_replace_all(my_formula, "\\`", ""), extra_text),
         formula_save)
+
     }
+
+
+
 
 
     if (run_step)
     {
+      step_results <- step(my_model)
       cat("\n")
       cat("\nResults of step().\n")
-      step(my_model) %>% print()
+      print(step_results)
+
     }
 
 
@@ -641,7 +647,8 @@ analyseModel <-
             xlab(cur_factor) +
             ylim(0,1) +
             ylab("predicted probability") +
-            labs(title = paste ("predicted probability of",
+            labs(title = "",
+              caption = paste ("Predicted probability of",
                                   dependent_var,
                                   "re",
                                   cur_factor)) +
@@ -651,7 +658,9 @@ analyseModel <-
               position = "dodge"),
               check_overlap = T,
               size=3) +
-            theme(axis.title.x=element_blank())
+            theme(axis.title.x=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot")
 
           my_plot %>% print()
 
@@ -1007,17 +1016,18 @@ getModelFixedFX <- function(model,
 
 
 
-###  Bulk Adjust p Value   ####################################################
+###  Post-hoc bulk adjust p Value   ####################################################
 adjustP_posthoc <-
   function(my_folder,            # source folder with .csv files to be updated.
-           p_column,             # name of p.column
+           p_column = "p.value", # name of p.column
            method = "BH",        # p. adjustment method
-           marginal = TRUE,      # include marginal significance flag.
+           significance = T,     # flag for including significance column,
+           marginal = F,      # include marginal significance flag.
            write = TRUE,         # write results to file flag.
            report = FALSE,       # flag to report total number of tests and
                                  # p.values < 0.05 before and after adjustment.
            print = FALSE,        # Print output or not
-           suffix_id=""          # suffix ID for files for analysis
+           suffix_id=""          # suffix ID for files for analysis,
 
   )
   {
@@ -1038,7 +1048,7 @@ adjustP_posthoc <-
 
     # Enquote variables which whose values will be evaluated as variables.
     p_column = enquo(p_column)
-    new_adj_col = paste("p.adj (", method, ")", sep="")
+    new_adj_col = paste("p.adj (", my_meth, ")", sep="")
     new_adj_col = enquo(new_adj_col)
 
       # Get tibble of files to be adjusted
@@ -1072,23 +1082,38 @@ adjustP_posthoc <-
     sig_p_values_adj  <- file_tibble %>% filter(p.adj < 0.05) %>% nrow()
     p_counts <- tibble(p_values, sig_p_values, sig_p_values_adj)
 
+
+
+    if (significance) {
+      file_tibble <- file_tibble %>%
+        mutate(# Add significance column.
+          signif. = if_else(
+            p.adj < 0.001,
+            "p<.001",
+            if_else(p.adj < 0.01, "p<.01", if_else(
+              p.adj < 0.05,
+              "p<.05",
+              if_else(p.adj < 0.1 & marginal, "(p<.1)", "")
+            ))
+          ))
+    }
+
     file_tibble <- file_tibble %>%
       mutate(
-        # Add significance column.
-        signif. = if_else(
-            p.adj < 0.001, "p<.001", if_else(
-              p.adj < 0.01, "p<.01", if_else(
-                p.adj < 0.05, "p<.05", if_else(
-                  p.adj < 0.1 & marginal, "(p<.1)","")))),
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
-          as.character(formatC(p.adj, format="e", digits = 1)),
-          as.character(round(p.adj, 3), digits = 2)),
+                        as.character(formatC(p.adj, format="e", digits = 1)),
+                        as.character(round(p.adj, 3), digits = 2)),
         !!p_column := if_else(
           !!p_column < 0.001,
           as.character(formatC(!!p_column, format="e", digits = 1)),
           as.character(round(!!p_column, 3), digits = 2))
-        )
+      )
+
+    # remove p,adj from file with "none" method, i.e., no p.adjustment.
+    if (method == "none") {
+      file_tibble <- select(file_tibble,-p.adj)
+    }
 
 
       i = 0
@@ -1098,9 +1123,16 @@ adjustP_posthoc <-
           filter(file_name == cur_file) %>%
           select(-file_name)
 
-        # Re-save updated tables as original file name.
+        # Re-save updated tables as original file name (depending of whether or
+        # not method is "none".
         if (write) {
-          write_csv(cur_set %>% rename(!!new_adj_col := p.adj), cur_file)
+          if (method == "none") {
+            write_csv(cur_set , cur_file)
+          }
+          else{
+            write_csv(cur_set %>% rename(!!new_adj_col := p.adj), cur_file)
+          }
+
         }
 
 
@@ -1118,32 +1150,20 @@ adjustP_posthoc <-
               paste(i, ". ", str_replace(cur_file, ".csv", ""), sep = "")
           }
 
-          cur_set %>%
-            mutate(
-              across(
-              any_of(c("estimate", "conf.low", "conf.high")),
-              ~ if_else(
-                abs(.) < 0.01 | abs(.) > 100000,
-                as.character(formatC(., format = "e", digits = 1)),
-                  as.character(round(., 2), digits = 2)
-                )
-              ),
-            across(
-              everything(),
-              ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
-            ),
-            p.adj = if_else(as.numeric(p.adj) < 0.001,
-                                     "<.001",
-                             rd(as.numeric(p.adj), digits = 3)),
-            !!p_column := if_else(as.numeric(!!p_column) < 0.001,
-                            "<.001",
-                            rd(as.numeric(!!p_column), digits = 3))
-            ) %>%
-            rename(!!new_adj_col := p.adj) %>%
+          print_this <- cur_set %>%
+            tidyStatNumbers() %>%
+            mutate(across(everything(),
+                          ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")))
 
+          if (method != "none"){
+          print_this <- print_this %>% rename(!!new_adj_col := p.adj)
+          }
+
+          print_this <- print_this %>%
             knitr::kable(caption = my_caption) %>%
-            kable_styling(full_width = FALSE, position = "left") %>%
-            print()
+            kable_styling(full_width = FALSE, position = "left")
+
+          print(print_this)
         }
       }
 
@@ -1218,6 +1238,8 @@ shortPAdjMeth <- function(method){
   }
   else{short_meth <- method}
   return(short_meth)}
+
+###  Outpur Chi Squared Results ################################################
 outputChiSqResults <- function(anova,
                                model,
                                extra_text = "",
@@ -1295,3 +1317,31 @@ tidyNumbers <- function(data,
 
 
 
+### Tidy Stat Table Numbers ####################################################
+tidyStatNumbers <- function(stats) {
+  library(tidyverse)
+  library(weights)
+  return(
+    mutate(stats,
+           across(contains("signif."),
+                  ~ if_else(is.na(.), "", as.character(.))),
+           across(where(is_double) & !(contains("p.") | contains("Pr")),
+                  ~ if_else(abs(.) < 0.01 | abs(.) > 100000,
+                            as.character(formatC(., format = "e", digits = 1)),
+                            if_else(
+                              abs(.) > 1000,
+                              as.character(round(., 0)),
+                              as.character(round(., 2), digits = 2)
+                              )
+                            )
+                  ),
+           across(where(is_double) & (contains("p.") | contains("Pr")),
+                  ~ if_else(as.numeric(.) < 0.001,
+                            "<.001",
+                            as.character(rd(as.numeric(.), digits = 3))
+                            )
+                  )
+           )
+    )
+
+}

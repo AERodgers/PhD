@@ -4,7 +4,7 @@ author: "Antoin Eoin Rodgers"
 date: '2022-07-05'
 output:
   html_document: default
-subtitle: 'Appendix: Posthoc p value adjustment'
+subtitle: 'Appendix: Posthoc ANOVA p value adjustment'
 ---
 
 ```{r setup, include=FALSE}
@@ -23,32 +23,35 @@ c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rat
 \newpage
 
 ## 1. Phonology Models
+```{r Phonology models b0, results="asis"}
 
 #### a. $\beta_0$
-
-```{r Phonology models b0, results="asis"}
-adjustP_posthoc("phonology_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b0",)
+# adjustP_posthoc("phonology_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b0",)
 ```
 
-#### b. $\beta_1$
 
 ```{r Phonology models b1, results="asis"}
-adjustP_posthoc("phonology_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b1")
+#### b. $\beta_1$
+# adjustP_posthoc("phonology_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b1")
 ```
 
-### c. ANOVAs
 
 ```{r phonology model ANOVAs, results="asis"}
+### c. ANOVAs
 adjustP_posthoc("phonology_models/",
-                `Pr(>Chisq)`,
+                `Pr(Chi)`,
                 suffix_id = "_anova",
                 print = TRUE)
 ```
@@ -57,29 +60,33 @@ adjustP_posthoc("phonology_models/",
 
 ## 2. PN Phonetic Models
 
-#### a. $\beta_0$
-
 ```{r pn phonetic models b0, results="asis"}
-adjustP_posthoc("pn_phonetic_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b0")
+
+#### a. $\beta_0$
+# adjustP_posthoc("pn_phonetic_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b0")
 ```
 
-#### b. $\beta_1$
 
 ```{r pn phonetics models b1, results="asis"}
-adjustP_posthoc("pn_phonetic_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b1")
+#### b. $\beta_1$
+# adjustP_posthoc("pn_phonetic_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b1")
 ```
 
-### c. ANOVAs
 
 ```{r pn phonetic ANOVAs, results="asis"}
+### c. ANOVAs
 adjustP_posthoc("pn_anovas/",
                 p.value,
                 suffix_id = "_anova",
@@ -90,29 +97,33 @@ adjustP_posthoc("pn_anovas/",
 
 ## 3. NUC Phonetic Models
 
-#### a. $\beta_0$
 
 ```{r nuc phonetic models b0, results="asis"}
-adjustP_posthoc("nuc_phonetic_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b0")
+#### a. $\beta_0$
+# adjustP_posthoc("nuc_phonetic_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b0")
 ```
 
-#### b. $\beta_1$
 
 ```{r nuc phonetics models b1, results="asis"}
-adjustP_posthoc("nuc_phonetic_models/",
-                p.value,
-                print = T,
-                marginal = F,
-                suffix_id = "_b1")
+#### b. $\beta_1$
+# adjustP_posthoc("nuc_phonetic_models/",
+#                 p.value,
+#                 method = "none",
+#                 significance = F,
+#                 print = T,
+#                 marginal = F,
+#                 suffix_id = "_b1")
 ```
 
-### c. ANOVAs
 
 ```{r nuc phonetic ANOVAs, results="asis"}
+### c. ANOVAs
 adjustP_posthoc("nuc_anovas/",
                 p.value,
                 suffix_id = "_anova",

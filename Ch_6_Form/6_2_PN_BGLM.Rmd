@@ -33,6 +33,7 @@ installMissingPackages(
     "formattable",
     "knitr",
     "ggeffects",
+    "weights",
     
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
@@ -71,8 +72,11 @@ pn <- pn %>%
                      levels = c(F, T)),
     foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
-    foot_syls = factor(foot_syls, levels = 1:4)
+    foot_syls = factor(foot_syls, levels = 1:4),
+    foot_dur_n = normalize(foot_dur),
+    speech_rate_n = normalize(speech_rate)
   )
+
 
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
@@ -126,130 +130,47 @@ summary(lh_pn_model)
 
 ```
 
-```{r random effect of prompt, fig.height=3, fig.width=4}
+```{r random effect of prompt, fig.height=3, fig.width=3.051181}
 plot_model(lh_pn_model,
            type="re",
            show.values = T, ci.lvl= 0.95,
-           transform = NULL
            )[2:5]
+
 ```
 
 ```{r, results = "asis"}
 tidyPrintPredictions(lh_pn_model) 
 ```
 
-```{r run null modelsLH anovas}
-isLH_null_eq_1 <- formula(isLH ~
-                         #foot_syls
-                         + wrd_end_syl
-                         + speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-isLH_null_eq_2 <- formula(isLH ~
-                         foot_syls
-                         #+ wrd_end_syl
-                         + speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-  
-isLH_null_eq_3 <- formula(isLH ~
-                         foot_syls
-                         + wrd_end_syl
-                         #+ speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-isLH_null_eq_4 <- formula(isLH ~
-                         foot_syls
-                         + wrd_end_syl
-                         + speech_rate
-                         #+ gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-null_model_1 <- bglmer(
-  isLH_null_eq_1,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_2 <- bglmer(
-  isLH_null_eq_2,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_3 <- bglmer(
-  isLH_null_eq_3,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_4 <- bglmer(
-  isLH_null_eq_4,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-# get, save, and print ANOVA of model
-anova_1 <- anova(lh_pn_model, null_model_1, test="Chisq") %>% 
-  outputChiSqResults(lh_pn_model)
-  
-  
-anova_2 <- anova(lh_pn_model, null_model_2, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
-
-anova_3 <- anova(lh_pn_model,
-           null_model_3, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
-
-anova_4 <- anova(lh_pn_model,
-           null_model_4, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
+```{r run drop1 as per factor assessment of  modelsLH}
 
 
 write <- "phonology_models/lh_model"
+
 model_formula <- getModelFormula(lh_pn_model)
 
-cbind(
-  effect = c("foot_syls", "wrd_end_syl", "speech_rate", "gender"),
-  rbind(anova_1, anova_2, anova_3, anova_4) %>%
-    as_tibble %>% filter(!is.na(Chisq))
-) %>%
-  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
-  write_csv(paste(write, "_anova.csv", sep = "")) %>%
-  select(-c(`p.adj (BH)`, signif.))  %>%
-  formattable(caption = model_formula)
+write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
+      paste(write, "_formula.txt", sep = ""))
 
- write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
-          paste(write, "_formula.txt", sep = ""))
+x <- drop1(lh_pn_model, test = "Chisq")
+
+  tibble(factor = row.names(x))  %>% 
+  cbind(tibble(x)) %>% 
+  filter(!is.na(npar)) %>%
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>% 
+  write_csv(paste(write, "_anova.csv", sep = "")) 
+
+adjustP_posthoc("phonology_models/",
+                `Pr(Chi)`,
+                suffix_id = "_anova")
+
+read_csv(paste(write, "_anova.csv", sep = "")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
+
 ```
 
-```{r model charts and figures, fig.width = 2.95276, fig.height = 2.5, results="asis"}
+```{r model charts and figures, fig.width = 3.051181, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(lh_pn_model, tol=1e-5) -->",
   isSingular(lh_pn_model, tol = 1e-5),
@@ -265,22 +186,17 @@ tidy_summary <- analyseModel(lh_pn_model,
                              ci.lvl=0.95
                              )
 
-ggpredict(lh_pn_model, terms = "speech_rate [all]", ci.lvl = 0.95) %>%
-  plot() +
-  xlim(2.874, 9.284) +
-  xlab("speech rate (syls/sec)") +
-  ylab("L*H") +
-  labs(title = "Predicted probabilities of L*H re speech rate",
-       caption = "Predicted probabilities of L*H re speech rate with 95% CIs") +
-  scale_y_continuous(labels = scales::percent)
-
 plot_model(
   lh_pn_model,
   type = "est",
   transform = NULL,
   show.values = T,
-  vline = "Red"
- )
+  vline = "Red",
+  title = "Estimates of model of L*H probability"
+ ) +              theme(axis.title.x=element_text(size = 9),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.title=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot")
 
 tidy_summary$table
 
@@ -296,8 +212,8 @@ isHStar_equation <- formula(isHStar ~ foot_syls
                             + wrd_end_syl
                             + speech_rate
                             + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
+                        # + (1 | ana_text)
+                         #+ (1 | nuc_pre_text)
                          + (1 | pn_str_syl)
                          + (1 | speaker)
                          + (1 | foot_dur)
@@ -318,10 +234,11 @@ summary(h_star_model)
 ```
 
 
-```{r fig.height=4, fig.width=5, results = "asis"}
+```{r fig.height=4, fig.width=3.051181, results = "asis"}
 plot_model(h_star_model,
            type="re",
-           show.values = T)[2:5]
+           show.values = T,
+           title = "")[2:5]
 ```
 
 
@@ -330,122 +247,40 @@ plot_model(h_star_model,
 tidyPrintPredictions(h_star_model) 
 ```
 
-```{r run models H anovas}
-
-
-isHStar_null_eq_1 <- formula(isHStar ~
-                           #foot_syls
-                          wrd_end_syl
-                         + speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-  
-isHStar_null_eq_2 <- formula(isHStar ~
-                           foot_syls
-                         #+ wrd_end_syl
-                         + speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-isHStar_null_eq_3 <- formula(isHStar ~
-                           foot_syls
-                         + wrd_end_syl
-                         #+ speech_rate
-                         + gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-isHStar_null_eq_4 <- formula(isHStar ~
-                           foot_syls
-                         + wrd_end_syl
-                         + speech_rate
-                         #+ gender
-                         + (1 | ana_text)
-                         + (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
-                         )
-
-null_model_1 <- bglmer(
-  isHStar_null_eq_1,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_2 <- bglmer(
-  isHStar_null_eq_2,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_3 <- bglmer(
-  isHStar_null_eq_3,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-null_model_4 <- bglmer(
-  isHStar_null_eq_4,
-  data = pn,
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
-# get, save, and print ANOVA of model
-anova_1 <- anova(h_star_model, null_model_1, test="Chisq") %>% 
-  outputChiSqResults(lh_pn_model)
-  
-  
-anova_2 <- anova(h_star_model, null_model_2, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
-
-anova_3 <- anova(h_star_model,
-           null_model_3, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
-
-anova_4 <- anova(h_star_model,
-           null_model_4, test="Chisq") %>%
-  outputChiSqResults(lh_pn_model)
-
+```{r run drop1 as per factor assessment of  modelsLHStar}
 
 write <- "phonology_models/h_star_model"
 model_formula <- getModelFormula(h_star_model)
 
-cbind(
-  effect = c("foot_syls", "wrd_end_syl", "speech_rate", "gender"),
-  rbind(anova_1, anova_2, anova_3, anova_4) %>%
-    as_tibble %>% filter(!is.na(Chisq))
-) %>%
-  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
-  write_csv(paste(write, "_anova.csv", sep = "")) %>%
-  select(-c(`p.adj (BH)`, signif.))  %>%
-  formattable(caption = model_formula)
-
  write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
           paste(write, "_formula.txt", sep = ""))
+
+temp <- drop1(h_star_model, test = "Chisq")
+
+tibble(factor = row.names(temp))  %>%
+  cbind(tibble(temp)) %>%
+  filter(!is.na(npar)) %>%
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  write_csv(paste(write, "_anova.csv", sep = "")) 
+
+
+# p. adjust all phonology models
+adjustP_posthoc("phonology_models/",
+                `Pr(Chi)`,
+                suffix_id = "_anova")
+
+# read and print adjusted version
+read_csv(paste(write, "_anova.csv", sep = "")) %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Drop1 ChiSq test of formula:", model_formula))
+
+
+
 ```
 
 
 
-```{r fig.width = 2.95276, fig.height = 2.5, results="asis"}
+```{r fig.width = 3.051181, fig.height = 2.5, results="asis"}
 cat(
   "isSingular(h_star_model, tol=1e-5) -->",
   isSingular(h_star_model, tol = 1e-5),
@@ -458,23 +293,17 @@ tidy_summary <- analyseModel(h_star_model,
                              type = "pred")
 
 
-ggpredict(h_star_model, terms = "speech_rate [all]", ci.lvl = 0.95) %>%
-  plot() +
-  xlim(2.874, 9.284) +
-  xlab("speech rate (syls/sec)") +
-  ylab("H*") +
-  labs(title = "Predicted probabilities of H* re speech rate",
-       caption = "Predicted probabilities of H* re speech rate with 95% CIs") +
-  scale_y_continuous(labels = scales::percent)
-
-
 plot_model(
   h_star_model,
   type = "est",
   transform = NULL,
   show.values = T,
-  vline = "Red"
- )
+  vline = "Red",
+  title = "Estimates of model of H* probability"
+ ) +              theme(axis.title.x=element_text(size = 9),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.title=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot")
 
 charts <- getModelFixedFX(h_star_model, write="phonology_models/h_star_model")
 

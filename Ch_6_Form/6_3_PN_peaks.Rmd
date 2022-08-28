@@ -616,7 +616,8 @@ a <- ggplot(data = vals_is_in,
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5,
                                       ),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
                        
   ) +
   xlim(0, 600) +
@@ -658,7 +659,8 @@ b <- ggplot(data = lallys_is,
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
   ) +
   xlim(0, 600) +
   ylim(0, 0.04) +
@@ -705,7 +707,8 @@ c <- ggplot(data = lallys_is_in,
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
   ) +
   xlim(0, 650) +
   ylim(0, 0.02) +
@@ -749,7 +752,8 @@ d <- ggplot(data = valeries_is,
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
   ) +
   xlim(0, 650) +
   ylim(0, 0.02) +
@@ -800,7 +804,8 @@ e <- ggplot(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
   ) +
   xlim(0, 550) +
   ylim(0, 0.01) +
@@ -847,7 +852,8 @@ f <- ggplot(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
-    plot.caption=element_text(hjust = 0, size = 10)
+    plot.caption=element_text(hjust = 0, size = 10),
+    plot.caption.position= "plot"
   ) +
   xlim(0, 550) +
   ylim(0, 0.01) +
