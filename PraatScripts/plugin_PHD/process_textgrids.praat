@@ -1,11 +1,11 @@
-# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.8
+# ANALYSIS OF TEXTGRIDS AND PITCH CONTOURS V.2.0.9
 # ================================================
 # Written for Praat 6.0.36
 
 # Antoin Eoin Rodgers
 # rodgeran@tcd.ie
 # Phonetics and speech Laboratory, Trinity College Dublin
-# latest update: 19/08/2022
+# latest update: 29/08/2022
 
 # Script Purpose
 # This script is designed to extract data from pre-annotated textgrids
@@ -44,6 +44,7 @@
 #                 now collected utterance and PA slope in ST / sec and
 #                 in z-score / sec using speaker f0 mean and SD.
 #    10. V.2.0.8: Re-introduced "h_syl_ratio" for word boundary analysis
+#    10. V.2.0.9: Re-introduced "f0_min" and "f0_min" speaker stats
 
 ## Load global variables
 live_version = 1
@@ -140,7 +141,7 @@ f0_data$ =
     ... "s_f0 e_f0 v_onset_f0 l_f0 h_f0 "
     ... + "lh_slope lh_slope_z intercept_st lh_mean_f0 lh_med_f0 "
     ... + "utt_mean_f0 utt_slope utt_slope_z "
-    ... + "spkr_f0_mean spkr_f0_SD "
+    ... + "spkr_f0_mean spkr_f0_SD spkr_f0_min spkr_f0_med "
 
 
 output_table = Create Table with column names: "output", 0,
@@ -1633,11 +1634,17 @@ procedure addGenF0Stats: .output_table, .gen_stats
         .speaker$ = Get value: .i, "speaker"
         .f0_mean = Get value: .i, "f0_mean"
         .f0_SD = Get value: .i, "f0_SD"
+        .f0_min = Get value: .i, "f0_min"
+        .f0_med = Get value: .i, "f0_med"
         selectObject: .output_table
         Formula: "spkr_f0_mean",
         ... "if self$[""speaker""] = .speaker$ then .f0_mean else self endif"
         Formula: "spkr_f0_SD",
         ... "if self$[""speaker""] = .speaker$ then .f0_SD else self endif"
+        Formula: "spkr_f0_min",
+        ... "if self$[""speaker""] = .speaker$ then .f0_min else self endif"
+        Formula: "spkr_f0_med",
+        ... "if self$[""speaker""] = .speaker$ then .f0_med else self endif"
     endfor
 endproc
 

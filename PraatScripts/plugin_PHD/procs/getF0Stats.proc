@@ -18,7 +18,7 @@ procedure getF0Stats: .corpus, .analysis_set, .dec_only, .save_results
     endif
     appendInfoLine: "Creating file: GenStats_" + corpusRef_G$[.corpus] + ".csv"
     # Create output file
-    writeFileLine: .reportFile$, "speaker,f0_mean,f0_SD"
+    writeFileLine: .reportFile$, "speaker,f0_mean,f0_SDgetF0Stats,f0_min"
 
     # Get mean and SD F0 in ST re 1 Hz for each speaker
     for .i to speakers_G
@@ -33,7 +33,8 @@ procedure getF0Stats: .corpus, .analysis_set, .dec_only, .save_results
     	appendFile: .reportFile$,
                 ... speaker_G$[.i] + "," +
         		... fixed$(speakerF0Stats.meanF0,3) + "," +
-        		... fixed$(speakerF0Stats.sdF0,3) + newline$
+        		... fixed$(speakerF0Stats.sdF0,3) + "," +
+                ... fixed$(speakerF0Stats.minF0,3)+ newline$
     endfor
 
     # If not saving results, load them into the Praat objects window
@@ -100,7 +101,7 @@ procedure speakerF0Stats: .folder$, .decOnly, .corpus
 
 
     # get general F0 stats for speaker
-    #.minF0 = Get minimum: "F0"
+    .minF0 = Get minimum: "F0"
     #.maxF0 = Get maximum: "F0"
     .meanF0 = Get mean: "F0"
     .sdF0 = Get standard deviation: "F0"

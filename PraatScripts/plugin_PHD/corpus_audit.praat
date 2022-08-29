@@ -12,7 +12,7 @@
 
 # UI Form
 form Choose Corpus File to Audit
-    sentence data_file ..\Ch_6_Form\data\a_corpus.csv
+    sentence data_file D:\Users\antoi\GitHub\PhD\Ch_6_Form\data\a_corpus.csv
     natural target_feet 2
 endform
 
