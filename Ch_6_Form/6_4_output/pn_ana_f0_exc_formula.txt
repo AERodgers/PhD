@@ -1,0 +1,1 @@
+f0_exc ~ ana_syls + gender + (1 + ana_syls | speaker) + (1 | wrd_end_t_n) + (1 | speech_rate_n)

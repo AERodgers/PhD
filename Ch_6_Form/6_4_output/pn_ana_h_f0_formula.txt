@@ -1,0 +1,1 @@
+h_f0 ~ ana_syls + acc_phon + gender + (1 + ana_syls | speaker)

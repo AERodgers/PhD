@@ -142,7 +142,7 @@ write_tsv(
     pn_anac %>% group_by(acc_phon, ana_syls) %>%
     summarise(accCount = n()) %>%
     spread(acc_phon, accCount, is.na <-(0)),
-    "../output/pn_anac_count_actual.txt"
+    "../6_1_output/pn_anac_count_actual.txt"
     ) 
 
 ```

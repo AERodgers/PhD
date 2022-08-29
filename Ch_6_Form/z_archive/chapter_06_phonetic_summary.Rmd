@@ -143,35 +143,35 @@ Why? Because marginal effects of LME models will provide muchmore robust results
 # 
 #get summary of each target parameter per pa per pre_syl condition
 param_means(pn_foot_param_sum, l_t, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_l_t_means.csv")
+  write_csv("../6_1_output/pn_foot_l_t_means.csv")
 param_means(pn_foot_param_sum, h_t, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_h_t_means.csv")
+  write_csv("../6_1_output/pn_foot_h_t_means.csv")
 param_means(pn_foot_param_sum, l_f0_z, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_l_f0_means.csv")
+  write_csv("../6_1_output/pn_foot_l_f0_means.csv")
 param_means(pn_foot_param_sum, h_f0_z, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_h_f0_means.csv")
+  write_csv("../6_1_output/pn_foot_h_f0_means.csv")
 param_means(pn_foot_param_sum, lh_dur, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_lh_dur_means.csv")
+  write_csv("../6_1_output/pn_foot_lh_dur_means.csv")
 param_means(pn_foot_param_sum, f0_exc_z, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_exc_f0_means.csv")
+  write_csv("../6_1_output/pn_foot_exc_f0_means.csv")
 param_means(pn_foot_param_sum, lh_slope, foot_syls, acc_phon) %>%
-  write_csv("../output/pn_foot_lh_slope_means.csv")
+  write_csv("../6_1_output/pn_foot_lh_slope_means.csv")
 
 #get summary of each target parameter per pa per pre_syl condition
 param_means(pn_ana_param_sum, l_t, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_l_t_means.csv")
+  write_csv("../6_1_output/pn_ana_l_t_means.csv")
 param_means(pn_ana_param_sum, h_t, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_h_t_means.csv")
+  write_csv("../6_1_output/pn_ana_h_t_means.csv")
 param_means(pn_ana_param_sum, l_f0_z, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_l_f0_means.csv")
+  write_csv("../6_1_output/pn_ana_l_f0_means.csv")
 param_means(pn_ana_param_sum, h_f0_z, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_h_f0_means.csv")
+  write_csv("../6_1_output/pn_ana_h_f0_means.csv")
 param_means(pn_ana_param_sum, lh_dur, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_lh_dur_means.csv")
+  write_csv("../6_1_output/pn_ana_lh_dur_means.csv")
 param_means(pn_ana_param_sum, f0_exc_z, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_exc_f0_means.csv")
+  write_csv("../6_1_output/pn_ana_exc_f0_means.csv")
 param_means(pn_ana_param_sum, lh_slope, ana_syls, acc_phon) %>%
-  write_csv("../output/pn_ana_lh_slope_means.csv")
+  write_csv("../6_1_output/pn_ana_lh_slope_means.csv")
 ```
 
 
@@ -180,57 +180,57 @@ param_means(pn_ana_param_sum, lh_slope, ana_syls, acc_phon) %>%
 # 
 # Get summary of each target parameter per pa per pre_syl condition
 param_means(nuc_foot_param_sum, l_t, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_l_t_means.csv")
+  write_csv("../6_1_output/nuc_foot_l_t_means.csv")
 param_means(nuc_foot_param_sum, h_t, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_h_t_means.csv")
+  write_csv("../6_1_output/nuc_foot_h_t_means.csv")
 param_means(nuc_foot_param_sum, e_t, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_e_t_means.csv")
+  write_csv("../6_1_output/nuc_foot_e_t_means.csv")
 param_means(nuc_foot_param_sum, he_dur, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_he_dur_means.csv")
+  write_csv("../6_1_output/nuc_foot_he_dur_means.csv")
 param_means(nuc_foot_param_sum, l_f0_z, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_l_f0_means.csv")
+  write_csv("../6_1_output/nuc_foot_l_f0_means.csv")
 param_means(nuc_foot_param_sum, h_f0_z, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_h_f0_means.csv")
+  write_csv("../6_1_output/nuc_foot_h_f0_means.csv")
 param_means(nuc_foot_param_sum, e_f0_z, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_e_f0_means.csv")
+  write_csv("../6_1_output/nuc_foot_e_f0_means.csv")
 param_means(nuc_foot_param_sum, e_f0_exc_z, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_e_exc_f0_means.csv")
+  write_csv("../6_1_output/nuc_foot_e_exc_f0_means.csv")
 param_means(nuc_foot_param_sum, lh_dur, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_lh_dur_means.csv")
+  write_csv("../6_1_output/nuc_foot_lh_dur_means.csv")
 param_means(nuc_foot_param_sum, he_dur, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_he_dur_means.csv")
+  write_csv("../6_1_output/nuc_foot_he_dur_means.csv")
 param_means(nuc_foot_param_sum, f0_exc_z, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_exc_f0_means.csv")
+  write_csv("../6_1_output/nuc_foot_exc_f0_means.csv")
 param_means(nuc_foot_param_sum, lh_slope, foot_syls, nuc_contour) %>%
-  write_csv("../output/nuc_foot_lh_slope_means.csv")
+  write_csv("../6_1_output/nuc_foot_lh_slope_means.csv")
 
 
 
 # Get summary of each target parameter per pa per pre_syl condition
 param_means(nuc_pre_param_sum, l_t, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_l_t_means.csv")
+  write_csv("../6_1_output/nuc_pre_l_t_means.csv")
 param_means(nuc_pre_param_sum, h_t, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_h_t_means.csv")
+  write_csv("../6_1_output/nuc_pre_h_t_means.csv")
 param_means(nuc_pre_param_sum, e_t, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_e_t_means.csv")
+  write_csv("../6_1_output/nuc_pre_e_t_means.csv")
 param_means(nuc_pre_param_sum, he_dur, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_he_dur_means.csv")
+  write_csv("../6_1_output/nuc_pre_he_dur_means.csv")
 param_means(nuc_pre_param_sum, l_f0_z, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_l_f0_means.csv")
+  write_csv("../6_1_output/nuc_pre_l_f0_means.csv")
 param_means(nuc_pre_param_sum, h_f0_z, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_h_f0_means.csv")
+  write_csv("../6_1_output/nuc_pre_h_f0_means.csv")
 param_means(nuc_pre_param_sum, e_f0_z, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_e_f0_means.csv")
+  write_csv("../6_1_output/nuc_pre_e_f0_means.csv")
 param_means(nuc_pre_param_sum, e_f0_exc_z, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_e_exc_f0_means.csv")
+  write_csv("../6_1_output/nuc_pre_e_exc_f0_means.csv")
 param_means(nuc_pre_param_sum, lh_dur, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_lh_dur_means.csv")
+  write_csv("../6_1_output/nuc_pre_lh_dur_means.csv")
 param_means(nuc_pre_param_sum, he_dur, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_he_dur_means.csv")
+  write_csv("../6_1_output/nuc_pre_he_dur_means.csv")
 param_means(nuc_pre_param_sum, f0_exc_z, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_exc_f0_means.csv")
+  write_csv("../6_1_output/nuc_pre_exc_f0_means.csv")
 param_means(nuc_pre_param_sum, lh_slope, pre_syls, nuc_contour) %>%
-  write_csv("../output/nuc_pre_lh_slope_means.csv")
+  write_csv("../6_1_output/nuc_pre_lh_slope_means.csv")
 ```
 
 

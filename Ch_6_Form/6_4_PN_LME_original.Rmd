@@ -1,0 +1,808 @@
+---
+title: "LME Analysis of PNs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "ggeffects",
+    "optimx",
+    "MuMIn",
+    "dfoptim",
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+# Get  data for analysis
+
+source("6_0_get_AH.R")
+
+h_star_type <-  c("L*H", ">H*", "H*")
+l_star_type <-  c("L*H", "L*")
+
+
+# Extract PN anacrusis data.
+pn_ana <- pn %>%
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>% 
+  select(
+    l_t, h_t, l_f0, h_f0, f0_exc, lh_slope,
+    ana_syls, wrd_end_syl,
+    speaker, speech_rate)
+         
+
+# Make PN foot-size dataset.
+pn_foot <- pn %>%
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423"))
+
+# Make PN word-boundary dataset.
+pn_lex <- pn %>% filter(stim %in% c(
+  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
+))
+
+# CREATE PN SUBSETS
+# -----------------
+
+# Extract PN data.
+pn <- filter(corpus, cur_foot == 1) %>%
+  unite(init_contour,
+        init_phon,
+        acc_phon,
+        sep = " ",
+        remove = FALSE) %>%
+  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur))
+# Get subset of all data for PN analysis
+
+# Extract PN anacrusis data.
+pn_ana <- pn %>%
+  filter(stim %in% c("A0423", "A1422", "A2422", "A3422"))
+
+# Make PN foot-size dataset.
+pn_foot <- pn %>%
+  filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
+  # remove columns no longer needed for pn_foot analysis.
+  select(-c(ana_syls,fin_phon, wrd_end_syl,cur_foot))
+
+# Make PN word-boundary dataset.
+pn_lex <- pn %>% filter(stim %in% c(
+  "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"
+))
+
+
+pn_l_data <- pn %>%
+  filter(acc_phon %in% l_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type))%>%
+  select(-c(h_t, h_f0))
+
+pn_h_data <- pn %>%
+  filter(acc_phon %in% h_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>%
+  select(-c(l_t, l_f0))
+
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+
+
+```
+
+```{r check levels in factors, results="asis", eval=FALSE}
+
+cat("Tibble factors for pn_l_data\n")
+for (i in colnames(pn_l_data))
+{
+  if (is.factor(pn_l_data[[eval(i)]]))
+  {
+    cat("\n", i, "  \tlevels = ", levels(pn_l_data[[i]]))
+  }
+  else
+  {
+    cat("\n", i)
+    }
+
+}
+
+cat("\n\nTibble factors for pn_h_data\n")
+for (i in colnames(pn_h_data))
+{
+  if (is.factor(pn_h_data[[eval(i)]]))
+  {
+    cat("\n", i, "  \tlevels = ", levels(pn_h_data[[i]]))
+  }
+    else
+  {
+    cat("\n", i)
+    }
+
+}
+
+
+```
+
+## L targets
+
+### Analysis of L timing
+
+initial step() model found:
+`l_t ~ acc_phon + gender + (1 | speaker) + (1 | ana_text) + (1 | nuc_pre_text)`
+
+
+```{r set l_t equation}
+l_t_ana_eq = formula(
+  l_t ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1| speaker)
+  + (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
+  )
+
+
+```
+
+- intercepts only model
+- trim: +/- residual sd > 3
+```{r run l_t models, fig.height=3, fig.width=9}
+pn_l_t_mdl = lmer(
+  l_t_ana_eq,
+  pn_l_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_l_t.trimmed <-
+  pn_l_data %>% filter(abs(scale(resid(pn_l_t_mdl))) <= 2.5)
+
+pn_l_t_mdl.trimmed = lmer(
+  l_t_ana_eq,
+  pn_l_t.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(pn_l_t_mdl.trimmed
+             ,run_step = TRUE
+             ,write = "6_4_output/pn_l_t_anova.csv"
+             )
+```
+
+```{r plot l_t estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_l_t_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+pn_l_t_mdl.tidy <- analyseModel(
+  pn_l_t_mdl.trimmed,
+  write="6_4_output/pn_l_t",
+  type = "pred",
+  factor_matrix = TRUE
+  )
+pn_l_t_mdl.tidy$table
+
+```
+
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  pn_l_t_mdl.trimmed,
+  write="6_4_output/pn_l_t"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+
+
+### Analysis of L F0
+
+After initial full model, step() suggests: `l_f0 ~ ana_syls + pn_new_word + (1 | speaker)`
+Model works with single random intercept but with all fixed factors.
+
+```{r set l_f0 equation}
+l_f0_ana_eq = formula(
+  l_f0 ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + (1| speaker)
+  #+ (1 | ana_text)
+  #+ (1 | pn_str_syl)
+  #+ (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
+  )
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3.5)
+```{r run l_f0 models, fig.height=3, fig.width=9}
+pn_l_f0_mdl = lmer(
+  l_f0_ana_eq,
+  pn_l_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_l_f0.trimmed <-
+  pn_l_data %>% filter(abs(scale(resid(pn_l_f0_mdl))) <= 3.5)
+
+
+pn_l_f0_mdl.trimmed = lmer(
+  l_f0_ana_eq,
+  pn_l_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+
+summariseLME(pn_l_f0_mdl.trimmed
+             , run_step = TRUE
+             , write = "6_4_output/pn_l_f0_anova.csv"
+             )
+```
+
+
+```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_l_f0_mdl.trimmed
+  , type = "est"
+  , transform = NULL
+  , show.values = T
+  , vline = "Red"
+ )
+```
+
+
+```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+pn_l_f0_mdl.tidy <- analyseModel(
+  pn_l_f0_mdl.trimmed
+  , write="6_4_output/pn_l_f0"
+  , type = "pred"
+  )
+pn_l_f0_mdl.tidy$table
+
+```
+
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  pn_l_f0_mdl.trimmed,
+  write = "6_4_output/pn_l_f0"
+)
+charts$intercepts
+charts$slopes
+
+```
+
+## H targets
+
+### Analysis of H timing
+
+first test, step() found: `h_t ~ acc_phon + ana_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+
+
+```{r set h_t equation}
+h_t_ana_eq = formula(
+  h_t ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1| speaker)
+  + (1 | ana_text)
+  #+ (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  + (1 | speech_rate)
+  )
+
+optimizer = "optimx"
+```
+
+- model needs trimming (residuals +/- 2.75 s.d.)
+```{r run h_t models, fig.height=3, fig.width=9}
+pn_h_t_mdl = lmer(
+  h_t_ana_eq,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_h_t.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
+
+pn_h_t_mdl.trimmed = lmer(
+  h_t_ana_eq,
+  pn_h_t.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(
+  pn_h_t_mdl.trimmed
+  , run_step = TRUE
+  , write = "6_4_output/pn_h_t_anova.csv"
+  )
+```
+
+```{r plot h_t estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_t_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
+pn_h_t_mdl.tidy <- analyseModel(
+  pn_h_t_mdl.trimmed
+  , write="6_4_output/pn_h_t"
+  , type = "pred"
+  , factor_matrix = TRUE
+  )
+
+
+pn_h_t_mdl.tidy$table
+
+```
+
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
+charts <- getModelFixedFX(
+  pn_h_t_mdl.trimmed,
+  write="6_4_output/pn_h_t"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+#### H_t original data 
+
+```{r orig model test, fig.height=3, fig.width=9}
+
+pn_h_data_orig <- filter(pn_h_data,
+                         stim %in% c("A0423", "A1422", "A2422", "A3422"))
+                         
+  
+h_t_orig_ana_eq = formula(
+  h_t ~
+    acc_phon
+  + ana_syls
+  + (1 | wrd_end_syl)
+  + gender
+  + (1 + ana_syls | speaker)
+  + (1 | speech_rate)
+  )
+
+optimizer = "optimx"
+
+
+pn_h_t_orig_mdl = lmer(
+  h_t_orig_ana_eq,
+  pn_h_data_orig,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_h_data_orig.trimmed <-
+  pn_h_data_orig %>% filter(abs(scale(resid(pn_h_t_orig_mdl))) <= 2.5)
+
+pn_h_t_orig_mdl.trimmed = lmer(
+  h_t_orig_ana_eq,
+  pn_h_data_orig.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(
+  pn_h_t_orig_mdl.trimmed
+  , run_step = TRUE
+  , write = "6_4_output/pn_h_t_orig_anova.csv"
+  , extra_text = "[using original model]"
+  )
+
+```
+```{r horig model summary, fig.height=2.5, fig.width=5, results="asis"}
+pn_h_t_orig_mdl.tidy <- analyseModel(
+  pn_h_t_orig_mdl.trimmed
+  , write="6_4_output/pn_h_t_orig"
+  , type = "pred"
+  , factor_matrix = TRUE
+  )
+
+pn_h_t_orig_mdl.tidy$table
+
+
+charts <- getModelFixedFX(
+  pn_h_t_orig_mdl.trimmed,
+  write="6_4_output/pn_h_t_orig",
+  extra_text = "[using original model]"
+)
+charts$intercepts
+charts$slopes
+
+```
+
+ 
+### Analysis of H F0
+
+first run: step() suggests: `h_f0 ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
+
+
+```{r set h_f0 equation}
+h_f0_ana_eq = formula(
+  h_f0 ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + (1| speaker)
+  #+ (1 | ana_text)
+  + (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
+  )
+
+optimizer = "optimx"
+```
+
+  
+model needs trimming: residuals > 3 s.d.
+
+```{r run h_f0 models, fig.height=3, fig.width=9}
+pn_h_f0_mdl = lmer(
+  h_f0_ana_eq,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+pn_h_f0.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_f0_mdl))) <= 3)
+
+pn_h_f0_mdl.trimmed = lmer(
+  h_f0_ana_eq,
+  pn_h_f0.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(pn_h_f0_mdl.trimmed
+             , run_step = TRUE
+             , write = "6_4_output/pn_h_f0_anova.csv"
+             )
+```
+```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
+plot_model(
+  pn_h_f0_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
+pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl.trimmed,
+                                write="6_4_output/pn_h_f0",
+                                type = "pred"
+                                )
+pn_h_f0_mdl.tidy$table
+
+```
+
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  pn_h_f0_mdl.trimmed, 
+  write="6_4_output/pn_h_f0"
+)
+charts$intercepts
+charts$slopes
+
+
+```
+
+
+## Truncation and Compression Effects
+
+Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
+
+As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
+
+```{r get data ready for T and C analysis}
+pn_tnc_data <- pn_l_data %>%
+  mutate(log_lh_slope = log(lh_slope)) %>%
+  filter(acc_phon == "L*H")
+```
+
+### LH Excursion
+
+-  first run, step() suggests: `f0_exc ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
+
+```{r set f0_exc equation}
+
+f0_exc_ana_eq = formula(
+  f0_exc ~ 
+  ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1| speaker)
+  #+ (1 | ana_text)
+  + (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  + (1 | speech_rate)
+
+  )
+
+optimizer = "optimx"
+```
+
+```{r run f0_exc models, fig.height=3, fig.width=9}
+pn_f0_exc_mdl = lmer(
+  f0_exc_ana_eq,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+
+- model needs trimming (|sd| residuals > 2.5)
+```{r run lh_exc models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+pn_f0_exc.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.5)
+
+pn_f0_exc_mdl.trimmed = lmer(
+  f0_exc_ana_eq,
+  pn_f0_exc.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(pn_f0_exc_mdl.trimmed,
+             run_step = TRUE,
+             write = "6_4_output/pn_f0_exc_anova.csv")
+```
+
+```{r f0_exc model summary, fig.height=2.5, fig.width=4, results="asis"}
+
+pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
+                                write="6_4_output/pn_f0_exc",
+                                type = "pred"
+                                )
+pn_f0_exc_mdl.tidy$table
+
+```
+
+
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  pn_f0_exc_mdl.trimmed,
+  write="6_4_output/pn_f0_exc"
+  )
+charts$intercepts
+charts$slopes
+
+
+```
+
+### LH Slope
+
+- first run of step suggests: `log_lh_slope ~ foot_syls + gender + (1 | speaker) + (1 | nuc_pre_text)`
+- Keeping all fixed effects to check effects.
+```{r set lh_slope equation}
+lh_slope_ana_eq = formula(
+  log_lh_slope ~
+  ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1| speaker)
+  #+ (1 | ana_text)
+  #+ (1 | pn_str_syl)
+  + (1 | nuc_pre_text)
+  #+ (1 | speech_rate)
+
+  )
+
+
+optimizer = "optimx"
+```
+
+- model needs trimming (|sd| residuals > 3.5)
+```{r run lh_slope models, fig.height=3, fig.width=9}
+pn_lh_slope_mdl = lmer(
+  lh_slope_ana_eq,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+- data needs trimming: residual SD > 4
+```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+pn_lh_slope.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
+
+pn_lh_slope_mdl.trimmed = lmer(
+  lh_slope_ana_eq,
+  pn_lh_slope.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+summariseLME(pn_lh_slope_mdl.trimmed,
+             run_step = TRUE,
+             extra_text = "[nuclear contour]",
+             write = "6_4_output/pn_lh_slope_anova.csv")
+```
+
+```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
+pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
+                                write="6_4_output/pn_lh_slope",
+                                type = "pred"
+                                )
+pn_lh_slope_mdl.tidy$table
+
+```
+
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=5}
+
+charts <- getModelFixedFX(
+  pn_lh_slope_mdl.trimmed,
+  write="6_4_output/pn_lh_slope"
+)
+charts$intercepts
+charts$slopes
+
+
+```

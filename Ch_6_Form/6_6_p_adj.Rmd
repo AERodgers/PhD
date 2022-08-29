@@ -26,7 +26,7 @@ c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rat
 ```{r Phonology models b0, results="asis"}
 
 #### a. $\beta_0$
-# adjustP_posthoc("phonology_models/",
+# adjustP_posthoc("6_2_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -38,7 +38,7 @@ c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rat
 
 ```{r Phonology models b1, results="asis"}
 #### b. $\beta_1$
-# adjustP_posthoc("phonology_models/",
+# adjustP_posthoc("6_2_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -50,7 +50,7 @@ c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rat
 
 ```{r phonology model ANOVAs, results="asis"}
 ### c. ANOVAs
-adjustP_posthoc("phonology_models/",
+adjustP_posthoc("6_2_output/",
                 `Pr(Chi)`,
                 suffix_id = "_anova",
                 print = TRUE)
@@ -63,7 +63,7 @@ adjustP_posthoc("phonology_models/",
 ```{r pn phonetic models b0, results="asis"}
 
 #### a. $\beta_0$
-# adjustP_posthoc("pn_phonetic_models/",
+# adjustP_posthoc("6_4_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -75,7 +75,7 @@ adjustP_posthoc("phonology_models/",
 
 ```{r pn phonetics models b1, results="asis"}
 #### b. $\beta_1$
-# adjustP_posthoc("pn_phonetic_models/",
+# adjustP_posthoc("6_4_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -87,7 +87,7 @@ adjustP_posthoc("phonology_models/",
 
 ```{r pn phonetic ANOVAs, results="asis"}
 ### c. ANOVAs
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova",
                 print = TRUE)

@@ -1,0 +1,1 @@
+l_f0 ~ foot_syls + acc_phon + gender + (1 | speaker)

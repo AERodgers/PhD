@@ -183,7 +183,7 @@ pn_l_t_mdl.trimmed = lmer(
 
 summariseLME(pn_l_t_mdl.trimmed
              ,run_step = TRUE
-             ,write = "pn_anovas/pn_l_t_anova.csv"
+             ,write = "6_4_output/pn_l_t_anova.csv"
              )
 ```
 
@@ -200,7 +200,7 @@ plot_model(
 ```{r l_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
-  write="pn_phonetic_models/pn_l_t",
+  write="6_4_output/pn_l_t",
   type = "pred",
   factor_matrix = TRUE
   )
@@ -212,7 +212,7 @@ pn_l_t_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_l_t_mdl.trimmed,
-  write="pn_phonetic_models/pn_l_t"
+  write="6_4_output/pn_l_t"
 )
 charts$intercepts
 charts$slopes
@@ -282,7 +282,7 @@ pn_l_f0_mdl.trimmed = lmer(
 
 summariseLME(pn_l_f0_mdl.trimmed
              , run_step = TRUE
-             , write = "pn_anovas/pn_l_f0_anova.csv"
+             , write = "6_4_output/pn_l_f0_anova.csv"
              )
 ```
 
@@ -301,7 +301,7 @@ plot_model(
 ```{r l_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl.trimmed
-  , write="pn_phonetic_models/pn_l_f0"
+  , write="6_4_output/pn_l_f0"
   , type = "pred"
   )
 pn_l_f0_mdl.tidy$table
@@ -312,7 +312,7 @@ pn_l_f0_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_l_f0_mdl.trimmed,
-  write = "pn_phonetic_models/pn_l_f0"
+  write = "6_4_output/pn_l_f0"
 )
 charts$intercepts
 charts$slopes
@@ -381,7 +381,7 @@ pn_h_t_mdl.trimmed = lmer(
 summariseLME(
   pn_h_t_mdl.trimmed
   , run_step = TRUE
-  , write = "pn_anovas/pn_h_t_anova.csv"
+  , write = "6_4_output/pn_h_t_anova.csv"
   )
 ```
 
@@ -398,7 +398,7 @@ plot_model(
 ```{r h_t model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed
-  , write="pn_phonetic_models/pn_h_t"
+  , write="6_4_output/pn_h_t"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -411,7 +411,7 @@ pn_h_t_mdl.tidy$table
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=5}
 charts <- getModelFixedFX(
   pn_h_t_mdl.trimmed,
-  write="pn_phonetic_models/pn_h_t"
+  write="6_4_output/pn_h_t"
 )
 charts$intercepts
 charts$slopes
@@ -474,14 +474,14 @@ pn_h_t_orig_mdl.trimmed = lmer(
 summariseLME(
   pn_h_t_orig_mdl.trimmed
   , run_step = TRUE
-  ,# write = "pn_anovas/pn_h_t_orig_anova.csv"
+  ,# write = "6_4_output/pn_h_t_orig_anova.csv"
   )
 
 ```
 ```{r horig model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_t_orig_mdl.tidy <- analyseModel(
   pn_h_t_orig_mdl.trimmed
-  #, write="pn_phonetic_models/pn_h_t_orig"
+  #, write="6_4_output/pn_h_t_orig"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -491,7 +491,7 @@ pn_h_t_orig_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_h_t_orig_mdl.trimmed,
- # write="pn_phonetic_models/pn_h_t_orig"
+ # write="6_4_output/pn_h_t_orig"
 )
 charts$intercepts
 charts$slopes
@@ -560,7 +560,7 @@ pn_h_f0_mdl.trimmed = lmer(
 
 summariseLME(pn_h_f0_mdl.trimmed
              , run_step = TRUE
-             , write = "pn_anovas/pn_h_f0_anova.csv"
+             , write = "6_4_output/pn_h_f0_anova.csv"
              )
 ```
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=5}
@@ -575,7 +575,7 @@ plot_model(
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=5, results="asis"}
 pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl.trimmed,
-                                write="pn_phonetic_models/pn_h_f0",
+                                write="6_4_output/pn_h_f0",
                                 type = "pred"
                                 )
 pn_h_f0_mdl.tidy$table
@@ -586,7 +586,7 @@ pn_h_f0_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_h_f0_mdl.trimmed, 
-  write="pn_phonetic_models/pn_h_f0"
+  write="6_4_output/pn_h_f0"
 )
 charts$intercepts
 charts$slopes
@@ -669,13 +669,13 @@ pn_f0_exc_mdl.trimmed = lmer(
 )
 summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = TRUE,
-             write = "pn_anovas/pn_f0_exc_anova.csv")
+             write = "6_4_output/pn_f0_exc_anova.csv")
 ```
 
 ```{r f0_exc model summary, fig.height=2.5, fig.width=4, results="asis"}
 
 pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
-                                write="pn_phonetic_models/pn_f0_exc",
+                                write="6_4_output/pn_f0_exc",
                                 type = "pred"
                                 )
 pn_f0_exc_mdl.tidy$table
@@ -687,7 +687,7 @@ pn_f0_exc_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_f0_exc_mdl.trimmed,
-  write="pn_phonetic_models/pn_f0_exc"
+  write="6_4_output/pn_f0_exc"
   )
 charts$intercepts
 charts$slopes
@@ -758,12 +758,12 @@ pn_lh_slope_mdl.trimmed = lmer(
 summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = TRUE,
              extra_text = "[nuclear contour]",
-             write = "pn_anovas/pn_lh_slope_anova.csv")
+             write = "6_4_output/pn_lh_slope_anova.csv")
 ```
 
 ```{r lh_slope model summary, fig.height=2.5, fig.width=4, results="asis"}
 pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
-                                write="pn_phonetic_models/pn_lh_slope",
+                                write="6_4_output/pn_lh_slope",
                                 type = "pred"
                                 )
 pn_lh_slope_mdl.tidy$table
@@ -774,7 +774,7 @@ pn_lh_slope_mdl.tidy$table
 
 charts <- getModelFixedFX(
   pn_lh_slope_mdl.trimmed,
-  write="pn_phonetic_models/pn_lh_slope"
+  write="6_4_output/pn_lh_slope"
 )
 charts$intercepts
 charts$slopes

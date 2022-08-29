@@ -135,7 +135,7 @@ pn_by_speaker_ratio <- pn_by_speaker %>%
   left_join(mean_speech_rate, "speaker")
 
 pn_by_speaker_ratio %>% 
-  write_csv("output/pn_by_speaker.csv") %>%
+  write_csv("6_1_output/pn_by_speaker.csv") %>%
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
   adorn_totals(where = "row") %>% 
   relocate(mean_speech_rate, .after = speaker) %>% 
@@ -275,7 +275,7 @@ nuc_by_speaker %>%
   mutate(tot_PAs = sum(c_across())) %>%
   mutate(across(1:3, ~ round(. / tot_PAs * 35))) %>%
   select(-tot_PAs) %>%
-  write_csv("output/nuc_by_speaker.csv") %>%
+  write_csv("6_1_output/nuc_by_speaker.csv") %>%
   adorn_totals(where = "row") %>%
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
   formattable(caption = "Nuclear contour distribution (adjusted) by speaker",
@@ -299,7 +299,7 @@ nuc_by_speaker %>%
 # target variable.
 
 balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
-  write_csv("output/pn_foot_balanced.csv") %>%
+  write_csv("6_1_output/pn_foot_balanced.csv") %>%
   adorn_totals(where = "row") %>% 
   rename(`foot size (syls)` = foot_syls) %>% 
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
@@ -329,7 +329,7 @@ balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
 # target variable.
 
 balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
-  write_csv("output/pn_ana_balanced.csv") %>%
+  write_csv("6_1_output/pn_ana_balanced.csv") %>%
   adorn_totals(where = "row") %>% 
   rename(`anacrusis (syls)` = ana_syls) %>% 
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
@@ -359,7 +359,7 @@ balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
 # target variable.
 
 balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
-  write_csv("output/nuc_foot_balanced.csv") %>%
+  write_csv("6_1_output/nuc_foot_balanced.csv") %>%
   adorn_totals(where = "row") %>% 
   rename(`foot size (syls)` = foot_syls) %>% 
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
@@ -385,7 +385,7 @@ balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
 # the number of utterances per speaker per target variable and the number of
 #  speaker per target variable.
 balancedData(nuc_pre, pre_syls, nuc_contour, "", 11, 5) %>%
-  write_csv("output/nuc_pre_balanced.csv") %>%
+  write_csv("6_1_output/nuc_pre_balanced.csv") %>%
   adorn_totals(where = "row") %>% 
   rename(`preceding syllables` = pre_syls) %>% 
   rename_with(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
@@ -410,10 +410,10 @@ balancedData(nuc_pre, pre_syls, nuc_contour, "", 11, 5) %>%
 #### PNs and Foot Size
 ```{r warning=FALSE}
 # creat temp file addresses
-my_table_m <- paste(getwd(), "/output/pn_foot_adj_M.csv", sep = "")
-my_table_f <- paste(getwd(), "/output/pn_foot_adj_F.csv", sep = "")
+my_table_m <- paste(getwd(), "/6_1_output/pn_foot_adj_M.csv", sep = "")
+my_table_f <- paste(getwd(), "/6_1_output/pn_foot_adj_F.csv", sep = "")
 my_table_g <-
-  paste(getwd(), "/output/pn_foot_adj_all_gender.csv", sep = "")
+  paste(getwd(), "/6_1_output/pn_foot_adj_all_gender.csv", sep = "")
 
 
 pivot_longer(balancedData(pn_foot, foot_syls, acc_phon, "M", 5, 5),
@@ -497,10 +497,10 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 #### PNs and Anacrusis
 ```{r warning=FALSE}
 # create temp file addresses
-my_table_m <- paste(getwd(), "/output/pn_ana_adj_M.csv", sep = "")
-my_table_f <- paste(getwd(), "/output/pn_ana_adj_F.csv", sep = "")
+my_table_m <- paste(getwd(), "/6_1_output/pn_ana_adj_M.csv", sep = "")
+my_table_f <- paste(getwd(), "/6_1_output/pn_ana_adj_F.csv", sep = "")
 my_table_g <-
-  paste(getwd(), "/output/pn_ana_adj_all_gender.csv", sep = "")
+  paste(getwd(), "/6_1_output/pn_ana_adj_all_gender.csv", sep = "")
 
 
 pivot_longer(balancedData(pn_ana, ana_syls, acc_phon, "M", 5, 5),
@@ -617,10 +617,10 @@ ggplot(all) +
 #### Nuclear Contours and Foot Size
 ```{r, warning=FALSE}
 # create temp file addresses
-my_table_m <- paste(getwd(), "/output/nuc_foot_adj_M.csv", sep = "")
-my_table_f <- paste(getwd(), "/output/nuc_foot_adj_F.csv", sep = "")
+my_table_m <- paste(getwd(), "/6_1_output/nuc_foot_adj_M.csv", sep = "")
+my_table_f <- paste(getwd(), "/6_1_output/nuc_foot_adj_F.csv", sep = "")
 my_table_g <-
-  paste(getwd(), "/output/nuc_foot_adj_all_gender.csv", sep = "")
+  paste(getwd(), "/6_1_output/nuc_foot_adj_all_gender.csv", sep = "")
 
 
 pivot_longer(balancedData(nuc_foot, foot_syls, nuc_contour, "M", 5, 5),
@@ -729,10 +729,10 @@ ggplot(all) +
 #### Nuclear Contours and Preceding Syllables
 ```{r warning=FALSE}
 # create temp file addresses
-my_table_m <- paste(getwd(), "/output/nuc_pre_adj_M.csv", sep = "")
-my_table_f <- paste(getwd(), "/output/nuc_pre_adj_F.csv", sep = "")
+my_table_m <- paste(getwd(), "/6_1_output/nuc_pre_adj_M.csv", sep = "")
+my_table_f <- paste(getwd(), "/6_1_output/nuc_pre_adj_F.csv", sep = "")
 my_table_g <-
-  paste(getwd(), "/output/nuc_pre_adj_all_gender.csv", sep = "")
+  paste(getwd(), "/6_1_output/nuc_pre_adj_all_gender.csv", sep = "")
 
 
 pivot_longer(balancedData(nuc_pre, pre_syls, nuc_contour, "M", 5, 5),
@@ -851,9 +851,9 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 #### foot size
 ```{r fig.height=2.5, fig.width=10.5}
 # create temp file addresses
-my_table_m <- paste(getwd(), "/output/M.csv", sep = "")
-my_table_f <- paste(getwd(), "/output/F.csv", sep = "")
-my_table_g <- paste(getwd(), "/output/G.csv", sep = "")
+my_table_m <- paste(getwd(), "/6_1_output/M.csv", sep = "")
+my_table_f <- paste(getwd(), "/6_1_output/F.csv", sep = "")
+my_table_g <- paste(getwd(), "/6_1_output/G.csv", sep = "")
 
 pn_downstep %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423")) %>%
@@ -925,11 +925,11 @@ unlink(c(my_table_m, my_table_f, my_table_g))
 ```{r fig.height=2.5, fig.width=8.1}
 # create temp file addresses
 my_table_m <-
-  paste(getwd(), "/output/pn_ana_adj_M_ds.csv", sep = "")
+  paste(getwd(), "/6_1_output/pn_ana_adj_M_ds.csv", sep = "")
 my_table_f <-
-  paste(getwd(), "/output/pn_ana_adj_F_ds.csv", sep = "")
+  paste(getwd(), "/6_1_output/pn_ana_adj_F_ds.csv", sep = "")
 my_table_g <-
-  paste(getwd(), "/output/pn_ana_adj_all_gender_ds.csv", sep = "")
+  paste(getwd(), "/6_1_output/pn_ana_adj_all_gender_ds.csv", sep = "")
 
 pn_downstep %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422")) %>%

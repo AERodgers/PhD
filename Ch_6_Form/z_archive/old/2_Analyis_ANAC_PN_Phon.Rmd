@@ -150,7 +150,7 @@ write_tsv(
     pn_anac %>% group_by(acc_phon, ana_syls) %>%
     summarise(accCount = n()) %>%
     spread(acc_phon, accCount, is.na <-(0)),
-    "../output/pn_anac_count_actual.txt"
+    "../6_1_output/pn_anac_count_actual.txt"
     ) 
 
 ```
@@ -223,7 +223,7 @@ pn_anac_GDH_summary <- pn_anac %>% group_by(genderedDh, ana_syls) %>%
     summarise(accCount = n()) %>%
     spread(genderedDh, accCount, is.na <-(0))
     
-write_tsv(pn_anac_GDH_summary, "../output/pn_anac_count_GDH.txt")
+write_tsv(pn_anac_GDH_summary, "../6_1_output/pn_anac_count_GDH.txt")
 print(pn_anac_GDH_summary)
 
 

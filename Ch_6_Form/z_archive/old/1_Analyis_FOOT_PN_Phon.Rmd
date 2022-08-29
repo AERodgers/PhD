@@ -60,7 +60,7 @@ pn_foot_summary <- pn_foot %>% group_by(acc_phon, foot_syls) %>%
     summarise(accCount = n()) %>%
     spread(acc_phon, accCount, is.na <-(0))
     
-write_tsv(pn_foot_summary, "../output/pn_foot_count_actual.txt")
+write_tsv(pn_foot_summary, "../6_1_output/pn_foot_count_actual.txt")
 print(pn_foot_summary)
 
 ```
@@ -135,7 +135,7 @@ pn_foot_GDH_summary <- pn_foot %>% group_by(genderedDh, foot_syls) %>%
 
 Output and Figures
 ```{r}
-write_tsv(pn_foot_GDH_summary, "../output/pn_foot_count_GDH.txt")
+write_tsv(pn_foot_GDH_summary, "../6_1_output/pn_foot_count_GDH.txt")
 print(pn_foot_GDH_summary)
 
 
@@ -205,7 +205,7 @@ pn_foot_isGLH_summary <- pn_foot %>% group_by(isGenderedLH, foot_syls) %>%
     summarise(accCount = n()) %>%
     spread(isGenderedLH, accCount, is.na <-(0))
     
-write_tsv(pn_foot_isGLH_summary, "../output/pn_foot_count_isGLH.txt")
+write_tsv(pn_foot_isGLH_summary, "../6_1_output/pn_foot_count_isGLH.txt")
 print(pn_foot_isGLH_summary)
 
 

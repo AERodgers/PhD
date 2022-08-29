@@ -145,7 +145,7 @@ tidyPrintPredictions(lh_pn_model)
 ```{r run drop1 as per factor assessment of  modelsLH}
 
 
-write <- "phonology_models/lh_model"
+write <- "6_2_output/lh_model"
 
 model_formula <- getModelFormula(lh_pn_model)
 
@@ -160,7 +160,7 @@ x <- drop1(lh_pn_model, test = "Chisq")
   mutate(`p.adj (BH)` = NA, signif. = NA) %>% 
   write_csv(paste(write, "_anova.csv", sep = "")) 
 
-adjustP_posthoc("phonology_models/",
+adjustP_posthoc("6_2_output/",
                 `Pr(Chi)`,
                 suffix_id = "_anova")
 
@@ -180,7 +180,7 @@ cat(
 
 
 tidy_summary <- analyseModel(lh_pn_model,
-                             write = "phonology_models/lh_model",
+                             write = "6_2_output/lh_model",
                              is_GLM = TRUE,
                              type = "pred",
                              ci.lvl=0.95
@@ -200,7 +200,7 @@ plot_model(
 
 tidy_summary$table
 
-charts <- getModelFixedFX(lh_pn_model, write="phonology_models/lh_model")
+charts <- getModelFixedFX(lh_pn_model, write="6_2_output/lh_model")
 
 charts$intercepts
 charts$slopes
@@ -249,7 +249,7 @@ tidyPrintPredictions(h_star_model)
 
 ```{r run drop1 as per factor assessment of  modelsLHStar}
 
-write <- "phonology_models/h_star_model"
+write <- "6_2_output/h_star_model"
 model_formula <- getModelFormula(h_star_model)
 
  write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
@@ -265,7 +265,7 @@ tibble(factor = row.names(temp))  %>%
 
 
 # p. adjust all phonology models
-adjustP_posthoc("phonology_models/",
+adjustP_posthoc("6_2_output/",
                 `Pr(Chi)`,
                 suffix_id = "_anova")
 
@@ -288,7 +288,7 @@ cat(
 )
 
 tidy_summary <- analyseModel(h_star_model,
-                             write = "phonology_models/h_star_model",
+                             write = "6_2_output/h_star_model",
                              is_GLM = TRUE,
                              type = "pred")
 
@@ -305,7 +305,7 @@ plot_model(
                   plot.title=element_text(hjust = 0, size = 10),
                   plot.caption.position= "plot")
 
-charts <- getModelFixedFX(h_star_model, write="phonology_models/h_star_model")
+charts <- getModelFixedFX(h_star_model, write="6_2_output/h_star_model")
 
 charts$intercepts
 charts$slopes

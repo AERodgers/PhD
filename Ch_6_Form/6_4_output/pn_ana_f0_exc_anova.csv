@@ -1,0 +1,3 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+ana_syls,11.142,3.714,3,13.03,9.749,0.001,0.004,p<.01
+gender,0.086,0.086,1,7.476,0.227,0.648,0.694,
