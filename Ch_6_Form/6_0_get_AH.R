@@ -3,7 +3,7 @@
 
 ## Get per-speaker f0 stats.
 #gen_f0_stats <- as_tibble(read.csv("../data/GenStats_a_corpus.csv"))
-stress <- read_csv("data/stressed_syls.csv")
+stress <- read_csv("data/stressed_syls.csv", show_col_types = FALSE)
 #corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_6_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
@@ -39,19 +39,23 @@ corpus <- as_tibble(read.csv("data/a_corpus_audited.csv")) %>%
     e_grand_mean_t,
     h_syl,
     h_syl_ratio,
+    s_f0,
     l_f0,
     h_f0,
-    s_f0,
     e_f0,
     phr_end_t,
+    wrd_end_t,
     lh_slope,
     spkr_f0_mean,
-    spkr_f0_SD
+    spkr_f0_SD,
+    spkr_f0_min,
+    spkr_f0_med,
 
   ) %>%
   rename(pn_new_word = ana_has_word_end) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
+    across(any_of(c("s_f0", "l_f0", "h_f0", "e_f0")), ~ .- spkr_f0_med),
     # there must be a more efficient way of doing this but...
     # Create column of stressed syllables in foot 1.
     pn_str_syl = stim,
@@ -206,7 +210,8 @@ pn <- filter(corpus, cur_foot == 1) %>%
          f0_exc,
          h_grand_mean_t,
          h_syl,
-         h_syl_ratio)
+         h_syl_ratio,
+         wrd_end_t)
 
 # Extract PN anacrusis data.
 pn_ana <- pn %>%
@@ -248,3 +253,4 @@ nuc_pre <- nuc %>%
 nuc_foot <- nuc %>%
   # Get dataset for syllables preceding nuclear PA.
   filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
+
