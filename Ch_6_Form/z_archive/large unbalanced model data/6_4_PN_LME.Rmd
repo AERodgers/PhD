@@ -183,16 +183,16 @@ pn_l_t_mdl.trimmed = lmer(
 
 x <- summariseLME(pn_l_t_mdl.trimmed
              ,run_step = TRUE
-             ,write = "pn_anovas/pn_l_t_anova.csv"
+             ,write = "6_4_output/pn_l_t_anova.csv"
              )
 
 
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_l_t_anova.csv") %>%
+read_csv("6_4_output/pn_l_t_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_l_t_mdl.trimmed)))
@@ -294,14 +294,14 @@ pn_l_f0_mdl.trimmed = lmer(
 
 x <- summariseLME(pn_l_f0_mdl.trimmed
              , run_step = TRUE
-             , write = "pn_anovas/pn_l_f0_anova.csv"
+             , write = "6_4_output/pn_l_f0_anova.csv"
              )
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_l_f0_anova.csv") %>%
+read_csv("6_4_output/pn_l_f0_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_l_f0_mdl.trimmed)))
@@ -403,14 +403,14 @@ pn_h_t_mdl.trimmed = lmer(
 x <- summariseLME(
   pn_h_t_mdl.trimmed
   , run_step = TRUE
-  , write = "pn_anovas/pn_h_t_anova.csv"
+  , write = "6_4_output/pn_h_t_anova.csv"
   )
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_h_t_anova.csv") %>%
+read_csv("6_4_output/pn_h_t_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_h_t_mdl.trimmed)))
@@ -507,15 +507,15 @@ pn_h_t_orig_mdl.trimmed = lmer(
 x <- summariseLME(
   pn_h_t_orig_mdl.trimmed
   , run_step = TRUE
-  , write = "pn_anovas/pn_h_t_orig_anova.csv"
+  , write = "6_4_output/pn_h_t_orig_anova.csv"
   , extra_text = "[using original model]"
   )
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_h_t_orig_anova.csv") %>%
+read_csv("6_4_output/pn_h_t_orig_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_h_t_orig_mdl.trimmed)))
@@ -605,14 +605,14 @@ pn_h_f0_mdl.trimmed = lmer(
 x <- summariseLME(
   pn_h_f0_mdl.trimmed
   , run_step = TRUE
-  , write = "pn_anovas/pn_h_f0_anova.csv"
+  , write = "6_4_output/pn_h_f0_anova.csv"
   )
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_h_f0_anova.csv") %>%
+read_csv("6_4_output/pn_h_f0_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_h_f0_mdl.trimmed)))
@@ -725,14 +725,14 @@ pn_f0_exc_mdl.trimmed = lmer(
 )
 x <- summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = TRUE,
-             write = "pn_anovas/pn_f0_exc_anova.csv")
+             write = "6_4_output/pn_f0_exc_anova.csv")
 
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_f0_exc_anova.csv") %>%
+read_csv("6_4_output/pn_f0_exc_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                               getModelFormula(pn_f0_exc_mdl.trimmed)))
@@ -834,13 +834,13 @@ pn_lh_slope_mdl.trimmed = lmer(
 x <- summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = TRUE,
              extra_text = "[nuclear contour]",
-             write = "pn_anovas/pn_lh_slope_anova.csv")
+             write = "6_4_output/pn_lh_slope_anova.csv")
 
-adjustP_posthoc("pn_anovas/",
+adjustP_posthoc("6_4_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("pn_anovas/pn_lh_slope_anova.csv") %>%
+read_csv("6_4_output/pn_lh_slope_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                               getModelFormula(pn_lh_slope_mdl.trimmed)))
