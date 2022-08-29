@@ -17,6 +17,7 @@ theme_set(theme_minimal(base_size = 10))
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 
+###
 ###  Install Missing Packages ##################################################
 installMissingPackages <- function (package_list)
 {
@@ -37,7 +38,7 @@ installMissingPackages <- function (package_list)
   ))
 
 }
-
+###
 ###  Balance data  #############################################################
 balancedData <- function(data_set,
                          treatment_col,
@@ -130,6 +131,7 @@ balancedData <- function(data_set,
 }
 
 
+###
 ###  Significance Code Tidy  ###################################################
 sigCodesTidy <-
   function(my_tibble,
@@ -184,12 +186,13 @@ sigCodesTidy <-
   }
 
 
+###
 ###  Get m_corpus #############################################################
 get_m_corpus <- function(file_address)
 
   # Include package for %in% / %notin% syntactic notation
   {
-  require("mefa4")
+  installMissingPackages(c("mefa4"))
   return(
     as_tibble(read.csv(file_address)) %>%
       # Only keep pertinent columns!
@@ -351,13 +354,15 @@ get_m_corpus <- function(file_address)
 }
 
 
+###
 ###  Get Formula as String from LME/(B)GLM model ##################################
 getModelFormula <-function(my_model) {
-  require("stringr")
+  installMissingPackages("stringr")
   my_formula <- str_c(formula(my_model))
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
   return(my_formula)
 }
+###
 ###  Summarise LME  ############################################################
 summariseLME <-
   function(my_model,
@@ -369,12 +374,13 @@ summariseLME <-
            print_summary = T)
     # short function to remove need for repetition of optimized used throughout.
   {
-    require("lme4")
-    require("lmerTest")
-    require("optimx")
-    require("stringr")
-    require("broomExtra")
-    require("ggplot2")
+    installMissingPackages(c("lme4",
+                             "lmerTest",
+                             "optimx",
+                             "stringr",
+                             "broomExtra",
+                             "ggplot2"))
+
 
 
     ### inner function
@@ -458,6 +464,7 @@ summariseLME <-
   }
 
 
+###
 ###  Analyse Model and extract key info ########################################
 analyseModel <-
   function(my_model,
@@ -655,6 +662,7 @@ analyseModel <-
 
 
 
+###
 ###  Get intercepts and slopes of Fixed Effects of LME/GLMM Model ##############
 getModelFixedFX <- function(model,
                             write = NULL,
@@ -980,6 +988,7 @@ getModelFixedFX <- function(model,
 
 
 
+###
 ###  Post-hoc bulk adjust p Value   ####################################################
 adjustP_posthoc <-
   function(my_folder,            # source folder with .csv files to be updated.
@@ -1136,6 +1145,7 @@ adjustP_posthoc <-
       return(p_counts)
     }
   }
+###
 ###  Tidy Predictions ####################################################
 tidyPrintPredictions <-
   function(model, caption_suffix, factor_matrix = F) {
@@ -1191,6 +1201,7 @@ tidyPrintPredictions <-
         }
       }
   }
+###
 ###  Shorten P Adjustment method name #########################################
 shortPAdjMeth <- function(method){
   require("mefa4")
@@ -1203,6 +1214,7 @@ shortPAdjMeth <- function(method){
   else{short_meth <- method}
   return(short_meth)}
 
+###
 ###  Output Chi Squared Results ################################################
 outputChiSqResults <- function(anova,
                                model,
@@ -1248,6 +1260,7 @@ outputChiSqResults <- function(anova,
 }
 
 
+###
 ###  Tidy numbers in table #####################################################
 tidyNumbers <- function(data,
                         p.value = "p.value",
@@ -1281,12 +1294,21 @@ tidyNumbers <- function(data,
 
 
 
+###
 ### Tidy Stat Table Numbers ####################################################
 tidyStatNumbers <- function(stats) {
-  library(tidyverse)
-  library(weights)
-  return(
-    mutate(stats,
+  installMissingPackages(c("tidyverse", "weights"))
+  original_nrow <- nrow(stats)
+  lost_factors <- NULL
+  original_factors <- as.vector(select(stats, 1))$term
+  stats <- filter(stats, !is.na(stats[[2]]))
+  if(nrow(stats) != original_nrow){
+    lost_factors <- original_factors[original_factors %notin% as.vector(select(stats, 1))$term]
+    cat(paste(lost_factors, sep = ", "), " couldn't be calculated.\n")
+        }
+
+
+    stats <- mutate(stats,
            across(contains("signif."),
                   ~ if_else(is.na(.), "", as.character(.))),
            across(where(is_double) & !(contains("p.") | contains("Pr")),
@@ -1306,14 +1328,25 @@ tidyStatNumbers <- function(stats) {
                             )
                   )
            )
-    )
+
+
+    for(i in lost_factors){
+      stats <- add_row(stats, term = i)
+    }
+
+    stats <- mutate(stats,
+                    across(.cols = everything(), ~ if_else(is.na(.), "", .)))
+    return(stats)
 
 }
 
+###
 ### Optimize Models based on lme4 package ######################################
 optLme4Mdl <- function(model,
                        checks = c("allFit", "optimx", "nloptwrap"),
                        reject_nl = T) {
+
+  ###
   # Returns lme4-based model which converges, if possible.
   # If no better model found, original model is returned with a text Warning.
   # Notes:
@@ -1321,6 +1354,7 @@ optLme4Mdl <- function(model,
   #   2. Nelder-mead is not advised for high-dimensional models,
   #      reject_nl is set to T as default. If you want to include Nelder-Mead
   #      optimization, set: reject_nl = F.
+  ###
 
   library(tidyverse)
   library(parallel)
@@ -1346,7 +1380,7 @@ optLme4Mdl <- function(model,
     diff_optims <-
       allFit(model,
              maxfun = 1e5,
-             verbose = T,
+             verbose = F,
              parallel = "multicore",
              ncpus = ncores)
 
@@ -1382,20 +1416,13 @@ optLme4Mdl <- function(model,
 
     num_options <- length(optimx_options)
     info <- "No option"
-
-    cat("\nRunning basic model with different settings\n", sep = "")
-    model <- update(model,
-                  control = lmerControl(
-                    optCtrl = list(maxit = 1e9, maxfun = 1e9)
-                  ))
-
-    cat("Checking optimx optimization settings:\n", sep = "")
+    cat("\nChecking optimx optimization settings", sep = "")
 
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nl)) {
       i  <-  i + 1
-      cat(" -", optimx_options[i], "\n" )
+      cat(",", optimx_options[i])
       model <- update(model,
         control = lmerControl(
           optimizer = "optimx",
@@ -1404,6 +1431,7 @@ optLme4Mdl <- function(model,
         )
       )
     }
+    cat("\n")
 
     if (modelIsOK(model, reject_nl)) {
       info <- optimx_options[i]
@@ -1431,12 +1459,12 @@ optLme4Mdl <- function(model,
 
     num_options <- length(opts)
     info <- "No option"
-    cat("\nChecking nloptwrap options:\n", sep = "")
+    cat("\nChecking nloptwrap options", sep = "")
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nl)) {
       i  <- i + 1
-      cat(" -", opts[i], "\n" )
+      cat(",", opts[i])
       cur_option <- opts[i]
       try(
         model <- update(model,
@@ -1450,6 +1478,7 @@ optLme4Mdl <- function(model,
         )
 
     }
+    cat("\n")
 
     if (modelIsOK(model, reject_nl)) {
       info <- opts[i]
@@ -1475,45 +1504,70 @@ optLme4Mdl <- function(model,
 
   getModelElements <- function(model) {
     # Get elements of a model used for functions associated with optLme4Mdl
-    ans <- list("formula" =  formula <- formula(model),
-                "optimizer" =  model@optinfo$optimizer,
-                "frame" =  model@frame,
-                "maxfun" = model@optinfo$control$maxfun,
-                "package" = model@resp$.objectPackage)
+    ans <- list(
+      "formula" =  formula <- formula(model),
+      "optimizer" =  model@optinfo$optimizer,
+      "frame" =  model@frame,
+      "maxfun" = model@optinfo$control$maxfun,
+      "package" = model@resp$.objectPackage
+    )
     return(ans)
   }
 
 
-  ### outer function
-  ##################
-
-  if (!modelIsOK(model, reject_nl) & "allFit" %in% checks) {
-    try(model <- tryAllFit(model))
-    if(modelIsOK(model, reject_nl)){solution <- "after trying allFit()"}
+  ### Outer function
+  if (!modelIsOK(model, reject_nl)) {
+    cat("\nRunning basic model with less strict control settings.\n", sep = "")
+    try(model <- update(model, control = lmerControl(
+      optCtrl = list(
+        maxit = 1e9,
+        maxfun = 1e9,
+        xtol_abs = 1e-9,
+        ftol_abs = 1e-9
+      )
+    )))
+    if (!modelIsOK(model, reject_nl)){
+      solution = " less strict control settings."
+      }
   }
 
-  if (!modelIsOK(model, reject_nl) & "optimx" %in% checks){
+  if (!modelIsOK(model, reject_nl) &
+      "allFit" %in% checks) {
+    try(model <- tryAllFit(model))
+    if (modelIsOK(model, reject_nl)) {
+      solution <- "after trying allFit()"
+    }
+  }
+
+  if (!modelIsOK(model, reject_nl) & "optimx" %in% checks) {
     model <- tryOptimx(model, reject_nl)
-    if(modelIsOK(model, reject_nl)){solution <- "after varying optimx settings."}
+    if (modelIsOK(model, reject_nl)) {
+      solution <- "after varying optimx settings."
+    }
   }
 
   if (!modelIsOK(model, reject_nl) & "nloptwrap" %in% checks) {
     model <- trynlopt(model, reject_nl)
-    if(modelIsOK(model, reject_nl)){solution <- "after varying nloptwrap options."}
+    if (modelIsOK(model, reject_nl)) {
+      solution <- "after varying nloptwrap options."
+    }
   }
 
   if (!modelIsOK(model, reject_nl)) {
     model <- original_model
-    cat("\nNo alternatives converged. Reverting to original model.\n", sep = "")
+    cat("\nNo alternatives converged. Reverting to original model.\n",
+        sep = "")
   }
   else {
     found <- getModelElements(model)
     cat("\nModel found using ",
         found$optimizer,
         " after trying ",
-        solution, ".\n",
+        solution,
+        ".\n",
         sep = "")
   }
+
 
   return(model)
 
@@ -1538,3 +1592,5 @@ modelIsOK <- function(model, reject_nl = T) {
 
 }
 
+
+###
