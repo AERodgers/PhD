@@ -1,0 +1,1 @@
+e_f0 ~ foot_syls + pre_syls + fin_phon + nuc_new_word + gender + (1 | speaker) + (1 | nuc_str_syl)

@@ -1,0 +1,4 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+acc_phon,1.852,0.926,2,197.737,0.666,0.515,0.624,
+wrd_end_syl,4.742,2.371,2,10.65,1.706,0.228,0.314,
+gender,19.141,19.141,1,9.465,13.772,0.004,0.011,p<.05

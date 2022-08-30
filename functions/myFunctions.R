@@ -371,7 +371,8 @@ summariseLME <-
            write=NULL,
            extra_text="",
            post_hoc_method = "BH",
-           print_summary = T)
+           print_summary = T,
+           draw_resids = T)
     # short function to remove need for repetition of optimized used throughout.
   {
     installMissingPackages(c("lme4",
@@ -415,8 +416,9 @@ summariseLME <-
     # output results
 
 
-
-    drawResiduals(my_model)
+    if(draw_resids) {
+      drawResiduals(my_model)
+      }
 
     if(print_summary) {
       print(summary(my_model))
@@ -995,7 +997,7 @@ adjustP_posthoc <-
            p_column = "p.value", # name of p.column
            method = "BH",        # p. adjustment method
            significance = T,     # flag for including significance column,
-           marginal = F,      # include marginal significance flag.
+           marginal = F,         # include marginal significance flag.
            write = TRUE,         # write results to file flag.
            report = FALSE,       # flag to report total number of tests and
                                  # p.values < 0.05 before and after adjustment.
@@ -1334,8 +1336,8 @@ tidyStatNumbers <- function(stats) {
       stats <- add_row(stats, term = i)
     }
 
-    stats <- mutate(stats,
-                    across(.cols = everything(), ~ if_else(is.na(.), "", .)))
+    # stats <- mutate(stats,
+    #                 across(.cols = everything(), ~ if_else(is.na(.), "", .)))
     return(stats)
 
 }

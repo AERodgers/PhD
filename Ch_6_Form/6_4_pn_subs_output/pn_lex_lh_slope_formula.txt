@@ -1,0 +1,1 @@
+log_lh_slope ~ wrd_end_syl + gender + (1 + wrd_end_syl | speaker) + (1 | foot_syls)

@@ -129,7 +129,7 @@ summary(pn_lex_h_data$acc_phon)
 ```
 
 ```{r Remove unwanted objects from environment}
-rm(pn, nuc, nuc_foot, pn_lex, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 rm(stress, l_star_type, h_star_type)
 ```
 
@@ -139,15 +139,14 @@ rm(stress, l_star_type, h_star_type)
 pn_lex_h_t_formula = formula(
   h_t ~
     acc_phon
-  + ana_syls
-  + foot_syls
   + wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
+     + acc_phon
      + wrd_end_syl
      | speaker)
+  + (1 | foot_syls)
+  + (1 | ana_syls)
   + (1 | speech_rate)
   + (1 | wrd_end_t)
   )   
@@ -167,7 +166,7 @@ pn_lex_h_t_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_lex_h_t_mdl <- optLme4Mdl(pn_lex_h_t_mdl, reject_nl = T)
+#pn_lex_h_t_mdl <- optLme4Mdl(pn_lex_h_t_mdl, reject_nl = T)
 
 if(!modelIsOK(pn_lex_h_t_mdl)){
   step_result <- step(pn_lex_h_t_mdl)
@@ -178,17 +177,14 @@ cat("Updating formula.\n", sep ="")
 pn_lex_h_t_formula = formula(
   h_t ~
     acc_phon
-  + ana_syls
-  + foot_syls
   + wrd_end_syl
   + gender
   + (1
-  #   + ana_syls
-  #   + foot_syls
-  #   + wrd_end_syl
      | speaker)
+  #+ (1 | foot_syls)
+  + (1 | ana_syls)
   #+ (1 | speech_rate)
-  #+ (1 | wrd_end_t)
+ # + (1 | wrd_end_t)
   )    
 
 pn_lex_h_t_mdl <- update(pn_lex_h_t_mdl, formula = pn_lex_h_t_formula)
@@ -199,44 +195,44 @@ pn_lex_h_t_mdl <- optLme4Mdl(pn_lex_h_t_mdl)
 #first <- summariseLME(pn_lex_h_t_mdl, print_summary = F)
 
 tibble(`Summary of model` = getModelFormula(pn_lex_h_t_mdl)) %>%
-        formattable(align = "l")
+          formattable(align = "l")
 
 anova <- summariseLME(
-  pn_lex_h_t_mdl
- , write = "6_4_output/pn_lex_h_t_anova.csv"
+  pn_lex_h_t_mdl,
+  run_step = F
+  , write = "6_4_pn_subs_output/pn_lex_h_t_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_lex_h_t_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_t_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_lex_h_t_mdl)))
-
 
 ```
 ```{r pn_lex_h_t analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_lex_h_t_mdl.tidy <- analyseModel(
   pn_lex_h_t_mdl
-  , write="6_4_output/pn_lex_h_t"
-  , type = "est"
+  , write="6_4_pn_subs_output/pn_lex_h_t"
+  , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_lex_h_t pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_lex_h_t_mdl, write="6_4_output/pn_lex_h_t")
+charts <- getModelFixedFX(pn_lex_h_t_mdl, write="6_4_pn_subs_output/pn_lex_h_t")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_lex_h_t_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_t_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_lex_h_t_mdl)))
 
-read_csv("6_4_output/pn_lex_h_t_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_t_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_lex_h_t_mdl)))
@@ -251,18 +247,17 @@ formattable(caption = paste("Slopes of model:",
 pn_lex_h_f0_formula = formula(
   h_f0 ~
     acc_phon
-  + ana_syls
-  + foot_syls
   + wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
+     + acc_phon
      + wrd_end_syl
      | speaker)
+  + (1 | foot_syls)
+  + (1 | ana_syls)
   + (1 | speech_rate)
   + (1 | wrd_end_t)
-  )                        
+  )                         
 
 pn_lex_h_f0_mdl = lmer(
   pn_lex_h_f0_formula,
@@ -279,7 +274,7 @@ pn_lex_h_f0_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_lex_h_f0_mdl <- optLme4Mdl(pn_lex_h_f0_mdl, reject_nl = T)
+#pn_lex_h_f0_mdl <- optLme4Mdl(pn_lex_h_f0_mdl, reject_nl = T)
 
 
 if(!modelIsOK(pn_lex_h_f0_mdl)){
@@ -291,17 +286,15 @@ cat("Updating formula.\n", sep ="")
 pn_lex_h_f0_formula = formula(
   h_f0 ~
     acc_phon
-  + ana_syls
-  + foot_syls
   + wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
      + wrd_end_syl
      | speaker)
+#  + (1 | foot_syls)
+  + (1 | ana_syls)
  # + (1 | speech_rate)
- # + (1 | wrd_end_t)
+  #+ (1 | wrd_end_t)
   )  
 pn_lex_h_f0_mdl <- update(pn_lex_h_f0_mdl, formula = pn_lex_h_f0_formula)
 pn_lex_h_f0_mdl <- optLme4Mdl(pn_lex_h_f0_mdl, reject_nl = T)
@@ -310,14 +303,14 @@ pn_lex_h_f0_mdl <- optLme4Mdl(pn_lex_h_f0_mdl, reject_nl = T)
 
 anova <- summariseLME(
   pn_lex_h_f0_mdl
- , write = "6_4_output/pn_lex_h_f0_anova.csv"
+ , write = "6_4_pn_subs_output/pn_lex_h_f0_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_lex_h_f0_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_f0_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_lex_h_f0_mdl)))
@@ -327,23 +320,23 @@ read_csv("6_4_output/pn_lex_h_f0_anova.csv") %>%
 ```{r pn_lex_h_f0 analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_lex_h_f0_mdl.tidy <- analyseModel(
   pn_lex_h_f0_mdl
-  , write="6_4_output/pn_lex_h_f0"
-  , type = "est"
+  , write="6_4_pn_subs_output/pn_lex_h_f0"
+  , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_lex_h_f0 pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_lex_h_f0_mdl, write="6_4_output/pn_lex_h_f0")
+charts <- getModelFixedFX(pn_lex_h_f0_mdl, write="6_4_pn_subs_output/pn_lex_h_f0")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_lex_h_f0_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_f0_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_lex_h_f0_mdl)))
 
-read_csv("6_4_output/pn_lex_h_f0_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_h_f0_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_lex_h_f0_mdl)))
@@ -355,18 +348,16 @@ formattable(caption = paste("Slopes of model:",
 ```{r pn_lex_f0_exc Get best model, fig.height=3, fig.width=9}
 pn_lex_f0_exc_formula = formula(
   f0_exc ~ 
-    ana_syls
-  + foot_syls
-  + wrd_end_syl
+    wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
      + wrd_end_syl
      | speaker)
+  + (1 | foot_syls)
+  + (1 | ana_syls)
   + (1 | speech_rate)
   + (1 | wrd_end_t)
-  )
+  )  
 
 pn_lex_f0_exc_mdl = lmer(
   pn_lex_f0_exc_formula,
@@ -383,7 +374,7 @@ pn_lex_f0_exc_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_lex_f0_exc_mdl <- optLme4Mdl(pn_lex_f0_exc_mdl, reject_nl = T)
+#pn_lex_f0_exc_mdl <- optLme4Mdl(pn_lex_f0_exc_mdl, reject_nl = T)
 
 if(!modelIsOK(pn_lex_f0_exc_mdl)){
   step_result <- step(pn_lex_f0_exc_mdl)
@@ -394,18 +385,17 @@ if(!modelIsOK(pn_lex_f0_exc_mdl)){
 cat("Updating formula.\n", sep ="")
 pn_lex_f0_exc_formula = formula(
   f0_exc ~ 
-    ana_syls
-  + foot_syls
-  + wrd_end_syl
+    wrd_end_syl
   + gender
   + (1
- #   + ana_syls
- #   + foot_syls
      + wrd_end_syl
      | speaker)
+  #+ (1 | foot_syls)
+  #+ (1 | ana_syls)
   #+ (1 | speech_rate)
- # + (1 | wrd_end_t)
-  )
+  #+ (1 | wrd_end_t)
+  )  
+
 pn_lex_f0_exc_mdl <- update(pn_lex_f0_exc_mdl,
                              formula = pn_lex_f0_exc_formula)
 
@@ -444,14 +434,14 @@ tibble(`Summary of model` = getModelFormula(pn_lex_f0_exc_mdl)) %>%
 anova <- summariseLME(
   pn_lex_f0_exc_mdl.trimmed,
   run_step = F
-  , write = "6_4_output/pn_lex_f0_exc_anova.csv"
+  , write = "6_4_pn_subs_output/pn_lex_f0_exc_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_lex_f0_exc_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_f0_exc_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_lex_f0_exc_mdl.trimmed)))
@@ -461,24 +451,24 @@ read_csv("6_4_output/pn_lex_f0_exc_anova.csv") %>%
 ```{r pn_lex_f0_exc analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_lex_f0_exc_mdl.tidy <- analyseModel(
   pn_lex_f0_exc_mdl.trimmed
-  , write="6_4_output/pn_lex_f0_exc"
-  , type = "est"
+  , write="6_4_pn_subs_output/pn_lex_f0_exc"
+  , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_lex_f0_exc pairwise comparison, fig.height=2.5, fig.width=3.01}
 charts <- getModelFixedFX(pn_lex_f0_exc_mdl.trimmed,
-                          write="6_4_output/pn_lex_f0_exc")
+                          write="6_4_pn_subs_output/pn_lex_f0_exc")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_lex_f0_exc_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_f0_exc_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_lex_f0_exc_mdl.trimmed)))
 
-read_csv("6_4_output/pn_lex_f0_exc_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_f0_exc_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_lex_f0_exc_mdl.trimmed)))
@@ -489,18 +479,17 @@ formattable(caption = paste("Slopes of model:",
 ```{r pn_lex_lh_slope Get best model, fig.height=3, fig.width=9}
 pn_lex_lh_slope_formula = formula(
   log_lh_slope ~ 
-    ana_syls
-  + foot_syls
-  + wrd_end_syl
+    wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
      + wrd_end_syl
      | speaker)
+  + (1 | foot_syls)
+  + (1 | ana_syls)
   + (1 | speech_rate)
   + (1 | wrd_end_t)
-  )   
+  ) 
+  
 
 pn_lex_lh_slope_mdl = lmer(
   pn_lex_lh_slope_formula,
@@ -517,7 +506,7 @@ pn_lex_lh_slope_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_lex_lh_slope_mdl <- optLme4Mdl(pn_lex_lh_slope_mdl, reject_nl = T)
+#pn_lex_lh_slope_mdl <- optLme4Mdl(pn_lex_lh_slope_mdl, reject_nl = T)
 
 step_result <- step(pn_lex_lh_slope_mdl)
 cat("Model found by step():", getModelFormula(get_model(step_result)), "\n")
@@ -525,80 +514,65 @@ cat("Model found by step():", getModelFormula(get_model(step_result)), "\n")
 cat("Updating formula.\n", sep ="")
 pn_lex_lh_slope_formula = formula(
   log_lh_slope ~ 
-    ana_syls
-  + foot_syls
-  + wrd_end_syl
+    wrd_end_syl
   + gender
   + (1
-     + ana_syls
-     + foot_syls
      + wrd_end_syl
      | speaker)
+  + (1 | foot_syls)
+  #+ (1 | ana_syls)
   #+ (1 | speech_rate)
   #+ (1 | wrd_end_t)
-  )  
+  ) 
+  
 
 pn_lex_lh_slope_mdl <- update(pn_lex_lh_slope_mdl,
                               formula = pn_lex_lh_slope_formula)
 pn_lex_lh_slope_mdl <- optLme4Mdl(pn_lex_lh_slope_mdl, reject_nl = T)
 
-first <- summariseLME(pn_lex_lh_slope_mdl, print_summary = F)
+#first <- summariseLME(pn_lex_lh_slope_mdl, print_summary = F)
 
-# model needs trimming
-sd_threshold = 2.5
-cat("\nTrimming data with residual sd > ", sd_threshold, ".\n", sep ="")
-pn_lex_lh_slope_data.trimmed <-
-  pn_lex_lh_data %>%
-  filter(abs(scale(resid(pn_lex_lh_slope_mdl))) <= sd_threshold)
-
-
-
-pn_lex_lh_slope_mdl.trimmed <- update(pn_lex_lh_slope_mdl,
-                              data = pn_lex_lh_slope_data.trimmed)
-
-pn_lex_lh_slope_mdl.trimmed <- optLme4Mdl(pn_lex_lh_slope_mdl.trimmed)
-
-tibble(`Summary of model` = getModelFormula(pn_lex_lh_slope_mdl.trimmed)) %>%
+tibble(`Summary of model` = getModelFormula(pn_lex_lh_slope_mdl)) %>%
         formattable(align = "l")
 
-anova <- summariseLME(pn_lex_lh_slope_mdl.trimmed,
-                      write ="6_4_output/pn_lex_lh_slope_anova.csv")
+anova <- summariseLME(pn_lex_lh_slope_mdl,
+                      write ="6_4_pn_subs_output/pn_lex_lh_slope_anova.csv")
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_lex_lh_slope_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_lh_slope_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_lex_lh_slope_mdl.trimmed)))
+                            getModelFormula(pn_lex_lh_slope_mdl)))
 
 
 ```
 ```{r pn_lex_lh_slope analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_lex_lh_slope_mdl.tidy <- analyseModel(
-  pn_lex_lh_slope_mdl.trimmed
-  , write="6_4_output/pn_lex_lh_slope"
-  , type = "est"
+  pn_lex_lh_slope_mdl
+  , write="6_4_pn_subs_output/pn_lex_lh_slope"
+  , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_lex_lh_slope pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_lex_lh_slope_mdl.trimmed, write="6_4_output/pn_lex_lh_slope")
+charts <- getModelFixedFX(pn_lex_lh_slope_mdl, write="6_4_pn_subs_output/pn_lex_lh_slope")
 
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_lex_lh_slope_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_lh_slope_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
-                            getModelFormula(pn_lex_lh_slope_mdl.trimmed)))
+                            getModelFormula(pn_lex_lh_slope_mdl)))
 
-read_csv("6_4_output/pn_lex_lh_slope_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_lex_lh_slope_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
-                            getModelFormula(pn_lex_lh_slope_mdl.trimmed)))
+                            getModelFormula(pn_lex_lh_slope_mdl)))
 
 
 ```

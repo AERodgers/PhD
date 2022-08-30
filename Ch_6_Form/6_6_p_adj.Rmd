@@ -63,7 +63,7 @@ adjustP_posthoc("6_2_output/",
 ```{r pn phonetic models b0, results="asis"}
 
 #### a. $\beta_0$
-# adjustP_posthoc("6_4_output/",
+# adjustP_posthoc("6_4_subset_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -75,7 +75,7 @@ adjustP_posthoc("6_2_output/",
 
 ```{r pn phonetics models b1, results="asis"}
 #### b. $\beta_1$
-# adjustP_posthoc("6_4_output/",
+# adjustP_posthoc("6_4_subset_output/",
 #                 p.value,
 #                 method = "none",
 #                 significance = F,
@@ -87,7 +87,7 @@ adjustP_posthoc("6_2_output/",
 
 ```{r pn phonetic ANOVAs, results="asis"}
 ### c. ANOVAs
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_subset_output/",
                 p.value,
                 suffix_id = "_anova",
                 print = TRUE)

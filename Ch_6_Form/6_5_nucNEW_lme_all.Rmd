@@ -1,0 +1,838 @@
+---
+title: "LME Analysis of PNs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "ggeffects",
+    "optimx",
+    "MuMIn",
+    "dfoptim",
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+# Get  data for analysis
+
+source("6_0_get_AH.R")
+
+h_star_type <-  c("L*H", ">H*", "H*")
+l_star_type <-  c("L*H", "L*")
+
+pn <- pn %>%
+  select(speaker,
+         gender,
+         stim,
+         ana_syls,
+         foot_syls,
+         wrd_end_syl,
+         ana_text,
+         pn_str_syl,
+         pn_new_word,
+         nuc_pre_text,
+         acc_phon,
+         speech_rate,
+         l_t,
+         l_f0,
+         h_t,
+         h_f0,
+         lh_slope,
+         f0_exc) %>%
+  mutate(
+    stim = factor(stim, levels = unique(stim)),
+    gender = factor(gender, levels = c("F", "M")),
+    foot_syls = factor(foot_syls, levels = 1:4)
+  ) 
+
+pn_l_data <- pn %>%
+  filter(acc_phon %in% l_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type))%>%
+  select(-c(h_t, h_f0))
+
+pn_h_data <- pn %>%
+  filter(acc_phon %in% h_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>%
+  select(-c(l_t, l_f0))
+
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+
+
+```
+
+```{r check levels in factors, results="asis", eval=FALSE}
+
+star_found = F
+cat("Factors for pn_l_data\n")
+for (i in colnames(pn_l_data)) {
+  if(length(unique(pn_l_data[[i]])) == 1){
+    star =" *"
+  star_found = T
+  }
+  else{
+    star = ""
+    }
+  if (is.factor(pn_l_data[[eval(i)]])) {
+    cat("\n", i, star,"  \tunique = ", length(unique(pn_l_data[[i]])),
+        "  \tlevels = ", length(levels(pn_l_data[[i]])), sep = "")
+  }
+  else {
+    cat("\n", i, sep = "")
+    }
+}
+cat("\n")
+if(star_found){
+  cat("\n* Factor only has one level in the actual data.\n")
+}
+cat("\nacc_phon counts\n")
+summary(pn_l_data$acc_phon)
+star_found = F
+cat("\n\nFactors for pn_h_data\n")
+for (i in colnames(pn_h_data)) {
+  if(length(unique(pn_h_data[[i]])) == 1){
+    star = " *"
+  star_found = T
+  }
+  else{
+    star = ""
+    }
+
+  if (is.factor(pn_h_data[[eval(i)]])) {
+    cat("\n", i, star, "  \tunique = ", length(unique(pn_h_data[[i]])),
+        "  \tlevels = ", length(levels(pn_h_data[[i]])), sep = "")
+  }
+    else {
+    cat("\n", i, sep = "")
+    }
+}
+cat("\n")
+if(star_found){
+  cat("\n* Factor only has one level in the actual data.\n")
+}
+cat("\nacc_phon counts\n")
+summary(pn_h_data$acc_phon)
+
+pn_l_data <- pn %>%
+  filter(acc_phon %in% l_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type))%>%
+  select(-c(h_t, h_f0))
+
+
+```
+
+## L targets
+
+### Analysis of L timing
+
+```{r set l_t equation}
+l_t_equation = formula(
+  l_t ~
+    ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls | speaker)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+```{r run l_t models, fig.height=3, fig.width=9}
+pn_l_t_mdl = lmer(
+  l_t_equation,
+  pn_l_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_l_t_mdl <- optLme4Mdl(pn_l_t_mdl, reject_nl = T)
+x <- summariseLME(pn_l_t_mdl, run_step = T, print_summary = F)
+
+
+sd_threshold = 2.5
+cat("\nTrimming data with residual sd > ", sd_threshold, ".\n", sep ="")
+pn_l_t_data.trimmed <-
+  pn_l_data %>% filter(abs(scale(resid(pn_l_t_mdl))) <= sd_threshold)
+pn_l_t_mdl.trimmed <- update(pn_l_t_mdl, data = pn_l_t_data.trimmed)
+pn_l_t_mdl.trimmed <- optLme4Mdl(pn_l_t_mdl.trimmed, reject_nl = T)
+
+pn_l_t_mdl.trimmed <- update(pn_l_t_mdl.trimmed,
+                             control = lmerControl(
+                               optimizer = "nloptwrap",
+                               optCtrl = list(
+                                 algorithm = "NLOPT_LN_PRAXIS",
+                                 maxfun = 1e9,
+                                 maxeval = 1e7,
+                                 xtol_abs = 1e-9,
+                                 ftol_abs = 1e-9
+                               )
+                             ))
+
+tibble(`Summary of model` = getModelFormula(pn_l_t_mdl.trimmed)) %>%
+          formattable(align = "l")
+
+anova <- summariseLME(
+  pn_l_t_mdl.trimmed,
+  run_step = F
+  , write = "6_4_pn_all_output/pn_l_t_anova.csv"
+  )
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+read_csv("6_4_pn_all_output/pn_l_t_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_l_t_mdl.trimmed)))
+
+
+
+```
+```{r plot l_t estimated effects, fig.height=3.5, fig.width=4}
+plot_model(
+  pn_l_t_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+```{r l_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+pn_l_t_mdl.tidy <- analyseModel(
+  pn_l_t_mdl.trimmed,
+  write="6_4_pn_all_output/pn_l_t",
+  type = "pred",
+  factor_matrix = TRUE
+  )
+
+```
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+
+charts <- getModelFixedFX(
+  pn_l_t_mdl.trimmed,
+  write="6_4_pn_all_output/pn_l_t"
+)
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_l_t_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_l_t_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+```
+
+### Analysis of L F0
+
+```{r set l_f0 equation}
+l_f0_equation = formula(
+  l_f0 ~
+    ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls| speaker)
+  + (1 | pn_str_syl)
+)
+optimizer = "optimx"
+```
+```{r run l_f0 models, fig.height=3, fig.width=9}
+pn_l_f0_mdl = lmer(
+  l_f0_equation,
+  pn_l_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+x <- summariseLME(pn_l_f0_mdl, print_summary = F, draw_resids = F)
+
+l_f0_equation = formula(
+  l_f0 ~
+    ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls| speaker)
+ )
+
+pn_l_f0_mdl <- update(pn_l_f0_mdl, formula = l_f0_equation)
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+x <- summariseLME(pn_l_f0_mdl, print_summary = F)
+
+# model needs trimming
+pn_l_f0.trimmed <- pn_l_data %>%
+  filter(abs(scale(resid(pn_l_f0_mdl))) <= 3.5)
+
+pn_l_f0_mdl <- update(pn_l_f0_mdl, data = pn_l_f0.trimmed)
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+
+tibble(`Summary of model` = getModelFormula(pn_l_f0_mdl)) %>%
+          formattable(align = "l")
+
+x <- summariseLME(pn_l_f0_mdl,
+                  run_step = T,
+                  write = "6_4_pn_all_output/pn_l_f0_anova.csv")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_l_f0_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_l_f0_mdl)))
+
+```
+```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=4}
+plot_model(pn_l_f0_mdl, transform = NULL, show.values = T, vline = "Red")
+```
+```{r l_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl,
+                                 write="6_4_pn_all_output/pn_l_f0",
+                                 type = "pred")
+```
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+
+charts <- getModelFixedFX(
+  pn_l_f0_mdl,
+  write = "6_4_pn_all_output/pn_l_f0"
+)
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_l_f0_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_l_f0_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+
+```
+
+## H targets
+
+### Analysis of H timing
+
+```{r set h_t equation}
+h_t_equation = formula(
+  h_t ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls | speaker)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+```{r run h_t models, fig.height=3, fig.width=9}
+pn_h_t_mdl = lmer(
+  h_t_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_h_t_mdl <- optLme4Mdl(pn_h_t_mdl, reject_nl = T)
+x <- summariseLME(pn_h_t_mdl,
+                  run_step = T, print_summary = F
+                  )
+
+# model needs trimming
+pn_h_t.trimmed <- pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
+pn_h_t_mdl.trimmed = update(pn_h_t_mdl, data = pn_h_t.trimmed)
+#pn_h_t_mdl.trimmed <- optLme4Mdl(pn_h_t_mdl.trimmed, reject_nl = T)
+pn_h_t_mdl.trimmed = update(pn_h_t_mdl.trimmed,
+                            control = lmerControl(
+                              optimizer = "nloptwrap",
+                              optCtrl = list(
+                                algorithm = "NLOPT_LN_PRAXIS",
+                                maxfun = 1e9,
+                                maxeval = 1e7,
+                                xtol_abs = 1e-9,
+                                ftol_abs = 1e-9
+                              )
+                            ))
+
+tibble(`Summary of model` = getModelFormula(pn_h_t_mdl.trimmed)) %>%
+          formattable(align = "l")
+
+x <- summariseLME(pn_h_t_mdl.trimmed,
+                  run_step = F,
+                  write = "6_4_pn_all_output/pn_h_t_anova.csv"
+  )
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_h_t_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_t_mdl.trimmed)))
+```
+```{r plot h_t estimated effects, fig.height=3.5, fig.width=4}
+plot_model(pn_h_t_mdl.trimmed, show.values = T, vline = "Red")
+```
+```{r h_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+pn_h_t_mdl.tidy <- analyseModel(
+  pn_h_t_mdl.trimmed
+  , write="6_4_pn_all_output/pn_h_t"
+  , type = "pred"
+  , factor_matrix = TRUE
+  )
+```
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+charts <- getModelFixedFX(
+  pn_h_t_mdl.trimmed,
+  write="6_4_pn_all_output/pn_h_t"
+)
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_h_t_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_h_t_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+
+```
+
+### Analysis of H F0
+
+```{r set h_f0 equation}
+h_f0_equation = formula(
+  h_f0 ~
+    acc_phon
+  + ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls | speaker)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+
+```{r run h_f0 models, fig.height=3, fig.width=9}
+pn_h_f0_mdl = lmer(
+  h_f0_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_h_f0_mdl <- optLme4Mdl(pn_h_f0_mdl, reject_nl = T)
+
+x <- summariseLME(
+  pn_h_f0_mdl, write = "6_4_pn_all_output/pn_h_f0_anova.csv"
+  )
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_h_f0_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_f0_mdl)))
+
+```
+
+```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=4}
+plot_model(
+  pn_h_f0_mdl,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r h_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
+                                write="6_4_pn_all_output/pn_h_f0",
+                                type = "pred"
+                                )
+```
+
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+
+charts <- getModelFixedFX(
+  pn_h_f0_mdl, 
+  write="6_4_pn_all_output/pn_h_f0"
+)
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_h_f0_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_h_f0_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+
+
+```
+
+
+## Truncation and Compression Effects
+
+Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
+
+As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
+
+```{r get data ready for T and C analysis}
+pn_tnc_data <- pn_l_data %>%
+  mutate(log_lh_slope = log(lh_slope)) %>%
+  filter(acc_phon == "L*H")
+```
+
+### LH Excursion
+
+-  first run, step() suggests: `f0_exc ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
+
+```{r set f0_exc equation}
+
+f0_exc_equation = formula(
+  f0_exc ~ 
+    ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 | speaker)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+
+```{r run f0_exc models, fig.height=3, fig.width=9}
+pn_f0_exc_mdl = lmer(
+  f0_exc_equation,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T)
+
+x <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
+
+
+# model needs trimming
+pn_f0_exc.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 3)
+pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
+
+pn_f0_exc_mdl.trimmed <- optLme4Mdl(pn_f0_exc_mdl.trimmed, reject_nl = T)
+
+x <- summariseLME(pn_f0_exc_mdl.trimmed,
+             run_step = F,
+             write = "6_4_pn_all_output/pn_f0_exc_anova.csv")
+
+pn_f0_exc_mdl.trimmed = optLme4Mdl(pn_f0_exc_mdl.trimmed)
+
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_f0_exc_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(pn_f0_exc_mdl.trimmed)))
+```
+
+```{r plot f0 exc estimated effects, fig.height=3.5, fig.width=4}
+plot_model(
+  pn_f0_exc_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r f0_exc model summary, fig.height=2.5, fig.width=3.051181, , results="asis"}
+
+pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
+                                write="6_4_pn_all_output/pn_f0_exc",
+                                type = "pred"
+                                )
+pn_f0_exc_mdl.tidy$table
+
+```
+
+
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=3.051181}
+
+charts <- getModelFixedFX(
+  pn_f0_exc_mdl.trimmed,
+  write="6_4_pn_all_output/pn_f0_exc"
+  )
+
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_f0_exc_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_f0_exc_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+
+
+```
+
+### LH Slope
+
+```{r set lh_slope equation}
+lh_slope_equation = formula(
+  log_lh_slope ~
+    ana_syls
+  + foot_syls
+  + wrd_end_syl
+  + pn_new_word
+  + gender
+  + (1 + foot_syls| speaker)
+  + (1 | pn_str_syl)
+)
+
+
+optimizer = "optimx"
+```
+
+
+```{r run lh_slope models, fig.height=3, fig.width=9}
+pn_lh_slope_mdl = lmer(
+  lh_slope_equation,
+  pn_tnc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+```
+- data needs trimming: residual SD > 4
+```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
+# model needs trimming
+pn_lh_slope.trimmed <-
+  pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
+
+pn_lh_slope_mdl.trimmed = lmer(
+  lh_slope_equation,
+  pn_lh_slope.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+#pn_lh_slope_mdl.trimmed <- optLme4Mdl(pn_lh_slope_mdl.trimmed, reject_nl = T)
+pn_lh_slope_mdl.trimmed <- update(pn_lh_slope_mdl.trimmed,
+                                  control = lmerControl(
+                                    optimizer = "nloptwrap",
+                                    optCtrl = list(
+                                      algorithm = "NLOPT_LN_NEWUOA_BOUND",
+                                      maxfun = 1e9,
+                                      maxeval = 1e7,
+                                      xtol_abs = 1e-9,
+                                      ftol_abs = 1e-9
+                                    )
+                                  ))
+
+x <- summariseLME(pn_lh_slope_mdl.trimmed,
+             run_step = F,
+             write = "6_4_pn_all_output/pn_lh_slope_anova.csv")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_lh_slope_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(pn_lh_slope_mdl.trimmed)))
+```
+
+```{r plot lh slope estimated effects, fig.height=3.5, fig.width=4}
+plot_model(
+  pn_lh_slope_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T,
+  vline = "Red"
+ )
+```
+
+```{r lh_slope model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
+                                write="6_4_pn_all_output/pn_lh_slope",
+                                type = "pred"
+                                )
+pn_lh_slope_mdl.tidy$table
+
+```
+
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181}
+
+charts <- getModelFixedFX(
+  pn_lh_slope_mdl.trimmed,
+  write="6_4_pn_all_output/pn_lh_slope"
+)
+
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b0",
+                method = "BH")
+
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_b1",
+                method = "BH")
+
+read_csv("6_4_pn_all_output/pn_lh_slope_b0.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("Intercepts of model"))
+
+read_csv("6_4_pn_all_output/pn_lh_slope_b1.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Slopes of model"))
+
+
+
+```

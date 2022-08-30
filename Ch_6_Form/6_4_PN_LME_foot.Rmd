@@ -140,7 +140,7 @@ pn_foot_l_t_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_foot_l_t_mdl <- optLme4Mdl(pn_foot_l_t_mdl, reject_nl = T)
+# pn_foot_l_t_mdl <- optLme4Mdl(pn_foot_l_t_mdl, reject_nl = T)
 
 if(!modelIsOK(pn_foot_l_t_mdl)){
   step_result <- step(pn_foot_l_t_mdl)
@@ -185,13 +185,13 @@ tibble(`Summary of model` = getModelFormula(pn_foot_l_t_mdl.trimmed)) %>%
         formattable(align = "l")
 
 anova <- summariseLME(pn_foot_l_t_mdl.trimmed, 
-                      write = "6_4_output/pn_foot_l_t_anova.csv")
+                      write = "6_4_pn_subs_output/pn_foot_l_t_anova.csv")
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_l_t_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_t_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_l_t_mdl.trimmed)))
@@ -201,7 +201,7 @@ formattable(caption = paste("ANOVA of model:",
 ```{r pn_foot_l_t analyse model, fig.height=2.5, fig.width=3.01, results='asis'}
 pn_foot_l_t_mdl.tidy <- analyseModel(
   pn_foot_l_t_mdl.trimmed
-  , write="6_4_output/pn_foot_h_t"
+  , write="6_4_pn_subs_output/pn_foot_h_t"
   , type = "pred"
   , factor_matrix = TRUE
   )
@@ -209,22 +209,22 @@ pn_foot_l_t_mdl.tidy <- analyseModel(
 ```{r pn_foot_l_t pairwise comparison, fig.height=2.5, fig.width=3.01}
 charts <- getModelFixedFX(
   pn_foot_l_t_mdl.trimmed,
-  write="6_4_output/pn_foot_l_t",
+  write="6_4_pn_subs_output/pn_foot_l_t",
 )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
-                suffix_id = "_b0")
-adjustP_posthoc("6_4_output/",
+                suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
-                suffix_id = "_b1")
+                suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_foot_l_t_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_t_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_l_t_mdl.trimmed)))
 
-read_csv("6_4_output/pn_foot_l_t_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_t_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_l_t_mdl.trimmed)))
@@ -255,7 +255,7 @@ pn_foot_l_f0_mdl = lmer(
   )
 )
 
-pn_foot_l_f0_mdl <- optLme4Mdl(pn_foot_l_f0_mdl)
+# pn_foot_l_f0_mdl <- optLme4Mdl(pn_foot_l_f0_mdl)
 
 if(!modelIsOK(pn_foot_l_f0_mdl)){
   step_result <- step(pn_foot_l_f0_mdl)
@@ -308,14 +308,14 @@ tibble(`Summary of model` = getModelFormula(pn_foot_l_f0_mdl.trimmed)) %>%
 
 anova <- summariseLME(
   pn_foot_l_f0_mdl.trimmed
- , write = "6_4_output/pn_foot_l_f0_anova.csv"
+ , write = "6_4_pn_subs_output/pn_foot_l_f0_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_l_f0_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_f0_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_l_f0_mdl.trimmed)))
@@ -325,23 +325,23 @@ read_csv("6_4_output/pn_foot_l_f0_anova.csv") %>%
 ```{r pn_foot_l_f0 analyse model, fig.height=2.5, fig.width=3.01, results='asis'}
 pn_foot_l_f0_mdl.tidy <- analyseModel(
   pn_foot_l_f0_mdl.trimmed
-  , write="6_4_output/pn_foot_l_f0"
+  , write="6_4_pn_subs_output/pn_foot_l_f0"
   , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_foot_l_f0 pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_foot_l_f0_mdl.trimmed, write="6_4_output/pn_foot_l_f0")
+charts <- getModelFixedFX(pn_foot_l_f0_mdl.trimmed, write="6_4_pn_subs_output/pn_foot_l_f0")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_foot_l_f0_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_f0_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_l_f0_mdl.trimmed)))
 
-read_csv("6_4_output/pn_foot_l_f0_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_l_f0_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_l_f0_mdl.trimmed)))
@@ -372,7 +372,7 @@ pn_foot_h_t_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_foot_h_t_mdl <- optLme4Mdl(pn_foot_h_t_mdl, reject_nl = T)
+# pn_foot_h_t_mdl <- optLme4Mdl(pn_foot_h_t_mdl, reject_nl = T)
 
 if(!modelIsOK(pn_foot_h_t_mdl)){
   step_result <- step(pn_foot_h_t_mdl)
@@ -416,14 +416,14 @@ tibble(`Summary of model` = getModelFormula(pn_foot_h_t_mdl.trimmed)) %>%
 
 anova <- summariseLME(
   pn_foot_h_t_mdl.trimmed
- , write = "6_4_output/pn_foot_h_t_anova.csv"
+ , write = "6_4_pn_subs_output/pn_foot_h_t_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_h_t_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_t_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_h_t_mdl.trimmed)))
@@ -433,23 +433,23 @@ read_csv("6_4_output/pn_foot_h_t_anova.csv") %>%
 ```{r pn_foot_h_t analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_foot_h_t_mdl.tidy <- analyseModel(
   pn_foot_h_t_mdl.trimmed
-  , write="6_4_output/pn_foot_h_t"
+  , write="6_4_pn_subs_output/pn_foot_h_t"
   , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_foot_h_t pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_foot_h_t_mdl.trimmed, write="6_4_output/pn_foot_h_t")
+charts <- getModelFixedFX(pn_foot_h_t_mdl.trimmed, write="6_4_pn_subs_output/pn_foot_h_t")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_foot_h_t_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_t_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_h_t_mdl.trimmed)))
 
-read_csv("6_4_output/pn_foot_h_t_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_t_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_h_t_mdl.trimmed)))
@@ -505,14 +505,14 @@ if(!modelIsOK(pn_foot_h_f0_mdl)){
 
 anova <- summariseLME(
   pn_foot_h_f0_mdl
- , write = "6_4_output/pn_foot_h_f0_anova.csv"
+ , write = "6_4_pn_subs_output/pn_foot_h_f0_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_h_f0_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_f0_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_h_f0_mdl)))
@@ -522,23 +522,23 @@ read_csv("6_4_output/pn_foot_h_f0_anova.csv") %>%
 ```{r pn_foot_h_f0 analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_foot_h_f0_mdl.tidy <- analyseModel(
   pn_foot_h_f0_mdl
-  , write="6_4_output/pn_foot_h_f0"
+  , write="6_4_pn_subs_output/pn_foot_h_f0"
   , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_foot_h_f0 pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_foot_h_f0_mdl, write="6_4_output/pn_foot_h_f0")
+charts <- getModelFixedFX(pn_foot_h_f0_mdl, write="6_4_pn_subs_output/pn_foot_h_f0")
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_foot_h_f0_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_f0_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_h_f0_mdl)))
 
-read_csv("6_4_output/pn_foot_h_f0_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_h_f0_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_h_f0_mdl)))
@@ -570,7 +570,7 @@ pn_foot_f0_exc_mdl = lmer(
 )
 
 # Check optimization and update model to most optimal
-pn_foot_f0_exc_mdl <- optLme4Mdl(pn_foot_f0_exc_mdl, reject_nl = T)
+# pn_foot_f0_exc_mdl <- optLme4Mdl(pn_foot_f0_exc_mdl, reject_nl = T)
 
 if(!modelIsOK(pn_foot_f0_exc_mdl)){
   step_result <- step(pn_foot_f0_exc_mdl)
@@ -604,14 +604,14 @@ tibble(`Summary of model` = getModelFormula(pn_foot_f0_exc_mdl)) %>%
 anova <- summariseLME(
   pn_foot_f0_exc_mdl,
   run_step = F
-  , write = "6_4_output/pn_foot_f0_exc_anova.csv"
+  , write = "6_4_pn_subs_output/pn_foot_f0_exc_anova.csv"
   )
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_f0_exc_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_f0_exc_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_f0_exc_mdl)))
@@ -621,28 +621,28 @@ read_csv("6_4_output/pn_foot_f0_exc_anova.csv") %>%
 ```{r pn_foot_f0_exc analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_foot_f0_exc_mdl.tidy <- analyseModel(
   pn_foot_f0_exc_mdl
-  , write="6_4_output/pn_foot_f0_exc"
+  , write="6_4_pn_subs_output/pn_foot_f0_exc"
   , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_foot_f0_exc pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_foot_f0_exc_mdl, write="6_4_output/pn_foot_f0_exc")
+charts <- getModelFixedFX(pn_foot_f0_exc_mdl, write="6_4_pn_subs_output/pn_foot_f0_exc")
 ```
 
 
 ```{r}
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
 ```
 
 
 ```{r}
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 ```
 
 
 ```{r}
-read_csv("6_4_output/pn_foot_f0_exc_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_f0_exc_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_f0_exc_mdl)))
@@ -650,7 +650,7 @@ formattable(caption = paste("Intercepts of model:",
 
 
 ```{r}
-read_csv("6_4_output/pn_foot_f0_exc_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_f0_exc_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_f0_exc_mdl)))
@@ -686,9 +686,8 @@ pn_foot_lh_slope_mdl = lmer(
 # Check optimization and update model to most optimal
 pn_foot_lh_slope_mdl <- optLme4Mdl(pn_foot_lh_slope_mdl, reject_nl = T)
 
-
-  step_result <- step(pn_foot_lh_slope_mdl)
-  cat("Model found by step():", getModelFormula(get_model(step_result)), "\n")
+step_result <- step(pn_foot_lh_slope_mdl)
+cat("Model found by step():", getModelFormula(get_model(step_result)), "\n")
 
 first <- summariseLME(pn_foot_lh_slope_mdl, print_summary = F)
 
@@ -732,13 +731,13 @@ tibble(`Summary of model` = getModelFormula(pn_foot_lh_slope_mdl.trimmed)) %>%
         formattable(align = "l")
 
 anova <- summariseLME(pn_foot_lh_slope_mdl.trimmed,
-                      write ="6_4_output/pn_foot_lh_slope_anova.csv")
+                      write ="6_4_pn_subs_output/pn_foot_lh_slope_anova.csv")
 
-adjustP_posthoc("6_4_output/",
+adjustP_posthoc("6_4_pn_subs_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_output/pn_foot_lh_slope_anova.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_lh_slope_anova.csv") %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_foot_lh_slope_mdl.trimmed)))
@@ -748,24 +747,24 @@ read_csv("6_4_output/pn_foot_lh_slope_anova.csv") %>%
 ```{r pn_foot_lh_slope analyse model, fig.height=2.5, fig.width=3.01, results = "asis"}
 pn_foot_lh_slope_mdl.tidy <- analyseModel(
   pn_foot_lh_slope_mdl.trimmed
-  , write="6_4_output/pn_foot_lh_slope"
+  , write="6_4_pn_subs_output/pn_foot_lh_slope"
   , type = "pred"
   , factor_matrix = TRUE
   )
 ```
 ```{r pn_foot_lh_slope pairwise comparison, fig.height=2.5, fig.width=3.01}
-charts <- getModelFixedFX(pn_foot_lh_slope_mdl.trimmed, write="6_4_output/pn_foot_lh_slope")
+charts <- getModelFixedFX(pn_foot_lh_slope_mdl.trimmed, write="6_4_pn_subs_output/pn_foot_lh_slope")
 
 
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b0")
-adjustP_posthoc("6_4_output/", p.value, suffix_id = "_b1")
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b0", marginal = T)
+adjustP_posthoc("6_4_pn_subs_output/", p.value, suffix_id = "_b1", marginal = T)
 
-read_csv("6_4_output/pn_foot_lh_slope_b0.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_lh_slope_b0.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Intercepts of model:",
                             getModelFormula(pn_foot_lh_slope_mdl.trimmed)))
 
-read_csv("6_4_output/pn_foot_lh_slope_b1.csv") %>%
+read_csv("6_4_pn_subs_output/pn_foot_lh_slope_b1.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("Slopes of model:",
                             getModelFormula(pn_foot_lh_slope_mdl.trimmed)))
