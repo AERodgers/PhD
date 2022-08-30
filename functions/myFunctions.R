@@ -480,7 +480,8 @@ analyseModel <-
            ci.lvl = 0.95,
            y_lab = NULL,
            y_lim = NULL,
-           plot_rounding = 1)
+           plot_rounding = 1,
+           panel_letters = T)
   {
     require("formattable")
     require("tidyverse")
@@ -654,10 +655,18 @@ analyseModel <-
         str_split(" ") %>%  unlist()
       fixed_factors = fixed_factors[fixed_factors != "*"]
       letters = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+
       cur_letter = 0
       for (cur_factor in fixed_factors) {
         if (is.null(y_lab)){y_lab = cur_factor}
         cur_letter = cur_letter + (1 * cur_letter < length(letters))
+        if(panel_letters){
+          lettering = paste0((letters[cur_letter]), ". ")
+        }
+        else {
+          lettering = ""
+        }
+
 
          my_plot <- ggpredict(my_model,
                              terms = cur_factor,
@@ -665,7 +674,7 @@ analyseModel <-
           plot() +
           ylab(y_lab) +
           labs(title = "",
-               caption = paste0 (letters[cur_letter], ". Predicted values of ",
+               caption = paste0 (lettering, "Predicted values of ",
                                 dependent_var,
                                 " re ",
                                 cur_factor, ".")) +

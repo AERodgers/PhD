@@ -249,14 +249,14 @@ pn_l_t_mdl.tidy <- analyseModel(
   )
 
 ```
-```{r do l_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_l_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_l_t"
 )
 
-charts$intercepts
+tidyPrintPredictions(pn_l_t_mdl.trimmed)
 charts$slopes
 ```
 
@@ -345,14 +345,15 @@ pn_l_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 1.5),
   plot_rounding = 1)
 ```
-```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_l_f0_mdl,
   write = "6_4_pn_all_output/pn_l_f0"
 )
 
-charts$intercepts
+
+tidyPrintPredictions(pn_l_f0_mdl)
 charts$slopes
 
 ```
@@ -442,12 +443,12 @@ pn_h_t_mdl.tidy <- analyseModel(
   plot_rounding = 0)
 
 ```
-```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 charts <- getModelFixedFX(
   pn_h_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_h_t"
 )
-charts$intercepts
+tidyPrintPredictions(pn_h_t_mdl.trimmed)
 charts$slopes
 ```
 
@@ -521,13 +522,13 @@ pn_h_f0_mdl.tidy <- analyseModel(
   plot_rounding =  1)
 ```
 
-```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_h_f0_mdl, 
   write="6_4_pn_all_output/pn_h_f0"
 )
-charts$intercepts
+tidyPrintPredictions(pn_h_t_mdl.trimmed)
 charts$slopes
 
 ```
@@ -636,13 +637,13 @@ pn_f0_exc_mdl.tidy <- analyseModel(
 ```
 
 
-```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_f0_exc_mdl.trimmed,
   write="6_4_pn_all_output/pn_f0_exc"
   )
-charts$intercepts
+tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
 charts$slopes
 
 ```
@@ -753,13 +754,13 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
 )         
 ```
 
-```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181}
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_lh_slope_mdl.trimmed,
   write="6_4_pn_all_output/pn_lh_slope"
 )
-charts$intercepts
+tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
 charts$slopes
 
 ```
