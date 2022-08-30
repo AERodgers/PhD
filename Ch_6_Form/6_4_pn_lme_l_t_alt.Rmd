@@ -1,0 +1,178 @@
+---
+title: "LME Analysis of PNs"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "ggeffects",
+    "optimx",
+    "MuMIn",
+    "dfoptim",
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+# Get  data for analysis
+
+source("6_0_get_AH.R")
+
+h_star_type <-  c("L*H", ">H*", "H*")
+l_star_type <-  c("L*H", "L*")
+
+pn <- pn %>%
+  select(
+    # human factors
+    speaker,
+    gender,
+    # target ID
+    stim,
+    # fixed effect phonological factors
+    acc_phon,
+    ana_syls,
+    foot_syls,
+    wrd_end_syl,
+    pn_new_word,
+    # random effect phonological factors
+    ana_text,
+    pn_str_syl,
+    nuc_pre_text,
+    # continuous phonetic parameters
+    speech_rate,
+    # response parameters
+    l_t,
+    l_f0,
+    h_t,
+    h_f0,
+    lh_slope,
+    f0_exc
+    ) %>%
+  mutate(
+    stim = factor(stim, levels = unique(stim)),
+    gender = factor(gender, levels = c("F", "M")),
+    foot_syls = factor(foot_syls, levels = 1:4)
+  ) 
+
+pn_l_data <- pn %>%
+  filter(acc_phon %in% l_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = l_star_type))%>%
+  select(-c(h_t, h_f0))
+
+pn_h_data <- pn %>%
+  filter(acc_phon %in% h_star_type) %>%
+  mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>%
+  select(-c(l_t, l_f0))
+
+rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
+
+
+```
+
+### analysis of L_t with some binary fixed effects
+```{r late test, fig.height=2.5, fig.width=5.051181}
+l_t_equation_late = formula(
+  l_t ~
+    acc_phon
+  +  has_ana_syls
+  + wrd_end_syl_late
+  + gender
+  + (1 + foot_syls| speaker)
+  + (1 | pn_str_syl)
+)
+
+pn_l_data_late <- pn_l_data %>% 
+  mutate(wrd_end_syl_late = factor((wrd_end_syl != 1), levels = c(F, T)),
+         has_ana_syls = factor((ana_syls != 0), levels = c(F, T)))
+
+pn_l_t_mdl_late = lmer(
+  l_t_equation_late,
+  pn_l_data_late,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_l_data_late.trimmed <-
+  pn_l_data_late %>% filter(abs(scale(resid(pn_l_t_mdl_late))) <= 2.75)
+
+pn_l_t_mdl_late <- update(pn_l_t_mdl_late, data = pn_l_data_late.trimmed)
+
+#pn_l_t_mdl_late <- optLme4Mdl(pn_l_t_mdl_late, reject_nl = T, verbose = F)
+pn_l_t_mdl_late <- update(pn_l_t_mdl_late,
+                          control = lmerControl(
+                            optimizer = "nloptwrap",
+                            optCtrl = list(
+                              algorithm = "NLOPT_LN_NEWUOA_BOUND",
+                              maxfun = 1e9,
+                              maxeval = 1e7,
+                              xtol_abs = 1e-9,
+                              ftol_abs = 1e-9
+                            )
+                          )
+)
+
+anova <- summariseLME(
+  pn_l_t_mdl.trimmed,
+  run_step = F,
+  draw_resids = F,
+  write = "6_4_pn_all_output/pn_l_t_late_anova.csv"
+  )
+```
+
+
+```{r late test part 2, fig.height=3, fig.width=5.051181, results='asis'}
+adjustP_posthoc("6_4_pn_all_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("6_4_pn_all_output/pn_l_t_late_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_l_t_mdl.trimmed)))
+
+pn_l_t_mdl_late.tidy <- analyseModel(
+  pn_l_t_mdl_late,
+  write="6_4_pn_all_output/pn_l_t_late",
+  type = NULL,
+  factor_matrix = TRUE
+  )
+
+
+pn_l_t_mdl_late.tidy$table
+
+```
+
+
