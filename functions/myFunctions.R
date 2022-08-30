@@ -1346,16 +1346,25 @@ tidyStatNumbers <- function(stats) {
 ### Optimize Models based on lme4 package ######################################
 optLme4Mdl <- function(model,
                        checks = c("allFit", "optimx", "nloptwrap"),
+                       verbose = T,
                        reject_nl = T) {
 
   ###
   # Returns lme4-based model which converges, if possible.
   # If no better model found, original model is returned with a text Warning.
+  #
   # Notes:
   #   1. For large or complex models this can be exceedingly slow!
   #   2. Nelder-mead is not advised for high-dimensional models,
   #      reject_nl is set to T as default. If you want to include Nelder-Mead
   #      optimization, set: reject_nl = F.
+  #
+  # The functions are largely adapted from:
+  #     Nugent, Joshua.
+  #     Using allFit() with (g)lmer.
+  #     https://joshua-nugent.github.io/allFit/.
+  #     15 June, 2022
+  #     last accessed: 30 August, 2022.
   ###
 
   library(tidyverse)
@@ -1364,25 +1373,31 @@ optLme4Mdl <- function(model,
   library(optimx)
   library(dfoptim)
   library(blme) # my preferred bayesian lme package.
+
   solution <- "original model"
   original_model <- model
-  cat("Trying to optimize model using optLme4Mdl().\n", sep = "")
+
+  if(verbose){
+  cat("Searching for good optimization settings with optLme4Mdl().\n", sep = "")
   cat("  Formula:   ", getModelFormula(model), "\n", sep = "")
   cat("  Optimizer: ", model@optinfo$optimizer, "\n", sep = "")
+  }
 
   ### inner functions
   ##################
-  tryAllFit <- function(model) {
+  tryAllFit <- function(model, verbose = F) {
     # Tries to return a model which converges in allFit()
     original_model <- model
     ncores <- detectCores()
 
     # Run allFit on multiple cores.
+    if (verbose){
     cat("\nchecking allFit()\n", sep = "")
+      }
     diff_optims <-
       allFit(model,
              maxfun = 1e5,
-             verbose = F,
+             verbose = verbose,
              parallel = "multicore",
              ncpus = ncores)
 
@@ -1404,12 +1419,10 @@ optLme4Mdl <- function(model,
       model <- diff_optims[working_indices][[1]]
     }
 
-
     return(model)
-
   }
 
-  tryOptimx <- function(model, reject_nl = T) {
+  tryOptimx <- function(model, reject_nl = T, verbose = F) {
     # Tries to return a model which converges by varying optimx() methods.
     original_model <- model
     optimx_options <-
@@ -1418,12 +1431,14 @@ optLme4Mdl <- function(model,
 
     num_options <- length(optimx_options)
     info <- "No option"
+    if(verbose){
     cat("\nChecking optimx optimization settings", sep = "")
-
+      }
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nl)) {
       i  <-  i + 1
+      if(verbose){
       cat(",", optimx_options[i])
       model <- update(model,
         control = lmerControl(
@@ -1432,8 +1447,10 @@ optLme4Mdl <- function(model,
                          maxit = 1e9)
         )
       )
+      }
     }
-    cat("\n")
+
+    if(verbose){cat("\n")}
 
     if (modelIsOK(model, reject_nl)) {
       info <- optimx_options[i]
@@ -1445,7 +1462,7 @@ optLme4Mdl <- function(model,
     return(model)
   }
 
-  trynlopt <- function(model, reject_nl = T) {
+  trynlopt <- function(model, reject_nl = T, verbose = F) {
     # Tries to return a model which converges by through lnloptwrap algorithms.
     original_model <- model
     opts <- c("NLOPT_LN_PRAXIS",
@@ -1461,12 +1478,12 @@ optLme4Mdl <- function(model,
 
     num_options <- length(opts)
     info <- "No option"
-    cat("\nChecking nloptwrap options", sep = "")
+    if(verbose){cat("\nChecking nloptwrap options", sep = "")}
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nl)) {
       i  <- i + 1
-      cat(",", opts[i])
+      if(verbose){cat(",", opts[i])}
       cur_option <- opts[i]
       try(
         model <- update(model,
@@ -1480,12 +1497,12 @@ optLme4Mdl <- function(model,
         )
 
     }
-    cat("\n")
+    if(verbose){cat("\n")}
 
     if (modelIsOK(model, reject_nl)) {
       info <- opts[i]
       cat("\n\n")
-      cat("***** warning ****\n")
+      cat("***** WARNING ****\n")
       cat("NB: manually update lmerControl:\n\n")
             cat("control = lmerControl(\n")
             cat("  optimizer = \"nloptwrap\",\n")
@@ -1494,14 +1511,29 @@ optLme4Mdl <- function(model,
             cat("                 maxeval = 1e7,\n")
             cat("                 xtol_abs = 1e-9,\n")
             cat("                 ftol_abs = 1e-9))\n")
-
-
     }
     else{
       model <- original_model
     }
 
     return(model)
+  }
+
+  modelIsOK <- function(model, reject_nl = T) {
+    # Returns TRUE is a model converges and is not singular.
+
+    ans <- as.logical(
+      # Check for convergence
+      is.null(model@optinfo$conv$lme4$messages) &
+        # check for singularity
+        !isSingular(model) &
+        # check for other warnings
+        is.null(model@optinfo$conv$lme4$warnings))
+
+    if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nl){
+      ans <- F}
+
+    return(ans)
   }
 
   getModelElements <- function(model) {
@@ -1516,10 +1548,11 @@ optLme4Mdl <- function(model,
     return(ans)
   }
 
-
   ### Outer function
   if (!modelIsOK(model, reject_nl)) {
+    if(verbose){
     cat("\nRunning basic model with less strict control settings.\n", sep = "")
+      }
     try(model <- update(model, control = lmerControl(
       optCtrl = list(
         maxit = 1e9,
@@ -1535,21 +1568,21 @@ optLme4Mdl <- function(model,
 
   if (!modelIsOK(model, reject_nl) &
       "allFit" %in% checks) {
-    try(model <- tryAllFit(model))
+    try(model <- tryAllFit(model, verbose))
     if (modelIsOK(model, reject_nl)) {
       solution <- "after trying allFit()"
     }
   }
 
   if (!modelIsOK(model, reject_nl) & "optimx" %in% checks) {
-    model <- tryOptimx(model, reject_nl)
+    model <- tryOptimx(model, reject_nl, verbose)
     if (modelIsOK(model, reject_nl)) {
       solution <- "after varying optimx settings."
     }
   }
 
   if (!modelIsOK(model, reject_nl) & "nloptwrap" %in% checks) {
-    model <- trynlopt(model, reject_nl)
+    model <- trynlopt(model, reject_nl, verbose)
     if (modelIsOK(model, reject_nl)) {
       solution <- "after varying nloptwrap options."
     }
@@ -1569,7 +1602,6 @@ optLme4Mdl <- function(model,
         ".\n",
         sep = "")
   }
-
 
   return(model)
 
