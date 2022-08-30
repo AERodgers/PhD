@@ -1,5 +1,5 @@
 ---
-title: "LME Analysis of PNs"
+title: "LME Analysis of PNs - Alternative L_t test"
 author: "Antoin Rodgers"
 date: "18.05.2022"
 output:
@@ -106,7 +106,7 @@ l_t_equation_late = formula(
   + (1 + foot_syls| speaker)
   + (1 | pn_str_syl)
 )
-
+optimizer = "optimx"
 pn_l_data_late <- pn_l_data %>% 
   mutate(wrd_end_syl_late = factor((wrd_end_syl != 1), levels = c(F, T)),
          has_ana_syls = factor((ana_syls != 0), levels = c(F, T)))
@@ -145,15 +145,17 @@ pn_l_t_mdl_late <- update(pn_l_t_mdl_late,
 )
 
 anova <- summariseLME(
-  pn_l_t_mdl.trimmed,
+  pn_l_t_mdl_late,
   run_step = F,
   draw_resids = F,
   write = "6_4_pn_all_output/pn_l_t_late_anova.csv"
   )
+
+plot_model(pn_l_t_mdl_late)
 ```
 
 
-```{r late test part 2, fig.height=3, fig.width=5.051181, results='asis'}
+```{r late test part 2, fig.height=2.5, fig.width=3.051181}
 adjustP_posthoc("6_4_pn_all_output/",
                 p.value,
                 suffix_id = "_anova")
@@ -161,17 +163,19 @@ adjustP_posthoc("6_4_pn_all_output/",
 read_csv("6_4_pn_all_output/pn_l_t_late_anova.csv") %>%
   tidyStatNumbers() %>%
 formattable(caption = paste("ANOVA of model:",
-                            getModelFormula(pn_l_t_mdl.trimmed)))
+                            getModelFormula(pn_l_t_mdl_late)))
 
 pn_l_t_mdl_late.tidy <- analyseModel(
   pn_l_t_mdl_late,
   write="6_4_pn_all_output/pn_l_t_late",
   type = NULL,
-  factor_matrix = TRUE
+  factor_matrix = TRUE,
+  y_lab = "time (ms)",
+  y_lim = c(-70, 200)
   )
 
 
-pn_l_t_mdl_late.tidy$table
+pn_l_t_mdl_late.tidy$table %>% tidyNumbers()
 
 ```
 

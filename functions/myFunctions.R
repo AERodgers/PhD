@@ -477,7 +477,10 @@ analyseModel <-
            show.intercept = FALSE,
            type = "est",
            factor_matrix = FALSE,
-           ci.lvl = 0.95)
+           ci.lvl = 0.95,
+           y_lab = NULL,
+           y_lim = NULL,
+           plot_rounding = 1)
   {
     require("formattable")
     require("tidyverse")
@@ -587,13 +590,12 @@ analyseModel <-
     if (is_GLM)
     {
       dependent_var <- deparse(formula(my_model)[[2]])
-      fixed_factors <- (str_replace_all(deparse(formula(
-        my_model, fixed.only = TRUE
-      )[3]),
-      "[\\(|\\)|+ ]",
-      " ") %>%
+      fixed_factors <-
+        formula(my_model, fixed.only = T)[3] %>%
+        deparse() %>%
+        str_replace_all("[\\(|\\)|+ ]", " ") %>%
         str_squish() %>%
-        str_split(" "))[[1]]
+        str_split(" ") %>%  unlist()
       fixed_factors = fixed_factors[fixed_factors != "*"]
 
       if (factor_matrix) {
@@ -643,16 +645,48 @@ analyseModel <-
     }
     else
     {
-      my_plot <-
-        plot_model(
-          my_model,
-          show.intercept = show.intercept,
-          show.values = TRUE,
-          vline.color = "red",
-          colors = "Black",
-          axis.lim = axis.lim,
-          type = type
-        ) %>% print()
+      dependent_var <- deparse(formula(my_model)[[2]])
+      fixed_factors <-
+        formula(my_model, fixed.only = T)[3] %>%
+        deparse() %>%
+        str_replace_all("[\\(|\\)|+ ]", " ") %>%
+        str_squish() %>%
+        str_split(" ") %>%  unlist()
+      fixed_factors = fixed_factors[fixed_factors != "*"]
+      letters = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+      cur_letter = 0
+      for (cur_factor in fixed_factors) {
+        if (is.null(y_lab)){y_lab = cur_factor}
+        cur_letter = cur_letter + (1 * cur_letter < length(letters))
+
+         my_plot <- ggpredict(my_model,
+                             terms = cur_factor,
+                             ci.lvl = ci.lvl) %>%
+          plot() +
+          ylab(y_lab) +
+          labs(title = "",
+               caption = paste0 (letters[cur_letter], ". Predicted values of ",
+                                dependent_var,
+                                " re ",
+                                cur_factor, ".")) +
+          geom_text(aes(
+            label = round(predicted, plot_rounding),
+            hjust = 1.14,
+            position = "dodge"),
+            check_overlap = T,
+            size=3) +
+          theme(axis.title.x=element_blank(),
+                plot.caption=element_text(hjust = 0, size = 10),
+                plot.caption.position= "plot")
+
+         if (!is.null(y_lim)){
+           my_plot <- my_plot + ylim(y_lim)
+
+         }
+
+        my_plot %>% print()
+
+      }
     }
 
     return(list(

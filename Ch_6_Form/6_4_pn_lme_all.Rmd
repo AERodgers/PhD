@@ -154,12 +154,13 @@ pn_l_data <- pn %>%
 ```{r set l_t equation}
 l_t_equation = formula(
   l_t ~
-    ana_syls
+    acc_phon
+  + ana_syls
   + foot_syls
   + wrd_end_syl
   + pn_new_word
   + gender
-  + (1 + foot_syls | speaker)
+  + (1 | speaker)
   + (1 | pn_str_syl)
 )
 
@@ -180,28 +181,30 @@ pn_l_t_mdl = lmer(
   )
 )
 
-pn_l_t_mdl <- optLme4Mdl(pn_l_t_mdl, reject_nl = T)
+#pn_l_t_mdl <- optLme4Mdl(pn_l_t_mdl, reject_nl = T, verbose = F)
 x <- summariseLME(pn_l_t_mdl, run_step = F, print_summary = F)
 
 
-sd_threshold = 2.5
+sd_threshold =2.5
 cat("\nTrimming data with residual sd > ", sd_threshold, ".\n", sep ="")
 pn_l_t_data.trimmed <-
   pn_l_data %>% filter(abs(scale(resid(pn_l_t_mdl))) <= sd_threshold)
-pn_l_t_mdl.trimmed <- update(pn_l_t_mdl, data = pn_l_t_data.trimmed)
+pn_l_t_mdl.trimmed <- lmer(
+  l_t_equation,
+  pn_l_t_data.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
 
-#pn_l_t_mdl.trimmed <- optLme4Mdl(pn_l_t_mdl.trimmed, reject_nl = T)
-pn_l_t_mdl.trimmed <- update(pn_l_t_mdl.trimmed,
-                             control = lmerControl(
-                               optimizer = "nloptwrap",
-                               optCtrl = list(
-                                 algorithm = "NLOPT_LN_PRAXIS",
-                                 maxfun = 1e9,
-                                 maxeval = 1e7,
-                                 xtol_abs = 1e-9,
-                                 ftol_abs = 1e-9
-                               )
-                             ))
+pn_l_t_mdl.trimmed <- optLme4Mdl(pn_l_t_mdl.trimmed, reject_nl = T, verbose = F)
+
 
 tibble(`Summary of model` = getModelFormula(pn_l_t_mdl.trimmed)) %>%
           formattable(align = "l")
@@ -239,7 +242,10 @@ pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_l_t",
   type = "pred",
-  factor_matrix = TRUE
+  factor_matrix = TRUE,
+  y_lab = "time (ms)",
+  y_lim = c(-75, 125),
+  plot_rounding = 0
   )
 
 ```
@@ -259,7 +265,8 @@ charts$slopes
 ```{r set l_f0 equation}
 l_f0_equation = formula(
   l_f0 ~
-    ana_syls
+    acc_phon
+  + ana_syls
   + foot_syls
   + wrd_end_syl
   + pn_new_word
@@ -284,12 +291,13 @@ pn_l_f0_mdl = lmer(
   )
 )
 
-pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T, verbose = F)
 x <- summariseLME(pn_l_f0_mdl, print_summary = F, draw_resids = F, run_step = F)
 
 l_f0_equation = formula(
   l_f0 ~
-    ana_syls
+    acc_phon
+  + ana_syls
   + foot_syls
   + wrd_end_syl
   + pn_new_word
@@ -298,7 +306,7 @@ l_f0_equation = formula(
  )
 
 pn_l_f0_mdl <- update(pn_l_f0_mdl, formula = l_f0_equation)
-pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T, verbose = F)
 x <- summariseLME(pn_l_f0_mdl, print_summary = F, run_step = F)
 
 # model needs trimming
@@ -306,7 +314,7 @@ pn_l_f0.trimmed <- pn_l_data %>%
   filter(abs(scale(resid(pn_l_f0_mdl))) <= 3.5)
 
 pn_l_f0_mdl <- update(pn_l_f0_mdl, data = pn_l_f0.trimmed)
-pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T)
+pn_l_f0_mdl <- optLme4Mdl(pn_l_f0_mdl, reject_nl = T, verbose = F)
 
 tibble(`Summary of model` = getModelFormula(pn_l_f0_mdl)) %>%
           formattable(align = "l")
@@ -329,9 +337,13 @@ read_csv("6_4_pn_all_output/pn_l_f0_anova.csv") %>%
 plot_model(pn_l_f0_mdl, transform = NULL, show.values = T, vline = "Red")
 ```
 ```{r l_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
-pn_l_f0_mdl.tidy <- analyseModel(pn_l_f0_mdl,
-                                 write="6_4_pn_all_output/pn_l_f0",
-                                 type = "pred")
+pn_l_f0_mdl.tidy <- analyseModel(
+  pn_l_f0_mdl,
+  write = "6_4_pn_all_output/pn_l_f0",
+  type = "pred",
+  y_lab = "f0 (ST)",
+  y_lim = c(-3, 1.5),
+  plot_rounding = 1)
 ```
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
 
@@ -387,7 +399,7 @@ x <- summariseLME(pn_h_t_mdl,
 # model needs trimming
 pn_h_t.trimmed <- pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
 pn_h_t_mdl.trimmed = update(pn_h_t_mdl, data = pn_h_t.trimmed)
-#pn_h_t_mdl.trimmed <- optLme4Mdl(pn_h_t_mdl.trimmed, reject_nl = T)
+#pn_h_t_mdl.trimmed <- optLme4Mdl(pn_h_t_mdl.trimmed, reject_nl = T, verbose = F)
 pn_h_t_mdl.trimmed = update(pn_h_t_mdl.trimmed,
                             control = lmerControl(
                               optimizer = "nloptwrap",
@@ -422,11 +434,13 @@ plot_model(pn_h_t_mdl.trimmed, show.values = T, vline = "Red")
 ```
 ```{r h_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
 pn_h_t_mdl.tidy <- analyseModel(
-  pn_h_t_mdl.trimmed
-  , write="6_4_pn_all_output/pn_h_t"
-  , type = "pred"
-  , factor_matrix = TRUE
-  )
+  pn_h_t_mdl.trimmed,
+  write="6_4_pn_all_output/pn_h_t",
+  type = "pred",
+  y_lab = "time (ms)",
+  y_lim = c(50, 300),
+  plot_rounding = 0)
+
 ```
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181}
 charts <- getModelFixedFX(
@@ -470,7 +484,7 @@ pn_h_f0_mdl = lmer(
   )
 )
 
-pn_h_f0_mdl <- optLme4Mdl(pn_h_f0_mdl, reject_nl = T)
+pn_h_f0_mdl <- optLme4Mdl(pn_h_f0_mdl, reject_nl = T, verbose = F)
 
 x <- summariseLME(run_step = F,
   pn_h_f0_mdl, write = "6_4_pn_all_output/pn_h_f0_anova.csv"
@@ -498,10 +512,13 @@ plot_model(
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
-pn_h_f0_mdl.tidy <- analyseModel(pn_h_f0_mdl,
-                                write="6_4_pn_all_output/pn_h_f0",
-                                type = "pred"
-                                )
+pn_h_f0_mdl.tidy <- analyseModel(
+  pn_h_f0_mdl,
+  write = "6_4_pn_all_output/pn_h_f0",
+  type = "pred",
+  y_lab = "f0 (ST)",
+  y_lim = c(-1, 4),
+  plot_rounding =  1)
 ```
 
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181}
@@ -563,7 +580,7 @@ pn_f0_exc_mdl = lmer(
   )
 )
 
-pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T)
+pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T, verbose = F)
 
 x <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
 
@@ -573,13 +590,16 @@ pn_f0_exc.trimmed <-
   pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 3)
 pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
 
-pn_f0_exc_mdl.trimmed <- optLme4Mdl(pn_f0_exc_mdl.trimmed, reject_nl = T)
+pn_f0_exc_mdl.trimmed <-
+  optLme4Mdl(pn_f0_exc_mdl.trimmed,
+             reject_nl = T,
+             verbose = F)
 
 x <- summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = F,
              write = "6_4_pn_all_output/pn_f0_exc_anova.csv")
 
-pn_f0_exc_mdl.trimmed = optLme4Mdl(pn_f0_exc_mdl.trimmed)
+pn_f0_exc_mdl.trimmed = optLme4Mdl(pn_f0_exc_mdl.trimmed, verbose = F)
 
 
 adjustP_posthoc("6_4_pn_all_output/",
@@ -604,10 +624,14 @@ plot_model(
 
 ```{r f0_exc model summary, fig.height=2.5, fig.width=3.051181, , results="asis"}
 
-pn_f0_exc_mdl.tidy <- analyseModel(pn_f0_exc_mdl.trimmed,
-                                write="6_4_pn_all_output/pn_f0_exc",
-                                type = "pred"
-                                )
+pn_f0_exc_mdl.tidy <- analyseModel(
+  pn_f0_exc_mdl.trimmed,
+  write = "6_4_pn_all_output/pn_f0_exc",
+  type = "pred",
+  y_lab = "f0 (st)",
+  y_lim = c(-1.5, 5),
+  plot_rounding =  1
+)
 
 ```
 
@@ -678,7 +702,11 @@ pn_lh_slope_mdl.trimmed = lmer(
   )
 )
 
-#pn_lh_slope_mdl.trimmed <- optLme4Mdl(pn_lh_slope_mdl.trimmed, reject_nl = T)
+
+# pn_lh_slope_mdl.trimmed <-
+#   optLme4Mdl(pn_lh_slope_mdl.trimmed,
+#              reject_nl = T,
+#              verbose = F)
 pn_lh_slope_mdl.trimmed <- update(pn_lh_slope_mdl.trimmed,
                                   control = lmerControl(
                                     optimizer = "nloptwrap",
@@ -718,8 +746,11 @@ plot_model(
 ```{r lh_slope model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
 pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
                                 write="6_4_pn_all_output/pn_lh_slope",
-                                type = "pred"
-                                )
+                                type = "pred",
+  y_lab = "log(ST/sec)",
+  y_lim = c(1.5, 4),
+  plot_rounding =  2
+)         
 ```
 
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181}
