@@ -244,8 +244,9 @@ pn_l_t_mdl.tidy <- analyseModel(
   type = "pred",
   factor_matrix = TRUE,
   y_lab = "time (ms)",
-  y_lim = c(-75, 125),
-  plot_rounding = 0
+  y_lim = c(-75, 180),
+  plot_rounding = 0,
+  panel_letters = T
   )
 
 ```

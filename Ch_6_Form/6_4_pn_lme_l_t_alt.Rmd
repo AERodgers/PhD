@@ -96,7 +96,7 @@ rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 ```
 
 ### analysis of L_t with some binary fixed effects
-```{r late test, fig.height=2.5, fig.width=5.051181}
+```{r late test, fig.height=2.7, fig.width=5.051181}
 l_t_equation_late = formula(
   l_t ~
     acc_phon
@@ -151,11 +151,14 @@ anova <- summariseLME(
   write = "6_4_pn_all_output/pn_l_t_late_anova.csv"
   )
 
-plot_model(pn_l_t_mdl_late)
+plot_model(pn_l_t_mdl_late, show.values = T, value.offset = 0.25, axis.title = "estimates (ms)", title = "")
+# +
+#   labs (caption = paste("Estimated effects for model",
+#                         getModelFormula(pn_l_t_mdl_late)))
 ```
 
 
-```{r late test part 2, fig.height=2.5, fig.width=3.051181}
+```{r late test part 2, fig.height=2.5, fig.width=3.051181, results="asis"}
 adjustP_posthoc("6_4_pn_all_output/",
                 p.value,
                 suffix_id = "_anova")
@@ -171,11 +174,13 @@ pn_l_t_mdl_late.tidy <- analyseModel(
   type = NULL,
   factor_matrix = TRUE,
   y_lab = "time (ms)",
-  y_lim = c(-70, 200)
+  y_lim = c(-75, 125)
   )
 
 
 pn_l_t_mdl_late.tidy$table %>% tidyNumbers()
+
+tidyPrintPredictions(pn_l_t_mdl_late)
 
 ```
 
