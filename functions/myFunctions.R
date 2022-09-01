@@ -481,7 +481,7 @@ analyseModel <-
            y_lab = NULL,
            y_lim = NULL,
            plot_rounding = 1,
-           panel_letters = T)
+           panel_letters = F)
   {
     require("formattable")
     require("tidyverse")

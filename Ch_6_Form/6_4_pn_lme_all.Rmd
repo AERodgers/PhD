@@ -237,7 +237,7 @@ plot_model(
   vline = "Red"
  )
 ```
-```{r l_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r l_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_l_t",
@@ -246,11 +246,11 @@ pn_l_t_mdl.tidy <- analyseModel(
   y_lab = "time (ms)",
   y_lim = c(-75, 180),
   plot_rounding = 0,
-  panel_letters = T
+  panel_letters = F
   )
 
 ```
-```{r do l_t pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_l_t_mdl.trimmed,
@@ -337,7 +337,7 @@ read_csv("6_4_pn_all_output/pn_l_f0_anova.csv") %>%
 ```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=4}
 plot_model(pn_l_f0_mdl, transform = NULL, show.values = T, vline = "Red")
 ```
-```{r l_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r l_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl,
   write = "6_4_pn_all_output/pn_l_f0",
@@ -346,7 +346,7 @@ pn_l_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 1.5),
   plot_rounding = 1)
 ```
-```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_l_f0_mdl,
@@ -434,7 +434,7 @@ formattable(caption = paste("ANOVA of model:",
 ```{r plot h_t estimated effects, fig.height=3.5, fig.width=4}
 plot_model(pn_h_t_mdl.trimmed, show.values = T, vline = "Red")
 ```
-```{r h_t model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_h_t",
@@ -444,7 +444,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   plot_rounding = 0)
 
 ```
-```{r do h_t pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 charts <- getModelFixedFX(
   pn_h_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_h_t"
@@ -513,7 +513,7 @@ plot_model(
  )
 ```
 
-```{r h_f0 model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_h_f0_mdl.tidy <- analyseModel(
   pn_h_f0_mdl,
   write = "6_4_pn_all_output/pn_h_f0",
@@ -523,13 +523,13 @@ pn_h_f0_mdl.tidy <- analyseModel(
   plot_rounding =  1)
 ```
 
-```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_h_f0_mdl, 
   write="6_4_pn_all_output/pn_h_f0"
 )
-tidyPrintPredictions(pn_h_t_mdl.trimmed)
+tidyPrintPredictions(pn_h_f0_mdl)
 charts$slopes
 
 ```
@@ -624,7 +624,7 @@ plot_model(
  )
 ```
 
-```{r f0_exc model summary, fig.height=2.5, fig.width=3.051181, , results="asis"}
+```{r f0_exc model summary, fig.height=2.5, fig.width=2.823, , results="asis"}
 
 pn_f0_exc_mdl.tidy <- analyseModel(
   pn_f0_exc_mdl.trimmed,
@@ -638,7 +638,7 @@ pn_f0_exc_mdl.tidy <- analyseModel(
 ```
 
 
-```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_f0_exc_mdl.trimmed,
@@ -745,7 +745,7 @@ plot_model(
  )
 ```
 
-```{r lh_slope model summary, fig.height=2.5, fig.width=3.051181, results="asis"}
+```{r lh_slope model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
                                 write="6_4_pn_all_output/pn_lh_slope",
                                 type = "pred",
@@ -755,7 +755,7 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
 )         
 ```
 
-```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=3.051181, results = "asis"}
+```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 charts <- getModelFixedFX(
   pn_lh_slope_mdl.trimmed,
