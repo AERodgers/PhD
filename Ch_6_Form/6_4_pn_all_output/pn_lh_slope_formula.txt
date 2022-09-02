@@ -1,1 +1,1 @@
-log_lh_slope ~ ana_syls + foot_syls + wrd_end_syl + pn_new_word + gender + (1 + foot_syls | speaker) + (1 | pn_str_syl)
+log_lh_slope ~ foot_syls + (1 + foot_syls | speaker) + (1 | ana_syls) + (1 | gender) + (1 | pn_str_syl)

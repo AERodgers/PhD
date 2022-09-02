@@ -556,11 +556,11 @@ pn_tnc_data <- pn_l_data %>%
 
 f0_exc_equation = formula(
   f0_exc ~ 
-    ana_syls
   + foot_syls
-  + wrd_end_syl
-  + pn_new_word
-  + gender
+  + (1 | ana_syls)
+  + (1 | wrd_end_syl)
+  + (1 | pn_new_word)
+  + (1 | gender)
   + (1 | speaker)
   + (1 | pn_str_syl)
 )
@@ -585,31 +585,45 @@ pn_f0_exc_mdl = lmer(
 
 pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T, verbose = F)
 
+x <- summariseLME(pn_f0_exc_mdl, run_step = T, print_summary = F,
+                  draw_resids = F)
+              
+
+f0_exc_equation = formula(
+  f0_exc ~ 
+  + foot_syls
+  + (1 | ana_syls)
+  + (1 | speaker)
+  + (1 | pn_str_syl)
+)
+
+pn_f0_exc_mdl <- update(pn_f0_exc_mdl, formula = f0_exc_equation)
+#pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T, verbose = F)
 x <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
-
-
 # model needs trimming
+
 pn_f0_exc.trimmed <-
-  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 3)
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.75)
 pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
 
-pn_f0_exc_mdl.trimmed <-
-  optLme4Mdl(pn_f0_exc_mdl.trimmed,
-             reject_nl = T,
-             verbose = F)
+# pn_f0_exc_mdl.trimmed <-
+#   optLme4Mdl(pn_f0_exc_mdl.trimmed,
+#              reject_nl = T,
+#              verbose = F)
 
 x <- summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = F,
              write = "6_4_pn_all_output/pn_f0_exc_anova.csv")
 
-pn_f0_exc_mdl.trimmed = optLme4Mdl(pn_f0_exc_mdl.trimmed, verbose = F)
+# pn_f0_exc_mdl.trimmed = optLme4Mdl(pn_f0_exc_mdl.trimmed, verbose = F)
 
 
 adjustP_posthoc("6_4_pn_all_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_pn_all_output/pn_f0_exc_anova.csv") %>%
+read_csv("6_4_pn_all_output/pn_f0_exc_anova.csv",
+         show_col_types = F) %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                               getModelFormula(pn_f0_exc_mdl.trimmed)))
@@ -655,12 +669,12 @@ charts$slopes
 ```{r set lh_slope equation}
 lh_slope_equation = formula(
   log_lh_slope ~
-    ana_syls
   + foot_syls
-  + wrd_end_syl
-  + pn_new_word
-  + gender
-  + (1 + foot_syls| speaker)
+  + (1 + foot_syls | speaker)
+  + (1 | ana_syls)
+  + (1 | wrd_end_syl)
+  + (1 | pn_new_word)
+  + (1 | gender)
   + (1 | pn_str_syl)
 )
 
@@ -670,6 +684,39 @@ optimizer = "optimx"
 
 
 ```{r run lh_slope models, fig.height=3, fig.width=9}
+# pn_lh_slope_mdl = lmer(
+#   lh_slope_equation,
+#   pn_tnc_data,
+#   control = lmerControl(
+#     optimizer = optimizer,
+#     calc.derivs = FALSE,
+#     optCtrl = list(
+#       method = "nlminb",
+#       starttests = FALSE,
+#       kkt = FALSE
+#     )
+#   )
+# )
+# 
+# pn_lh_slope_mdl<-
+#   optLme4Mdl(pn_lh_slope_mdl,
+#              reject_nl = T,
+#              verbose = F)
+#
+# x <- summariseLME(pn_lh_slope_mdl,
+#                   print_summary = F,
+#                   run_step = T,
+#                   draw_resids = F)
+
+lh_slope_equation = formula(
+  log_lh_slope ~
+  foot_syls
+  + (1 + foot_syls | speaker)
+  + (1 | ana_syls)
+  + (1 | gender)
+  + (1 | pn_str_syl)
+)
+
 pn_lh_slope_mdl = lmer(
   lh_slope_equation,
   pn_tnc_data,
@@ -683,6 +730,12 @@ pn_lh_slope_mdl = lmer(
     )
   )
 )
+
+
+pn_lh_slope_mdl<-
+  optLme4Mdl(pn_lh_slope_mdl,
+             reject_nl = T,
+             verbose = F)
 
 ```
 - data needs trimming: residual SD > 4
@@ -706,21 +759,10 @@ pn_lh_slope_mdl.trimmed = lmer(
 )
 
 
-# pn_lh_slope_mdl.trimmed <-
-#   optLme4Mdl(pn_lh_slope_mdl.trimmed,
-#              reject_nl = T,
-#              verbose = F)
-pn_lh_slope_mdl.trimmed <- update(pn_lh_slope_mdl.trimmed,
-                                  control = lmerControl(
-                                    optimizer = "nloptwrap",
-                                    optCtrl = list(
-                                      algorithm = "NLOPT_LN_NEWUOA_BOUND",
-                                      maxfun = 1e9,
-                                      maxeval = 1e7,
-                                      xtol_abs = 1e-9,
-                                      ftol_abs = 1e-9
-                                    )
-                                  ))
+pn_lh_slope_mdl.trimmed <-
+  optLme4Mdl(pn_lh_slope_mdl.trimmed,
+             reject_nl = T,
+             verbose = F)
 
 x <- summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = F,
@@ -730,7 +772,8 @@ adjustP_posthoc("6_4_pn_all_output/",
                 p.value,
                 suffix_id = "_anova")
 
-read_csv("6_4_pn_all_output/pn_lh_slope_anova.csv") %>%
+read_csv("6_4_pn_all_output/pn_lh_slope_anova.csv",
+         show_col_types = FALSE) %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                               getModelFormula(pn_lh_slope_mdl.trimmed)))
@@ -752,8 +795,11 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
                                 type = "pred",
   y_lab = "log(ST/sec)",
   y_lim = c(1.5, 4),
-  plot_rounding =  2
-)         
+  plot_rounding =  2,
+  hjust = 0.9
+  
+)
+
 ```
 
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
