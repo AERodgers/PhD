@@ -472,16 +472,16 @@ analyseModel <-
   function(my_model,
            write = NULL,
            is_GLM = FALSE,
-           axis.lim = NULL,
            exponentiate = TRUE,
-           show.intercept = FALSE,
            type = "est",
            factor_matrix = FALSE,
            ci.lvl = 0.95,
            y_lab = NULL,
            y_lim = NULL,
            plot_rounding = 1,
-           panel_letters = F)
+           panel_letters = F,
+           hjust = 1.14
+           )
   {
     require("formattable")
     require("tidyverse")
@@ -607,7 +607,7 @@ analyseModel <-
           ylim(0, 1) +
           geom_text(aes(
             label = round(predicted, 2),
-            hjust = 1.5,
+            hjust = hjust,
             position = "dodge"),
             check_overlap = T,
             size=3) +
@@ -631,7 +631,7 @@ analyseModel <-
                                   cur_factor)) +
             geom_text(aes(
               label = round(predicted, 2),
-              hjust = -0.25,
+              hjust = hjust,
               position = "dodge"),
               check_overlap = T,
               size=3) +
@@ -680,7 +680,7 @@ analyseModel <-
                                 cur_factor, ".")) +
           geom_text(aes(
             label = round(predicted, plot_rounding),
-            hjust = 1.14,
+            hjust = hjust,
             position = "dodge"),
             check_overlap = T,
             size=3) +

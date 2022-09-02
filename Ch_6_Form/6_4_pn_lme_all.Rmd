@@ -441,7 +441,8 @@ pn_h_t_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "time (ms)",
   y_lim = c(50, 300),
-  plot_rounding = 0)
+  plot_rounding = 0,
+  hjust = 1)
 
 ```
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
@@ -535,7 +536,7 @@ charts$slopes
 ```
 
 
-## Truncation and Compression Effects
+## Truncation and Compression
 
 Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
 

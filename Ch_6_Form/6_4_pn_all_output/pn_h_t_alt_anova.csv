@@ -1,0 +1,2 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+stress_clash,63949.372,63949.372,1,18.12,30.589,2.9e-05,1.4e-04,p<.001
