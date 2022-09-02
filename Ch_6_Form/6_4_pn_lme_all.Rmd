@@ -31,6 +31,7 @@ installMissingPackages(
     "sjPlot",
     "formattable",
     "knitr",
+    "gridExtra",
 
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
@@ -550,13 +551,11 @@ pn_tnc_data <- pn_l_data %>%
 
 ### LH Excursion
 
--  first run, step() suggests: `f0_exc ~ ana_syls + foot_syls + (1 | speaker) + (1 | pn_str_syl)`
-
 ```{r set f0_exc equation}
 
 f0_exc_equation = formula(
   f0_exc ~ 
-  + foot_syls
+  foot_syls
   + (1 | ana_syls)
   + (1 | wrd_end_syl)
   + (1 | pn_new_word)
@@ -591,7 +590,7 @@ x <- summariseLME(pn_f0_exc_mdl, run_step = T, print_summary = F,
 
 f0_exc_equation = formula(
   f0_exc ~ 
-  + foot_syls
+  foot_syls
   + (1 | ana_syls)
   + (1 | speaker)
   + (1 | pn_str_syl)
@@ -630,13 +629,17 @@ read_csv("6_4_pn_all_output/pn_f0_exc_anova.csv",
 ```
 
 ```{r plot f0 exc estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
+a <- plot_model(
   pn_f0_exc_mdl.trimmed,
   type = "est",
   transform = NULL,
   show.values = T,
-  vline = "Red"
- )
+  vline = "Red",
+ ) + labs(caption = "a. Estimated effects of foot_syls on F0_exc.") +
+  theme(title=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot") +
+  geom_hline(yintercept = 0, size = 0.5, color = "red")
 ```
 
 ```{r f0_exc model summary, fig.height=2.5, fig.width=2.823, , results="asis"}
@@ -650,17 +653,14 @@ pn_f0_exc_mdl.tidy <- analyseModel(
   plot_rounding =  1
 )
 
+
 ```
 
 
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
-charts <- getModelFixedFX(
-  pn_f0_exc_mdl.trimmed,
-  write="6_4_pn_all_output/pn_f0_exc"
-  )
+getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
 tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
-charts$slopes
 
 ```
 
@@ -669,7 +669,7 @@ charts$slopes
 ```{r set lh_slope equation}
 lh_slope_equation = formula(
   log_lh_slope ~
-  + foot_syls
+  foot_syls
   + (1 + foot_syls | speaker)
   + (1 | ana_syls)
   + (1 | wrd_end_syl)
@@ -780,13 +780,16 @@ read_csv("6_4_pn_all_output/pn_lh_slope_anova.csv",
 ```
 
 ```{r plot lh slope estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
+b <- plot_model(
   pn_lh_slope_mdl.trimmed,
   type = "est",
   transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
+  show.values = T
+ ) + labs(caption = "b. Estimated effects of foot_syls on log_lh_slope.") +
+  theme(title=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot") +
+  geom_hline(yintercept = 0, size = 0.5, color = "red")
 ```
 
 ```{r lh_slope model summary, fig.height=2.5, fig.width=2.823, results="asis"}
@@ -804,11 +807,19 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
 
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
-charts <- getModelFixedFX(
-  pn_lh_slope_mdl.trimmed,
-  write="6_4_pn_all_output/pn_lh_slope"
-)
-tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
+getModelFixedFX(pn_lh_slope_mdl.trimmed,
+                write = "6_4_pn_all_output/pn_lh_slope")$slopes
+tidyPrintPredictions(pn_lh_slope_mdl.trimmed)
 charts$slopes
 
 ```
+```{r compare effects exc and log_slope effects, fig.height=2.5, fig.width=6}
+grid.arrange(a, b, ncol = 2) 
+ggsave("test.png",
+       device = "png",
+       arrangeGrob(a, b, ncol = 2),
+       width = 15.7,
+       height = 6.5,
+       units = "cm")
+```
+
