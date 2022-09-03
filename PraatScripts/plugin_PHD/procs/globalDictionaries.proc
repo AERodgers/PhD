@@ -6,11 +6,25 @@ procedure globalDictionaries
     #     identification on different types of machine.
 
     ### ROOT DIRECTORY
-	##################
-    root_G$ = "C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings"
+    # NOTE: Change "public_root_G$" to match the location you have stored the
+    #       recordings folder.
+    root_G$ = homeDirectory$ +
+        ... "\OneDrive\00 Academic\Phonetics and speech\PhD\2 Recordings"
+    public_root_G$ = homeDirectory$ + "/Github/PhD/recordings"
+
+    if (variableExists("live_version"))
+        if live_version = 2
+            root_G$ = public_root_G$
+        endif
+    endif
     root_G$ = replace$(replace$(root_G$, "\", "/", 0) + "/", "//", "", 0)
+
     # Get an array of the drives available on the local disk
-    .directoryExists = size(fileNames$#(root_G$ + "/")) > 0
+    .temp = Create Strings as folder list: "folderList", public_root_G$
+    .directoryExists = Get number of strings
+    Remove
+    .directoryExists = (.directoryExists > 0)
+
     if windows and !.directoryExists
         runSystem: "fsutil fsinfo drives > 'temporaryDirectory$'/f.tmp"
         .drives = Read Strings from raw text file: "'temporaryDirectory$'/f.tmp"

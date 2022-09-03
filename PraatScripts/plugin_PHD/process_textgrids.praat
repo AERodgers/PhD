@@ -47,13 +47,19 @@
 #    10. V.2.0.9: Re-introduced "f0_min" and "f0_min" speaker stats
 
 ## Load global variables
-live_version = 1
+
+live_version = 2
+# 1 = no saves
+# 2 = accesses original sound files in private location
+# 3 = access github file
 @globalDictionaries
-root$ = root_G$ + "/" + analysis_G$[analysis_set]
+
+appendInfoLine: root_G$
+root$ = root_G$ +  analysis_G$[analysis_set]
 
 # GET USER INPUT ---------------------------------------------------------------
 form Analysis of TextGrids and Pitch contours
-    choice corpus_to_analyse 3
+    choice corpus_to_analyse 1
         button alignment
         button focus
         button sentence modes
@@ -61,7 +67,7 @@ form Analysis of TextGrids and Pitch contours
     optionmenu Analysis_set: 1
         option Analysis set one (original)
         option Analysis set two (STH hypothesis)
-        sentence Save_to_directory D:\Users\antoi\GitHub\PhD\Ch_6_Form\data
+        sentence Save_to_directory C:\Users\antoi\Github\PhD\Ch_6_Form\data
 endform
 
 # Get start time in seconds
@@ -78,7 +84,6 @@ saveToDir$ = replace$(replace$(save_to_directory$, "\", "/", 0) + "/",
 # Get input directory and output file names.
 batchFile$ = corpusRef_G$[corpus_to_analyse]
 corpus_to_analyse$ = corpusFolder_G$[corpus_to_analyse]
-
 
 if not fileReadable("GenStats_'batchFile$'.csv")
     appendInfoLine: "Calculating per-speaker F0 means and SDs."
@@ -117,6 +122,7 @@ low_tone_duration$ = "LDur"
 
 # Define/create output directories.
 @date
+appendInfoLine: root$
 createDirectory: root$ + "/" +  corpusArchiveDir$
 outputFileAddressArchive$ = root$ + "/" + corpusArchiveDir$ + "/"
                       ... + batchFile$ + "_" + (date.index$) + ".csv"
@@ -156,7 +162,7 @@ output_table = Create Table with column names: "output", 0,
 
 # Processs each directory.
 for dir_i to num_dirs
-    appendInfoLine: mid$(date$(), 12, 8), " Reading data for directory ",
+    appendInfoLine: mid$(date$(), 12, 8), " Reading data from directory ",
     ... dir_i, "/", num_dirs, "."
     selectObject: dir_list
     cur_dir$ = Get string: dir_i

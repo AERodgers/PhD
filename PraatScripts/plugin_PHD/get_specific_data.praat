@@ -35,8 +35,8 @@ form open textgrids containing given text in phonological analysis
         option does not contain a word ending with
         option matches (regex)
 
-    sentence table_directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings\Analysis_1_standard
-    sentence table_file m_corpus.Table
+    sentence table_directory C:\Users\antoi\Github\PhD\Ch_6_Form\data
+    sentence table_file a_corpus.csv
     comment Select tiers to HIDE ("syllable" is necessary)
     boolean ortho 1
     boolean rhythmic 0
@@ -123,7 +123,7 @@ table_directory$ = replace$(
                         ... 0)
 
 # Get list of valid files
-batch_data = Read from file: table_directory$ + table_file$
+batch_data = Read Table from comma-separated file: table_directory$ + table_file$
 temp_table = nowarn Extract rows where column (text):
          ... db_field$#[field], search_type$[search_type], target_text$
 short_table =  nowarn Extract rows where: "self[""cur_foot""]=1"
