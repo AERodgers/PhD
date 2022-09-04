@@ -1,0 +1,97 @@
+---
+title: "compare phonology no-reg and reg"
+author: "Antoin Rodgers"
+date: "2022-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning=FALSE)
+
+
+# Load Functions.
+source("../../2_R_Functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer", "blme")
+)
+```
+
+
+
+```{r Load and prepare m corpus, include=FALSE}
+# Get  Data.
+m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  mutate(
+    fin_phon = if_else(
+      acc_phon == "L*^[H]",
+      paste("H", fin_phon, sep=""),
+      paste(fin_phon)),
+    # remove register tier
+    across(
+      c("acc_phon", "fin_phon"),
+      ~ str_replace_all(., "\\^|\\[|\\]", "")
+    ),
+    is_H_boundary =  str_replace(fin_phon, "HL\\%", "H%"),
+    is_H_boundary = factor(is_H_boundary=="H%", level = c(F, T))
+  ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         prompt,
+         is_H_boundary)
+
+
+
+# Get  Data.
+m_corpus_H_reg <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  mutate(`high register in nucleus` = factor( str_detect(acc_phon, "\\^"),
+                          levels = c(F, T))) %>% 
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         prompt,
+         mode,
+         `high register in nucleus`)
+
+
+```
+
+### __BGLMM analysis for likelihood of H% (non-register tier analysis)__
+```{r GLMM Test of H boundary re mode in non-reg tier analysis, results='asis', fig.width = 4.2, fig.height = 2.5}
+fin_phon_model_H_or_not <- bglmer(
+  is_H_boundary ~ mode + (1 | speaker) + (1 | prompt),
+  data = m_corpus_is_H_boundary,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+)
+
+tidy_summary_non_reg <- analyseModel(fin_phon_model_H_or_not,
+                             is_GLM = TRUE,
+                             type = "pred")
+
+tidy_summary_non_reg$table
+```
+
+
+### __BGLMM analysis for likelihood of high register__
+
+```{r GLMM Test of high reg re mode in reg tier analysis, results='asis', fig.width = 4.2, fig.height = 2.5}
+h_reg_model <- bglmer(
+  `high register in nucleus` ~ mode + (1 | speaker) + (1 | prompt),
+  data = m_corpus_H_reg,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+  )
+
+tidy_summary_reg <- analyseModel(h_reg_model,
+                             is_GLM = TRUE,
+                             type = "pred",
+                             factor_matrix=TRUE)
+
+tidy_summary_reg$table
+```

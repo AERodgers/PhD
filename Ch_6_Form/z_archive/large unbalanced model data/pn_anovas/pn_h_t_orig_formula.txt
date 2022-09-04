@@ -1,1 +1,0 @@
-h_t ~ acc_phon + ana_syls + wrd_end_syl + gender + (1 | speaker) [using original model]

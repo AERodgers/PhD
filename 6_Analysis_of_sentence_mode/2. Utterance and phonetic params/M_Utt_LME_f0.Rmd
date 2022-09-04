@@ -1,0 +1,135 @@
+---
+title: "Chapter 7 - LME Analysis of Utterance mean f0 - Mode only"
+author: "Antoin Rodgers"
+date: "5.6.2022"
+output:
+  html_document: default
+---
+
+```{r message=FALSE, warning=TRUE, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+
+# Load Functions.
+source("../../2_R_Functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "stringr",
+    "broomExtra",
+    "janitor",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+p_color <- all_models_tidy ~ style(color =
+                                     if_else(as.double(all_models_tidy) < 0.05,
+                                             "green",
+                                             "red"))
+```
+
+
+```{r load corpus, include=FALSE}
+# Load Corpus
+m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  select(speaker,
+         mode,
+         prompt,
+         utt_mean_f0)
+
+```
+
+
+### LME model analysis using initial model
+```{r}
+# set current equation
+cur_equation  <- formula(utt_mean_f0 ~ mode
+                         + (1 + mode | speaker)
+                         + (1 | prompt)
+                         )
+
+```
+
+```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+utt_mean_f0_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+# model needs trimming
+m_corpus.trimmed <- m_corpus %>% filter(abs(scale(resid(utt_mean_f0_mdl))) <= 2.9)
+
+utt_mean_f0_mdl = lmer(
+  formula(cur_equation),
+  data = m_corpus.trimmed,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(utt_mean_f0_mdl, run_step = TRUE,
+              write="../output_model_anovas/utt_f0_anova.csv")
+```
+
+
+```{r fig.height=2.5, fig.width=5, results="asis"}
+utt_mean_f0.tidy <- analyseModel(
+  utt_mean_f0_mdl,
+  write="../output/utt_f0"
+)
+utt_mean_f0.tidy$table
+```
+
+```{r random effect of prompt, fig.height=2, fig.width=5}
+plot_model(utt_mean_f0_mdl,
+           type="re",
+           axis.title = c("semitones", "prompt"),
+           show.values = T)[2]
+```
+
+```{r slopes}
+# Get number of levels in target treatment variable.
+
+charts <- getModelFixedFX(
+  my_equation = cur_equation,
+  my_data = m_corpus.trimmed,
+  write="../output/utt_f0"
+)
+# NB for this, we aren't actually interested in the slopes of acc_phon, but the of mode
+charts$intercepts
+charts$slopes
+
+```

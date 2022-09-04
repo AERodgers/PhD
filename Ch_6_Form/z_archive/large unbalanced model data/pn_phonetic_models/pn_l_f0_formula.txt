@@ -1,1 +1,0 @@
-l_f0 ~ acc_phon + ana_syls + foot_syls + wrd_end_syl + pn_new_word + (1 | speaker)

@@ -1,0 +1,119 @@
+---
+title: "Chapter 7 - LME analysis of h_f0 ~ Mode"
+author: "Antoin Rodgers"
+date: "5.6.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,
+                      warning=FALSE,
+                      message=FALSE)
+
+# Load Functions.
+source("../../2_R_Functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+```
+
+```{r load corpus, include=FALSE}
+l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
+
+# Load Corpus
+m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  # Select only columns for analysis
+  select(
+    speaker,
+    gender,
+    mode,
+    prompt,
+    acc_phon,
+    fin_phon,
+    h_f0) %>% 
+  filter(acc_phon %in% l_star_h_types)  %>% 
+  mutate(acc_phon = factor(acc_phon,
+                           levels = l_star_h_types)
+         )
+```
+
+- Using intercepts only model for parity with mode + acc_phon model 
+
+```{r set equation and optimizer}
+my_equation = formula(
+  h_f0 ~ mode
+  + (1 | speaker)
+# + (1 | gender)
+  + (1 | fin_phon)
+# + (1 | prompt)
+  )
+optimizer = "optimx"
+
+```
+
+```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
+# run model
+h_f0_model <- lmer(
+  my_equation,
+  m_corpus,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+summariseLME(h_f0_model, run_step = FALSE,
+              write = "../output_model_anovas/Mode_h_f0_anova.csv")
+#              
+```
+
+```{r make tidy model, fig.height=3.5, fig.width=7, results="asis"}
+
+h_f0_model.tidy <- analyseModel(h_f0_model,
+                                write="../output/Mode_h_f0"
+                                )
+h_f0_model.tidy$table
+
+```
+
+```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = TRUE}
+
+charts <- getModelFixedFX(
+  my_equation,
+  m_corpus,
+  optimizer,
+  write="../output/Mode_h_f0"
+)
+charts$intercepts
+charts$slopes
+
+
+```

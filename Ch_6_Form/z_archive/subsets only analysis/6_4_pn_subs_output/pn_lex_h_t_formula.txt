@@ -1,1 +1,0 @@
-h_t ~ acc_phon + wrd_end_syl + gender + (1 | speaker) + (1 | ana_syls)

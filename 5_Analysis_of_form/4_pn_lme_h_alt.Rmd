@@ -1,0 +1,225 @@
+---
+title: "LME Analysis of PNs - alternative models for h_t and h_f0"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+# Get personal functions and install / load necessary packages.
+source("../2_R_Functions/myFunctions.R")
+
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "ggeffects",
+    "optimx",
+    "MuMIn",
+    "dfoptim",
+
+    # Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 14))
+
+# Get  data for analysis
+
+source("0_get_AH.R")
+
+h_star_type <-  c("L*H", ">H*", "H*")
+pn_h_data <- pn %>%
+  select(speaker,
+         gender,
+         acc_phon,
+         foot_syls,
+         pn_str_syl,
+         h_t,
+         h_f0) %>%
+  mutate(stress_clash = factor((foot_syls == 1), levels = c(F, T)))  %>%
+  filter(acc_phon %in% h_star_type) %>% 
+  select(-c(foot_syls))
+
+rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
+
+
+```
+
+
+## H targets
+
+### Analysis of H timing
+
+```{r set h_t equation}
+h_t_equation = formula(
+  h_t ~
+  stress_clash
+  + acc_phon
+  + (1 + stress_clash | speaker)
+  + (1 | gender)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+
+```{r run h_t models, fig.height=3, fig.width=9}
+pn_h_t_alt_mdl = lmer(
+  h_t_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_h_t_alt_mdl <-
+  optimizeModel(pn_h_t_alt_mdl, reject_nl = T, verbose = F)
+
+x <- summariseLME(pn_h_t_alt_mdl,
+                  run_step = T, print_summary = F
+                  )
+
+# model needs trimming
+pn_h_t_alt.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_t_alt_mdl))) <= 2.5)
+
+pn_h_t_alt_mdl.trimmed = update(pn_h_t_alt_mdl, data = pn_h_t_alt.trimmed)
+pn_h_t_alt_mdl.trimmed <-
+  optimizeModel(pn_h_t_alt_mdl.trimmed, reject_nl = T, verbose = F)
+tibble(`Summary of model` = getModelFormula(pn_h_t_alt_mdl.trimmed)) %>%
+          formattable(align = "l")
+
+x <- summariseLME(pn_h_t_alt_mdl.trimmed,
+                  run_step = F,
+                  write = "4_pn_output/pn_h_t_alt_anova.csv"
+  )
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("4_pn_output/pn_h_t_alt_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_t_alt_mdl.trimmed)))
+
+pn_h_t_alt_mdl.trimmed %>%
+  tidy() %>%
+  filter(effect == "fixed") %>%
+  select (-group, - effect) %>%
+  tidyNumbers() %>%  
+  rename(t.value = statistic) %>% 
+  formattable()
+```
+
+```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+pn_h_t_alt_mdl.tidy <- analyseModel(
+  pn_h_t_alt_mdl,
+  write = "4_pn_output/pn_h_t_alt",
+  type = "pred",
+  y_lab = "time (ms)",
+  hjust = 1.5,
+  plot_rounding =  0)
+
+pn_h_t_alt_mdl.tidy$table %>% tidyNumbers()
+```
+
+```{r do h_t pairwise analysis, results = "asis"}
+printTidyPredictions(pn_h_t_alt_mdl.trimmed)
+getModelFixedFX(pn_h_t_alt_mdl.trimmed)$slopes
+```
+
+### Analysis of H F0
+
+```{r set h_f0 equation}
+h_f0_equation = formula(
+  h_f0 ~
+  stress_clash
+  + (1 + stress_clash | speaker)
+  + (1 | gender)
+  + (1 | pn_str_syl)
+)
+
+optimizer = "optimx"
+```
+
+```{r run h_f0 models, fig.height=3, fig.width=9}
+pn_h_f0_alt_mdl = lmer(
+  h_f0_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
+)
+
+pn_h_f0_alt_mdl <-
+  optimizeModel(pn_h_f0_alt_mdl, reject_nl = T, verbose = F)
+
+
+pn_h_f0_alt.trimmed <-
+  pn_h_data %>% filter(abs(scale(resid(pn_h_f0_alt_mdl))) <= 2.75)
+
+pn_h_f0_alt_mdl.trimmed = update(pn_h_f0_alt_mdl, data = pn_h_f0_alt.trimmed)
+
+x <- summariseLME(run_step = F,
+                  pn_h_f0_alt_mdl.trimmed,
+                  write = "4_pn_output/pn_h_f0_alt_anova.csv")
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("4_pn_output/pn_h_f0_alt_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_f0_alt_mdl)))
+
+
+```
+
+```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+pn_h_f0_alt_mdl.tidy <- analyseModel(
+  pn_h_f0_alt_mdl,
+  write = "4_pn_output/pn_h_f0_alt",
+  type = "pred",
+  y_lab = "f0 (ST re speaker median)",
+  hjust = 1.5,
+  plot_rounding =  1
+)
+pn_h_f0_alt_mdl.tidy$table %>% tidyNumbers()
+
+
+```
+
+```{r do h_f0 pairwise analysis, results = "asis"}
+printTidyPredictions(pn_h_f0_alt_mdl)
+```

@@ -1,1 +1,0 @@
-f0_exc ~ wrd_end_syl + gender + (1 + wrd_end_syl | speaker)
