@@ -39,7 +39,7 @@ installMissingPackages(
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 14))
+theme_set(theme_minimal(base_size = 12))
 
 # Get  data for analysis
 
@@ -231,7 +231,7 @@ formattable(caption = paste("ANOVA of model:",
 ```
 ```{r plot l_t estimated effects, fig.height=3.5, fig.width=4}
 plot_model(
-  pn_l_t_mdl,
+  pn_l_t_mdl.trimmed,
   type = "est",
   transform = NULL,
   show.values = T,
@@ -245,9 +245,10 @@ pn_l_t_mdl.tidy <- analyseModel(
   type = "pred",
   factor_matrix = TRUE,
   y_lab = "time (ms)",
-  y_lim = c(-75, 180),
+  y_lim = c(-80, 180),
+  breaks = seq(-80, 180, 40),
   plot_rounding = 0,
-  panel_letters = F
+  panel_prefix = "a. "
   )
 
 ```
@@ -258,7 +259,7 @@ charts <- getModelFixedFX(
   write="6_4_pn_all_output/pn_l_t"
 )
 
-tidyPrintPredictions(pn_l_t_mdl.trimmed)
+printTidyPredictions(pn_l_t_mdl.trimmed)
 charts$slopes
 ```
 
@@ -343,9 +344,12 @@ pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl,
   write = "6_4_pn_all_output/pn_l_f0",
   type = "pred",
-  y_lab = "f0 (ST)",
+  y_lab = "f0 (ST re median)",
   y_lim = c(-3, 1.5),
-  plot_rounding = 1)
+  breaks = seq(-3, 1.5, 1),
+  plot_rounding = 1,
+  panel_prefix = "b. "
+  )
 ```
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
@@ -355,7 +359,7 @@ charts <- getModelFixedFX(
 )
 
 
-tidyPrintPredictions(pn_l_f0_mdl)
+printTidyPredictions(pn_l_f0_mdl)
 charts$slopes
 
 ```
@@ -432,8 +436,47 @@ read_csv("6_4_pn_all_output/pn_h_t_anova.csv") %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_h_t_mdl.trimmed)))
 ```
-```{r plot h_t estimated effects, fig.height=3.5, fig.width=4}
-plot_model(pn_h_t_mdl.trimmed, show.values = T, vline = "Red")
+```{r plot h_t estimated effects, fig.height=1.5, fig.width=4}
+my_terms = c("acc_phon [>H*, H*]",
+             "ana_syls [1, 2, 3]",
+             "foot_syls [2, 3, 4]",
+             "wrd_end_syl [2, 3]",
+             "gender [M]")
+
+
+for(cur_term in my_terms) {
+  cur_factor <-cur_term %>% str_split("\\s", simplify = T)
+  cur_factor <- cur_factor[1]
+  my_plot <-
+    plot_model(pn_h_t_mdl.trimmed,
+               show.values = T,
+               terms = cur_term) +
+    geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylim(-100, 100) +
+    ylab("time (ms)") +
+    labs(title = "",
+         caption = paste0 ("a. Estimated effects of ",
+                           cur_factor,
+                           " on h_t in PN pitch accent.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+    )
+  png(
+    filename =
+      paste0("6_4_pn_all_output/pn_h_t_re_", cur_factor, "_est.png"),
+    width = 4,
+    height = 0.5 +
+      (length(unique(pn_h_t_mdl.trimmed@frame[[cur_factor]])) - 0.5) * 0.5,
+    units = "in",
+    res = 300
+  )
+  print(my_plot)
+  dev.off()
+  print(my_plot)
+}
+
 ```
 ```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_h_t_mdl.tidy <- analyseModel(
@@ -441,18 +484,21 @@ pn_h_t_mdl.tidy <- analyseModel(
   write="6_4_pn_all_output/pn_h_t",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(50, 300),
+  y_lim = c(40, 300),
+  breaks = seq(40, 300, 20),
   plot_rounding = 0,
-  hjust = 1)
+  hjust = 1,
+  panel_prefix = "a. ")
 
 ```
+
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
+printTidyPredictions(pn_h_t_mdl.trimmed)
 charts <- getModelFixedFX(
   pn_h_t_mdl.trimmed,
   write="6_4_pn_all_output/pn_h_t"
-)
-tidyPrintPredictions(pn_h_t_mdl.trimmed)
-charts$slopes
+)$slopes
+
 ```
 
 ### Analysis of H F0
@@ -520,19 +566,20 @@ pn_h_f0_mdl.tidy <- analyseModel(
   pn_h_f0_mdl,
   write = "6_4_pn_all_output/pn_h_f0",
   type = "pred",
-  y_lab = "f0 (ST)",
+  y_lab = "f0 (ST re median)",
   y_lim = c(-1, 4),
-  plot_rounding =  1)
+  plot_rounding =  1,
+  breaks = seq(-1, 4, 1),
+  panel_prefix = "b. ")
 ```
 
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
+printTidyPredictions(pn_h_f0_mdl)
 
 charts <- getModelFixedFX(
   pn_h_f0_mdl, 
   write="6_4_pn_all_output/pn_h_f0"
-)
-tidyPrintPredictions(pn_h_f0_mdl)
-charts$slopes
+)$slopes
 
 ```
 
@@ -555,14 +602,14 @@ pn_tnc_data <- pn_l_data %>%
 
 f0_exc_equation = formula(
   f0_exc ~ 
-  foot_syls
+    foot_syls
   + (1 | ana_syls)
-  + (1 | wrd_end_syl)
-  + (1 | pn_new_word)
-  + (1 | gender)
   + (1 | speaker)
+  + (1 | gender)
   + (1 | pn_str_syl)
+
 )
+
 
 optimizer = "optimx"
 ```
@@ -584,25 +631,12 @@ pn_f0_exc_mdl = lmer(
 
 pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T, verbose = F)
 
-x <- summariseLME(pn_f0_exc_mdl, run_step = T, print_summary = F,
-                  draw_resids = F)
-              
-
-f0_exc_equation = formula(
-  f0_exc ~ 
-  foot_syls
-  + (1 | ana_syls)
-  + (1 | speaker)
-  + (1 | pn_str_syl)
-)
-
-pn_f0_exc_mdl <- update(pn_f0_exc_mdl, formula = f0_exc_equation)
-#pn_f0_exc_mdl <- optLme4Mdl(pn_f0_exc_mdl, reject_nl = T, verbose = F)
 x <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
+
 # model needs trimming
 
 pn_f0_exc.trimmed <-
-  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.75)
+  pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.5)
 pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
 
 # pn_f0_exc_mdl.trimmed <-
@@ -631,11 +665,12 @@ read_csv("6_4_pn_all_output/pn_f0_exc_anova.csv",
 ```{r plot f0 exc estimated effects, fig.height=3.5, fig.width=4}
 a <- plot_model(
   pn_f0_exc_mdl.trimmed,
+  rm.terms = "gender [M]",
   type = "est",
   transform = NULL,
   show.values = T,
   vline = "Red",
- ) + labs(caption = "a. Estimated effects of foot_syls on F0_exc.") +
+ ) + labs(caption = "a. Estimated effects on f0_exc.") +
   theme(title=element_blank(),
                   plot.caption=element_text(hjust = 0, size = 10),
                   plot.caption.position= "plot") +
@@ -648,7 +683,7 @@ pn_f0_exc_mdl.tidy <- analyseModel(
   pn_f0_exc_mdl.trimmed,
   write = "6_4_pn_all_output/pn_f0_exc",
   type = "pred",
-  y_lab = "f0 (st)",
+  y_lab = "f0 (ST re median)",
   y_lim = c(-1.5, 5),
   plot_rounding =  1
 )
@@ -660,7 +695,7 @@ pn_f0_exc_mdl.tidy <- analyseModel(
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 
 getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
-tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
+printTidyPredictions(pn_f0_exc_mdl.trimmed)
 
 ```
 
@@ -669,11 +704,10 @@ tidyPrintPredictions(pn_f0_exc_mdl.trimmed)
 ```{r set lh_slope equation}
 lh_slope_equation = formula(
   log_lh_slope ~
-  foot_syls
-  + (1 + foot_syls | speaker)
+    foot_syls
   + (1 | ana_syls)
   + (1 | wrd_end_syl)
-  + (1 | pn_new_word)
+  + (1 | speaker)
   + (1 | gender)
   + (1 | pn_str_syl)
 )
@@ -684,39 +718,6 @@ optimizer = "optimx"
 
 
 ```{r run lh_slope models, fig.height=3, fig.width=9}
-# pn_lh_slope_mdl = lmer(
-#   lh_slope_equation,
-#   pn_tnc_data,
-#   control = lmerControl(
-#     optimizer = optimizer,
-#     calc.derivs = FALSE,
-#     optCtrl = list(
-#       method = "nlminb",
-#       starttests = FALSE,
-#       kkt = FALSE
-#     )
-#   )
-# )
-# 
-# pn_lh_slope_mdl<-
-#   optLme4Mdl(pn_lh_slope_mdl,
-#              reject_nl = T,
-#              verbose = F)
-#
-# x <- summariseLME(pn_lh_slope_mdl,
-#                   print_summary = F,
-#                   run_step = T,
-#                   draw_resids = F)
-
-lh_slope_equation = formula(
-  log_lh_slope ~
-  foot_syls
-  + (1 + foot_syls | speaker)
-  + (1 | ana_syls)
-  + (1 | gender)
-  + (1 | pn_str_syl)
-)
-
 pn_lh_slope_mdl = lmer(
   lh_slope_equation,
   pn_tnc_data,
@@ -731,11 +732,16 @@ pn_lh_slope_mdl = lmer(
   )
 )
 
+ pn_lh_slope_mdl<-
+   optLme4Mdl(pn_lh_slope_mdl,
+              reject_nl = T,
+              verbose = T)
 
-pn_lh_slope_mdl<-
-  optLme4Mdl(pn_lh_slope_mdl,
-             reject_nl = T,
-             verbose = F)
+x <- summariseLME(pn_lh_slope_mdl,
+                  print_summary = F,
+                  run_step = T,
+                  draw_resids = T)
+
 
 ```
 - data needs trimming: residual SD > 4
@@ -758,11 +764,10 @@ pn_lh_slope_mdl.trimmed = lmer(
   )
 )
 
-
-pn_lh_slope_mdl.trimmed <-
-  optLme4Mdl(pn_lh_slope_mdl.trimmed,
-             reject_nl = T,
-             verbose = F)
+# pn_lh_slope_mdl.trimmed <-
+#   optLme4Mdl(pn_lh_slope_mdl.trimmed,
+#              reject_nl = T,
+#              verbose = F)
 
 x <- summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = F,
@@ -783,9 +788,10 @@ read_csv("6_4_pn_all_output/pn_lh_slope_anova.csv",
 b <- plot_model(
   pn_lh_slope_mdl.trimmed,
   type = "est",
+  rm.terms = "ana_syls [2,3,4]",
   transform = NULL,
   show.values = T
- ) + labs(caption = "b. Estimated effects of foot_syls on log_lh_slope.") +
+ ) + labs(caption = "b. Estimated effects on log_lh_slope.") +
   theme(title=element_blank(),
                   plot.caption=element_text(hjust = 0, size = 10),
                   plot.caption.position= "plot") +
@@ -809,13 +815,14 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
 
 getModelFixedFX(pn_lh_slope_mdl.trimmed,
                 write = "6_4_pn_all_output/pn_lh_slope")$slopes
-tidyPrintPredictions(pn_lh_slope_mdl.trimmed)
-charts$slopes
+printTidyPredictions(pn_lh_slope_mdl.trimmed)
 
 ```
+
+
 ```{r compare effects exc and log_slope effects, fig.height=2.5, fig.width=6}
 grid.arrange(a, b, ncol = 2) 
-ggsave("test.png",
+ggsave("6_4_pn_all_output/pn_trunc_comp.png",
        device = "png",
        arrangeGrob(a, b, ncol = 2),
        width = 15.7,

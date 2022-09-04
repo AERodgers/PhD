@@ -15,10 +15,10 @@ knitr::opts_chunk$set(echo = FALSE,
 source("../functions/myFunctions.R")
 
 installMissingPackages(c("tidyverse", "formattable","janitor","mefa4", "knitr",
-                         "gridExtra"))
+                         "gridExtra", "RColorBrewer"))
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 9))
+theme_set(theme_minimal(base_size = 10))
 ```
 
 
@@ -261,7 +261,7 @@ pn_wrd_data_sum <- pn_wrd_data %>%
 
 
 ```{r adjusted PA distribution, fig.width = 6.1, fig.height = 3}
-ggplot(data = pn_wrd_adj %>%
+my_plot <- ggplot(data = pn_wrd_adj %>%
          mutate(pn_wrds = factor(
            pn_wrds,
            levels = c(
@@ -310,9 +310,22 @@ ggplot(data = pn_wrd_adj %>%
   ) +
   ylim(0, 60) +
   xlab("prenuclear pitch accent") +
-  ylab("count (adjusted)") +
-  labs(caption = "pitch accents per target phrase in H-corpus (adjusted)")
+  ylab("count (adjusted)")
 
+png(
+  filename =
+    paste0("6_3_output/PA_by_phrase.png"),
+  width =  15.25,
+  height = 6.5,
+  units = "cm",
+  res = 300
+)
+print(my_plot)
+dev.off()
+
+
+
+print(my_plot)
 ```
 
 
@@ -330,12 +343,12 @@ pn_phr_cut <- c(
   )
 
 
-ggplot(
+my_plot <- ggplot(
   data = pn_wrd_data
   %>% filter(acc_phon == "L*H"),
   mapping = aes(x = h_syl_norm_t, fill = pn_wrds)
 ) +
-  geom_dotplot(dotsize = 1.825, alpha = 0.75) +
+  geom_dotplot(dotsize = 1.5, alpha = 0.75) +
   facet_grid(rows =  vars(speaker), cols = vars(pairing)) +
   scale_fill_manual(
     values = c(
@@ -363,6 +376,19 @@ ggplot(
   ) +
   xlim(0.2, 3.8) +
   xlab("syllable normalised time (from onset of foot)")
+
+
+png(
+  filename =
+    paste0("6_3_output/syl_norm_t_all.png"),
+  width =  15.25,
+  height = 20,
+  units = "cm",
+  res = 300
+)
+print(my_plot)
+dev.off()
+print(my_plot)
 
 ```
 
@@ -614,10 +640,10 @@ a <- ggplot(data = vals_is_in,
   theme(
     legend.position = "right",
     legend.key.size = unit(0.4, "cm"),
-    panel.grid.major.x = element_line(color = "grey", size = 0.5,
-                                      ),
+    panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
                        
   ) +
   xlim(0, 600) +
@@ -660,7 +686,8 @@ b <- ggplot(data = lallys_is,
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
   ) +
   xlim(0, 600) +
   ylim(0, 0.04) +
@@ -708,7 +735,8 @@ c <- ggplot(data = lallys_is_in,
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
   ) +
   xlim(0, 650) +
   ylim(0, 0.02) +
@@ -753,7 +781,8 @@ d <- ggplot(data = valeries_is,
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
   ) +
   xlim(0, 650) +
   ylim(0, 0.02) +
@@ -805,7 +834,8 @@ e <- ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
   ) +
   xlim(0, 550) +
   ylim(0, 0.01) +
@@ -853,7 +883,8 @@ f <- ggplot(
     legend.key.size = unit(0.4, "cm"),
     panel.grid.major.x = element_line(color = "grey", size = 0.5),
     plot.caption=element_text(hjust = 0, size = 10),
-    plot.caption.position= "plot"
+    plot.caption.position= "plot",
+    plot.background = element_rect(colour = "white")
   ) +
   xlim(0, 550) +
   ylim(0, 0.01) +
@@ -865,7 +896,18 @@ f <- ggplot(
 ```
 
 ```{r all plots,, fig.width = 6, fig.height = 6.2}
-grid.arrange(a, b, c, d, e, f, ncol = 2, nrow = 3)
+my_plot <- grid.arrange(a, b, c, d, e, f, ncol = 2, nrow = 3)
+  t
+
+ggsave(filename =  paste0("6_3_output/peak_alignment_by_phrase.png"),
+       plot = my_plot,
+       device = "png",
+    width =  15.25,
+    height = 15.75,
+    units = "cm",
+    dpi = 300
+    )
+print(my_plot)
 ```
 
 #### Hartigan dip test of unimodality / multimodality (Hartigan and Hartigan, 1985)

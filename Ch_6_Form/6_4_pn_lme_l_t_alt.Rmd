@@ -180,7 +180,7 @@ pn_l_t_mdl_late.tidy <- analyseModel(
 
 pn_l_t_mdl_late.tidy$table %>% tidyNumbers()
 
-tidyPrintPredictions(pn_l_t_mdl_late)
+printTidyPredictions(pn_l_t_mdl_late)
 
 ```
 

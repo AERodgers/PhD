@@ -148,7 +148,7 @@ pn_h_t_alt_mdl.tidy$table %>% tidyNumbers()
 ```
 
 ```{r do h_t pairwise analysis, results = "asis"}
-tidyPrintPredictions(pn_h_t_alt_mdl.trimmed)
+printTidyPredictions(pn_h_t_alt_mdl.trimmed)
 getModelFixedFX(pn_h_t_alt_mdl.trimmed)$slopes
 ```
 
@@ -221,5 +221,5 @@ pn_h_f0_alt_mdl.tidy$table %>% tidyNumbers()
 ```
 
 ```{r do h_f0 pairwise analysis, results = "asis"}
-tidyPrintPredictions(pn_h_f0_alt_mdl)
+printTidyPredictions(pn_h_f0_alt_mdl)
 ```

@@ -131,20 +131,14 @@ summary(lh_pn_model)
 ```
 
 ```{r random effect of prompt, fig.height=3, fig.width=3.051181}
-plot_model(lh_pn_model,
-           type="re",
-           show.values = T, ci.lvl= 0.95,
-           )[2:5]
+# plot_model(lh_pn_model,
+#            type="re",
+#            show.values = T, ci.lvl= 0.95,
+#            )[2:5]
 
-```
-
-```{r, results = "asis"}
-tidyPrintPredictions(lh_pn_model) 
 ```
 
 ```{r run drop1 as per factor assessment of  modelsLH}
-
-
 write <- "6_2_output/lh_model"
 
 model_formula <- getModelFormula(lh_pn_model)
@@ -183,7 +177,8 @@ tidy_summary <- analyseModel(lh_pn_model,
                              write = "6_2_output/lh_model",
                              is_GLM = TRUE,
                              type = "pred",
-                             ci.lvl=0.95
+                             ci.lvl=0.95,
+                             breaks = seq(0, 1, 0.2)
                              )
 
 plot_model(
@@ -200,10 +195,9 @@ plot_model(
 
 tidy_summary$table
 
-charts <- getModelFixedFX(lh_pn_model, write="6_2_output/lh_model")
 
-charts$intercepts
-charts$slopes
+printTidyPredictions(lh_pn_model) 
+getModelFixedFX(lh_pn_model, write="6_2_output/lh_model")$slopes
 ```
 
 ## Run isHStar model
@@ -235,17 +229,12 @@ summary(h_star_model)
 
 
 ```{r fig.height=4, fig.width=3.051181, results = "asis"}
-plot_model(h_star_model,
-           type="re",
-           show.values = T,
-           title = "")[2:5]
+# plot_model(h_star_model,
+#            type="re",
+#            show.values = T,
+#            title = "")[2:5]
 ```
 
-
-```{r, results = "asis"}
-
-tidyPrintPredictions(h_star_model) 
-```
 
 ```{r run drop1 as per factor assessment of  modelsLHStar}
 
@@ -290,7 +279,8 @@ cat(
 tidy_summary <- analyseModel(h_star_model,
                              write = "6_2_output/h_star_model",
                              is_GLM = TRUE,
-                             type = "pred")
+                             type = "pred",
+                             breaks = seq(0, 1, 0.2))
 
 
 plot_model(
@@ -300,18 +290,12 @@ plot_model(
   show.values = T,
   vline = "Red",
   title = "Estimates of model of H* probability"
- ) +              theme(axis.title.x=element_text(size = 9),
-                  plot.caption=element_text(hjust = 0, size = 10),
-                  plot.title=element_text(hjust = 0, size = 10),
-                  plot.caption.position= "plot")
+ ) +
+  theme(axis.title.x=element_text(size = 9),
+        plot.caption=element_text(hjust = 0, size = 10),
+        plot.title=element_text(hjust = 0, size = 10),
+        plot.caption.position= "plot")
 
-charts <- getModelFixedFX(h_star_model, write="6_2_output/h_star_model")
-
-charts$intercepts
-charts$slopes
-
-finish <- Sys.time()
-cat("\n",paste(start), "\n")
-cat("\n",paste(finish), "\n")
-cat("\n",paste("Time elapsed:", (finish-start), "\n"))
+printTidyPredictions(h_star_model) 
+getModelFixedFX(h_star_model, write="6_2_output/h_star_model")$slopes
 ```

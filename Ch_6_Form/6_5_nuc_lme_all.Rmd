@@ -32,6 +32,7 @@ installMissingPackages(
     "formattable",
     "knitr",
     "janitor",
+    "gridExtra",
     
     # Include packages for %in% %notin% syntactic notation
     "mefa4"
@@ -39,7 +40,7 @@ installMissingPackages(
 )
 
 # Set themes and colour schemes.
-theme_set(theme_minimal(base_size = 14))
+theme_set(theme_minimal(base_size = 12))
 
 # Get  data for analysis
 
@@ -168,26 +169,29 @@ nuc_l_t_mdl.trimmed = update(nuc_l_t_mdl, data = nuc_l_t_data.trimmed)
                                getModelFormula(nuc_l_t_mdl.trimmed)))
 ```
 
-```{r l_t model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
-plot_model(nuc_l_t_mdl, type = "re",
-           caption = "Random effects of stressed syllable")
+```{r l_t model summary, ffig.height=2.5, fig.width=2.823, results="asis"}
+re_plot <- plot_model(nuc_l_t_mdl, type = "re")[[2]]
 
+re_plot <- re_plot +
+  geom_hline(yintercept = 0, colour = "red") +
+  labs(caption = "Random effect of stressed syllable on L timing") +
+  ylab("time (ms)") +
+  theme(
+    plot.title = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 9),
+    plot.caption.position = "plot"
+  )
+# re_plot
 nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
-                                write="6_5_nuc_all_output/nuc_l_t",
-                                type = "pred",
-                                factor_matrix = TRUE
-                                )
+                                 write = "6_5_nuc_all_output/nuc_l_t",
+                                 type = "pred",
+                                 panel_prefix = "a. ")
 
 ```
 
-```{r do l_t pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
-  nuc_l_t_mdl,
-  write="6_5_nuc_all_output/nuc_l_t"
-)
-charts$intercepts
-charts$slopes
+```{r do l_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
+printTidyPredictions(nuc_l_t_mdl)
+getModelFixedFX(nuc_l_t_mdl, write="6_5_nuc_all_output/nuc_l_t")$slopes
 ```
 
 ### Analysis of L F0
@@ -241,22 +245,18 @@ read_csv("6_5_nuc_all_output/nuc_l_f0_anova.csv") %>%
                               getModelFormula(nuc_l_f0_mdl.trimmed)))
 ```
 
-```{r l_f0 model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
+```{r l_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
-                                write="6_5_nuc_all_output/nuc_l_f0",
-                                type = "pred"
-                                )
+                                  write = "6_5_nuc_all_output/nuc_l_f0",
+                                  type = "pred",
+                                  panel_prefix = "b. ")
 
 ```
 
-```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
-  nuc_l_f0_mdl.trimmed,
-  write="6_5_nuc_all_output/nuc_l_f0"
-)
-charts$intercepts
-charts$slopes
+```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
+printTidyPredictions(nuc_l_f0_mdl.trimmed)
+getModelFixedFX(nuc_l_f0_mdl.trimmed,
+                write = "6_5_nuc_all_output/nuc_l_f0")$slopes
 
 
 ```
@@ -315,23 +315,19 @@ read_csv("6_5_nuc_all_output/nuc_h_t_anova.csv") %>%
 ```
 
 
-```{r h_t model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
+```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="6_5_nuc_all_output/nuc_h_t",
                                 type = "pred",
-                                factor_matrix = TRUE
-                                )
+                                factor_matrix = TRUE,
+                                panel_prefix = "a. ")
 
 ```
 
-```{r do h_t pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
-  nuc_h_t_mdl,
-  write="6_5_nuc_all_output/nuc_h_t"
-)
-charts$intercepts
-charts$slopes
+```{r do h_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
+printTidyPredictions(nuc_h_t_mdl)
+getModelFixedFX(nuc_h_t_mdl,
+                write = "6_5_nuc_all_output/nuc_h_t")$slopes
 ```
 
 ### Analysis of H F0
@@ -385,22 +381,18 @@ read_csv("6_5_nuc_all_output/nuc_h_f0_anova.csv") %>%
                               getModelFormula(nuc_h_f0_mdl.trimmed)))
 ```
 
-```{r h_f0 model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
+```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 write="6_5_nuc_all_output/nuc_h_f0",
-                                type = "pred"
-                                )
+                                type = "pred",
+                                panel_prefix = "b. ")
 
 ```
 
-```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
-  nuc_h_f0_mdl.trimmed,
-  write="6_5_nuc_all_output/nuc_h_f0"
-)
-charts$intercepts
-charts$slopes
+```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
+printTidyPredictions(nuc_h_f0_mdl.trimmed)
+getModelFixedFX(nuc_h_f0_mdl.trimmed,
+                          write = "6_5_nuc_all_output/nuc_h_f0")$slopes
 
 ```
 
@@ -449,12 +441,12 @@ x <- summariseLME(nuc_e_t_mdl.trimmed,
              run_step = F)
 ```
 
-```{r e_t model summary, fig.height=2.5, fig.width = 3.01, include = F, results="asis"}
+```{r e_t model summary, fig.height=2.5, fig.width=2.823, include = F, results="asis"}
 nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 write="6_5_nuc_all_output/nuc_e_t",
                                 type = "pred",
-                                factor_matrix = TRUE
-                                )
+                                factor_matrix = TRUE,
+                                panel_prefix = "a. ")
 
 ```
 
@@ -518,22 +510,17 @@ nuc_e_f0_mdl.trimmed = update(
 ```
 
 
-```{r e_f0 model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
+```{r e_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
                                 write="6_5_nuc_all_output/nuc_e_f0",
-                                type = "pred"
-                                )
+                                type = "pred")
 
 ```
 
 ```{r do e_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
-  nuc_e_f0_mdl.trimmed,
-  write="6_5_nuc_all_output/nuc_e_f0"
-)
-charts$intercepts
-charts$slopes
+printTidyPredictions(nuc_e_f0_mdl.trimmed)
+getModelFixedFX(nuc_e_f0_mdl.trimmed,
+                write="6_5_nuc_all_output/nuc_e_f0")$slopes
 ```
 
 
@@ -546,12 +533,12 @@ charts$slopes
 f0_exc_equation = formula(
  f0_exc ~ 
     foot_syls
-  + pre_syls
-  + fin_phon
-  + nuc_new_word
   + gender
-  + (1 | speaker)
+  + (1 + foot_syls | speaker)
   + (1 | nuc_str_syl)
+  + (1 | pre_syls)
+  + (1 | fin_phon)
+  + (1 | nuc_new_word)
 )
 
 optimizer = "optimx"
@@ -562,15 +549,13 @@ optimizer = "optimx"
 nuc_f0_exc_mdl = lmer(
   f0_exc_equation,
   nuc_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = FALSE,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
-    )
-  )
+control = lmerControl(
+  optimizer = "nloptwrap",
+  optCtrl = list(algorithm = "NLOPT_LN_PRAXIS",
+                 maxfun = 1e9,
+                 maxeval = 1e7,
+                 xtol_abs = 1e-9,
+                 ftol_abs = 1e-9))
 )
 
 # model needs trimming
@@ -595,24 +580,37 @@ anova <- summariseLME(nuc_f0_exc_mdl.trimmed,
    formattable(caption = paste("ANOVA of model:",
                                getModelFormula(nuc_f0_exc_mdl.trimmed)))
 ```
+```{r plot f0_exc estimated effects, fig.height=2.5, fig.width=4.3}
+a <- plot_model(
+  nuc_f0_exc_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T
+ ) + labs(
+   caption =
+     "b. Estimated effects on f0_exc."
+   ) +
+  theme(title=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot") +
+  geom_hline(yintercept = 0, size = 0.5, color = "red")
+```
 
-```{r f0_exc model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
+```{r f0_exc model summary, ffig.height=2.5, fig.width=2.823, results="asis"}
 
 nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="6_5_nuc_all_output/nuc_f0_exc",
-                                type = "pred"
-                                )
+                                type = "pred",
+                                panel_prefix = "a. ")
 
 ```
 
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width = 3.01}
-
-charts <- getModelFixedFX(
+printTidyPredictions(nuc_f0_exc_mdl.trimmed)
+getModelFixedFX(
   nuc_f0_exc_mdl.trimmed,
   write="6_5_nuc_all_output/nuc_f0_exc"
-)
-charts$intercepts
-charts$slopes
+)$slopes
 
 
 ```
@@ -631,12 +629,12 @@ nuc_data <- nuc_data %>%
 lh_slope_equation = formula(
   log_lh_slope ~
     foot_syls
-  + pre_syls
-  + fin_phon
-  + nuc_new_word
   + gender
-  + (1 | speaker)
+  + (1 + foot_syls | speaker)
   + (1 | nuc_str_syl)
+  + (1 | pre_syls)
+  + (1 | fin_phon)
+  + (1 | nuc_new_word)
 )
 optimizer = "optimx"
 ```
@@ -660,12 +658,21 @@ nuc_lh_slope_mdl = lmer(
 # model needs trimming
 nuc_lh_slope_mdl.trimmed = update(
   nuc_lh_slope_mdl,
-  data = nuc_data %>% filter(abs(scale(resid(nuc_lh_slope_mdl))) <= 3)
+  data = nuc_data %>% filter(abs(scale(resid(nuc_lh_slope_mdl))) <= 3),
+  control = lmerControl(
+  optimizer = "nloptwrap",
+  optCtrl = list(algorithm = "NLOPT_LN_COBYLA",
+                 maxfun = 1e9,
+                 maxeval = 1e7,
+                 xtol_abs = 1e-9,
+                 ftol_abs = 1e-9))
 )
 
- anova <- summariseLME(nuc_lh_slope_mdl.trimmed,
-             run_step = F,
-             write = "6_5_nuc_all_output/nuc_lh_slope_anova.csv")
+nuc_lh_slope_mdl.trimmed <- optLme4Mdl(nuc_lh_slope_mdl.trimmed)
+
+anova <- summariseLME(nuc_lh_slope_mdl.trimmed,
+                      run_step = F,
+                      write = "6_5_nuc_all_output/nuc_lh_slope_anova.csv")
  
  
  adjustP_posthoc("6_5_nuc_all_output/",
@@ -678,21 +685,45 @@ nuc_lh_slope_mdl.trimmed = update(
                                getModelFormula(nuc_lh_slope_mdl.trimmed)))
 ```
 
-```{r lh_slope model summary, fig.height=2.5, fig.width = 3.01, results="asis"}
-nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
-                                write="6_5_nuc_all_output/nuc_lh_slope",
-                                type = "pred"
-                                )
+```{r plot lh slope estimated effects, fig.height=2.5, fig.width=4.3}
+b <- plot_model(
+  nuc_lh_slope_mdl.trimmed,
+  type = "est",
+  transform = NULL,
+  show.values = T
+ ) + labs(
+   caption =
+     "b. Estimated effects on log_lh_slope."
+   ) +
+  theme(title=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot") +
+  geom_hline(yintercept = 0, size = 0.5, color = "red")
 ```
 
-```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width = 3.01}
+```{r lh_slope model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
+                                write="6_5_nuc_all_output/nuc_lh_slope",
+                                type = "pred",
+                                panel_prefix = "b. ")
+```
 
-charts <- getModelFixedFX(
+```{r do lh_slope pairwise analysis}
+printTidyPredictions(nuc_lh_slope_mdl.trimmed)
+getModelFixedFX(
   nuc_lh_slope_mdl.trimmed,
   write="6_5_nuc_all_output/nuc_lh_slope"
-)
-charts$intercepts
-charts$slopes
+)$slopes
 
 
+```
+
+```{r compare effects exc and log_slope effects, fig.height=2.5, fig.width=6}
+grid.arrange(a, b, ncol = 2) 
+ggsave("test.png",
+       device = "png",
+       arrangeGrob(a, b, ncol = 2),
+       width = 15.7,
+       height = 6.5,
+       units = "cm")
 ```

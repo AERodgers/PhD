@@ -447,10 +447,10 @@ summariseLME <-
 
     if (run_step)
     {
-      cat("\nRunning step() ...", sep = "")
+      cat("\nRunning step() ...\n")
       step_result <- step(my_model)
-      cat("Model found by step():",
-          getModelFormula(get_model(step_result)), "\n")
+      cat("Model found:",
+          getModelFormula(get_model(step_result)), "\n\n")
       }
 
 
@@ -479,7 +479,8 @@ analyseModel <-
            y_lab = NULL,
            y_lim = NULL,
            plot_rounding = 1,
-           panel_letters = F,
+           panel_prefix = NULL,
+           breaks = waiver(),
            hjust = 1.14
            )
   {
@@ -612,32 +613,69 @@ analyseModel <-
             check_overlap = T,
             size=3) +
           theme(axis.title.x=element_blank())
+        if (!is.null(write))
+        {
+          png(
+            filename =
+              paste0(write, "_re_", cur_factor, "_pred.png"),
+            width =  15.25 / 2,
+            height = 6.5,
+            units = "cm",
+            res = 300
+          )
+          print(my_plot)
+          dev.off()
+        }
 
         print(my_plot)
       }
       else{
+
         for (cur_factor in fixed_factors) {
+          if (typeof(my_model@frame[[cur_factor]]) == "double"){
+            all = "[all]"
+          }
+          else{
+            all = NULL
+          }
           my_plot <- ggpredict(my_model,
-                               terms = cur_factor,
+                               terms = paste(cur_factor, all),
                                ci.lvl = ci.lvl) %>%
             plot() +
             xlab(cur_factor) +
             ylim(0,1) +
             ylab("predicted probability") +
-            labs(title = "",
-              caption = paste ("Predicted probability of",
+            labs(caption = paste ("Predicted probability of",
                                   dependent_var,
                                   "re",
                                   cur_factor)) +
-            geom_text(aes(
+            scale_y_continuous(breaks=breaks, limits = c(0, 1)) +
+            theme(plot.title=element_blank(),
+                  axis.title.x=element_blank(),
+                  plot.caption=element_text(hjust = 0, size = 10),
+                  plot.caption.position= "plot")
+          if(is.null(all)) {
+            my_plot <- my_plot +
+              geom_text(aes(
               label = round(predicted, 2),
               hjust = hjust,
               position = "dodge"),
               check_overlap = T,
-              size=3) +
-            theme(axis.title.x=element_blank(),
-                  plot.caption=element_text(hjust = 0, size = 10),
-                  plot.caption.position= "plot")
+              size=3)
+          }
+          if (!is.null(write))
+          {
+            png(
+              filename =
+                paste0(write, "_re_", cur_factor, "_pred.png"),
+              width =  15.25 / 2,
+              height = 6.5,
+              units = "cm",
+              res = 300
+            )
+            print(my_plot)
+            dev.off()
+          }
 
           my_plot %>% print()
 
@@ -658,23 +696,36 @@ analyseModel <-
 
       cur_letter = 0
       for (cur_factor in fixed_factors) {
+        if (typeof(my_model@frame[[cur_factor]]) == "double"){
+          all = "[all]"
+        }
+        else{
+          all = NULL
+        }
+
         if (is.null(y_lab)){y_lab = cur_factor}
         cur_letter = cur_letter + (1 * cur_letter < length(letters))
-        if(panel_letters){
-          lettering = paste0((letters[cur_letter]), ". ")
-        }
-        else {
+
+        if(is.null(panel_prefix)){
           lettering = ""
+        }
+        else
+          if(panel_prefix == "letters") {
+            lettering = paste0((letters[cur_letter]), ". ")
+          }
+
+        else {
+          lettering = panel_prefix
         }
 
 
          my_plot <- ggpredict(my_model,
-                             terms = cur_factor,
+                             terms = paste(cur_factor, all),
                              ci.lvl = ci.lvl) %>%
           plot() +
           ylab(y_lab) +
           labs(title = "",
-               caption = paste0 (lettering, "Predicted values of ",
+               caption = paste0 (lettering, "Predicted ",
                                 dependent_var,
                                 " re ",
                                 cur_factor, ".")) +
@@ -684,17 +735,28 @@ analyseModel <-
             position = "dodge"),
             check_overlap = T,
             size=3) +
-          theme(axis.title.x=element_blank(),
+          theme(plot.title=element_blank(),
                 plot.caption=element_text(hjust = 0, size = 10),
                 plot.caption.position= "plot")
 
          if (!is.null(y_lim)){
-           my_plot <- my_plot + ylim(y_lim)
-
+           my_plot <- my_plot +
+             scale_y_continuous(breaks=breaks, limits = y_lim)
          }
-
-        my_plot %>% print()
-
+         if (!is.null(write))
+         {
+           png(
+             filename =
+               paste0(write, "_re_", cur_factor, "_pred.png"),
+             width =  15.25 / 2,
+             height = 6.5,
+             units = "cm",
+             res = 300
+           )
+           print(my_plot)
+           dev.off()
+         }
+           print(my_plot)
       }
     }
 
@@ -1192,7 +1254,7 @@ adjustP_posthoc <-
   }
 ###
 ###  Tidy Predictions ####################################################
-tidyPrintPredictions <-
+printTidyPredictions <-
   function(model, caption_suffix, factor_matrix = F) {
     require("ggeffects")
     require("tidyverse")
@@ -1604,8 +1666,8 @@ optLme4Mdl <- function(model,
         ftol_abs = 1e-9
       )
     )))
-    if (!modelIsOK(model, reject_nl)){
-      solution = " less strict control settings."
+    if (modelIsOK(model, reject_nl)){
+      solution  <-  "less strict control settings"
       }
   }
 
@@ -1620,14 +1682,14 @@ optLme4Mdl <- function(model,
   if (!modelIsOK(model, reject_nl) & "optimx" %in% checks) {
     model <- tryOptimx(model, reject_nl, verbose)
     if (modelIsOK(model, reject_nl)) {
-      solution <- "after varying optimx settings."
+      solution <- "after varying optimx settings"
     }
   }
 
   if (!modelIsOK(model, reject_nl) & "nloptwrap" %in% checks) {
     model <- trynlopt(model, reject_nl, verbose)
     if (modelIsOK(model, reject_nl)) {
-      solution <- "after varying nloptwrap options."
+      solution <- "after varying nloptwrap options"
     }
   }
 
