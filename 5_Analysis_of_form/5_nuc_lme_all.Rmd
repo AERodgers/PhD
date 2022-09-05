@@ -74,6 +74,7 @@ nuc_data <- nuc %>%
   )
 
 
+optimizer = "optimx"
 
 rm(nuc, pn, pn_ana, pn_foot, nuc_pre, nuc_foot, pn_lex, corpus)
 
@@ -122,7 +123,7 @@ nuc_data %>%
 
 ### Analysis of L timing
 
-```{r set l_t equation}
+```{r run l_t models, fig.height=3, fig.width=9}
 l_t_equation = formula(
   l_t ~ foot_syls
   + pre_syls
@@ -133,11 +134,7 @@ l_t_equation = formula(
   + (1 | nuc_str_syl)
 )
 
-optimizer = "optimx"
-```
 
-
-```{r run l_t models, fig.height=3, fig.width=9}
 nuc_l_t_mdl = lmer(
   l_t_equation,
   nuc_data,
@@ -439,8 +436,18 @@ nuc_e_t_mdl.trimmed = update(nuc_e_t_mdl,
                                filter(abs(scale(resid(nuc_e_t_mdl))) <= 4)
 )
 
-x <- summariseLME(nuc_e_t_mdl.trimmed,
-             run_step = F)
+ anova <- summariseLME(nuc_e_t_mdl.trimmed,
+             run_step = F,
+             write = "5_nuc_output/nuc_e_t_anova.csv")
+ 
+ adjustP_posthoc("5_nuc_output/",
+                 p.value,
+                 suffix_id = "_anova")
+ 
+ read_csv("5_nuc_output/nuc_e_t_anova.csv") %>%
+   tidyStatNumbers() %>%
+   formattable(caption = paste("ANOVA of model:",
+                               getModelFormula(nuc_e_t_mdl.trimmed)))
 ```
 
 ```{r e_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
@@ -455,10 +462,10 @@ nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
 
 ```{r do e_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
 printTidyPredictions(nuc_e_t_mdl.trimmed)
-charts <- getModelFixedFX(
+getModelFixedFX(
   nuc_e_t_mdl.trimmed,
   write="5_nuc_output/nuc_e_t"
-)
+)$slopes
 ```
 
 ### Analysis of E F0

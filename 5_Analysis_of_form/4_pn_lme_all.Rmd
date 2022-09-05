@@ -85,6 +85,7 @@ pn_h_data <- pn %>%
 
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
+optimizer = "optimx"
 
 ```
 
@@ -152,7 +153,7 @@ pn_l_data <- pn %>%
 
 ### Analysis of L timing
 
-```{r set l_t equation}
+```{r run l_t models, fig.height=3, fig.width=9}
 l_t_equation = formula(
   l_t ~
     acc_phon
@@ -165,9 +166,7 @@ l_t_equation = formula(
   + (1 | pn_str_syl)
 )
 
-optimizer = "optimx"
-```
-```{r run l_t models, fig.height=3, fig.width=9}
+
 pn_l_t_mdl = lmer(
   l_t_equation,
   pn_l_data,
@@ -253,19 +252,14 @@ pn_l_t_mdl.tidy <- analyseModel(
 
 ```
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
-
-charts <- getModelFixedFX(
-  pn_l_t_mdl.trimmed,
-  write="4_pn_output/pn_l_t"
-)
-
 printTidyPredictions(pn_l_t_mdl.trimmed)
-charts$slopes
+
+getModelFixedFX(pn_l_t_mdl.trimmed, write="4_pn_output/pn_l_t")$slopes
 ```
 
 ### Analysis of L F0
 
-```{r set l_f0 equation}
+```{r run l_f0 models, fig.height=3, fig.width=9}
 l_f0_equation = formula(
   l_f0 ~
     acc_phon
@@ -277,9 +271,7 @@ l_f0_equation = formula(
   + (1 + foot_syls| speaker)
   + (1 | pn_str_syl)
 )
-optimizer = "optimx"
-```
-```{r run l_f0 models, fig.height=3, fig.width=9}
+
 pn_l_f0_mdl = lmer(
   l_f0_equation,
   pn_l_data,
@@ -352,23 +344,16 @@ pn_l_f0_mdl.tidy <- analyseModel(
   )
 ```
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
-
-charts <- getModelFixedFX(
-  pn_l_f0_mdl,
-  write = "4_pn_output/pn_l_f0"
-)
-
-
 printTidyPredictions(pn_l_f0_mdl)
-charts$slopes
 
+getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")$slopes
 ```
 
 ## H targets
 
 ### Analysis of H timing
 
-```{r set h_t equation}
+```{r run h_t models, fig.height=3, fig.width=9}
 h_t_equation = formula(
   h_t ~
     acc_phon
@@ -381,9 +366,7 @@ h_t_equation = formula(
   + (1 | pn_str_syl)
 )
 
-optimizer = "optimx"
-```
-```{r run h_t models, fig.height=3, fig.width=9}
+
 pn_h_t_mdl = lmer(
   h_t_equation,
   pn_h_data,
@@ -494,16 +477,13 @@ pn_h_t_mdl.tidy <- analyseModel(
 
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_h_t_mdl.trimmed)
-charts <- getModelFixedFX(
-  pn_h_t_mdl.trimmed,
-  write="4_pn_output/pn_h_t"
-)$slopes
 
+getModelFixedFX(pn_h_t_mdl.trimmed, write="4_pn_output/pn_h_t")$slopes
 ```
 
 ### Analysis of H F0
 
-```{r set h_f0 equation}
+```{r run h_f0 models, fig.height=3, fig.width=9}
 h_f0_equation = formula(
   h_f0 ~
     acc_phon
@@ -516,10 +496,7 @@ h_f0_equation = formula(
   + (1 | pn_str_syl)
 )
 
-optimizer = "optimx"
-```
 
-```{r run h_f0 models, fig.height=3, fig.width=9}
 pn_h_f0_mdl = lmer(
   h_f0_equation,
   pn_h_data,
@@ -576,11 +553,7 @@ pn_h_f0_mdl.tidy <- analyseModel(
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_h_f0_mdl)
 
-charts <- getModelFixedFX(
-  pn_h_f0_mdl, 
-  write="4_pn_output/pn_h_f0"
-)$slopes
-
+getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")$slopes
 ```
 
 
@@ -598,7 +571,7 @@ pn_tnc_data <- pn_l_data %>%
 
 ### LH Excursion
 
-```{r set f0_exc equation}
+```{r run f0_exc models, fig.height=3, fig.width=9}
 
 f0_exc_equation = formula(
   f0_exc ~ 
@@ -611,10 +584,6 @@ f0_exc_equation = formula(
 )
 
 
-optimizer = "optimx"
-```
-
-```{r run f0_exc models, fig.height=3, fig.width=9}
 pn_f0_exc_mdl = lmer(
   f0_exc_equation,
   pn_tnc_data,
@@ -693,15 +662,14 @@ pn_f0_exc_mdl.tidy <- analyseModel(
 
 
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
-
-getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
 printTidyPredictions(pn_f0_exc_mdl.trimmed)
 
+getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
 ```
 
 ### LH Slope
 
-```{r set lh_slope equation}
+```{r run lh_slope models, fig.height=3, fig.width=9}
 lh_slope_equation = formula(
   log_lh_slope ~
     foot_syls
@@ -712,12 +680,6 @@ lh_slope_equation = formula(
   + (1 | pn_str_syl)
 )
 
-
-optimizer = "optimx"
-```
-
-
-```{r run lh_slope models, fig.height=3, fig.width=9}
 pn_lh_slope_mdl = lmer(
   lh_slope_equation,
   pn_tnc_data,
@@ -812,11 +774,10 @@ pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
 ```
 
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
+printTidyPredictions(pn_lh_slope_mdl.trimmed)
 
 getModelFixedFX(pn_lh_slope_mdl.trimmed,
                 write = "4_pn_output/pn_lh_slope")$slopes
-printTidyPredictions(pn_lh_slope_mdl.trimmed)
-
 ```
 
 
