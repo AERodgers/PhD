@@ -421,6 +421,7 @@ summariseLME <-
       }
 
     if(print_summary) {
+      cat("\nFormula:\n", my_formula, "\n\n", sep = "")
       print(summary(my_model))
     }
 
@@ -447,18 +448,18 @@ summariseLME <-
 
     if (run_step)
     {
-      cat("\nRunning step() ...\n")
+      cat("\nRunning step() ...\n", sep = "")
       step_result <- step(my_model)
       cat("Model found:",
           getModelFormula(get_model(step_result)), "\n\n")
       }
 
 
-    cat("isSingular(my_model, tol =",
+    cat("\nisSingular(my_model, tol =",
         my_tolerance,
         ") -->",
         isSingular(my_model, tol=my_tolerance),
-        "\n"
+        "\n\n", sep = ""
     )
 
   return(anova)
@@ -1708,7 +1709,7 @@ optimizeModel <- function(model,
 
   if (!modelIsOK(model, reject_nl)) {
     model <- original_model
-    cat("\nNo alternatives converged. Reverting to original model.\n",
+    cat("\nNo alternatives converged. Reverting to original model.\n\n",
         sep = "")
   }
   else {
@@ -1717,7 +1718,7 @@ optimizeModel <- function(model,
         found$optimizer,
         " after trying ",
         solution,
-        ".\n",
+        ".\n\n",
         sep = "")
   }
 

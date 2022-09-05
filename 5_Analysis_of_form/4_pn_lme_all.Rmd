@@ -485,7 +485,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "time (ms)",
   y_lim = c(40, 300),
-  breaks = seq(40, 300, 20),
+  breaks = seq(50, 300, 100),
   plot_rounding = 0,
   hjust = 1,
   panel_prefix = "a. ")
