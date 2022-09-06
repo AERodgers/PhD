@@ -738,11 +738,10 @@ analyseModel <-
                              ci.lvl = ci.lvl) %>%
           plot() +
           ylab(y_lab) +
-          labs(title = "",
-               caption = paste0 (lettering, "Predicted ",
-                                dependent_var,
-                                " re ",
-                                cur_factor, ".")) +
+          labs(caption = paste0 (lettering, "Predicted ",
+                                 dependent_var,
+                                 " re ",
+                                 cur_factor, ".")) +
           geom_label(aes(label = round(predicted, plot_rounding)),
                      label.padding = unit(0.5, "mm"),
                      label.r = unit(0.0, "mm"),

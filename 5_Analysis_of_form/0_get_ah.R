@@ -184,7 +184,6 @@ pn <- filter(corpus, cur_foot == 1) %>%
         acc_phon,
         sep = " ",
         remove = FALSE) %>%
-  select(-c(e_f0, e_f0_z, e_f0_exc, e_f0_exc_z, e_t, e_grand_mean_t, he_dur)) %>%
   select(speaker,
          gender,
          partner_gender,
@@ -205,8 +204,9 @@ pn <- filter(corpus, cur_foot == 1) %>%
          l_f0,
          h_t,
          h_f0,
-         lh_slope,
          f0_exc,
+         lh_dur,
+         lh_slope,
          h_grand_mean_t,
          h_syl,
          h_syl_ratio,

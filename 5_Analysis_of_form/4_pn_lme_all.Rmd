@@ -65,6 +65,7 @@ pn <- pn %>%
          l_f0,
          h_t,
          h_f0,
+         lh_dur,
          lh_slope,
          f0_exc) %>%
   mutate(
@@ -82,6 +83,11 @@ pn_h_data <- pn %>%
   filter(acc_phon %in% h_star_type) %>%
   mutate(acc_phon = factor(acc_phon, levels = h_star_type)) %>%
   select(-c(l_t, l_f0))
+
+#get data ready for T and C analysis
+pn_tnc_data <- pn_l_data %>%
+  mutate(log_lh_slope = log(lh_slope)) %>%
+  filter(acc_phon == "L*H")
 
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
@@ -228,27 +234,19 @@ formattable(caption = paste("ANOVA of model:",
 
 
 ```
-```{r plot l_t estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
-  pn_l_t_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
-```
 ```{r l_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="4_pn_output/pn_l_t",
   type = "pred",
-  factor_matrix = TRUE,
   y_lab = "time (ms)",
   y_lim = c(-80, 180),
   breaks = seq(-80, 180, 40),
   plot_rounding = 0,
   panel_prefix = "a. "
   )
+
+
 
 ```
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
@@ -328,9 +326,7 @@ read_csv("4_pn_output/pn_l_f0_anova.csv") %>%
                             getModelFormula(pn_l_f0_mdl)))
 
 ```
-```{r plot l_f0 estimated effects, fig.height=3.5, fig.width=4}
-plot_model(pn_l_f0_mdl, transform = NULL, show.values = T, vline = "Red")
-```
+
 ```{r l_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl,
@@ -347,6 +343,60 @@ pn_l_f0_mdl.tidy <- analyseModel(
 printTidyPredictions(pn_l_f0_mdl)
 
 getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")$slopes
+```
+
+```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
+# set terms to plot
+terms = c("acc_phon [L*]",
+          "pn_new_word [TRUE]",
+          "gender [M]")
+
+# create _t plot
+l_t_binom_plot <- plot_model(pn_l_t_mdl.trimmed,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ms)") +
+    labs(
+         caption = paste0 ("a. PN l_t model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# create _f0 plot
+l_f0_binom_plot <- plot_model(pn_l_f0_mdl,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ST)") +
+    labs(title = "",
+         caption = paste0 ("b. PN l_f0 model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# join the plots
+grid.arrange(l_t_binom_plot, l_f0_binom_plot, ncol = 2)
+
+# save the plots
+ggsave("4_pn_output/l_target_binomial.png",
+        device = "png",
+        arrangeGrob(l_t_binom_plot, l_f0_binom_plot, ncol = 2),
+        width = 15.5,
+        height = 5.5,
+        units = "cm")
 ```
 
 ## H targets
@@ -419,7 +469,8 @@ read_csv("4_pn_output/pn_h_t_anova.csv") %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_h_t_mdl.trimmed)))
 ```
-```{r plot h_t estimated effects, fig.height=1.5, fig.width=4}
+
+```{r plot h_t estimated effects, fig.height=1.5, fig.width=4, eval=F}
 my_terms = c("acc_phon [>H*, H*]",
              "ana_syls [1, 2, 3]",
              "foot_syls [2, 3, 4]",
@@ -556,18 +607,64 @@ printTidyPredictions(pn_h_f0_mdl)
 getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")$slopes
 ```
 
+```{r h binomial plots, fig.height=4.5/2.54, fig.width=15/2.54}
+# set terms to plot
+terms = c("pn_new_word [TRUE]",
+          "gender [M]")
+
+# create _t plot
+h_t_binom_plot <- plot_model(pn_h_t_mdl.trimmed,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ms)") +
+    labs(
+         caption = paste0 ("a. PN h_t model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# create _f0 plot
+h_f0_binom_plot <- plot_model(pn_h_f0_mdl,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ST)") +
+    labs(title = "",
+         caption = paste0 ("b. PN h_f0 model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# join the plots
+grid.arrange(h_t_binom_plot, h_f0_binom_plot, ncol = 2)
+
+# save the plots
+ggsave("4_pn_output/h_target_binomial.png",
+        device = "png",
+        arrangeGrob(h_t_binom_plot, h_f0_binom_plot, ncol = 2),
+        width = 15.5,
+        height = 4.5,
+        units = "cm")
+```
 
 ## Truncation and Compression
 
 Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
 
 As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
-
-```{r get data ready for T and C analysis}
-pn_tnc_data <- pn_l_data %>%
-  mutate(log_lh_slope = log(lh_slope)) %>%
-  filter(acc_phon == "L*H")
-```
 
 ### LH Excursion
 

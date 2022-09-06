@@ -182,8 +182,12 @@ re_plot <- re_plot +
 nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                  write = "5_nuc_output/nuc_l_t",
                                  type = "pred",
-                                 panel_prefix = "a. ",
-                                plot_rounding = 0)
+                                 y_lab = "time (ms)",
+                                 y_lim = c(-0, 140),
+                                 breaks = seq(-0, 140, 40),
+                                 plot_rounding = 0,
+                                 panel_prefix = "a. "
+                                 )
 
 ```
 
@@ -247,8 +251,12 @@ read_csv("5_nuc_output/nuc_l_f0_anova.csv") %>%
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                   write = "5_nuc_output/nuc_l_f0",
                                   type = "pred",
-                                  panel_prefix = "b. ")
-
+                                  y_lab = "f0 (ST re median)",
+                                  y_lim = c(-4.5, 0),
+                                  breaks = seq(-4.5, 0, 1),
+                                  plot_rounding = 1,
+                                  panel_prefix = "b. "
+                                  )
 ```
 
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
@@ -259,6 +267,54 @@ getModelFixedFX(nuc_l_f0_mdl.trimmed,
 
 ```
 
+```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
+# set terms to plot
+terms = c("fin_phon [L%]",
+          "nuc_new_word [TRUE]",
+          "gender [M]")
+
+# create _t plot
+l_t_binom_plot <- plot_model(nuc_l_t_mdl,
+           show.values = T,
+           show.intercept = TRUE,
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ms)") +
+    labs(
+         caption = paste0 ("a. Nuclear l_t model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# create _f0 plot
+l_f0_binom_plot <- plot_model(nuc_l_f0_mdl.trimmed,
+           show.values = T,
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ST)") +
+    labs(title = "",
+         caption = paste0 ("b. Nuclear l_f0 model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# join the plots
+grid.arrange(l_t_binom_plot, l_f0_binom_plot, ncol = 2)
+
+# save the plots
+ggsave("5_nuc_output/l_target_binomial.png",
+        device = "png",
+        arrangeGrob(l_t_binom_plot, l_f0_binom_plot, ncol = 2),
+        width = 15.5,
+        height = 5.5,
+        units = "cm")
+```
 ## H targets
 
 ### Analysis of H timing
@@ -317,9 +373,13 @@ read_csv("5_nuc_output/nuc_h_t_anova.csv") %>%
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="5_nuc_output/nuc_h_t",
                                 type = "pred",
-                                factor_matrix = TRUE,
-                                panel_prefix = "a. ",
-                                plot_rounding = 0)
+                                y_lab = "time (ms)",
+                                y_lim = c(150, 550),
+                                breaks = seq(150, 550, 100),
+                                plot_rounding = 0,
+                                panel_prefix = "a. "
+                                )
+
 
 ```
 
@@ -384,7 +444,12 @@ read_csv("5_nuc_output/nuc_h_f0_anova.csv") %>%
 nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_h_f0",
                                 type = "pred",
-                                panel_prefix = "b. ")
+                                y_lab = "f0 (ST re median)",
+                                y_lim = c(-1.5, 4.5),
+                                breaks = seq(-1.5, 4.5, 1),
+                                plot_rounding = 1,
+                                panel_prefix = "b. "
+                                )
 
 ```
 
@@ -395,11 +460,65 @@ getModelFixedFX(nuc_h_f0_mdl.trimmed,
 
 ```
 
+```{r h binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
+# set terms to plot
+terms = c("fin_phon [L%]",
+          "nuc_new_word [TRUE]",
+          "gender [M]")
+
+# create _t plot
+h_t_binom_plot <- plot_model(nuc_h_t_mdl,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ms)") +
+    labs(
+         caption = paste0 ("a. Nuclear h_t model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# create _f0 plot
+h_f0_binom_plot <- plot_model(nuc_h_f0_mdl.trimmed,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ST)") +
+    labs(title = "",
+         caption = paste0 ("b. Nuclear h_f0 model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# join the plots
+grid.arrange(h_t_binom_plot, h_f0_binom_plot, ncol = 2)
+
+# save the plots
+ggsave("5_nuc_output/h_target_binomial.png",
+        device = "png",
+        arrangeGrob(h_t_binom_plot, h_f0_binom_plot, ncol = 2),
+        width = 15.5,
+        height = 5.5,
+        units = "cm")
+```
+
 ## E targets
 
 ```{r set e_t equation}
 ### Analysis of E timing
-# E timing is not of interest as it is just the last f0 time point in the IP!
+# E timing is not of much interest as it is just the last f0 time point in the IP... except in terms of seeing how h_t and e_t differ.
 
 e_t_equation = formula(
   e_t ~ 
@@ -454,9 +573,12 @@ nuc_e_t_mdl.trimmed = update(nuc_e_t_mdl,
 nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_t",
                                 type = "pred",
-                                factor_matrix = TRUE,
-                                panel_prefix = "a. ",
-                                plot_rounding = 0)
+                                y_lab = "time (ms)",
+                                y_lim = c(200, 650),
+                                breaks = seq(200, 650, 100),
+                                plot_rounding = 0,
+                                panel_prefix = "a. "
+                                )
 
 ```
 
@@ -524,7 +646,13 @@ nuc_e_f0_mdl.trimmed = update(
 ```{r e_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
 nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
                                 write="5_nuc_output/nuc_e_f0",
-                                type = "pred")
+                                type = "pred",
+                                y_lab = "f0 (ST re median)",
+                                y_lim = c(-2.5, 3.5),
+                                breaks = seq(-2.5, 3.5, 1),
+                                plot_rounding = 1,
+                                panel_prefix = "b. "
+                                )
 
 ```
 
@@ -534,7 +662,59 @@ getModelFixedFX(nuc_e_f0_mdl.trimmed,
                 write="5_nuc_output/nuc_e_f0")$slopes
 ```
 
+```{r e binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
+# set terms to plot
+terms = c("fin_phon [L%]",
+          "nuc_new_word [TRUE]",
+          "gender [M]")
 
+# create _t plot
+e_t_binom_plot <- plot_model(nuc_e_t_mdl,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ms)") +
+    labs(
+         caption = paste0 ("a. Nuclear e_t model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# create _f0 plot
+e_f0_binom_plot <- plot_model(nuc_e_f0_mdl.trimmed,
+           type = "est",
+           transform = NULL,
+           show.values = T,
+           vline = "Red",
+           terms = terms) +
+  geom_hline(yintercept = 0, size = 0.5, color = "red") +
+    ylab("estimate (ST)") +
+    labs(title = "",
+         caption = paste0 ("b. Nuclear e_f0 model binomial factor effects.")) +
+    theme(
+      plot.title = element_blank(),
+      plot.caption = element_text(hjust = 0, size = 10),
+      plot.caption.position = "plot",
+      axis.title = element_text(size = 10)
+    )
+
+# join the plots
+grid.arrange(e_t_binom_plot, e_f0_binom_plot, ncol = 2)
+
+# save the plots
+ggsave("5_nuc_output/e_target_binomial.png",
+        device = "png",
+        arrangeGrob(e_t_binom_plot, e_f0_binom_plot, ncol = 2),
+        width = 15.5,
+        height = 5.5,
+        units = "cm")
+```
 ## Truncation and Compression Effects
 
 ### LH Excursion
