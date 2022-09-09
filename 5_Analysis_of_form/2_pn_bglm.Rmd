@@ -6,15 +6,15 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE,}
-knitr::opts_chunk$set(echo = FALSE,
+```{r setup, include=F,}
+knitr::opts_chunk$set(echo = F,
                       warning = F,
                       message = F)
 start <- Sys.time()
 ```
 
 
-```{r message=FALSE}
+```{r message=F}
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
@@ -63,12 +63,12 @@ pn <- pn %>%
   ) %>%
   mutate(
     isLH = factor(if_else(acc_phon == "L*H",
-                          TRUE,
-                          FALSE),
+                          T,
+                          F),
                   levels = c(F, T)),
     isHStar = factor(if_else(acc_phon == "H*",
-                             TRUE,
-                             FALSE),
+                             T,
+                             F),
                      levels = c(F, T)),
     foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
@@ -173,7 +173,7 @@ cat(
 
 tidy_summary <- analyseModel(lh_pn_model,
                              write = "2_output/lh_model",
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred",
                              ci.lvl=0.95,
                              breaks = seq(0, 1, 0.2),
@@ -278,7 +278,7 @@ cat(
 
 tidy_summary <- analyseModel(h_star_model,
                              write = "2_output/h_star_model",
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred",
                              breaks = seq(0, 1, 0.2),
                              panel_prefix = "letters",

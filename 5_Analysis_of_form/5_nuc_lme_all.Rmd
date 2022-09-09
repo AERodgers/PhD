@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F, 
+                      message = F,
+                      warning = F)
 
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
@@ -80,7 +80,7 @@ rm(nuc, pn, pn_ana, pn_foot, nuc_pre, nuc_foot, pn_lex, corpus)
 
 ```
 
-```{r check levels in factors, results="asis", eval=FALSE}
+```{r check levels in factors, results="asis", eval=F}
 
 star_found = F
 cat("\n\nFactors for nuc_data\n")
@@ -140,11 +140,11 @@ nuc_l_t_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -193,7 +193,10 @@ nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
 
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_l_t_mdl)
-getModelFixedFX(nuc_l_t_mdl, write="5_nuc_output/nuc_l_t")$slopes
+getModelFixedFX(nuc_l_t_mdl, write="5_nuc_output/nuc_l_t")$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
 ```
 
 ### Analysis of L F0
@@ -218,11 +221,11 @@ nuc_l_f0_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -262,7 +265,10 @@ nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_l_f0_mdl.trimmed)
 getModelFixedFX(nuc_l_f0_mdl.trimmed,
-                write = "5_nuc_output/nuc_l_f0")$slopes
+                write = "5_nuc_output/nuc_l_f0")$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
 
 
 ```
@@ -270,13 +276,13 @@ getModelFixedFX(nuc_l_f0_mdl.trimmed,
 ```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
 # set terms to plot
 terms = c("fin_phon [L%]",
-          "nuc_new_word [TRUE]",
+          "nuc_new_word [T]",
           "gender [M]")
 
 # create _t plot
 l_t_binom_plot <- plot_model(nuc_l_t_mdl,
            show.values = T,
-           show.intercept = TRUE,
+           show.intercept = T,
            terms = terms) +
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
@@ -340,11 +346,11 @@ nuc_h_t_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -386,7 +392,10 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_h_t_mdl)
 getModelFixedFX(nuc_h_t_mdl,
-                write = "5_nuc_output/nuc_h_t")$slopes
+                write = "5_nuc_output/nuc_h_t")$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
 ```
 
 ### Analysis of H F0
@@ -412,11 +421,11 @@ nuc_h_f0_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -456,14 +465,17 @@ nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_h_f0_mdl.trimmed)
 getModelFixedFX(nuc_h_f0_mdl.trimmed,
-                          write = "5_nuc_output/nuc_h_f0")$slopes
+                          write = "5_nuc_output/nuc_h_f0")$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
 
 ```
 
 ```{r h binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
 # set terms to plot
 terms = c("fin_phon [L%]",
-          "nuc_new_word [TRUE]",
+          "nuc_new_word [T]",
           "gender [M]")
 
 # create _t plot
@@ -515,7 +527,7 @@ ggsave("5_nuc_output/h_target_binomial.png",
 ```
 
 ## E targets
-
+e_t is not important for evaluation. However, the timing has been modelled just for visualisation purposes.
 ```{r set e_t equation}
 ### Analysis of E timing
 # E timing is not of much interest as it is just the last f0 time point in the IP... except in terms of seeing how h_t and e_t differ.
@@ -540,11 +552,11 @@ nuc_e_t_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -587,7 +599,10 @@ printTidyPredictions(nuc_e_t_mdl.trimmed)
 getModelFixedFX(
   nuc_e_t_mdl.trimmed,
   write="5_nuc_output/nuc_e_t"
-)$slopes
+)$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
 ```
 
 ### Analysis of E F0
@@ -614,11 +629,11 @@ nuc_e_f0_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -644,14 +659,14 @@ nuc_e_f0_mdl.trimmed = update(
 
 
 ```{r e_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
-nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
+nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_f0",
                                 type = "pred",
                                 y_lab = "f0 (ST re median)",
-                                y_lim = c(-2.5, 3.5),
-                                breaks = seq(-2.5, 3.5, 1),
+                                y_lim = c(-7, 3.5),
+                                breaks = seq(-7, 3.5, 2),
                                 plot_rounding = 1,
-                                panel_prefix = "b. "
+                                panel_prefix = "letters"
                                 )
 
 ```
@@ -659,13 +674,16 @@ nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl,
 ```{r do e_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
 printTidyPredictions(nuc_e_f0_mdl.trimmed)
 getModelFixedFX(nuc_e_f0_mdl.trimmed,
-                write="5_nuc_output/nuc_e_f0")$slopes
+                write="5_nuc_output/nuc_e_f0")$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
 ```
 
 ```{r e binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
 # set terms to plot
 terms = c("fin_phon [L%]",
-          "nuc_new_word [TRUE]",
+          "nuc_new_word [T]",
           "gender [M]")
 
 # create _t plot
@@ -742,11 +760,11 @@ nuc_f0_exc_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -798,6 +816,7 @@ a <- plot_model(
 nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="5_nuc_output/nuc_f0_exc",
                                 type = "pred",
+                                y_lab = "f0 (ST)",
                                 panel_prefix = "a. ")
 
 ```
@@ -807,7 +826,10 @@ printTidyPredictions(nuc_f0_exc_mdl.trimmed)
 getModelFixedFX(
   nuc_f0_exc_mdl.trimmed,
   write="5_nuc_output/nuc_f0_exc"
-)$slopes
+)$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
 
 
 ```
@@ -843,11 +865,11 @@ nuc_lh_slope_mdl = lmer(
   nuc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -901,6 +923,7 @@ nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
                                 write="5_nuc_output/nuc_lh_slope",
                                 type = "pred",
                                 panel_prefix = "b. ",
+                                y_lab = "log(ST/sec)",
                                 plot_rounding = 2)
 ```
 
@@ -909,17 +932,119 @@ printTidyPredictions(nuc_lh_slope_mdl.trimmed)
 getModelFixedFX(
   nuc_lh_slope_mdl.trimmed,
   write="5_nuc_output/nuc_lh_slope"
-)$slopes
+)$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.), 2))) %>% tidyStatNumbers()
 
 
 ```
 
 ```{r compare effects exc and log_slope effects, fig.height=2.5, fig.width=6}
 grid.arrange(a, b, ncol = 2) 
-ggsave("test.png",
+ggsave("5_nuc_output/nuc_truncation_params.png",
        device = "png",
        arrangeGrob(a, b, ncol = 2),
        width = 15.7,
        height = 6.5,
        units = "cm")
+```
+
+
+## Additional model
+
+### H time proprotional to duration of voicing
+
+
+```{r  h_t_as_prop_of_voicing, fig.height=3, fig.width=9}
+### Analysis of E timing
+# E timing is not of much interest as it is just the last f0 time point in the IP
+
+h_t_as_prop_of_voicing_equation = formula(
+  h_t_as_prop_of_voicing ~ 
+    foot_syls
+ # + fin_phon
+  + (1 + foot_syls + fin_phon | speaker)
+  + (1 | gender)
+  + (1 | nuc_str_syl)
+)
+
+optimizer = "optimx"
+
+nuc_data <- nuc_data %>%
+  mutate(h_t_as_prop_of_voicing = h_t  / e_t)
+
+nuc_h_t_as_prop_of_voicing_mdl = lmer(
+  h_t_as_prop_of_voicing_equation,
+  nuc_data,
+control = lmerControl(
+  optimizer = "nloptwrap",
+  optCtrl = list(algorithm = "NLOPT_LN_PRAXIS",
+                 maxfun = 1e9,
+                 maxeval = 1e7,
+                 xtol_abs = 1e-9,
+                 ftol_abs = 1e-9)))
+
+nuc_h_t_as_prop_of_voicing_mdl <- nuc_h_t_as_prop_of_voicing_mdl %>% optimizeModel()
+ anova <- summariseLME(nuc_h_t_as_prop_of_voicing_mdl,
+             run_step = T,
+             print_summary = F
+             )
+ 
+nuc_h_t_as_prop_of_voicing.trimmed <- nuc_data %>%
+    filter(abs(scale(resid(nuc_h_t_as_prop_of_voicing_mdl))) <= 3)
+
+# model needs trimming
+nuc_h_t_as_prop_of_voicing_mdl.trimmed = update(
+  nuc_h_t_as_prop_of_voicing_mdl,
+  data = nuc_h_t_as_prop_of_voicing.trimmed,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+ nuc_h_t_as_prop_of_voicing_mdl.trimmed <-
+   nuc_h_t_as_prop_of_voicing_mdl.trimmed %>%
+   optimizeModel() 
+
+ anova <- summariseLME(nuc_h_t_as_prop_of_voicing_mdl.trimmed,
+             run_step = F,
+             write = "5_nuc_output/nuc_h_t_as_prop_of_voicing_anova.csv"
+             )
+
+ adjustP_posthoc("5_nuc_output/",
+                 p.value,
+                 suffix_id = "_anova")
+
+ read_csv("5_nuc_output/nuc_h_t_as_prop_of_voicing_anova.csv") %>%
+   tidyStatNumbers() %>%
+   formattable(caption = paste("ANOVA of model:",
+                               getModelFormula(nuc_h_t_as_prop_of_voicing_mdl.trimmed)))
+```
+
+```{r h_t_as_prop_of_voicing model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+nuc_h_t_as_prop_of_voicing_mdl.tidy <- analyseModel(nuc_h_t_as_prop_of_voicing_mdl.trimmed,
+                                write="5_nuc_output/nuc_h_t_as_prop_of_voicing",
+                                type = "pred",
+                                y_lab = "h_t / e_t",
+                                y_lim = c(0.5, 1),
+                                breaks = seq(0.5, 1, 0.1),
+                                plot_rounding = 2,
+                                panel_prefix = "a. "
+                                )
+
+printTidyPredictions(nuc_h_t_as_prop_of_voicing_mdl.trimmed)
+getModelFixedFX(
+  nuc_h_t_as_prop_of_voicing_mdl.trimmed,
+  write="5_nuc_output/nuc_h_t_as_prop_of_voicing_mdl"
+)$slopes %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),2))) %>% tidyStatNumbers()
 ```

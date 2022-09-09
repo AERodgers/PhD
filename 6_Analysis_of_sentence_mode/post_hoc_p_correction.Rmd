@@ -7,19 +7,19 @@ output:
 subtitle: 'Appendix: Posthoc p value adjustment'
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
 ```
 
-```{r load functions, include=FALSE}
+```{r load functions, include=F}
 source("../functions/myFunctions.R") 
 
 installMissingPackages("tidyverse")
 ```
 
-Adjust all p values using false discovery rate (FDR). $\beta_0$, $\beta_1$, and model ANOVAs are processed separately.
+Adjust all p values using F discovery rate (FDR). $\beta_0$, $\beta_1$, and model ANOVAs are processed separately.
 
-c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
+c.f. Benjamini, Y., and Hochberg, Y. (1995). Controlling the F discovery rate: a practical and powerful approach to multiple testing. Journal of the *Royal Statistical Society Series B, **57***, 289--300. <doi:10.1111/j.2517-6161.1995.tb02031.x>. <https://www.jstor.org/stable/2346101>.
 
 ## 1. Mode and Phonology
 

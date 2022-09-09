@@ -7,10 +7,10 @@ output:
   pdf_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE,
-                      message = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      message = F)
 
 
 # Load Functions.
@@ -56,7 +56,7 @@ pitch_accent_colours <- c("H*"     = brewer.pal(6, "Set2")[5],
                           "^[L*H]" = brewer.pal(6, "Set2")[1])
 ```
 
-```{r load and process corpus, include=FALSE}
+```{r load and process corpus, include=F}
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   # Consolidate nuc_contour based on observation and types of register shift.
   mutate(
@@ -88,7 +88,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 
 ## Utterance level intonational phonology
 
-```{r Prep. for utterance-level phonology, warning=FALSE}
+```{r Prep. for utterance-level phonology, warning=F}
 #set lower limit for list: more than 8 tokens in the corpus
 tot_rows = nrow(m_corpus)
 threshold = round(tot_rows / 4 / 20,0)
@@ -126,9 +126,9 @@ total_counts <- m_corpus %>%
 ```
 
 
-```{r Show nuc only utterance level phonology summary, warning=FALSE}
+```{r Show nuc only utterance level phonology summary, warning=F}
 nuc_only <- m_corpus %>%
-  filter(`nuclear PA only` == TRUE) %>%
+  filter(`nuclear PA only` == T) %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
   arrange(desc(phon_count)) %>%
@@ -143,11 +143,11 @@ nuc_only %>%
   mutate("info" =c("count", "percentage"), .before=1) %>%
   kable(
   caption = "Utterance level intonational phonology by mode for tokens with only one PA")%>% 
-  kable_styling(full_width = FALSE, position="left")
+  kable_styling(full_width = F, position="left")
 ```
 
 
-```{r Show `high register in nucleus` utterance level phonology summary, warning=FALSE}
+```{r Show `high register in nucleus` utterance level phonology summary, warning=F}
 uses_h_reg <- m_corpus %>%
   filter(`high register in nucleus` == T) %>%
   group_by(mode) %>%
@@ -165,11 +165,11 @@ uses_h_reg %>%
   mutate("info" =c("count", "percentage"), .before=1) %>%
   kable(
   caption = "High register in nucelar PA")%>% 
-  kable_styling(full_width = FALSE, position="left")
+  kable_styling(full_width = F, position="left")
 ```
 
 
-```{r Show `high reg. or nuc. PA only` utterance level phonology summary, warning=FALSE}
+```{r Show `high reg. or nuc. PA only` utterance level phonology summary, warning=F}
 uses_h_reg_or_nuc_PA_only <- m_corpus %>%
   filter(`high register in nucleus` == T | `nuclear PA only` == T) %>%
   group_by(mode) %>%
@@ -187,11 +187,11 @@ uses_h_reg_or_nuc_PA_only %>%
   kable(
   caption = paste("Utterance level intonational phonology by mode with",
                   "high register or nuclear PA only"))%>% 
-  kable_styling(full_width = FALSE, position="left")
+  kable_styling(full_width = F, position="left")
 ```
 
 
-```{r Show distribution of utterance level phonology by mode, warning=FALSE}
+```{r Show distribution of utterance level phonology by mode, warning=F}
 # List utterances phonology by mode with 8+ tokens in the corpus
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
@@ -240,11 +240,11 @@ nuc_pa_only_model <- bglmer(
   # change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -257,11 +257,11 @@ nuc_pa_only_model_null =
   # change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -300,8 +300,8 @@ anova(nuc_pa_only_model, nuc_pa_only_model_null, test="Chisq") %>%
 
 tidy_summary <- analyseModel(nuc_pa_only_model,
                              write = "Utt_nuc_pa_only_GLMM",
-                             is_GLM = TRUE,
-                             factor_matrix = TRUE,
+                             is_GLM = T,
+                             factor_matrix = T,
                              type = "pred")
 
 
@@ -311,7 +311,7 @@ nuc_pa_only_charts <- getModelFixedFX(
   my_equation = `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
   write = "Utt_nuc_pa_only_GLMM",
-  is_GLM = TRUE
+  is_GLM = T
 )
 
 
@@ -327,11 +327,11 @@ h_reg_or_nuc_pa_only_model <- bglmer(
   # change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -344,11 +344,11 @@ h_reg_or_null =
   # change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -389,7 +389,7 @@ anova(h_reg_or_nuc_pa_only_model, h_reg_or_null, test="Chisq") %>%
 
 tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
                     write = "Utt_h_reg_or_nuc_pa_only_GLMM",
-                    is_GLM = TRUE,
+                    is_GLM = T,
                     type = "pred"
                     )
 
@@ -401,7 +401,7 @@ h_reg_or_charts <- getModelFixedFX(
     `high reg. or nuc. PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus,
   write = "Utt_h_reg_or_nuc_pa_only_GLMM",
-  is_GLM = TRUE
+  is_GLM = T
 )
 
 

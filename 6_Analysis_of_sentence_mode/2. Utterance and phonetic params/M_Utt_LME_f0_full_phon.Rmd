@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r message=FALSE, warning=TRUE, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE,
-                      message = FALSE)
+```{r message=F, warning=T, include=F}
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      message = F)
 
 # Load Functions.
 source("../../2_R_Functions/myFunctions.R") 
@@ -47,7 +47,7 @@ p_color <- all_models_tidy ~ style(color =
 ```
 
 
-```{r load corpus, include=FALSE}
+```{r load corpus, include=F}
 # Load Corpus
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   select(speaker,
@@ -85,23 +85,23 @@ cur_equation  <- formula(
 
 ```
 
-```{r fig.height=3, fig.width=9, message = FALSE, tidy = TRUE}
+```{r fig.height=3, fig.width=9, message = F, tidy = T}
 utt_mean_f0_mdl = lmer(
   formula(cur_equation),
   data = m_corpus,
   control = lmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
 
 
-summariseLME(utt_mean_f0_mdl, run_step = TRUE,
+summariseLME(utt_mean_f0_mdl, run_step = T,
               write="../output_model_anovas/utt_f0_full_phon_anova.csv")
 ```
 

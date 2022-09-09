@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F)
 
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
@@ -86,11 +86,11 @@ pn_h_t_alt_mdl = lmer(
   pn_h_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -172,11 +172,11 @@ pn_h_f0_alt_mdl = lmer(
   pn_h_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )

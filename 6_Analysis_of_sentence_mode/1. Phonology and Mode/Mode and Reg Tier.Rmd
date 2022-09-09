@@ -8,10 +8,10 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE,
-                      message = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      message = F)
 
 
 # Load Functions.
@@ -31,7 +31,7 @@ installMissingPackages(c(# Load tidy packages
 ```
 
 
-```{r load and process corpus, include=FALSE}
+```{r load and process corpus, include=F}
 # Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(`high register in nucleus` = factor( str_detect(acc_phon, "\\^"),
@@ -49,7 +49,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 ```
 
 #### Raw Data
-```{r summarise nuc contour , warning=FALSE, results="asis"}
+```{r summarise nuc contour , warning=F, results="asis"}
 # Create summary table of Pitch Accent by Speaker.
 m_corpus %>%
   group_by(nuc_contour) %>%
@@ -63,7 +63,7 @@ m_corpus %>%
 ```
 
 
-```{r summarise nuc contour by speaker (raw data), warning=FALSE}
+```{r summarise nuc contour by speaker (raw data), warning=F}
 m_corpus %>%
   group_by(mode, nuc_contour) %>%
   summarise(acc_count = n(), .groups = "keep") %>%
@@ -111,7 +111,7 @@ m_corpus %>%
 
 ```
 
-```{r summarise PA by speaker (raw data), warning=FALSE}
+```{r summarise PA by speaker (raw data), warning=F}
 # Create summary table of Pitch Accent by Speaker.
 
 
@@ -161,7 +161,7 @@ From this table summary tables are created:
    a. Calculate the sum all proportions per token by mode and gender.
   b. Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
 
-```{r create tables for adjusted data, warning=FALSE}
+```{r create tables for adjusted data, warning=F}
 
 # Create tibble summarising  proportion of pitch accents per mode per speaker
 # 
@@ -273,7 +273,7 @@ pa_by_mode_speaker_adj <- pa_adj %>%
 
 
 
-```{r print pa by speaker adjusted, warning=FALSE}
+```{r print pa by speaker adjusted, warning=F}
 pa_by_speaker_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
@@ -314,7 +314,7 @@ ggplot(data = pa_by_speaker_adj %>%
 
 
 
-```{r print pitch accent by mode adjusted, warning=FALSE}
+```{r print pitch accent by mode adjusted, warning=F}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
 #
 # This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
@@ -372,7 +372,7 @@ ggplot(
       y = 11 * (..count..) / sum(..count..),
       fill = acc_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -415,7 +415,7 @@ ggplot(
       y = (..count..) / sum(..count..),
       fill = acc_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -455,7 +455,7 @@ ggplot(pa_by_gender_adj %>%
       y = (..count..) / sum(..count..),
       fill = acc_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -494,7 +494,7 @@ ggplot(pa_by_mode_adj %>%
   geom_bar(mapping = aes(x = mode,
                          y = (..count..) / sum(..count..),
                          fill = acc_phon),
-           show.legend = FALSE,
+           show.legend = F,
            colour = "black",
            position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.32)) +
@@ -529,7 +529,7 @@ With multivariate fixed effects, I just used normal() without spec
 
 (directed from https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#penalizationhandling-complete-separation)`
 
-```{r model test, tidy = TRUE}
+```{r model test, tidy = T}
 
 m_corpus_h_reg <- m_corpus %>%
   select(prompt, speaker, gender, `high register in nucleus`, mode)
@@ -550,11 +550,11 @@ h_reg_model_null =
   # change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -582,9 +582,9 @@ anova(h_reg_model, h_reg_model_null, test="Chisq") %>%
 
 tidy_summary <- analyseModel(h_reg_model,
                              write = "Mode_PA_GLMM",
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred",
-                             factor_matrix=TRUE)
+                             factor_matrix=T)
 
 tidy_summary$table
 
@@ -592,9 +592,9 @@ charts <- getModelFixedFX(
   my_equation =
     `high register in nucleus` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_h_reg,
-  is_separation = TRUE,
+  is_separation = T,
   write="Mode_PA_GLMM",
-  is_GLM=TRUE,
+  is_GLM=T,
   extra_text = ", register tier analysis"
 )
 
@@ -696,7 +696,7 @@ ggplot(fin_phon_by_gender_adj_list) +
       y = (..count..) / sum(..count..),
       fill = fin_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -730,7 +730,7 @@ ggplot(fin_phon_by_mode_adj_list) +
       y = (..count..) / sum(..count..),
       fill = fin_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -758,7 +758,7 @@ ggplot(fin_phon_by_mode_adj_list) +
 #### __GLMM test of boundary as a fn of mode__
 
 * Random intercepts only since models with random slopes generate singularity issues.
-```{r fin_phon model test, tidy = TRUE}
+```{r fin_phon model test, tidy = T}
 m_corpus_boundaries <- m_corpus %>% 
   mutate(`L% boundary` = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
                            levels=c("%", "L%")))
@@ -769,11 +769,11 @@ fin_phon_model <- bglmer(
   family = binomial(link = "logit"),
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -785,11 +785,11 @@ fin_phon_model_null =
   family = binomial(link = "logit"),
   control = glmerControl(
     optimizer = "optimx",
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -816,7 +816,7 @@ anova(fin_phon_model, fin_phon_model_null, test="Chisq") %>%
 
 tidy_summary <- analyseModel(fin_phon_model,
                              write="Mode_fin_phon_GLMM",
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type="pred")
 
 tidy_summary$table
@@ -825,7 +825,7 @@ charts <- getModelFixedFX(
   my_equation = `L% boundary` ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_boundaries,
   write="Mode_fin_phon_GLMM",
-  is_GLM=TRUE,
+  is_GLM=T,
   extra_text = ", register tier analysis"
 )
 

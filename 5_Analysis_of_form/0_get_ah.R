@@ -2,7 +2,7 @@
 # --------------------------
 
 ## Get per-speaker f0 stats.
-stress <- read_csv("../4_data/stressed_syls.csv", show_col_types = FALSE)
+stress <- read_csv("../4_data/stressed_syls.csv", show_col_types = F)
 #corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   # Only keep pertinent columns!
@@ -31,6 +31,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     h_t,
     s_t,
     e_t,
+    foot_end_t,
     v_grand_mean_t,
     l_grand_mean_t,
     h_grand_mean_t,
@@ -48,8 +49,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     spkr_f0_mean,
     spkr_f0_SD,
     spkr_f0_min,
-    spkr_f0_med,
-
+    spkr_f0_med
   ) %>%
   rename(pn_new_word = ana_has_word_end) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
@@ -101,6 +101,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
 
     # create composite parameters for continuous data.
     foot_dur = foot_end_t - foot_start_t,
+    foot_v_dur = foot_end_t - v_onset_t,
     speech_rate = round(tot_syls / phr_end_t * 1000, 3),
     f0_exc = h_f0 - l_f0,
     e_f0_exc = e_f0 - h_f0,
@@ -183,7 +184,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
         init_phon,
         acc_phon,
         sep = " ",
-        remove = FALSE) %>%
+        remove = F) %>%
   select(speaker,
          gender,
          partner_gender,
@@ -236,7 +237,7 @@ nuc <- filter(corpus, cur_foot == 2) %>%
         acc_phon,
         fin_phon,
         sep = " ",
-        remove = FALSE) %>%
+        remove = F) %>%
   # Get number of preceding syllables from stim code
   mutate(pre_syls = as.integer(str_sub(stim, 3, 3)) - 1,
          pre_syls = factor(pre_syls, levels = unique(pre_syls))

@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F)
 
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
@@ -116,11 +116,11 @@ pn_l_t_mdl_late = lmer(
   pn_l_data_late,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -172,7 +172,7 @@ pn_l_t_mdl_late.tidy <- analyseModel(
   pn_l_t_mdl_late,
   write="4_pn_output/pn_l_t_late",
   type = NULL,
-  factor_matrix = TRUE,
+  factor_matrix = T,
   y_lab = "time (ms)",
   y_lim = c(-75, 125)
   )

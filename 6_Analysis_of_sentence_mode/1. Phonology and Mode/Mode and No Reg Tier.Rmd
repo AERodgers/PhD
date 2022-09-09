@@ -6,10 +6,10 @@ output:
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE,
-                      message = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      warning = F,
+                      message = F)
 
 
 # Load Functions.
@@ -26,7 +26,7 @@ installMissingPackages(c("tidyverse",
 ```
 
 
-```{r Load and prepare m corpus, include=FALSE}
+```{r Load and prepare m corpus, include=F}
 # Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
@@ -136,7 +136,7 @@ m_corpus %>%
 
 
 
-```{r nuclear pitch accent by speaker, warning=FALSE}
+```{r nuclear pitch accent by speaker, warning=F}
 # Create summary table of Pitch Accent by Speaker.
 m_corpus %>%
   group_by(speaker, acc_phon) %>%
@@ -283,7 +283,7 @@ pa_by_speaker_adj %>%
 
 ```
 
-```{r warning=TRUE, fig.width = 5, fig.height = 2.5, results="asis"}
+```{r warning=T, fig.width = 5, fig.height = 2.5, results="asis"}
 # Percentage Stacked bar
 
 ggplot(pa_by_speaker_adj %>%
@@ -303,7 +303,7 @@ ggplot(pa_by_speaker_adj %>%
 ```
 
 #### Nuclear Pitch Accent by Sentence Mode (adjusted)
-```{r warning=FALSE}
+```{r warning=F}
 # Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
 #
 # This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
@@ -414,7 +414,7 @@ nuc_contour_by_gender_adj <- nuc_contour_adj %>%
 ```
 
 
-```{r warning=FALSE}
+```{r warning=F}
 nuc_contour_by_speaker_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
@@ -490,7 +490,7 @@ ggplot(
   geom_bar(mapping = aes(x = mode,
                          y = (..count..) / sum(..count..),
                          fill = nuc_contour),
-           show.legend = FALSE,
+           show.legend = F,
            colour = "black",
            position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
@@ -530,7 +530,7 @@ ggplot(
   geom_bar(mapping = aes(x = mode,
                          y = (..count..) / sum(..count..),
                          fill = nuc_contour),
-           show.legend = FALSE,
+           show.legend = F,
            colour = "black",
            position = position_dodge2(preserve = "single")) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
@@ -646,7 +646,7 @@ ggplot(fin_phon_by_gender_adj_list) +
       y = (..count..) / sum(..count..),
       fill = fin_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -680,7 +680,7 @@ ggplot(fin_phon_by_mode_adj_list) +
       y = (..count..) / sum(..count..),
       fill = fin_phon
     ),
-    show.legend = FALSE,
+    show.legend = F,
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
@@ -784,7 +784,7 @@ anova(fin_phon_model_H_or_not,
 
 tidy_summary <- analyseModel(fin_phon_model_H_or_not,
                              "Mode_fin_phon_no_Reg_0H",
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred")
 
 tidy_summary$table
@@ -793,9 +793,9 @@ charts <- getModelFixedFX(
   my_equation =
     is_H_boundary ~ mode + gender + (1 | speaker) + (1 | prompt),
   my_data = m_corpus_is_H_boundary,
-  is_separation = TRUE,
+  is_separation = T,
   write="Mode_fin_phon_no_Reg_0H",
-  is_GLM=TRUE
+  is_GLM=T
 )
 charts$intercepts
 charts$slopes

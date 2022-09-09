@@ -25,7 +25,7 @@ installMissingPackages <- function (package_list)
   installed_packages <-
     package_list %in% rownames(installed.packages())
 
-  if (any(installed_packages == FALSE))
+  if (any(installed_packages == F))
   {
     install.packages(package_list[!installed_packages])
   }
@@ -34,7 +34,7 @@ installMissingPackages <- function (package_list)
   invisible(lapply(
     package_list,
     suppressPackageStartupMessages(library),
-    character.only = TRUE
+    character.only = T
   ))
 
 }
@@ -46,7 +46,7 @@ balancedData <- function(data_set,
                          gender_filter,
                          num_speakers,
                          num_reps,
-                         use_pa_hierarchy = TRUE)
+                         use_pa_hierarchy = T)
 {
   # Returns an data matrix of phonological data of a projected balanced dataset.
   #    This function takes a subset of the data, calculates each token count
@@ -136,7 +136,7 @@ balancedData <- function(data_set,
 sigCodesTidy <-
   function(my_tibble,
            p_value = "p.adj",
-           incl_marginal_sig = TRUE)
+           incl_marginal_sig = T)
     # Create significance column in tibble using p_value
   {
     p_value <- enquo(p_value)
@@ -311,7 +311,7 @@ get_m_corpus <- function(file_address)
         acc_phon,
         fin_phon,
         sep = " ",
-        remove = FALSE
+        remove = F
       ) %>%
       mutate(
         # correct nuc_contour
@@ -366,7 +366,7 @@ getModelFormula <-function(my_model) {
 ###  Summarise LME  ############################################################
 summariseLME <-
   function(my_model,
-           run_step = FALSE,
+           run_step = F,
            my_tolerance = 1e-05,
            write=NULL,
            extra_text="",
@@ -432,7 +432,7 @@ summariseLME <-
         caption=paste(
           "Anova of model", my_formula, sep=": ")
       ) %>%
-      sigCodesTidy(p.value, FALSE) %>%
+      sigCodesTidy(p.value, F) %>%
       rename(`F value` = statistic)
     if(!is_null(write)){
       anova %>% mutate(!!post_hoc_method := NA, signif. = NA) %>%
@@ -472,17 +472,18 @@ summariseLME <-
 analyseModel <-
   function(my_model,
            write = NULL,
-           is_GLM = FALSE,
-           exponentiate = TRUE,
+           is_GLM = F,
+           exponentiate = T,
            type = "est",
-           factor_matrix = FALSE,
+           factor_matrix = F,
            ci.lvl = 0.95,
            y_lab = NULL,
            y_lim = NULL,
            plot_rounding = 1,
            panel_prefix = NULL,
            breaks = waiver(),
-           hjust = "inward"
+           hjust = "inward",
+           per_row = 2
            )
   {
     require("formattable")
@@ -581,7 +582,7 @@ analyseModel <-
       caption = "Conditional and marginal R^2^ of model",
       digits = 2,
       align = "l"
-    )  %>% kable_styling(full_width = FALSE, position = "left") %>%
+    )  %>% kable_styling(full_width = F, position = "left") %>%
       remove_column(3)
     print(r2)
 
@@ -619,7 +620,7 @@ analyseModel <-
           png(
             filename =
               paste0(write, "_re_", cur_factor, "_pred.png"),
-            width =  15.25 / 2,
+            width =  15.25 / per_row,
             height = 6.5,
             units = "cm",
             res = 300
@@ -682,7 +683,7 @@ analyseModel <-
             png(
               filename =
                 paste0(write, "_re_", cur_factor, "_pred.png"),
-              width =  15.25 / 2,
+              width =  15.25 / per_row,
               height = 6.5,
               units = "cm",
               res = 300
@@ -761,7 +762,7 @@ analyseModel <-
            png(
              filename =
                paste0(write, "_re_", cur_factor, "_pred.png"),
-             width =  15.25 / 2,
+             width =  15.25 / per_row,
              height = 6.5,
              units = "cm",
              res = 300
@@ -786,7 +787,7 @@ analyseModel <-
 ###  Get intercepts and slopes of Fixed Effects of LME/GLMM Model ##############
 getModelFixedFX <- function(model,
                             write = NULL,
-                            exponentiate = TRUE,
+                            exponentiate = T,
                             extra_text = "",
                             report = c("slopes", "intercepts"),
                             ignore_list = "",
@@ -807,7 +808,7 @@ getModelFixedFX <- function(model,
 
 
   fixed_factors <-
-    (str_replace_all(deparse(formula(model, fixed.only = TRUE)[3]),
+    (str_replace_all(deparse(formula(model, fixed.only = T)[3]),
                      "[\\(|\\)|+ ]",
                      " ") %>%
        str_squish() %>%
@@ -1116,10 +1117,10 @@ adjustP_posthoc <-
            method = "BH",        # p. adjustment method
            significance = T,     # flag for including significance column,
            marginal = F,         # include marginal significance flag.
-           write = TRUE,         # write results to file flag.
-           report = FALSE,       # flag to report total number of tests and
+           write = T,         # write results to file flag.
+           report = F,       # flag to report total number of tests and
                                  # p.values < 0.05 before and after adjustment.
-           print = FALSE,        # Print output or not
+           print = F,        # Print output or not
            suffix_id=""          # suffix ID for files for analysis,
 
   )
@@ -1148,10 +1149,10 @@ adjustP_posthoc <-
       file_tibble <-
         list.files(my_folder,
                    paste("*", suffix_id, ".csv", sep=""),
-                   full.names = TRUE) %>%
+                   full.names = T) %>%
         read_csv(id = "file_name",
-                 col_names = TRUE,
-                 show_col_types = FALSE) %>%
+                 col_names = T,
+                 show_col_types = F) %>%
 
         # avoid reduplication of columns
         select(-any_of(c("p.adj.",
@@ -1254,7 +1255,7 @@ adjustP_posthoc <-
 
           print_this <- print_this %>%
             knitr::kable(caption = my_caption) %>%
-            kable_styling(full_width = FALSE, position = "left")
+            kable_styling(full_width = F, position = "left")
 
           print(print_this)
         }
@@ -1292,7 +1293,7 @@ printTidyPredictions <-
                                           "\\\\\\1"))) %>%
           knitr::kable(caption = paste("predicted probability of",
                                        response_labels(model))) %>%
-          kable_styling(full_width = FALSE, position = "left") %>%
+          kable_styling(full_width = F, position = "left") %>%
           print()
       }
       else
@@ -1315,7 +1316,7 @@ printTidyPredictions <-
             tidyNumbers() %>%
             rename(!!cur_obj_name := x) %>%
             knitr::kable(caption = cur_caption) %>%
-            kable_styling(full_width = FALSE, position = "left") %>%
+            kable_styling(full_width = F, position = "left") %>%
             print()
 
         }
@@ -1441,12 +1442,16 @@ tidyStatNumbers <- function(stats) {
                               )
                             )
                   ),
-           across(where(is_double) & (contains("p.") | contains("Pr")),
+           across(contains("p.") | contains("Pr"),
                   ~ if_else(as.numeric(.) < 0.001,
                             "<.001",
                             as.character(rd(as.numeric(.), digits = 3))
                             )
-                  )
+                  ),
+           across(where(is_character),
+                  ~ if_else(. == "0.0e+00" | . == "-0.0e+00", "0", .)),
+           across(where(is_character), ~ str_replace(., "TRUE", "T")),
+           across(where(is_character), ~ str_replace(., "FALSE", "F"))
            )
 
 
@@ -1638,7 +1643,7 @@ optimizeModel <- function(model,
   }
 
   modelIsOK <- function(model, reject_nl = T) {
-    # Returns TRUE is a model converges and is not singular.
+    # Returns T is a model converges and is not singular.
 
     ans <- as.logical(
       # Check for convergence
@@ -1727,7 +1732,7 @@ optimizeModel <- function(model,
 
 
 modelIsOK <- function(model, reject_nl = T) {
-  # Returns TRUE is a model converges and is not singular.
+  # Returns T is a model converges and is not singular.
 
   ans <- as.logical(
     # Check for convergence

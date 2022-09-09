@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F)
 
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
@@ -95,7 +95,7 @@ optimizer = "optimx"
 
 ```
 
-```{r check levels in factors, results="asis", eval=FALSE}
+```{r check levels in factors, results="asis", eval=F}
 
 star_found = F
 cat("Factors for pn_l_data\n")
@@ -178,11 +178,11 @@ pn_l_t_mdl = lmer(
   pn_l_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -200,11 +200,11 @@ pn_l_t_mdl.trimmed <- lmer(
   pn_l_t_data.trimmed,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -275,11 +275,11 @@ pn_l_f0_mdl = lmer(
   pn_l_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -348,7 +348,7 @@ getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")$slopes
 ```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
 # set terms to plot
 terms = c("acc_phon [L*]",
-          "pn_new_word [TRUE]",
+          "pn_new_word [T]",
           "gender [M]")
 
 # create _t plot
@@ -422,11 +422,11 @@ pn_h_t_mdl = lmer(
   pn_h_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -553,11 +553,11 @@ pn_h_f0_mdl = lmer(
   pn_h_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -609,7 +609,7 @@ getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")$slopes
 
 ```{r h binomial plots, fig.height=4.5/2.54, fig.width=15/2.54}
 # set terms to plot
-terms = c("pn_new_word [TRUE]",
+terms = c("pn_new_word [T]",
           "gender [M]")
 
 # create _t plot
@@ -686,11 +686,11 @@ pn_f0_exc_mdl = lmer(
   pn_tnc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -782,11 +782,11 @@ pn_lh_slope_mdl = lmer(
   pn_tnc_data,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -814,11 +814,11 @@ pn_lh_slope_mdl.trimmed = lmer(
   pn_lh_slope.trimmed,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
@@ -837,7 +837,7 @@ adjustP_posthoc("4_pn_output/",
                 suffix_id = "_anova")
 
 read_csv("4_pn_output/pn_lh_slope_anova.csv",
-         show_col_types = FALSE) %>%
+         show_col_types = F) %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("ANOVA of model:",
                               getModelFormula(pn_lh_slope_mdl.trimmed)))

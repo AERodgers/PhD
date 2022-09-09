@@ -5,10 +5,10 @@ date: "2022-07-26"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,
-                      message = FALSE,
-                      warning=FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning=F)
 
 
 # Load Functions.
@@ -22,7 +22,7 @@ installMissingPackages(
 
 
 
-```{r Load and prepare m corpus, include=FALSE}
+```{r Load and prepare m corpus, include=F}
 # Get  Data.
 m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
@@ -71,7 +71,7 @@ fin_phon_model_H_or_not <- bglmer(
 )
 
 tidy_summary_non_reg <- analyseModel(fin_phon_model_H_or_not,
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred")
 
 tidy_summary_non_reg$table
@@ -89,9 +89,9 @@ h_reg_model <- bglmer(
   )
 
 tidy_summary_reg <- analyseModel(h_reg_model,
-                             is_GLM = TRUE,
+                             is_GLM = T,
                              type = "pred",
-                             factor_matrix=TRUE)
+                             factor_matrix=T)
 
 tidy_summary_reg$table
 ```

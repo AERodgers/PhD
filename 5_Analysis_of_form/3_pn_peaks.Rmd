@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
-                      message = FALSE,
-                      warning = FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F, 
+                      message = F,
+                      warning = F)
 
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
@@ -22,7 +22,7 @@ theme_set(theme_minimal(base_size = 10))
 ```
 
 
-```{r get data, include=FALSE}
+```{r get data, include=F}
 # Get  data for analysis
 
 source("0_get_AH.R")
@@ -958,7 +958,7 @@ dip_test_summary <- tibble(set = c(pn_phr),
                            p.value = round(p.value, 3),
                            `p.adj (BH)` = p.adj)
 dip_test_summary %>%
-  sigCodesTidy(`p.adj (BH)`, TRUE) %>% 
+  sigCodesTidy(`p.adj (BH)`, T) %>% 
 kable(caption = "Hartigans' dip test for unimodality / multimodality. (Alternative hypothesis: non-unimodal, i.e., at least bimodal.)")
 
 ```

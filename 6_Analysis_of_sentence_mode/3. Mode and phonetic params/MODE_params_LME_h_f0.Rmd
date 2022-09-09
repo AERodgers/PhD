@@ -6,10 +6,10 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=FALSE,
-                      warning=FALSE,
-                      message=FALSE)
+```{r setup, include=F}
+knitr::opts_chunk$set(echo=F,
+                      warning=F,
+                      message=F)
 
 # Load Functions.
 source("../../2_R_Functions/myFunctions.R") 
@@ -40,7 +40,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-```{r load corpus, include=FALSE}
+```{r load corpus, include=F}
 l_star_h_types = c("^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 # Load Corpus
@@ -74,23 +74,23 @@ optimizer = "optimx"
 
 ```
 
-```{r run initial model,  fig.height=3, fig.width=9, tidy = TRUE}
+```{r run initial model,  fig.height=3, fig.width=9, tidy = T}
 # run model
 h_f0_model <- lmer(
   my_equation,
   m_corpus,
   control = lmerControl(
     optimizer = optimizer,
-    calc.derivs = FALSE,
+    calc.derivs = F,
     optCtrl = list(
       method = "nlminb",
-      starttests = FALSE,
-      kkt = FALSE
+      starttests = F,
+      kkt = F
     )
   )
 )
 
-summariseLME(h_f0_model, run_step = FALSE,
+summariseLME(h_f0_model, run_step = F,
               write = "../output_model_anovas/Mode_h_f0_anova.csv")
 #              
 ```
@@ -104,7 +104,7 @@ h_f0_model.tidy$table
 
 ```
 
-```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = TRUE}
+```{r do pairwise analysis, fig.height=2.5, fig.width=5, tidy = T}
 
 charts <- getModelFixedFX(
   my_equation,
