@@ -1563,13 +1563,24 @@ optimizeModel <- function(model,
       i  <-  i + 1
       if(verbose){
       cat(",", optimx_options[i])
-      model <- update(model,
-        control = lmerControl(
-          optimizer = "optimx",
-          optCtrl = list(method = optimx_options[i],
-                         maxit = 1e9)
-        )
-      )
+
+        # Either use glmerControl...
+        if(model@resp$family[1] == "binomial" |
+           model@resp$family[1] == "multinomial") {
+          try(model <- update(model,
+                              control = glmerControl(
+                                optimizer = "optimx",
+                                optCtrl = list(method = optimx_options[i],
+                                               maxit = 1e9))))
+        }
+        # ... or use lmerControl
+        else {
+          try(model <- update(model,
+                              control = lmerControl(
+                                optimizer = "optimx",
+                                optCtrl = list(method = optimx_options[i],
+                                               maxit = 1e9))))
+        }
       }
     }
 
@@ -1608,16 +1619,29 @@ optimizeModel <- function(model,
       i  <- i + 1
       if(verbose){cat(",", opts[i])}
       cur_option <- opts[i]
-      try(
-        model <- update(model,
-                        control = lmerControl(
-                          optimizer = "nloptwrap",
-                          optCtrl = list(algorithm = opts[i],
-                                         maxfun = 1e9,
-                                         maxeval = 1e7,
-                                         xtol_abs = 1e-9,
-                                         ftol_abs = 1e-9)))
-        )
+
+      # Either use glmerControl...
+      if(model@resp$family[1] == "binomial" |
+         model@resp$family[1] == "multinomial") {
+        try(model <- update(model, control = glmerControl(
+          optimizer = "nloptwrap", optCtrl = list(algorithm = opts[i],
+                                                  maxfun = 1e9,
+                                                  maxeval = 1e7,
+                                                  xtol_abs = 1e-9,
+                                                  ftol_abs = 1e-9)
+        )))
+      }
+      # ... or use lmerControl
+      else {
+        try(model <- update(model, control = lmerControl(
+          optimizer = "nloptwrap", optCtrl = list(algorithm = opts[i],
+                                                  maxfun = 1e9,
+                                                  maxeval = 1e7,
+                                                  xtol_abs = 1e-9,
+                                                  ftol_abs = 1e-9)
+          )))
+      }
+
 
     }
     if(verbose){cat("\n")}
@@ -1675,15 +1699,26 @@ optimizeModel <- function(model,
   if (!modelIsOK(model, reject_nl)) {
     if(verbose){
     cat("\nRunning basic model with less strict control settings.\n", sep = "")
-      }
+    }
+
+    # Either use glmerControl...
+    if(model@resp$family[1] == "binomial" |
+       model@resp$family[1] == "multinomial"){
+      try(model <- update(lh_pn_model, control = glmerControl(
+        optCtrl = list(maxfun = 10e9,
+                       xtol_abs = 1e-9,
+                       ftol_abs = 1e-9))))
+    }
+
+    # ... or lmerControl
+    else {
     try(model <- update(model, control = lmerControl(
-      optCtrl = list(
-        maxit = 1e9,
-        maxfun = 1e9,
-        xtol_abs = 1e-9,
-        ftol_abs = 1e-9
-      )
-    )))
+      optCtrl = list(maxit = 1e9,
+                     maxfun = 1e9,
+                     xtol_abs = 1e-9,
+                     ftol_abs = 1e-9))))
+    }
+
     if (modelIsOK(model, reject_nl)){
       solution  <-  "less strict control settings"
       }
@@ -1729,7 +1764,6 @@ optimizeModel <- function(model,
   return(model)
 
 }
-
 
 modelIsOK <- function(model, reject_nl = T) {
   # Returns T is a model converges and is not singular.
