@@ -141,43 +141,17 @@ sigCodesTidy <-
   {
     p_value <- enquo(p_value)
     my_tibble <- mutate(my_tibble,
-                        `signif.` =
-                          if_else(
-                            !!p_value < 0.001,
-                            'p<0.001',
-                            if_else(
-                              !!p_value < 0.01,
-                              'p<0.01',
-                              if_else(
-                                !!p_value < 0.05,
-                                'p<0.05',
-                                if_else(!!p_value < 0.1 &
-                                          incl_marginal_sig,
-                                        '(p<0.1)',
-                                        '')
-                              )
-                            )
-                          )) %>%
+                        `signif.` = if_else(!!p_value < 0.05,
+                                            "_p_ < .05",
+                                            "")) %>%
       mutate(`signif.` =
                if_else(
                  !is.na(!!p_value),
                  `signif.`,
-                 if_else(
-                   p.value < 0.001,
-                   "p<0.001",
-                   if_else(
-                     p.value < 0.01,
-                     "p<0.01",
-                     if_else(
-                       p.value < 0.05,
-                       "p<0.05",
-                       if_else(p.value < 0.1 &
-                                 incl_marginal_sig,
-                               "(p<0.1)",
-                               "")
-                     )
-                   )
-                 )
+                 if_else(p.value < 0.05,
+                         "_p_ < .05",
+                         "")
+
                ))
 
 
@@ -380,7 +354,12 @@ summariseLME <-
                              "optimx",
                              "stringr",
                              "broomExtra",
-                             "ggplot2"))
+                             "ggplot2",
+                             "effectsize",
+                             "knitr",
+                             "kableExtra",
+                             "sjlabelled",
+                             "weights"))
 
 
 
@@ -462,7 +441,26 @@ summariseLME <-
         "\n\n", sep = ""
     )
 
-  return(anova)
+
+    omega2 <-
+      anova(my_model) %>%
+      omega_squared(ci = 0.95, alternative = "two.sided") %>%
+      tidyStatNumbers() %>%
+      as_tibble() %>%
+
+      mutate(across(c("CI_low", "CI_high", "Omega2_partial"),
+                    ~ trim_zeros(., digits = 2)),
+             `95% CI` = paste0("[", CI_low, ", ",	CI_high, "]")) %>%
+      select(Parameter, Omega2_partial, `95% CI`) %>%
+      rename(`Omega^2^ (partial)` = Omega2_partial) %>%
+      knitr::kable(caption = paste0("Effect Size for ANOVA of model of ",
+                                   response_labels(my_model), "."),
+                   align = "l")  %>%
+      kable_styling(full_width = F, position = "left")
+
+    return(list("anova" = anova,
+                "omega2" = omega2))
+
     ##################
   }
 
@@ -577,14 +575,19 @@ analyseModel <-
           ))
     }
 
-    r2 <- knitr::kable(
-      r2(my_model),
+    r2 <- r2(my_model)
+    `marginal R^2^` <- r2$R2_marginal[[1]]
+    `conditional R^2^` <- r2$R2_conditional[[1]]
+
+    r2 = tibble(`marginal R^2^`, `conditional R^2^`) %>%
+      mutate(across(everything(), ~ trim_zeros(., digits = 2))) %>%
+
+    knitr::kable(
       caption = "Conditional and marginal R^2^ of model",
-      digits = 2,
       align = "l"
-    )  %>% kable_styling(full_width = F, position = "left") %>%
-      remove_column(3)
+    )  %>% kable_styling(full_width = F, position = "left")
     print(r2)
+
 
     if (!is.null(write)) {
       do.call(rbind, r2(my_model))[, 1] %>%
@@ -874,6 +877,9 @@ getModelFixedFX <- function(model,
   initial_keep_terms <- c(two_level_terms)
   all_models_tidy <- tibble()
   # loop through each multilevel fixed factor of interest (multilevel_factors)
+
+  if(!length(multilevel_factors)){multilevel_factors = two_level_factors}
+
   for (cur_factor in multilevel_factors)
   {
     # Get levels for current factor
@@ -1169,7 +1175,6 @@ adjustP_posthoc <-
         mutate(p.adj = p.adjust(!!p_column,
                                 method = method),
                .after = !!p_column)
-
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()
     sig_p_values <- file_tibble %>% filter(!!p_column < 0.05) %>% nrow()
@@ -1178,18 +1183,10 @@ adjustP_posthoc <-
 
 
 
+
     if (significance) {
       file_tibble <- file_tibble %>%
-        mutate(# Add significance column.
-          signif. = if_else(
-            p.adj < 0.001,
-            "p<.001",
-            if_else(p.adj < 0.01, "p<.01", if_else(
-              p.adj < 0.05,
-              "p<.05",
-              if_else(p.adj < 0.1 & marginal, "(p<.1)", "")
-            ))
-          ))
+        mutate(signif. = if_else(p.adj < 0.05, "_p_ < .05", ""))
     }
 
     file_tibble <- file_tibble %>%
@@ -1359,7 +1356,7 @@ outputChiSqResults <- function(anova,
     # tidy up decimal places
     mutate(
       across(2:last_col(),
-             ~ if_else(abs(.) < 0.001 | abs(.) > 100000,
+             ~ if_else(abs(.) > 100000,
                        as.character(formatC(., format = "e", digits = 1)),
                        if_else(round(.) == .,
                                as.character(.),
@@ -1416,7 +1413,7 @@ tidyNumbers <- function(data,
 
 
 ###
-### Tidy Stat Table Numbers ####################################################
+###  Tidy Stat Table Numbers ####################################################
 tidyStatNumbers <- function(stats) {
   installMissingPackages(c("tidyverse", "weights"))
   original_nrow <- nrow(stats)
@@ -1432,21 +1429,19 @@ tidyStatNumbers <- function(stats) {
     stats <- mutate(stats,
            across(contains("signif."),
                   ~ if_else(is.na(.), "", as.character(.))),
-           across(where(is_double) & !(contains("p.") | contains("Pr")),
-                  ~ if_else(abs(.) < 0.01 | abs(.) > 100000,
-                            as.character(formatC(., format = "e", digits = 1)),
-                            if_else(
-                              abs(.) > 1000,
-                              as.character(round(., 0)),
-                              as.character(round(., 2), digits = 2)
-                              )
-                            )
-                  ),
-           across(contains("p.") | contains("Pr"),
+           across(
+             where(is_double) & !(contains("p.") | contains("Pr")),
+             ~
+               if_else(
+                 abs(.) > 1000,
+                 as.character(round(., 0)),
+                 as.character(round(., 2), digits = 2)
+               )
+           ),
+           across(starts_with("p.") | starts_with("p_") | starts_with("Pr"),
                   ~ if_else(as.numeric(.) < 0.001,
-                            "<.001",
-                            as.character(rd(as.numeric(.), digits = 3))
-                            )
+                            "< .001",
+                           trim_zeros(.))
                   ),
            across(where(is_character),
                   ~ if_else(. == "0.0e+00" | . == "-0.0e+00", "0", .)),
@@ -1466,11 +1461,11 @@ tidyStatNumbers <- function(stats) {
 }
 
 ###
-### Optimize Models based on lme4 package ######################################
+###  Optimize Models based on lme4 package ######################################
 optimizeModel <- function(model,
                        checks = c("allFit", "optimx", "nloptwrap"),
                        verbose = T,
-                       reject_nl = T) {
+                       reject_nm = T) {
 
   ###
   # Returns lme4-based model which converges, if possible.
@@ -1479,8 +1474,8 @@ optimizeModel <- function(model,
   # Notes:
   #   1. For large or complex models this can be exceedingly slow!
   #   2. Nelder-mead is not advised for high-dimensional models,
-  #      reject_nl is set to T as default. If you want to include Nelder-Mead
-  #      optimization, set: reject_nl = F.
+  #      reject_nm is set to T as default. If you want to include Nelder-Mead
+  #      optimization, set: reject_nm = F.
   #
   # The functions are largely adapted from:
   #     Nugent, Joshua.
@@ -1545,12 +1540,12 @@ optimizeModel <- function(model,
     return(model)
   }
 
-  tryOptimx <- function(model, reject_nl = T, verbose = F) {
+  tryOptimx <- function(model, reject_nm = T, verbose = F) {
     # Tries to return a model which converges by varying optimx() methods.
     original_model <- model
     optimx_options <-
       c("L-BFGS-B", "nlminb", "nlm", "bobyqa", "hjkb")
-    if (!reject_nl){optimx_options <- c(optimx_options,  "nmkb")}
+    if (!reject_nm){optimx_options <- c(optimx_options,  "nmkb")}
 
     num_options <- length(optimx_options)
     info <- "No option"
@@ -1559,19 +1554,19 @@ optimizeModel <- function(model,
       }
 
     i <- 0
-    while (i < num_options & !modelIsOK(model, reject_nl)) {
+    while (i < num_options & !modelIsOK(model, reject_nm)) {
       i  <-  i + 1
       if(verbose){
       cat(",", optimx_options[i])
 
         # Either use glmerControl...
-        if(model@resp$family[1] == "binomial" |
-           model@resp$family[1] == "multinomial") {
+        if(isGLMM(model)) {
           try(model <- update(model,
                               control = glmerControl(
                                 optimizer = "optimx",
                                 optCtrl = list(method = optimx_options[i],
-                                               maxit = 1e9))))
+                                               maxit = 1e9))),
+              silent = T)
         }
         # ... or use lmerControl
         else {
@@ -1579,14 +1574,15 @@ optimizeModel <- function(model,
                               control = lmerControl(
                                 optimizer = "optimx",
                                 optCtrl = list(method = optimx_options[i],
-                                               maxit = 1e9))))
+                                               maxit = 1e9))),
+              silent = T)
         }
       }
     }
 
     if(verbose){cat("\n")}
 
-    if (modelIsOK(model, reject_nl)) {
+    if (modelIsOK(model, reject_nm)) {
       info <- optimx_options[i]
     }
     else {
@@ -1596,7 +1592,7 @@ optimizeModel <- function(model,
     return(model)
   }
 
-  trynlopt <- function(model, reject_nl = T, verbose = F) {
+  trynlopt <- function(model, reject_nm = T, verbose = F) {
     # Tries to return a model which converges by through lnloptwrap algorithms.
     original_model <- model
     opts <- c("NLOPT_LN_PRAXIS",
@@ -1606,7 +1602,7 @@ optimizeModel <- function(model,
               "NLOPT_LN_NEWUOA_BOUND",
               "NLOPT_LN_SBPLX",
               "NLOPT_LN_BOBYQA")
-    if (!reject_nl) {
+    if (!reject_nm) {
       opts = c(opts, "NLOPT_LN_NELDERMEAD")
     }
 
@@ -1615,21 +1611,22 @@ optimizeModel <- function(model,
     if(verbose){cat("\nChecking nloptwrap options", sep = "")}
 
     i <- 0
-    while (i < num_options & !modelIsOK(model, reject_nl)) {
+    while (i < num_options & !modelIsOK(model, reject_nm)) {
       i  <- i + 1
       if(verbose){cat(",", opts[i])}
       cur_option <- opts[i]
 
       # Either use glmerControl...
-      if(model@resp$family[1] == "binomial" |
-         model@resp$family[1] == "multinomial") {
+      if(isGLMM(model)) {
         try(model <- update(model, control = glmerControl(
           optimizer = "nloptwrap", optCtrl = list(algorithm = opts[i],
                                                   maxfun = 1e9,
                                                   maxeval = 1e7,
                                                   xtol_abs = 1e-9,
-                                                  ftol_abs = 1e-9)
-        )))
+                                                  ftol_abs = 1e-9,
+                                                  tol = 1e-9)
+        )),
+        silent = T)
       }
       # ... or use lmerControl
       else {
@@ -1639,14 +1636,15 @@ optimizeModel <- function(model,
                                                   maxeval = 1e7,
                                                   xtol_abs = 1e-9,
                                                   ftol_abs = 1e-9)
-          )))
+          )),
+          silent = T)
       }
 
 
     }
     if(verbose){cat("\n")}
 
-    if (modelIsOK(model, reject_nl)) {
+    if (modelIsOK(model, reject_nm)) {
       info <- opts[i]
       cat("\n\n")
       cat("***** WARNING ****\n")
@@ -1666,7 +1664,7 @@ optimizeModel <- function(model,
     return(model)
   }
 
-  modelIsOK <- function(model, reject_nl = T) {
+  modelIsOK <- function(model, reject_nm = T) {
     # Returns T is a model converges and is not singular.
 
     ans <- as.logical(
@@ -1677,7 +1675,7 @@ optimizeModel <- function(model,
         # check for other warnings
         is.null(model@optinfo$conv$lme4$warnings))
 
-    if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nl){
+    if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nm){
       ans <- F}
 
     return(ans)
@@ -1694,20 +1692,22 @@ optimizeModel <- function(model,
     )
     return(ans)
   }
+  ##################
+
 
   ### Outer function
-  if (!modelIsOK(model, reject_nl)) {
+  if (!modelIsOK(model, reject_nm)) {
     if(verbose){
     cat("\nRunning basic model with less strict control settings.\n", sep = "")
     }
 
     # Either use glmerControl...
-    if(model@resp$family[1] == "binomial" |
-       model@resp$family[1] == "multinomial"){
-      try(model <- update(lh_pn_model, control = glmerControl(
+    if(isGLMM(model)){
+      try(model <- update(model, control = glmerControl(
         optCtrl = list(maxfun = 10e9,
                        xtol_abs = 1e-9,
-                       ftol_abs = 1e-9))))
+                       ftol_abs = 1e-9
+                       ))))
     }
 
     # ... or lmerControl
@@ -1716,37 +1716,38 @@ optimizeModel <- function(model,
       optCtrl = list(maxit = 1e9,
                      maxfun = 1e9,
                      xtol_abs = 1e-9,
-                     ftol_abs = 1e-9))))
+                     ftol_abs = 1e-9))),
+      silent = T)
     }
 
-    if (modelIsOK(model, reject_nl)){
+    if (modelIsOK(model, reject_nm)){
       solution  <-  "less strict control settings"
       }
   }
 
-  if (!modelIsOK(model, reject_nl) &
+  if (!modelIsOK(model, reject_nm) &
       "allFit" %in% checks) {
-    try(model <- tryAllFit(model, verbose))
-    if (modelIsOK(model, reject_nl)) {
+    try(model <- tryAllFit(model, verbose), silent = T)
+    if (modelIsOK(model, reject_nm)) {
       solution <- "after trying allFit()"
     }
   }
 
-  if (!modelIsOK(model, reject_nl) & "optimx" %in% checks) {
-    model <- tryOptimx(model, reject_nl, verbose)
-    if (modelIsOK(model, reject_nl)) {
+  if (!modelIsOK(model, reject_nm) & "optimx" %in% checks) {
+    model <- tryOptimx(model, reject_nm, verbose)
+    if (modelIsOK(model, reject_nm)) {
       solution <- "after varying optimx settings"
     }
   }
 
-  if (!modelIsOK(model, reject_nl) & "nloptwrap" %in% checks) {
-    model <- trynlopt(model, reject_nl, verbose)
-    if (modelIsOK(model, reject_nl)) {
+  if (!modelIsOK(model, reject_nm) & "nloptwrap" %in% checks) {
+    model <- trynlopt(model, reject_nm, verbose)
+    if (modelIsOK(model, reject_nm)) {
       solution <- "after varying nloptwrap options"
     }
   }
 
-  if (!modelIsOK(model, reject_nl)) {
+  if (!modelIsOK(model, reject_nm)) {
     model <- original_model
     cat("\nNo alternatives converged. Reverting to original model.\n\n",
         sep = "")
@@ -1762,10 +1763,10 @@ optimizeModel <- function(model,
   }
 
   return(model)
-
+  ###
 }
 
-modelIsOK <- function(model, reject_nl = T) {
+modelIsOK <- function(model, reject_nm = T) {
   # Returns T is a model converges and is not singular.
 
   ans <- as.logical(
@@ -1776,7 +1777,7 @@ modelIsOK <- function(model, reject_nl = T) {
       # check for other warnings
       is.null(model@optinfo$conv$lme4$warnings))
 
-  if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nl){
+  if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nm){
     ans <- F}
 
   return(ans)
@@ -1784,4 +1785,15 @@ modelIsOK <- function(model, reject_nl = T) {
 }
 
 
-###
+### trim zeros from before decimal place along with trailing zeros.
+
+trim_zeros <- function(x, digits = 3) {
+  # for ratios, removes leading 0 before decimal point, rounds up to "digit"
+  # places and removes any trailing zeros. much nicer than "rd" in weights.
+  require("tidyverse")
+  require("stringr")
+  as.character(round(as.numeric(x), digits = digits)) %>%
+    str_replace_all("(\\.\\d*?[1-9])0+$", "\\1") %>%
+    str_replace("0\\.", ".") %>%
+    return()
+}
