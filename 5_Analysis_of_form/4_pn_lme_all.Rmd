@@ -24,6 +24,7 @@ installMissingPackages(
     "optimx",
     "MuMIn",
     "dfoptim",
+    "effectsize",
 
     # Include packages for tidy output.
     "tidyverse",
@@ -187,8 +188,8 @@ pn_l_t_mdl = lmer(
   )
 )
 
-#pn_l_t_mdl <- optimizeModel(pn_l_t_mdl, reject_nl = T, verbose = F)
-x <- summariseLME(pn_l_t_mdl, run_step = F, print_summary = F)
+#pn_l_t_mdl <- optimizeModel(pn_l_t_mdl, reject_nm = T, verbose = F)
+mdl_summary <- summariseLME(pn_l_t_mdl, run_step = F, print_summary = F)
 
 
 sd_threshold =2.5
@@ -209,13 +210,16 @@ pn_l_t_mdl.trimmed <- lmer(
   )
 )
 
-pn_l_t_mdl.trimmed <- optimizeModel(pn_l_t_mdl.trimmed, reject_nl = T, verbose = F)
+pn_l_t_mdl.trimmed <- optimizeModel(pn_l_t_mdl.trimmed, reject_nm = T, verbose = F)
 
 
 tibble(`Summary of model` = getModelFormula(pn_l_t_mdl.trimmed)) %>%
           formattable(align = "l")
+```
 
-anova <- summariseLME(
+
+```{r summarise l_t model, fig.height=3, fig.width=9}
+mdl_summary <- summariseLME(
   pn_l_t_mdl.trimmed,
   run_step = F
   , write = "4_pn_output/pn_l_t_anova.csv"
@@ -231,10 +235,10 @@ read_csv("4_pn_output/pn_l_t_anova.csv") %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_l_t_mdl.trimmed)))
 
-
-
 ```
 ```{r l_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 pn_l_t_mdl.tidy <- analyseModel(
   pn_l_t_mdl.trimmed,
   write="4_pn_output/pn_l_t",
@@ -252,8 +256,10 @@ pn_l_t_mdl.tidy <- analyseModel(
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_l_t_mdl.trimmed)
 
-getModelFixedFX(pn_l_t_mdl.trimmed, write="4_pn_output/pn_l_t")$slopes
+charts <- getModelFixedFX(pn_l_t_mdl.trimmed, write="4_pn_output/pn_l_t")
+charts$slopes %>% tidyStatNumbers()
 ```
+
 
 ### Analysis of L F0
 
@@ -266,9 +272,8 @@ l_f0_equation = formula(
   + wrd_end_syl
   + pn_new_word
   + gender
-  + (1 + foot_syls| speaker)
-  + (1 | pn_str_syl)
-)
+  + (1 + foot_syls | speaker)
+  )
 
 pn_l_f0_mdl = lmer(
   l_f0_equation,
@@ -284,8 +289,8 @@ pn_l_f0_mdl = lmer(
   )
 )
 
-pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nl = T, verbose = F)
-x <- summariseLME(pn_l_f0_mdl, print_summary = F, plot_resids = F, run_step = F)
+pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
+mdl_summary <- summariseLME(pn_l_f0_mdl, print_summary = F, plot_resids = F, run_step = F)
 
 l_f0_equation = formula(
   l_f0 ~
@@ -295,24 +300,24 @@ l_f0_equation = formula(
   + wrd_end_syl
   + pn_new_word
   + gender
-  + (1 + foot_syls| speaker)
+  + (1 | speaker)
  )
 
 pn_l_f0_mdl <- update(pn_l_f0_mdl, formula = l_f0_equation)
-pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nl = T, verbose = F)
-x <- summariseLME(pn_l_f0_mdl, print_summary = F, run_step = F)
+pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
+mdl_summary <- summariseLME(pn_l_f0_mdl, print_summary = F, run_step = F)
 
 # model needs trimming
 pn_l_f0.trimmed <- pn_l_data %>%
   filter(abs(scale(resid(pn_l_f0_mdl))) <= 3.5)
 
 pn_l_f0_mdl <- update(pn_l_f0_mdl, data = pn_l_f0.trimmed)
-pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nl = T, verbose = F)
+pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
 
 tibble(`Summary of model` = getModelFormula(pn_l_f0_mdl)) %>%
           formattable(align = "l")
 
-x <- summariseLME(pn_l_f0_mdl,
+mdl_summary <- summariseLME(pn_l_f0_mdl,
                   run_step = F,
                   write = "4_pn_output/pn_l_f0_anova.csv")
 
@@ -328,6 +333,8 @@ read_csv("4_pn_output/pn_l_f0_anova.csv") %>%
 ```
 
 ```{r l_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 pn_l_f0_mdl.tidy <- analyseModel(
   pn_l_f0_mdl,
   write = "4_pn_output/pn_l_f0",
@@ -342,8 +349,10 @@ pn_l_f0_mdl.tidy <- analyseModel(
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_l_f0_mdl)
 
-getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")$slopes
+charts <- getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")
+charts$slopes %>% tidyStatNumbers()
 ```
+
 
 ```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
 # set terms to plot
@@ -431,15 +440,15 @@ pn_h_t_mdl = lmer(
   )
 )
 
-pn_h_t_mdl <- optimizeModel(pn_h_t_mdl, reject_nl = T)
-x <- summariseLME(pn_h_t_mdl,
+pn_h_t_mdl <- optimizeModel(pn_h_t_mdl, reject_nm = T)
+mdl_summary <- summariseLME(pn_h_t_mdl,
                   run_step = F, print_summary = F
                   )
 
 # model needs trimming
 pn_h_t.trimmed <- pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
 pn_h_t_mdl.trimmed = update(pn_h_t_mdl, data = pn_h_t.trimmed)
-#pn_h_t_mdl.trimmed <- optimizeModel(pn_h_t_mdl.trimmed, reject_nl = T, verbose = F)
+#pn_h_t_mdl.trimmed <- optimizeModel(pn_h_t_mdl.trimmed, reject_nm = T, verbose = F)
 pn_h_t_mdl.trimmed = update(pn_h_t_mdl.trimmed,
                             control = lmerControl(
                               optimizer = "nloptwrap",
@@ -455,7 +464,7 @@ pn_h_t_mdl.trimmed = update(pn_h_t_mdl.trimmed,
 tibble(`Summary of model` = getModelFormula(pn_h_t_mdl.trimmed)) %>%
           formattable(align = "l")
 
-x <- summariseLME(pn_h_t_mdl.trimmed,
+mdl_summary <- summariseLME(pn_h_t_mdl.trimmed,
                   run_step = F,
                   write = "4_pn_output/pn_h_t_anova.csv"
   )
@@ -471,6 +480,7 @@ formattable(caption = paste("ANOVA of model:",
 ```
 
 ```{r plot h_t estimated effects, fig.height=1.5, fig.width=4, eval=F}
+
 my_terms = c("acc_phon [>H*, H*]",
              "ana_syls [1, 2, 3]",
              "foot_syls [2, 3, 4]",
@@ -512,7 +522,10 @@ for(cur_term in my_terms) {
 }
 
 ```
+
 ```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 pn_h_t_mdl.tidy <- analyseModel(
   pn_h_t_mdl.trimmed,
   write="4_pn_output/pn_h_t",
@@ -529,7 +542,9 @@ pn_h_t_mdl.tidy <- analyseModel(
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_h_t_mdl.trimmed)
 
-getModelFixedFX(pn_h_t_mdl.trimmed, write="4_pn_output/pn_h_t")$slopes
+charts <-
+  getModelFixedFX(pn_h_t_mdl.trimmed, write="4_pn_output/pn_h_t")
+charts$slopes %>% tidyStatNumbers()
 ```
 
 ### Analysis of H F0
@@ -562,9 +577,9 @@ pn_h_f0_mdl = lmer(
   )
 )
 
-pn_h_f0_mdl <- optimizeModel(pn_h_f0_mdl, reject_nl = T, verbose = F)
+pn_h_f0_mdl <- optimizeModel(pn_h_f0_mdl, reject_nm = T, verbose = F)
 
-x <- summariseLME(run_step = F,
+mdl_summary <- summariseLME(run_step = F,
   pn_h_f0_mdl, write = "4_pn_output/pn_h_f0_anova.csv"
   )
 
@@ -580,16 +595,18 @@ formattable(caption = paste("ANOVA of model:",
 ```
 
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=4}
-plot_model(
-  pn_h_f0_mdl,
-  type = "est",
-  transform = NULL,
-  show.values = T,
-  vline = "Red"
- )
+# plot_model(
+#   pn_h_f0_mdl,
+#   type = "est",
+#   transform = NULL,
+#   show.values = T,
+#   vline = "Red"
+#  )
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 pn_h_f0_mdl.tidy <- analyseModel(
   pn_h_f0_mdl,
   write = "4_pn_output/pn_h_f0",
@@ -604,8 +621,10 @@ pn_h_f0_mdl.tidy <- analyseModel(
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_h_f0_mdl)
 
-getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")$slopes
+charts <- getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")
+charts$slopes %>% tidyStatNumbers()
 ```
+
 
 ```{r h binomial plots, fig.height=4.5/2.54, fig.width=15/2.54}
 # set terms to plot
@@ -672,9 +691,9 @@ As with nuclear data, I am retaining the overall model structure as much as poss
 
 f0_exc_equation = formula(
   f0_exc ~ 
-    foot_syls
-  + (1 | ana_syls)
+  + foot_syls
   + (1 | speaker)
+  + (1 | ana_syls)
   + (1 | gender)
   + (1 | pn_str_syl)
 
@@ -695,9 +714,9 @@ pn_f0_exc_mdl = lmer(
   )
 )
 
-pn_f0_exc_mdl <- optimizeModel(pn_f0_exc_mdl, reject_nl = T, verbose = F)
+pn_f0_exc_mdl <- optimizeModel(pn_f0_exc_mdl, reject_nm = T, verbose = F)
 
-x <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
+mdl_summary <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
 
 # model needs trimming
 
@@ -707,10 +726,10 @@ pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
 
 # pn_f0_exc_mdl.trimmed <-
 #   optimizeModel(pn_f0_exc_mdl.trimmed,
-#              reject_nl = T,
+#              reject_nm = T,
 #              verbose = F)
 
-x <- summariseLME(pn_f0_exc_mdl.trimmed,
+mdl_summary <- summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = F,
              write = "4_pn_output/pn_f0_exc_anova.csv")
 
@@ -744,6 +763,7 @@ a <- plot_model(
 ```
 
 ```{r f0_exc model summary, fig.height=2.5, fig.width=2.823, , results="asis"}
+mdl_summary$omega2
 
 pn_f0_exc_mdl.tidy <- analyseModel(
   pn_f0_exc_mdl.trimmed,
@@ -761,7 +781,9 @@ pn_f0_exc_mdl.tidy <- analyseModel(
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_f0_exc_mdl.trimmed)
 
-getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
+charts <- getModelFixedFX(pn_f0_exc_mdl.trimmed,
+                write = "4_pn_output/pn_f0_exc")
+charts$slopes %>% tidyStatNumbers()
 ```
 
 ### LH Slope
@@ -769,12 +791,12 @@ getModelFixedFX(pn_f0_exc_mdl.trimmed)$slopes
 ```{r run lh_slope models, fig.height=3, fig.width=9}
 lh_slope_equation = formula(
   log_lh_slope ~
-    foot_syls
-  + (1 | ana_syls)
-  + (1 | wrd_end_syl)
+  + foot_syls
   + (1 | speaker)
   + (1 | gender)
+  + (1 | ana_syls)
   + (1 | pn_str_syl)
+  + (1 | wrd_end_syl)
 )
 
 pn_lh_slope_mdl = lmer(
@@ -793,10 +815,10 @@ pn_lh_slope_mdl = lmer(
 
  pn_lh_slope_mdl<-
    optimizeModel(pn_lh_slope_mdl,
-              reject_nl = T,
+              reject_nm = T,
               verbose = T)
 
-x <- summariseLME(pn_lh_slope_mdl,
+mdl_summary <- summariseLME(pn_lh_slope_mdl,
                   print_summary = F,
                   run_step = T,
                   plot_resids = T)
@@ -825,10 +847,10 @@ pn_lh_slope_mdl.trimmed = lmer(
 
 # pn_lh_slope_mdl.trimmed <-
 #   optimizeModel(pn_lh_slope_mdl.trimmed,
-#              reject_nl = T,
+#              reject_nm = T,
 #              verbose = F)
 
-x <- summariseLME(pn_lh_slope_mdl.trimmed,
+mdl_summary <- summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = F,
              write = "4_pn_output/pn_lh_slope_anova.csv")
 
@@ -847,7 +869,7 @@ read_csv("4_pn_output/pn_lh_slope_anova.csv",
 b <- plot_model(
   pn_lh_slope_mdl.trimmed,
   type = "est",
-  rm.terms = "ana_syls [2,3,4]",
+#  rm.terms = "ana_syls [2,3,4]",
   transform = NULL,
   show.values = T
  ) + labs(caption = "b. Estimated effects on log_lh_slope.") +
@@ -858,23 +880,26 @@ b <- plot_model(
 ```
 
 ```{r lh_slope model summary, fig.height=2.5, fig.width=2.823, results="asis"}
-pn_lh_slope_mdl.tidy <- analyseModel(pn_lh_slope_mdl.trimmed,
-                                write="4_pn_output/pn_lh_slope",
-                                type = "pred",
+mdl_summary$omega2
+
+pn_lh_slope_mdl.tidy <- analyseModel(
+  pn_lh_slope_mdl.trimmed,
+  write = "4_pn_output/pn_lh_slope",
+  type = "pred",
   y_lab = "log(ST/sec)",
   y_lim = c(1.5, 4),
   plot_rounding =  2,
   hjust = 0.9
-  
-)
+  )
 
 ```
 
 ```{r do lh_slope pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
 printTidyPredictions(pn_lh_slope_mdl.trimmed)
 
-getModelFixedFX(pn_lh_slope_mdl.trimmed,
-                write = "4_pn_output/pn_lh_slope")$slopes
+charts <- getModelFixedFX(pn_lh_slope_mdl.trimmed,
+                write = "4_pn_output/pn_lh_slope")
+charts$slopes %>% tidyStatNumbers()
 ```
 
 

@@ -165,9 +165,6 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
 
   # Remove columns which have outlived their use!
   select(-c(
-    v_onset_t,
-    foot_end_t,
-    foot_start_t,
     tot_syls,
     phr_end_t,
     spkr_f0_mean,
@@ -199,6 +196,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
          nuc_pre_text,
          acc_phon,
          speech_rate,
+         v_onset_t,
          ana_end_t,
          foot_dur,
          l_t,
@@ -211,7 +209,8 @@ pn <- filter(corpus, cur_foot == 1) %>%
          h_grand_mean_t,
          h_syl,
          h_syl_ratio,
-         wrd_end_t)
+         wrd_end_t,
+         foot_end_t)
 
 # Extract PN anacrusis data.
 pn_ana <- pn %>%

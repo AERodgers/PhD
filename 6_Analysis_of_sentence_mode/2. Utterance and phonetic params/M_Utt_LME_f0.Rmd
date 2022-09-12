@@ -130,6 +130,6 @@ charts <- getModelFixedFX(
 )
 # NB for this, we aren't actually interested in the slopes of acc_phon, but the of mode
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 
 ```

@@ -1,1 +1,0 @@
-lh_dur ~ foot_syls + (1 + foot_syls | speaker) + (1 | wrd_end_syl) 

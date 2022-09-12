@@ -144,6 +144,6 @@ charts <- getModelFixedFX(
 )
 
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 
 ```

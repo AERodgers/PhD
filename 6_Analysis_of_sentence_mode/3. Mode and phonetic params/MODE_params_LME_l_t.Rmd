@@ -135,7 +135,7 @@ charts <- getModelFixedFX(
   my_data = m_corpus.trimmed,
   write="../output/Mode_l_t"
 )
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 charts$intercepts
 
 ```

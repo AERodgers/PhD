@@ -1,0 +1,2 @@
+intercept,slope,estimate,conf.low,conf.high,std.error,t.value,df,p.value,p.adj (BH),signif.
+ana_syls0,ana_syls1,-34.98,-92.05327441624607,22.095438441073227,23.09,-1.52,5.76,0.18258442082579318,NA,NA

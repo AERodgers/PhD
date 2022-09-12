@@ -130,7 +130,7 @@ pn_l_data_late.trimmed <-
 
 pn_l_t_mdl_late <- update(pn_l_t_mdl_late, data = pn_l_data_late.trimmed)
 
-#pn_l_t_mdl_late <- optimizeModel(pn_l_t_mdl_late, reject_nl = T, verbose = F)
+#pn_l_t_mdl_late <- optimizeModel(pn_l_t_mdl_late, reject_nm = T, verbose = F)
 pn_l_t_mdl_late <- update(pn_l_t_mdl_late,
                           control = lmerControl(
                             optimizer = "nloptwrap",
@@ -144,7 +144,7 @@ pn_l_t_mdl_late <- update(pn_l_t_mdl_late,
                           )
 )
 
-anova <- summariseLME(
+mdl_summary <- summariseLME(
   pn_l_t_mdl_late,
   run_step = F,
   plot_resids = F,
@@ -168,6 +168,8 @@ read_csv("4_pn_output/pn_l_t_late_anova.csv") %>%
 formattable(caption = paste("ANOVA of model:",
                             getModelFormula(pn_l_t_mdl_late)))
 
+mdl_summary$omega2
+
 pn_l_t_mdl_late.tidy <- analyseModel(
   pn_l_t_mdl_late,
   write="4_pn_output/pn_l_t_late",
@@ -178,7 +180,7 @@ pn_l_t_mdl_late.tidy <- analyseModel(
   )
 
 
-pn_l_t_mdl_late.tidy$table %>% tidyNumbers()
+pn_l_t_mdl_late.tidy$table %>% tidyStatNumbers()
 
 printTidyPredictions(pn_l_t_mdl_late)
 

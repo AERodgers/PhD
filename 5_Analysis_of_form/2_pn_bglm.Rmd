@@ -11,10 +11,7 @@ knitr::opts_chunk$set(echo = F,
                       warning = F,
                       message = F)
 start <- Sys.time()
-```
 
-
-```{r message=F}
 # Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
@@ -49,6 +46,7 @@ pn <- pn %>%
   select(
     speaker,
     gender,
+    ana_syls,
     foot_syls,
     acc_phon,
     wrd_end_syl,
@@ -57,9 +55,7 @@ pn <- pn %>%
     nuc_pre_text,
     pn_new_word,
     acc_phon,
-    speech_rate,
-    ana_end_t,
-    foot_dur
+    speech_rate
   ) %>%
   mutate(
     isLH = factor(if_else(acc_phon == "L*H",
@@ -70,11 +66,8 @@ pn <- pn %>%
                              T,
                              F),
                      levels = c(F, T)),
-    foot_dur = foot_dur / 100,
     gender = factor(gender, levels = c("F", "M")),
-    foot_syls = factor(foot_syls, levels = 1:4),
-    foot_dur_n = normalize(foot_dur),
-    speech_rate_n = normalize(speech_rate)
+    foot_syls = factor(foot_syls, levels = 1:4)
   )
 
 
@@ -88,29 +81,17 @@ theme_set(theme_minimal(base_size = 14))
 
 ```
 
-- As step cannot be used, effects were systematically removed and added piecewise till maximal working model was found.
-- There appears to be an interaction of foot_syls:pn_new_word but no independent effect of pn_new_word
-- Running bobyaqa optimizer works best.
-
-- Looking at fixed effects:
-    - pn_new_word no meaningful effect [est. 0.219, CIs -3.06, 3.50]
-    - gender weak: [est. -1.758, CIs -3.74, 0.22]
-
-- Looking at random effects:
-    - ana_end_t is negligible
-    - foot_dur is very weak
-
 ```{r set isLH equation}
 isLH_equation <- formula(isLH ~
-                         foot_syls
+                           ana_syls
+                         + foot_syls
                          + wrd_end_syl
                          + speech_rate
                          + gender
+                         + (1 | speaker)
                          + (1 | ana_text)
                          + (1 | nuc_pre_text)
                          + (1 | pn_str_syl)
-                         + (1 | speaker)
-                         + (1 | foot_dur)
                          )
 
 ```
@@ -123,18 +104,31 @@ lh_pn_model <- bglmer(
   data = pn,
   fixef.prior = normal(),
   family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
+  glmerControl(optimizer = "nlminbwrap",
+               tol = 2e-5)
 )
-
+lh_pn_model <- optimizeModel(lh_pn_model, reject_nm = T)
 summary(lh_pn_model)
 
 ```
 
-```{r random effect of prompt, fig.height=3, fig.width=3.051181}
-# plot_model(lh_pn_model,
-#            type="re",
-#            show.values = T, ci.lvl= 0.95,
-#            )[2:5]
+```{r random LH effects 3, 4, fig.height=3, fig.width=3.05}
+plot_model(lh_pn_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[3]]
+plot_model(lh_pn_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[4]]
+```
+
+
+```{r random LH effect 2, fig.height=3, fig.width=6.1}
+plot_model(lh_pn_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[2]]
 
 ```
 
@@ -192,47 +186,57 @@ plot_model(lh_pn_model,
         plot.title = element_text(hjust = 0, size = 10),
         plot.caption.position = "plot")
 
-tidy_summary$table
+tidy_summary$table %>% tidyStatNumbers()
 
 printTidyPredictions(lh_pn_model) 
 charts <- getModelFixedFX(lh_pn_model, write="2_output/lh_model")
-charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 ```
 
 ## Run isHStar model
 ```{r set isHStar equation}
-isHStar_equation <- formula(isHStar ~ foot_syls
-                            + wrd_end_syl
-                            + speech_rate
-                            + gender
-                        # + (1 | ana_text)
-                         #+ (1 | nuc_pre_text)
-                         + (1 | pn_str_syl)
+isHStar_equation <- formula(isHStar ~
+                           ana_syls
+                         + foot_syls
+                         + wrd_end_syl
+                         + speech_rate
+                         + gender
                          + (1 | speaker)
-                         + (1 | foot_dur)
-                            )
+                         + (1 | ana_text)
+                         + (1 | nuc_pre_text)
+                         + (1 | pn_str_syl)
+                         )
 
 ```
 
 ```{r}
-h_star_model <- bglmer(
-  isHStar_equation,
-  pn,
-  fixef.prior = normal(),
-  family = binomial(link = "logit"),
-  glmerControl(optimizer = "bobyqa")
-)
-
+h_star_model <- bglmer(isHStar_equation,
+                       pn,
+                       fixef.prior = normal(),
+                       family = binomial(link = "logit"),
+                       glmerControl(optimizer = "nlminbwrap",
+                                    tol = 2e-5))
+h_star_model <- optimizeModel(h_star_model, reject_nm = T)
 summary(h_star_model)
 ```
 
 
-```{r fig.height=4, fig.width=3.051181, results = "asis"}
-# plot_model(h_star_model,
-#            type="re",
-#            show.values = T,
-#            title = "")[2:5]
+
+```{r random H effects 3, 4, fig.height=3, fig.width=3.05}
+plot_model(h_star_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[3]]
+plot_model(h_star_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[4]]
+
+plot_model(h_star_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           )[[2]]
+
 ```
 
 
@@ -242,7 +246,7 @@ write <- "2_output/h_star_model"
 model_formula <- getModelFormula(h_star_model)
 
  write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
-          paste(write, "_formula.txt", sep = ""))
+       paste(write, "_formula.txt", sep = ""))
 
 temp <- drop1(h_star_model, test = "Chisq")
 
@@ -266,8 +270,6 @@ read_csv(paste(write, "_anova.csv", sep = "")) %>%
 
 
 ```
-
-
 
 ```{r fig.width = 3.051181, fig.height = 2.5, results="asis"}
 cat(
@@ -298,6 +300,5 @@ plot_model(h_star_model,
 
 printTidyPredictions(h_star_model) 
 charts <-  getModelFixedFX(h_star_model, write="2_output/h_star_model")
-charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 ```

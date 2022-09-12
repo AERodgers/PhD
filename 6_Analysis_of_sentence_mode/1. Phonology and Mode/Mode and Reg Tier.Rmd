@@ -599,7 +599,7 @@ charts <- getModelFixedFX(
 )
 
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 ```
 
 
@@ -831,7 +831,7 @@ charts <- getModelFixedFX(
 
 
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 ```
 
 ```{r extra chart L boundary, results="asis"}

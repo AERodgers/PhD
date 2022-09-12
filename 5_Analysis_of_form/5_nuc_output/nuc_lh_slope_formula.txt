@@ -1,1 +1,1 @@
-log_lh_slope ~ foot_syls + (1 + foot_syls | speaker) + (1 | nuc_str_syl) + (1 | pre_syls) + (1 | fin_phon) 
+log_lh_slope ~ foot_syls + (1 + foot_syls | speaker) + (1 | nuc_str_syl) + (1 | pre_syls) + (1 | fin_phon)

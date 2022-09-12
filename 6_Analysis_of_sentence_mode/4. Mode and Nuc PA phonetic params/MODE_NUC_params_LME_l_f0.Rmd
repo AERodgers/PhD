@@ -135,7 +135,7 @@ charts <- getModelFixedFX(
   optimizer = "bobyqa"
 )
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 
 
 

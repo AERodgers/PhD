@@ -1,1 +1,0 @@
-h_t_as_prop_of_voicing ~ foot_syls + (1 + foot_syls + fin_phon | speaker) + (1 | gender) + (1 | nuc_str_syl) 

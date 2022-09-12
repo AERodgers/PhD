@@ -49,13 +49,16 @@ pn_h_data <- pn %>%
   select(speaker,
          gender,
          acc_phon,
+         ana_syls,
          foot_syls,
+         wrd_end_syl,
          pn_str_syl,
          h_t,
-         h_f0) %>%
+         h_f0,
+         foot_end_t,
+         v_onset_t) %>%
   mutate(stress_clash = factor((foot_syls == 1), levels = c(F, T)))  %>%
-  filter(acc_phon %in% h_star_type) %>% 
-  select(-c(foot_syls))
+  filter(acc_phon %in% h_star_type)
 
 rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
 
@@ -63,9 +66,9 @@ rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
 ```
 
 
-## H targets
+## H targets and stress clash
 
-### Analysis of H timing
+### Analysis of H timing and stress clash
 
 ```{r set h_t equation}
 h_t_equation = formula(
@@ -96,23 +99,31 @@ pn_h_t_alt_mdl = lmer(
 )
 
 pn_h_t_alt_mdl <-
-  optimizeModel(pn_h_t_alt_mdl, reject_nl = T, verbose = F)
+  optimizeModel(pn_h_t_alt_mdl, reject_nm = T, verbose = F)
 
-x <- summariseLME(pn_h_t_alt_mdl,
-                  run_step = T, print_summary = F
+mdl_summary <- summariseLME(pn_h_t_alt_mdl,
+                  run_step = F, print_summary = F
                   )
 
 # model needs trimming
 pn_h_t_alt.trimmed <-
   pn_h_data %>% filter(abs(scale(resid(pn_h_t_alt_mdl))) <= 2.5)
 
-pn_h_t_alt_mdl.trimmed = update(pn_h_t_alt_mdl, data = pn_h_t_alt.trimmed)
+pn_h_t_alt_mdl.trimmed = update(pn_h_t_alt_mdl, data = pn_h_t_alt.trimmed,
+                                control = lmerControl(
+                                  optimizer = "nloptwrap",
+                                  optCtrl = list(
+                                    algorithm = "NLOPT_LN_PRAXIS",
+                                    maxfun = 1e9,
+                                    maxeval = 1e7,
+                                    xtol_abs = 1e-9,
+                                    ftol_abs = 1e-9)))
 pn_h_t_alt_mdl.trimmed <-
-  optimizeModel(pn_h_t_alt_mdl.trimmed, reject_nl = T, verbose = F)
+  optimizeModel(pn_h_t_alt_mdl.trimmed, reject_nm = T, verbose = F)
 tibble(`Summary of model` = getModelFormula(pn_h_t_alt_mdl.trimmed)) %>%
           formattable(align = "l")
 
-x <- summariseLME(pn_h_t_alt_mdl.trimmed,
+mdl_summary <- summariseLME(pn_h_t_alt_mdl.trimmed,
                   run_step = F,
                   write = "4_pn_output/pn_h_t_alt_anova.csv"
   )
@@ -136,6 +147,8 @@ pn_h_t_alt_mdl.trimmed %>%
 ```
 
 ```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 pn_h_t_alt_mdl.tidy <- analyseModel(
   pn_h_t_alt_mdl,
   write = "4_pn_output/pn_h_t_alt",
@@ -144,15 +157,16 @@ pn_h_t_alt_mdl.tidy <- analyseModel(
   hjust = 1.5,
   plot_rounding =  0)
 
-pn_h_t_alt_mdl.tidy$table %>% tidyNumbers()
+pn_h_t_alt_mdl.tidy$table %>% tidyStatNumbers()
 ```
 
 ```{r do h_t pairwise analysis, results = "asis"}
 printTidyPredictions(pn_h_t_alt_mdl.trimmed)
-getModelFixedFX(pn_h_t_alt_mdl.trimmed)$slopes
+charts <- getModelFixedFX(pn_h_t_alt_mdl.trimmed)
+charts$slopes %>% tidyStatNumbers()
 ```
 
-### Analysis of H F0
+### Analysis of H F0 and stress clash
 
 ```{r set h_f0 equation}
 h_f0_equation = formula(
@@ -182,7 +196,7 @@ pn_h_f0_alt_mdl = lmer(
 )
 
 pn_h_f0_alt_mdl <-
-  optimizeModel(pn_h_f0_alt_mdl, reject_nl = T, verbose = F)
+  optimizeModel(pn_h_f0_alt_mdl, reject_nm = T, verbose = F)
 
 
 pn_h_f0_alt.trimmed <-
@@ -190,7 +204,7 @@ pn_h_f0_alt.trimmed <-
 
 pn_h_f0_alt_mdl.trimmed = update(pn_h_f0_alt_mdl, data = pn_h_f0_alt.trimmed)
 
-x <- summariseLME(run_step = F,
+mdl_summary <- summariseLME(run_step = F,
                   pn_h_f0_alt_mdl.trimmed,
                   write = "4_pn_output/pn_h_f0_alt_anova.csv")
 
@@ -215,7 +229,7 @@ pn_h_f0_alt_mdl.tidy <- analyseModel(
   hjust = 1.5,
   plot_rounding =  1
 )
-pn_h_f0_alt_mdl.tidy$table %>% tidyNumbers()
+pn_h_f0_alt_mdl.tidy$table %>% tidyStatNumbers()
 
 
 ```
@@ -223,3 +237,260 @@ pn_h_f0_alt_mdl.tidy$table %>% tidyNumbers()
 ```{r do h_f0 pairwise analysis, results = "asis"}
 printTidyPredictions(pn_h_f0_alt_mdl)
 ```
+### Analysis of PN Peak timing proportional to foot
+
+```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
+
+
+h_t_re_ft_dur_equation = formula(
+  h_t_re_ft_dur ~ 
+    acc_phon * foot_syls
+  + (1 | speaker)
+  + (1 | gender)
+  + (1 | ana_syls)
+  + (1 | wrd_end_syl)
+  + (1 | pn_str_syl)
+
+)
+
+optimizer = "optimx"
+
+pn_h_data <- pn_h_data %>%
+  mutate(h_t_re_ft_dur = h_t  / (foot_end_t - v_onset_t))
+
+pn_h_t_re_ft_dur_mdl = lmer(
+  h_t_re_ft_dur_equation,
+  pn_h_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+pn_h_t_re_ft_dur_mdl <- pn_h_t_re_ft_dur_mdl %>% optimizeModel()
+ mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl,
+             run_step = T,
+             print_summary = F
+             )
+
+
+pn_h_t_re_ft_dur_mdl.trimmed = update(pn_h_t_re_ft_dur_mdl,
+                                   data = pn_h_data %>%
+                                     filter(abs(scale(resid(
+                                       pn_h_t_re_ft_dur_mdl
+                                     ))) <= 2.5))
+ 
+mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl.trimmed,
+                            run_step = F,
+                            write = "4_pn_output/pn_h_t_re_ft_dur_anova.csv")
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+
+```
+
+```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+pn_h_t_re_ft_dur_mdl.tidy <- analyseModel(pn_h_t_re_ft_dur_mdl.trimmed,
+                                write="4_pn_output/pn_h_t_re_ft_dur",
+                                type = "pred",
+                                y_lab = "h_t  / (foot_end_t - v_onset_t)",
+                                y_lim = c(0, 1),
+                                breaks = seq(0, 1, 0.2),
+                                plot_rounding = 2,
+                                panel_prefix = "a. "
+                                )
+
+printTidyPredictions(pn_h_t_re_ft_dur_mdl.trimmed)
+charts <- getModelFixedFX(pn_h_t_re_ft_dur_mdl.trimmed,
+                          write = "4_pn_output/pn_h_t_re_ft_dur_mdl")
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
+  ~ round(as.numeric(.), 2)))
+```
+
+### Analysis of PN peak timing in L*H only
+
+
+```{r run h_t_lh models, fig.height=3, fig.width=9}
+h_t_equation = formula(
+  h_t ~
+    ana_syls
+  + (1 | speaker)
+  + (1 | foot_syls)
+  + (1 | gender)
+  + (1 | pn_str_syl)
+)
+optimizer = "optimx"
+pn_h_data_lh <- pn_h_data %>%
+  filter (acc_phon == "L*H") %>%
+  mutate(has_ana = factor(ana_syls != 0, levels = c(F, T)))
+
+pn_h_t_lh_mdl = lmer(
+  h_t_equation,
+  pn_h_data_lh ,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+pn_h_t_lh_mdl <- optimizeModel(pn_h_t_lh_mdl, reject_nm = T)
+mdl_summary <- summariseLME(pn_h_t_lh_mdl,
+                  run_step = T, print_summary = F
+                  )
+
+# model needs trimming
+
+pn_h_t_lh_mdl.trimmed = update(pn_h_t_lh_mdl, data = pn_h_data_lh %>%
+                                 filter(abs(scale(resid(pn_h_t_lh_mdl))) <= 3))
+pn_h_t_lh_mdl.trimmed <-  optimizeModel(pn_h_t_lh_mdl.trimmed, reject_nm = T)
+
+
+tibble(`Summary of model` = getModelFormula(pn_h_t_lh_mdl.trimmed)) %>%
+          formattable(align = "l")
+
+mdl_summary <- summariseLME(pn_h_t_lh_mdl.trimmed,
+                  run_step = F,
+                  write = "4_pn_output/pn_h_t_lh_anova.csv"
+  )
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("4_pn_output/pn_h_t_lh_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_t_lh_mdl.trimmed)))
+```
+
+
+```{r h_t_lh model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+pn_h_t_lh_mdl.tidy <- analyseModel(
+  pn_h_t_lh_mdl.trimmed,
+  write="4_pn_output/pn_h_t_lh",
+  type = "pred",
+  y_lab = "time (ms)",
+  y_lim = c(0, 350),
+  breaks = seq(50, 350, 100),
+  plot_rounding = 0,
+  hjust = 1,
+  panel_prefix = "letters")
+
+```
+
+```{r do h_t_lh pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
+printTidyPredictions(pn_h_t_lh_mdl.trimmed)
+
+charts <-
+  getModelFixedFX(pn_h_t_lh_mdl.trimmed, 
+                  write="4_pn_output/pn_h_t_lh"
+                  )
+charts$slopes %>% tidyStatNumbers()
+```
+
+### Analysis of PN peak timing in H* only
+
+```{r run h_t_h models, fig.height=3, fig.width=9}
+h_t_h_equation = formula(
+  h_t ~
+    ana_syls
+  + (1 | speaker)
+  + (1 | gender)
+  + (1 | foot_syls)
+  + (1 | pn_str_syl)
+)
+optimizer = "optimx"
+pn_h_data_h <- pn_h_data %>%
+  filter (acc_phon == "H*") %>%
+  mutate(has_ana = factor(ana_syls != 0, levels = c(F, T)))
+
+pn_h_t_h_mdl = lmer(
+  h_t_h_equation,
+  pn_h_data_h ,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+pn_h_t_h_mdl <- optimizeModel(pn_h_t_h_mdl, reject_nm = T)
+mdl_summary <- summariseLME(pn_h_t_h_mdl,
+                  run_step = F, print_summary = F
+                  )
+
+# model needs trimming
+
+pn_h_t_h_mdl.trimmed = update(pn_h_t_h_mdl, data = pn_h_data_h %>%
+                                 filter(abs(scale(resid(pn_h_t_h_mdl))) <= 3))
+pn_h_t_h_mdl.trimmed <-  optimizeModel(pn_h_t_h_mdl.trimmed, reject_nm = T)
+
+
+tibble(`Summary of model` = getModelFormula(pn_h_t_h_mdl.trimmed)) %>%
+          formattable(align = "l")
+
+mdl_summary <- summariseLME(pn_h_t_h_mdl.trimmed,
+                  run_step = F,
+                  write = "4_pn_output/pn_h_t_h_anova.csv"
+  )
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("4_pn_output/pn_h_t_h_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_t_h_mdl.trimmed)))
+```
+
+
+```{r h_t_h model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+pn_h_t_mdl.tidy <- analyseModel(
+  pn_h_t_h_mdl.trimmed,
+  write="4_pn_output/pn_h_t_h",
+  type = "pred",
+  y_lab = "time (ms)",
+  y_lim = c(0, 350),
+  breaks = seq(50, 350, 100),
+  plot_rounding = 0,
+  hjust = 1,
+  panel_prefix = "letters")
+
+```
+
+```{r do h_t_h pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
+printTidyPredictions(pn_h_t_h_mdl.trimmed)
+
+charts <-
+  getModelFixedFX(pn_h_t_h_mdl.trimmed, 
+                  write="4_pn_output/pn_h_t_h"
+                  )
+charts$slopes %>% tidyStatNumbers()
+```
+
+

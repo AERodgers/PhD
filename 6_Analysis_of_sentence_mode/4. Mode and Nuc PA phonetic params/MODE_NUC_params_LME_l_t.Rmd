@@ -147,7 +147,7 @@ charts <- getModelFixedFX(
   write="../output/Mode_PA_l_t"
 )
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 
 
 ```

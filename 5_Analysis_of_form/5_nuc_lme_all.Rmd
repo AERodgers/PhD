@@ -60,16 +60,19 @@ nuc_data <- nuc %>%
     nuc_str_syl,
     fin_phon,
     stim,
-    h_t,
-    h_f0,
+    v_onset_t,
     l_t,
     l_f0,
+    h_t,
+    h_f0,
     e_t,
     e_f0,
     f0_exc,
     lh_dur,
     lh_slope,
     foot_dur,
+    foot_start_t,
+    foot_end_t,
     speech_rate
   )
 
@@ -152,7 +155,7 @@ nuc_l_t_mdl = lmer(
 # model needs trimming
 nuc_l_t_data.trimmed <- nuc_data %>% filter(abs(scale(resid(nuc_l_t_mdl))) <= 3)
 nuc_l_t_mdl.trimmed = update(nuc_l_t_mdl, data = nuc_l_t_data.trimmed)
- anova <- summariseLME(nuc_l_t_mdl.trimmed,
+ mdl_summary <- summariseLME(nuc_l_t_mdl.trimmed,
              run_step = F,
              write = "5_nuc_output/nuc_l_t_anova.csv")
  
@@ -167,6 +170,8 @@ nuc_l_t_mdl.trimmed = update(nuc_l_t_mdl, data = nuc_l_t_data.trimmed)
 ```
 
 ```{r l_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 re_plot <- plot_model(nuc_l_t_mdl, type = "re")[[2]]
 
 re_plot <- re_plot +
@@ -193,10 +198,13 @@ nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
 
 ```{r do l_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_l_t_mdl)
-getModelFixedFX(nuc_l_t_mdl, write="5_nuc_output/nuc_l_t")$slopes %>% 
+
+charts <- getModelFixedFX(nuc_l_t_mdl, write="5_nuc_output/nuc_l_t")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of L F0
@@ -236,7 +244,7 @@ nuc_l_f0.trimmed <-
 
 nuc_l_f0_mdl.trimmed = update(nuc_l_f0_mdl, data = nuc_l_f0.trimmed)
 
-anova <- summariseLME(nuc_l_f0_mdl.trimmed,
+mdl_summary <- summariseLME(nuc_l_f0_mdl.trimmed,
                       run_step = F,
                       write = "5_nuc_output/nuc_l_f0_anova.csv")
 
@@ -251,6 +259,8 @@ read_csv("5_nuc_output/nuc_l_f0_anova.csv") %>%
 ```
 
 ```{r l_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                   write = "5_nuc_output/nuc_l_f0",
                                   type = "pred",
@@ -264,11 +274,14 @@ nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
 
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_l_f0_mdl.trimmed)
-getModelFixedFX(nuc_l_f0_mdl.trimmed,
-                write = "5_nuc_output/nuc_l_f0")$slopes %>% 
+
+charts <- getModelFixedFX(nuc_l_f0_mdl.trimmed,
+                write = "5_nuc_output/nuc_l_f0")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.), 1)))
 
 
 ```
@@ -360,7 +373,7 @@ nuc_h_t_mdl = update(nuc_h_t_mdl,
                      data = nuc_data %>%
                        filter(abs(scale(resid(nuc_h_t_mdl))) <= 3))
 
-anova <- summariseLME(nuc_h_t_mdl,
+mdl_summary <- summariseLME(nuc_h_t_mdl,
                       run_step = F,
                       write = "5_nuc_output/nuc_h_t_anova.csv")
 
@@ -376,6 +389,8 @@ read_csv("5_nuc_output/nuc_h_t_anova.csv") %>%
 
 
 ```{r h_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="5_nuc_output/nuc_h_t",
                                 type = "pred",
@@ -391,11 +406,14 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
 
 ```{r do h_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_h_t_mdl)
-getModelFixedFX(nuc_h_t_mdl,
-                write = "5_nuc_output/nuc_h_t")$slopes %>% 
+
+charts <- getModelFixedFX(nuc_h_t_mdl,
+                write = "5_nuc_output/nuc_h_t")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of H F0
@@ -435,7 +453,7 @@ nuc_h_f0_mdl.trimmed = update(nuc_h_f0_mdl,
                               data = nuc_data %>%
                                 filter(abs(scale(resid(nuc_h_f0_mdl))) <= 4))
 
-anova <- summariseLME(nuc_h_f0_mdl.trimmed,
+mdl_summary <- summariseLME(nuc_h_f0_mdl.trimmed,
                       run_step = F,
                       write = "5_nuc_output/nuc_h_f0_anova.csv")
 
@@ -450,6 +468,8 @@ read_csv("5_nuc_output/nuc_h_f0_anova.csv") %>%
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_h_f0",
                                 type = "pred",
@@ -464,12 +484,13 @@ nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
 
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results = "asis"}
 printTidyPredictions(nuc_h_f0_mdl.trimmed)
-getModelFixedFX(nuc_h_f0_mdl.trimmed,
-                          write = "5_nuc_output/nuc_h_f0")$slopes %>% 
+charts <- getModelFixedFX(nuc_h_f0_mdl.trimmed,
+                          write = "5_nuc_output/nuc_h_f0")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
-
+          ~ round(as.numeric(.), 1)))
 ```
 
 ```{r h binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
@@ -564,24 +585,27 @@ nuc_e_t_mdl = lmer(
 # model needs trimming
 nuc_e_t_mdl.trimmed = update(nuc_e_t_mdl,
                              data = nuc_data %>%
-                               filter(abs(scale(resid(nuc_e_t_mdl))) <= 4)
-)
+                               filter(abs(scale(resid(
+                                 nuc_e_t_mdl
+                               ))) <= 4))
 
- anova <- summariseLME(nuc_e_t_mdl.trimmed,
-             run_step = F,
-             write = "5_nuc_output/nuc_e_t_anova.csv")
- 
- adjustP_posthoc("5_nuc_output/",
-                 p.value,
-                 suffix_id = "_anova")
- 
- read_csv("5_nuc_output/nuc_e_t_anova.csv") %>%
-   tidyStatNumbers() %>%
-   formattable(caption = paste("ANOVA of model:",
-                               getModelFormula(nuc_e_t_mdl.trimmed)))
+mdl_summary <- summariseLME(nuc_e_t_mdl.trimmed,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_e_t_anova.csv")
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_e_t_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(nuc_e_t_mdl.trimmed)))
 ```
 
 ```{r e_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_t",
                                 type = "pred",
@@ -596,13 +620,16 @@ nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
 
 ```{r do e_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
 printTidyPredictions(nuc_e_t_mdl.trimmed)
-getModelFixedFX(
+
+charts <- getModelFixedFX(
   nuc_e_t_mdl.trimmed,
   write="5_nuc_output/nuc_e_t"
-)$slopes %>% 
+)
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.),0))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of E F0
@@ -639,26 +666,29 @@ nuc_e_f0_mdl = lmer(
 )
 
 # model needs trimming
-nuc_e_f0_mdl.trimmed = update(
-  nuc_e_f0_mdl,
-  data = nuc_data %>% filter(abs(scale(resid(nuc_e_f0_mdl))) <= 3.5))
+nuc_e_f0_mdl.trimmed = update(nuc_e_f0_mdl,
+                              data = nuc_data %>% filter(abs(scale(
+                                resid(nuc_e_f0_mdl)
+                              )) <= 3.5))
 
- anova <- summariseLME(nuc_e_f0_mdl.trimmed,
-             run_step = F,
-             write = "5_nuc_output/nuc_e_f0_anova.csv")
- 
- adjustP_posthoc("5_nuc_output/",
-                 p.value,
-                 suffix_id = "_anova")
- 
- read_csv("5_nuc_output/nuc_e_f0_anova.csv") %>%
-   tidyStatNumbers() %>%
-   formattable(caption = paste("ANOVA of model:",
-                               getModelFormula(nuc_e_f0_mdl.trimmed)))
+mdl_summary <- summariseLME(nuc_e_f0_mdl.trimmed,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_e_f0_anova.csv")
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_e_f0_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(nuc_e_f0_mdl.trimmed)))
 ```
 
 
 ```{r e_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_f0",
                                 type = "pred",
@@ -673,11 +703,14 @@ nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
 
 ```{r do e_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
 printTidyPredictions(nuc_e_f0_mdl.trimmed)
-getModelFixedFX(nuc_e_f0_mdl.trimmed,
-                write="5_nuc_output/nuc_e_f0")$slopes %>% 
+
+charts <- getModelFixedFX(nuc_e_f0_mdl.trimmed,
+                write="5_nuc_output/nuc_e_f0")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.), 1))) 
 ```
 
 ```{r e binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
@@ -742,12 +775,10 @@ ggsave("5_nuc_output/e_target_binomial.png",
 f0_exc_equation = formula(
  f0_exc ~ 
    foot_syls
-  + (1 + foot_syls | speaker)
-  #+ (1 | gender)
-  + (1 | nuc_str_syl)
-  + (1 | pre_syls)
-  + (1 | fin_phon)
-  #+ (1 | nuc_new_word)
+ + (1 + foot_syls | speaker)
+ + (1 | nuc_str_syl)
+ + (1 | pre_syls)
+ + (1 | fin_phon)
 )
 
 optimizer = "optimx"
@@ -770,30 +801,27 @@ nuc_f0_exc_mdl = lmer(
 )
 
 nuc_f0_exc_mdl <- optimizeModel(nuc_f0_exc_mdl)
-anova <- summariseLME(nuc_f0_exc_mdl,
+mdl_summary <- summariseLME(nuc_f0_exc_mdl,
              run_step = F, print_summary = F)
 
-# model needs trimming
-nuc_f0_exc.trimmed <-
-  nuc_data %>% filter(abs(scale(resid(nuc_f0_exc_mdl))) <= 2.5)
 
 nuc_f0_exc_mdl.trimmed = update(
   nuc_f0_exc_mdl,
   data = nuc_data %>% filter(abs(scale(resid(nuc_f0_exc_mdl))) <= 2.5)
   )
 
-anova <- summariseLME(nuc_f0_exc_mdl.trimmed,
-             run_step = F,
-             write = "5_nuc_output/nuc_f0_exc_anova.csv")
+mdl_summary <- summariseLME(nuc_f0_exc_mdl.trimmed,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_f0_exc_anova.csv")
 
- adjustP_posthoc("5_nuc_output/",
-                 p.value,
-                 suffix_id = "_anova")
- 
- read_csv("5_nuc_output/nuc_f0_exc_anova.csv") %>%
-   tidyStatNumbers() %>%
-   formattable(caption = paste("ANOVA of model:",
-                               getModelFormula(nuc_f0_exc_mdl.trimmed)))
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_f0_exc_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(nuc_f0_exc_mdl.trimmed)))
 ```
 ```{r plot f0_exc estimated effects, fig.height=2.5, fig.width=4.3}
 a <- plot_model(
@@ -812,6 +840,7 @@ a <- plot_model(
 ```
 
 ```{r f0_exc model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
 
 nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="5_nuc_output/nuc_f0_exc",
@@ -823,13 +852,14 @@ nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
 
 ```{r do f0_exc pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
 printTidyPredictions(nuc_f0_exc_mdl.trimmed)
-getModelFixedFX(
-  nuc_f0_exc_mdl.trimmed,
-  write="5_nuc_output/nuc_f0_exc"
-)$slopes %>% 
+
+charts <- getModelFixedFX(nuc_f0_exc_mdl.trimmed,
+                          write = "5_nuc_output/nuc_f0_exc")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 1))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.), 1)))
 
 
 ```
@@ -849,12 +879,10 @@ lh_slope_equation = formula(
   log_lh_slope ~
     foot_syls
   + (1 + foot_syls | speaker)
-  #+ (1 | gender)
   + (1 | nuc_str_syl)
   + (1 | pre_syls)
   + (1 | fin_phon)
-  #+ (1 | nuc_new_word)
-)
+  )
 optimizer = "optimx"
 ```
 
@@ -873,7 +901,7 @@ nuc_lh_slope_mdl = lmer(
     )
   )
 )
-nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = F, reject_nl = T)
+nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = T, reject_nm = T)
 
 # model needs trimming
 nuc_lh_slope_mdl.trimmed = update(
@@ -885,21 +913,21 @@ nuc_lh_slope_mdl.trimmed = update(
 nuc_lh_slope_mdl.trimmed <-
   optimizeModel(nuc_lh_slope_mdl.trimmed,
                 verbose = F,
-                reject_nl = T)
+                reject_nm = T)
 
-anova <- summariseLME(nuc_lh_slope_mdl.trimmed,
-                      run_step = F,
-                      write = "5_nuc_output/nuc_lh_slope_anova.csv")
- 
- 
- adjustP_posthoc("5_nuc_output/",
-                 p.value,
-                 suffix_id = "_anova")
- 
- read_csv("5_nuc_output/nuc_lh_slope_anova.csv") %>%
-   tidyStatNumbers() %>%
-   formattable(caption = paste("ANOVA of model:",
-                               getModelFormula(nuc_lh_slope_mdl.trimmed)))
+mdl_summary <- summariseLME(nuc_lh_slope_mdl.trimmed,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_lh_slope_anova.csv")
+
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_lh_slope_anova.csv", show_col_types = FALSE) %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(nuc_lh_slope_mdl.trimmed)))
 ```
 
 ```{r plot lh slope estimated effects, fig.height=2.5, fig.width=4.3}
@@ -919,6 +947,8 @@ b <- plot_model(
 ```
 
 ```{r lh_slope model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
 nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
                                 write="5_nuc_output/nuc_lh_slope",
                                 type = "pred",
@@ -929,13 +959,14 @@ nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
 
 ```{r do lh_slope pairwise analysis, results="asis"}
 printTidyPredictions(nuc_lh_slope_mdl.trimmed)
-getModelFixedFX(
-  nuc_lh_slope_mdl.trimmed,
-  write="5_nuc_output/nuc_lh_slope"
-)$slopes %>% 
+
+charts <- getModelFixedFX(nuc_lh_slope_mdl.trimmed,
+                          write = "5_nuc_output/nuc_lh_slope")
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 2))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.), 2)))
 
 
 ```
@@ -953,18 +984,18 @@ ggsave("5_nuc_output/nuc_truncation_params.png",
 
 ## Additional model
 
-### H time proprotional to duration of voicing
+### H time proportional to duration of voicing and duration of foot
 
 
-```{r  h_t_as_prop_of_voicing, fig.height=3, fig.width=9}
+```{r  nuc_h_t_re_v_dur, fig.height=3, fig.width=9}
 ### Analysis of E timing
 # E timing is not of much interest as it is just the last f0 time point in the IP
 
-h_t_as_prop_of_voicing_equation = formula(
-  h_t_as_prop_of_voicing ~ 
+nuc_h_t_re_v_dur_equation = formula(
+  nuc_h_t_re_v_dur ~ 
     foot_syls
- # + fin_phon
-  + (1 + foot_syls + fin_phon | speaker)
+  + (1 | speaker)
+  + (1 | fin_phon)
   + (1 | gender)
   + (1 | nuc_str_syl)
 )
@@ -972,32 +1003,34 @@ h_t_as_prop_of_voicing_equation = formula(
 optimizer = "optimx"
 
 nuc_data <- nuc_data %>%
-  mutate(h_t_as_prop_of_voicing = h_t  / e_t)
+  mutate(nuc_h_t_re_v_dur = h_t  / e_t)
 
-nuc_h_t_as_prop_of_voicing_mdl = lmer(
-  h_t_as_prop_of_voicing_equation,
+nuc_h_t_re_v_dur_mdl = lmer(
+  nuc_h_t_re_v_dur_equation,
   nuc_data,
-control = lmerControl(
-  optimizer = "nloptwrap",
-  optCtrl = list(algorithm = "NLOPT_LN_PRAXIS",
-                 maxfun = 1e9,
-                 maxeval = 1e7,
-                 xtol_abs = 1e-9,
-                 ftol_abs = 1e-9)))
-
-nuc_h_t_as_prop_of_voicing_mdl <- nuc_h_t_as_prop_of_voicing_mdl %>% optimizeModel()
- anova <- summariseLME(nuc_h_t_as_prop_of_voicing_mdl,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+nuc_h_t_re_v_dur_mdl <- nuc_h_t_re_v_dur_mdl %>% optimizeModel()
+ mdl_summary <- summariseLME(nuc_h_t_re_v_dur_mdl,
              run_step = T,
              print_summary = F
              )
  
-nuc_h_t_as_prop_of_voicing.trimmed <- nuc_data %>%
-    filter(abs(scale(resid(nuc_h_t_as_prop_of_voicing_mdl))) <= 3)
+nuc_nuc_h_t_re_v_dur.trimmed <- nuc_data %>%
+    filter(abs(scale(resid(nuc_h_t_re_v_dur_mdl))) <= 3)
 
 # model needs trimming
-nuc_h_t_as_prop_of_voicing_mdl.trimmed = update(
-  nuc_h_t_as_prop_of_voicing_mdl,
-  data = nuc_h_t_as_prop_of_voicing.trimmed,
+nuc_h_t_re_v_dur_mdl.trimmed = update(
+  nuc_h_t_re_v_dur_mdl,
+  data = nuc_nuc_h_t_re_v_dur.trimmed,
   control = lmerControl(
     optimizer = optimizer,
     calc.derivs = F,
@@ -1009,28 +1042,31 @@ nuc_h_t_as_prop_of_voicing_mdl.trimmed = update(
   )
 )
 
- nuc_h_t_as_prop_of_voicing_mdl.trimmed <-
-   nuc_h_t_as_prop_of_voicing_mdl.trimmed %>%
-   optimizeModel() 
+nuc_h_t_re_v_dur_mdl.trimmed <-
+  nuc_h_t_re_v_dur_mdl.trimmed %>%
+  optimizeModel()
 
- anova <- summariseLME(nuc_h_t_as_prop_of_voicing_mdl.trimmed,
-             run_step = F,
-             write = "5_nuc_output/nuc_h_t_as_prop_of_voicing_anova.csv"
-             )
+mdl_summary <- summariseLME(nuc_h_t_re_v_dur_mdl.trimmed,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_nuc_h_t_re_v_dur_anova.csv")
 
- adjustP_posthoc("5_nuc_output/",
-                 p.value,
-                 suffix_id = "_anova")
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
 
- read_csv("5_nuc_output/nuc_h_t_as_prop_of_voicing_anova.csv") %>%
-   tidyStatNumbers() %>%
-   formattable(caption = paste("ANOVA of model:",
-                               getModelFormula(nuc_h_t_as_prop_of_voicing_mdl.trimmed)))
+read_csv("5_nuc_output/nuc_nuc_h_t_re_v_dur_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste(
+    "ANOVA of model:",
+    getModelFormula(nuc_h_t_re_v_dur_mdl.trimmed)
+  ))
 ```
 
-```{r h_t_as_prop_of_voicing model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
-nuc_h_t_as_prop_of_voicing_mdl.tidy <- analyseModel(nuc_h_t_as_prop_of_voicing_mdl.trimmed,
-                                write="5_nuc_output/nuc_h_t_as_prop_of_voicing",
+```{r nuc_h_t_re_v_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+nuc_h_t_re_v_dur_mdl.tidy <- analyseModel(nuc_h_t_re_v_dur_mdl.trimmed,
+                                write="5_nuc_output/nuc_nuc_h_t_re_v_dur",
                                 type = "pred",
                                 y_lab = "h_t / e_t",
                                 y_lim = c(0.5, 1),
@@ -1039,12 +1075,97 @@ nuc_h_t_as_prop_of_voicing_mdl.tidy <- analyseModel(nuc_h_t_as_prop_of_voicing_m
                                 panel_prefix = "a. "
                                 )
 
-printTidyPredictions(nuc_h_t_as_prop_of_voicing_mdl.trimmed)
-getModelFixedFX(
-  nuc_h_t_as_prop_of_voicing_mdl.trimmed,
-  write="5_nuc_output/nuc_h_t_as_prop_of_voicing_mdl"
-)$slopes %>% 
+printTidyPredictions(nuc_h_t_re_v_dur_mdl.trimmed)
+
+
+charts <- getModelFixedFX(nuc_h_t_re_v_dur_mdl.trimmed,
+                          write = "5_nuc_output/nuc_h_t_re_v_dur_mdl")
+
+charts$slopes %>% tidyStatNumbers() %>%
+  mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
+  ~ round(as.numeric(.), 2)))
+```
+
+
+
+```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
+### Analysis of E timing
+# E timing is not of much interest as it is just the last f0 time point in the IP
+
+h_t_re_ft_dur_equation = formula(
+  h_t_re_ft_dur ~ 
+    foot_syls
+ #+ fin_phon
+  + (1 | speaker)
+  + (1 | fin_phon)
+  + (1 | gender)
+  + (1 | nuc_str_syl)
+)
+
+optimizer = "optimx"
+
+nuc_data <- nuc_data %>%
+  mutate(h_t_re_ft_dur = h_t  / (foot_end_t - v_onset_t))
+
+nuc_h_t_re_ft_dur_mdl = lmer(
+  h_t_re_ft_dur_equation,
+  nuc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+nuc_h_t_re_ft_dur_mdl <- nuc_h_t_re_ft_dur_mdl %>% optimizeModel()
+ mdl_summary <- summariseLME(nuc_h_t_re_ft_dur_mdl,
+             run_step = T,
+             print_summary = F
+             )
+
+
+mdl_summary <- summariseLME(nuc_h_t_re_ft_dur_mdl,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_h_t_re_ft_dur_anova.csv")
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_h_t_re_ft_dur_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste(
+    "ANOVA of model:",
+    getModelFormula(nuc_h_t_re_ft_dur_mdl)
+  ))
+```
+
+```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+nuc_h_t_re_ft_dur_mdl.tidy <- analyseModel(nuc_h_t_re_ft_dur_mdl,
+                                write="5_nuc_output/nuc_h_t_re_ft_dur",
+                                type = "pred",
+                                y_lab = "h_t / e_t",
+                                y_lim = c(0.5, 1),
+                                breaks = seq(0.5, 1, 0.1),
+                                plot_rounding = 2,
+                                panel_prefix = "a. "
+                                )
+
+printTidyPredictions(nuc_h_t_re_ft_dur_mdl)
+
+charts <- getModelFixedFX(
+  nuc_h_t_re_ft_dur_mdl,
+  write="5_nuc_output/nuc_h_t_re_ft_dur_mdl"
+)
+
+charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(
           any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.),2))) %>% tidyStatNumbers()
+          ~ round(as.numeric(.),2)))
 ```

@@ -1,2 +1,2 @@
 term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
-foot_syls,91.68,30.56,3,13.723,25.993,6.3e-06,2.2e-05,p<.001
+foot_syls,91.68,30.56,3,13.723,25.993,6.3e-06,1.8e-05,_p_ < .05

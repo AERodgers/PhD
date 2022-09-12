@@ -316,7 +316,7 @@ nuc_pa_only_charts <- getModelFixedFX(
 
 
 nuc_pa_only_charts$intercepts
-nuc_pa_only_charts$slopes
+nuc_pa_only_charts$slopes %>% tidyStatNumbers()
 ```
 
 ```{r `high reg. or nuc. PA only` model}
@@ -406,6 +406,6 @@ h_reg_or_charts <- getModelFixedFX(
 
 
 h_reg_or_charts$intercepts
-h_reg_or_charts$slopes
+h_reg_or_charts$slopes %>% tidyStatNumbers()
 
 ```

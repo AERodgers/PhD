@@ -1,0 +1,1 @@
+h_t_re_ft_dur ~ acc_phon * foot_syls + (1 | speaker) + (1 | gender) + (1 | ana_syls) + (1 | wrd_end_syl) + (1 | pn_str_syl)

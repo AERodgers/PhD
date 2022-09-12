@@ -798,5 +798,5 @@ charts <- getModelFixedFX(
   is_GLM=T
 )
 charts$intercepts
-charts$slopes
+charts$slopes %>% tidyStatNumbers()
 ```
