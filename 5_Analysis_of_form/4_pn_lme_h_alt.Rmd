@@ -256,7 +256,7 @@ h_t_re_ft_dur_equation = formula(
 optimizer = "optimx"
 
 pn_h_data <- pn_h_data %>%
-  mutate(h_t_re_ft_dur = h_t  / (foot_end_t - v_onset_t))
+  mutate(h_t_re_ft_dur = h_t / (foot_end_t - v_onset_t))
 
 pn_h_t_re_ft_dur_mdl = lmer(
   h_t_re_ft_dur_equation,
@@ -303,7 +303,7 @@ mdl_summary$omega2
 pn_h_t_re_ft_dur_mdl.tidy <- analyseModel(pn_h_t_re_ft_dur_mdl.trimmed,
                                 write="4_pn_output/pn_h_t_re_ft_dur",
                                 type = "pred",
-                                y_lab = "h_t  / (foot_end_t - v_onset_t)",
+                                y_lab = "h_t/(foot_end_t-v_onset_t)",
                                 y_lim = c(0, 1),
                                 breaks = seq(0, 1, 0.2),
                                 plot_rounding = 2,
@@ -316,6 +316,19 @@ charts <- getModelFixedFX(pn_h_t_re_ft_dur_mdl.trimmed,
 charts$slopes %>% tidyStatNumbers() %>% 
   mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
   ~ round(as.numeric(.), 2)))
+```
+## Analysis of PN peak timing by individual acc_phon
+
+```{r acc_phon by ana_syls}
+pn_h_data %>%
+  group_by(acc_phon, ana_syls) %>%
+  mutate(acc_phon = str_replace_all(acc_phon, "([\\*\\[\\^\\>])", "\\\\\\1")) %>% 
+  summarise(acc_count = n(), .groups = "keep") %>%
+  pivot_wider(names_from = "acc_phon",
+              values_from = acc_count,
+              values_fill = 0) %>% 
+
+  formattable(caption = "acc\\_phon by ana\\_syls in pn\\_h_\\t.trimmed")
 ```
 
 ### Analysis of PN peak timing in L*H only
