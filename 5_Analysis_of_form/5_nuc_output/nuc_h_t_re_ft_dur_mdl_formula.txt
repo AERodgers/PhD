@@ -1,1 +1,1 @@
-h_t_re_ft_dur ~ foot_syls + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | nuc_str_syl)
+h_t as ratio of foot ~ foot_syls + (1 | speaker) + (1 | fin_phon) + (1 | gender) + (1 | nuc_str_syl)

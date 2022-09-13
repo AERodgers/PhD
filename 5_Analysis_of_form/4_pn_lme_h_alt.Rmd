@@ -163,7 +163,10 @@ pn_h_t_alt_mdl.tidy$table %>% tidyStatNumbers()
 ```{r do h_t pairwise analysis, results = "asis"}
 printTidyPredictions(pn_h_t_alt_mdl.trimmed)
 charts <- getModelFixedFX(pn_h_t_alt_mdl.trimmed)
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of H F0 and stress clash
@@ -237,86 +240,7 @@ pn_h_f0_alt_mdl.tidy$table %>% tidyStatNumbers()
 ```{r do h_f0 pairwise analysis, results = "asis"}
 printTidyPredictions(pn_h_f0_alt_mdl)
 ```
-### Analysis of PN Peak timing proportional to foot
 
-```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
-
-
-h_t_re_ft_dur_equation = formula(
-  h_t_re_ft_dur ~ 
-    acc_phon * foot_syls
-  + (1 | speaker)
-  + (1 | gender)
-  + (1 | ana_syls)
-  + (1 | wrd_end_syl)
-  + (1 | pn_str_syl)
-
-)
-
-optimizer = "optimx"
-
-pn_h_data <- pn_h_data %>%
-  mutate(h_t_re_ft_dur = h_t / (foot_end_t - v_onset_t))
-
-pn_h_t_re_ft_dur_mdl = lmer(
-  h_t_re_ft_dur_equation,
-  pn_h_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = F,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = F,
-      kkt = F
-    )
-  )
-)
-
-pn_h_t_re_ft_dur_mdl <- pn_h_t_re_ft_dur_mdl %>% optimizeModel()
- mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl,
-             run_step = T,
-             print_summary = F
-             )
-
-
-pn_h_t_re_ft_dur_mdl.trimmed = update(pn_h_t_re_ft_dur_mdl,
-                                   data = pn_h_data %>%
-                                     filter(abs(scale(resid(
-                                       pn_h_t_re_ft_dur_mdl
-                                     ))) <= 2.5))
- 
-mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl.trimmed,
-                            run_step = F,
-                            write = "4_pn_output/pn_h_t_re_ft_dur_anova.csv")
-
-adjustP_posthoc("4_pn_output/",
-                p.value,
-                suffix_id = "_anova")
-
-
-
-```
-
-```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
-mdl_summary$omega2
-
-pn_h_t_re_ft_dur_mdl.tidy <- analyseModel(pn_h_t_re_ft_dur_mdl.trimmed,
-                                write="4_pn_output/pn_h_t_re_ft_dur",
-                                type = "pred",
-                                y_lab = "h_t/(foot_end_t-v_onset_t)",
-                                y_lim = c(0, 1),
-                                breaks = seq(0, 1, 0.2),
-                                plot_rounding = 2,
-                                panel_prefix = "a. "
-                                )
-
-printTidyPredictions(pn_h_t_re_ft_dur_mdl.trimmed)
-charts <- getModelFixedFX(pn_h_t_re_ft_dur_mdl.trimmed,
-                          write = "4_pn_output/pn_h_t_re_ft_dur_mdl")
-charts$slopes %>% tidyStatNumbers() %>% 
-  mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
-  ~ round(as.numeric(.), 2)))
-```
 ## Analysis of PN peak timing by individual acc_phon
 
 ```{r acc_phon by ana_syls}
@@ -405,7 +329,7 @@ pn_h_t_lh_mdl.tidy <- analyseModel(
   breaks = seq(50, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "letters")
+  panel_prefix = "a. L*H-only: ")
 
 ```
 
@@ -416,7 +340,10 @@ charts <-
   getModelFixedFX(pn_h_t_lh_mdl.trimmed, 
                   write="4_pn_output/pn_h_t_lh"
                   )
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of PN peak timing in H* only
@@ -492,7 +419,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   breaks = seq(50, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "letters")
+  panel_prefix = "b. H*-only: ")
 
 ```
 
@@ -503,7 +430,93 @@ charts <-
   getModelFixedFX(pn_h_t_h_mdl.trimmed, 
                   write="4_pn_output/pn_h_t_h"
                   )
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0)))
 ```
 
 
+### Analysis of PN Peak timing proportional to foot
+```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
+
+
+h_t_re_ft_dur_equation = formula(
+  `h_t as ratio of foot` ~ 
+    foot_syls
+  + (1 | speaker)
+  + (1 | gender)
+  + (1 | ana_syls)
+  + (1 | wrd_end_syl)
+  + (1 | pn_str_syl)
+
+)
+
+optimizer = "optimx"
+
+pn_h_data_lh <- pn_h_data %>%
+  mutate(`h_t as ratio of foot` = h_t / (foot_end_t - v_onset_t)) %>% 
+  filter(acc_phon == "L*H")
+
+pn_h_t_re_ft_dur_mdl = lmer(
+  h_t_re_ft_dur_equation,
+  pn_h_data_lh,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+pn_h_t_re_ft_dur_mdl <- pn_h_t_re_ft_dur_mdl %>% optimizeModel()
+ mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl,
+             run_step = T,
+             print_summary = F
+             )
+
+
+pn_h_t_re_ft_dur_mdl.trimmed = update(pn_h_t_re_ft_dur_mdl,
+                                   data = pn_h_data_lh %>%
+                                     filter(abs(scale(resid(
+                                       pn_h_t_re_ft_dur_mdl
+                                     ))) <= 2.5))
+ 
+mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl.trimmed,
+                            run_step = F,
+                            write = "4_pn_output/pn_h_t_re_ft_dur_anova.csv")
+
+adjustP_posthoc("4_pn_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("4_pn_output/pn_h_t_re_ft_dur_anova.csv") %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(pn_h_t_re_ft_dur_mdl.trimmed)))
+
+```
+
+```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+pn_h_t_re_ft_dur_mdl.tidy <- analyseModel(pn_h_t_re_ft_dur_mdl.trimmed,
+                                write="4_pn_output/pn_h_t_re_ft_dur",
+                                type = "pred",
+                                y_lab = "time (proportion)",
+                                y_lim = c(0, 1),
+                                breaks = seq(0, 1, 0.2),
+                                plot_rounding = 2,
+                                panel_prefix = "a. "
+                                )
+
+printTidyPredictions(pn_h_t_re_ft_dur_mdl.trimmed)
+charts <- getModelFixedFX(pn_h_t_re_ft_dur_mdl.trimmed,
+                          write = "4_pn_output/pn_h_t_re_ft_dur_mdl")
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
+  ~ round(as.numeric(.), 2)))
+```

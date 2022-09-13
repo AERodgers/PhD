@@ -257,7 +257,10 @@ pn_l_t_mdl.tidy <- analyseModel(
 printTidyPredictions(pn_l_t_mdl.trimmed)
 
 charts <- getModelFixedFX(pn_l_t_mdl.trimmed, write="4_pn_output/pn_l_t")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0)))
 ```
 
 
@@ -350,7 +353,10 @@ pn_l_f0_mdl.tidy <- analyseModel(
 printTidyPredictions(pn_l_f0_mdl)
 
 charts <- getModelFixedFX(pn_l_f0_mdl, write = "4_pn_output/pn_l_f0")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers()%>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),1)))
 ```
 
 
@@ -544,7 +550,10 @@ printTidyPredictions(pn_h_t_mdl.trimmed)
 
 charts <-
   getModelFixedFX(pn_h_t_mdl.trimmed, write="4_pn_output/pn_h_t")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),0)))
 ```
 
 ### Analysis of H F0
@@ -622,7 +631,10 @@ pn_h_f0_mdl.tidy <- analyseModel(
 printTidyPredictions(pn_h_f0_mdl)
 
 charts <- getModelFixedFX(pn_h_f0_mdl, write="4_pn_output/pn_h_f0")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),1)))
 ```
 
 
@@ -783,7 +795,10 @@ printTidyPredictions(pn_f0_exc_mdl.trimmed)
 
 charts <- getModelFixedFX(pn_f0_exc_mdl.trimmed,
                 write = "4_pn_output/pn_f0_exc")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers()%>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),1)))
 ```
 
 ### LH Slope
@@ -899,7 +914,10 @@ printTidyPredictions(pn_lh_slope_mdl.trimmed)
 
 charts <- getModelFixedFX(pn_lh_slope_mdl.trimmed,
                 write = "4_pn_output/pn_lh_slope")
-charts$slopes %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),2)))
 ```
 
 
