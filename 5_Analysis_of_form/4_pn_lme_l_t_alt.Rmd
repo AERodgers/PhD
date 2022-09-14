@@ -176,7 +176,8 @@ pn_l_t_mdl_late.tidy <- analyseModel(
   type = NULL,
   factor_matrix = T,
   y_lab = "time (ms)",
-  y_lim = c(-75, 125)
+  y_lim = c(-80, 180),
+  breaks = seq(-80, 180, 40)
   )
 
 

@@ -537,8 +537,8 @@ pn_h_t_mdl.tidy <- analyseModel(
   write="4_pn_output/pn_h_t",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(40, 300),
-  breaks = seq(50, 300, 100),
+  y_lim = c(0, 350),
+  breaks = seq(0, 350, 100),
   plot_rounding = 0,
   hjust = 1,
   panel_prefix = "a. ")
@@ -621,9 +621,9 @@ pn_h_f0_mdl.tidy <- analyseModel(
   write = "4_pn_output/pn_h_f0",
   type = "pred",
   y_lab = "f0 (ST re median)",
-  y_lim = c(-1, 4),
+  y_lim = c(-1, 4.5),
+  breaks = seq(-1, 4.5, 1),
   plot_rounding =  1,
-  breaks = seq(-1, 4, 1),
   panel_prefix = "b. ")
 ```
 

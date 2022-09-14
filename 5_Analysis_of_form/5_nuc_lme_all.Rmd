@@ -73,6 +73,7 @@ nuc_data <- nuc %>%
     foot_dur,
     foot_start_t,
     foot_end_t,
+    h_t_foot_ratio,
     speech_rate
   )
 
@@ -188,8 +189,8 @@ nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                  write = "5_nuc_output/nuc_l_t",
                                  type = "pred",
                                  y_lab = "time (ms)",
-                                 y_lim = c(-0, 140),
-                                 breaks = seq(-0, 140, 40),
+                                 y_lim = c(-0, 650),
+                                 breaks = seq(-0, 650, 100),
                                  plot_rounding = 0,
                                  panel_prefix = "a. "
                                  )
@@ -265,8 +266,8 @@ nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                   write = "5_nuc_output/nuc_l_f0",
                                   type = "pred",
                                   y_lab = "f0 (ST re median)",
-                                  y_lim = c(-4.5, 0),
-                                  breaks = seq(-4.5, 0, 1),
+                                  y_lim = c(-7, 4.5),
+                                  breaks = seq(-7, 4.5, 2),
                                   plot_rounding = 1,
                                   panel_prefix = "b. "
                                   )
@@ -395,8 +396,8 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 write="5_nuc_output/nuc_h_t",
                                 type = "pred",
                                 y_lab = "time (ms)",
-                                y_lim = c(150, 550),
-                                breaks = seq(150, 550, 100),
+                                y_lim = c(0, 650),
+                                breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
                                 panel_prefix = "a. "
                                 )
@@ -474,8 +475,8 @@ nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_h_f0",
                                 type = "pred",
                                 y_lab = "f0 (ST re median)",
-                                y_lim = c(-1.5, 4.5),
-                                breaks = seq(-1.5, 4.5, 1),
+                                y_lim = c(-7, 4.5),
+                                breaks = seq(-7, 4.5, 2),
                                 plot_rounding = 1,
                                 panel_prefix = "b. "
                                 )
@@ -610,8 +611,8 @@ nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_t",
                                 type = "pred",
                                 y_lab = "time (ms)",
-                                y_lim = c(200, 650),
-                                breaks = seq(200, 650, 100),
+                                y_lim = c(0, 650),
+                                breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
                                 panel_prefix = "a. "
                                 )
@@ -693,8 +694,8 @@ nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
                                 write="5_nuc_output/nuc_e_f0",
                                 type = "pred",
                                 y_lab = "f0 (ST re median)",
-                                y_lim = c(-7, 3.5),
-                                breaks = seq(-7, 3.5, 2),
+                                y_lim = c(-7, 4.5),
+                                breaks = seq(-7, 4.5, 2),
                                 plot_rounding = 1,
                                 panel_prefix = "letters"
                                 )
@@ -774,11 +775,10 @@ ggsave("5_nuc_output/e_target_binomial.png",
 
 f0_exc_equation = formula(
  f0_exc ~ 
-   foot_syls
+   foot_syls + fin_phon
  + (1 + foot_syls | speaker)
  + (1 | nuc_str_syl)
  + (1 | pre_syls)
- + (1 | fin_phon)
 )
 
 optimizer = "optimx"
@@ -800,15 +800,28 @@ nuc_f0_exc_mdl = lmer(
   )
 )
 
-nuc_f0_exc_mdl <- optimizeModel(nuc_f0_exc_mdl)
+#nuc_f0_exc_mdl <- optimizeModel(nuc_f0_exc_mdl)
 mdl_summary <- summariseLME(nuc_f0_exc_mdl,
              run_step = F, print_summary = F)
 
 
-nuc_f0_exc_mdl.trimmed = update(
-  nuc_f0_exc_mdl,
-  data = nuc_data %>% filter(abs(scale(resid(nuc_f0_exc_mdl))) <= 2.5)
+nuc_f0_exc_mdl.trimmed = lmer(
+  f0_exc_equation,
+  data = nuc_data %>% filter(abs(scale(
+    resid(nuc_f0_exc_mdl)
+  )) <= 2.5),
+  control = lmerControl(
+    optimizer = "nloptwrap",
+    optCtrl = list(
+      algorithm = "NLOPT_LN_COBYLA",
+      maxfun = 1e9,
+      maxeval = 1e7,
+      xtol_abs = 1e-9,
+      ftol_abs = 1e-9
+    )
   )
+)
+ nuc_f0_exc_mdl.trimmed <- optimizeModel(nuc_f0_exc_mdl.trimmed)                               
 
 mdl_summary <- summariseLME(nuc_f0_exc_mdl.trimmed,
                             run_step = F,
@@ -877,11 +890,10 @@ nuc_data <- nuc_data %>%
 
 lh_slope_equation = formula(
   log_lh_slope ~
-    foot_syls
+    foot_syls + fin_phon
   + (1 + foot_syls | speaker)
   + (1 | nuc_str_syl)
   + (1 | pre_syls)
-  + (1 | fin_phon)
   )
 optimizer = "optimx"
 ```
@@ -901,7 +913,7 @@ nuc_lh_slope_mdl = lmer(
     )
   )
 )
-nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = T, reject_nm = T)
+nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = F, reject_nm = T)
 
 # model needs trimming
 nuc_lh_slope_mdl.trimmed = update(
@@ -980,12 +992,122 @@ ggsave("5_nuc_output/nuc_truncation_params.png",
        height = 6.5,
        units = "cm")
 ```
+```{r lh_dur model, fig.height=3, fig.width=9}
+lh_dur_mdl <-
+  lmer(lh_dur ~ foot_syls + fin_phon + (1 + foot_syls |
+                               speaker), data = nuc_data) %>%
+  optimizeModel()
+
+lh_dur_mdl <- update(lh_dur_mdl, data = nuc_data %>% 
+                       filter(abs(scale(resid(lh_dur_mdl))) <= 3))
+mdl_summary <- summariseLME(lh_dur_mdl,
+                            run_step = F,
+                            write = "5_nuc_output/lh_dur_mdl_anova.csv")
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/lh_dur_mdl_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(lh_dur_mdl)))
+```
+
+
+```{r lh_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+
+mdl_summary$omega2
+printTidyPredictions(lh_dur_mdl)
+```
 
 
 ## Additional model
 
-### H time proportional to duration of voicing and duration of foot
+### H time proportional to duration of foot
 
+
+```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
+### Analysis of E timing
+# E timing is not of much interest as it is just the last f0 time point in the IP
+
+h_t_re_ft_dur_equation = formula(
+  `h_t as ratio of foot` ~ 
+    foot_syls
+  + (1 | speaker)
+  + (1 | gender)
+  + (1 | pre_syls)
+  + (1 | nuc_new_word)
+  + (1 | nuc_str_syl)
+  + (1 | fin_phon)
+)
+
+optimizer = "optimx"
+
+nuc_data <- nuc_data %>%
+  mutate(`h_t as ratio of foot` = h_t_foot_ratio)
+
+nuc_h_t_re_ft_dur_mdl = lmer(
+  h_t_re_ft_dur_equation,
+  nuc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+nuc_h_t_re_ft_dur_mdl <- nuc_h_t_re_ft_dur_mdl %>% optimizeModel()
+
+
+mdl_summary <- summariseLME(nuc_h_t_re_ft_dur_mdl,
+                            run_step = F,
+                            write = "5_nuc_output/nuc_h_t_re_ft_dur_anova.csv")
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_h_t_re_ft_dur_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste(
+    "ANOVA of model:",
+    getModelFormula(nuc_h_t_re_ft_dur_mdl)
+  ))
+```
+
+```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+nuc_h_t_re_ft_dur_mdl.tidy <- analyseModel(nuc_h_t_re_ft_dur_mdl,
+                                write="5_nuc_output/nuc_h_t_re_ft_dur",
+                                type = "pred",
+                                y_lab = "time (proportion)",
+                                y_lim = c(0, 1.2),
+                                breaks = seq(0, 1.2, 0.2),
+                                plot_rounding = 2,
+                                panel_prefix = "a. ",
+                                short_caption = T
+                                )
+
+printTidyPredictions(nuc_h_t_re_ft_dur_mdl)
+
+charts <- getModelFixedFX(
+  nuc_h_t_re_ft_dur_mdl,
+  write="5_nuc_output/nuc_h_t_re_ft_dur_mdl"
+)
+
+charts$slopes %>% tidyStatNumbers() %>% 
+  mutate(across(
+          any_of(c("estimate", "conf.low", "conf.high")),
+          ~ round(as.numeric(.),2)))
+```
+
+### H time proportional to duration of voicing
 
 ```{r  nuc_h_t_re_v_dur, fig.height=3, fig.width=9}
 ### Analysis of E timing
@@ -995,9 +1117,11 @@ nuc_h_t_re_v_dur_equation = formula(
   `h_t as ratio of voicing` ~ 
     foot_syls
   + (1 | speaker)
-  + (1 | fin_phon)
   + (1 | gender)
+  + (1 | pre_syls)
+  + (1 | nuc_new_word)
   + (1 | nuc_str_syl)
+  + (1 | fin_phon)
 )
 
 optimizer = "optimx"
@@ -1069,10 +1193,11 @@ nuc_h_t_re_v_dur_mdl.tidy <- analyseModel(nuc_h_t_re_v_dur_mdl.trimmed,
                                 write="5_nuc_output/nuc_nuc_h_t_re_v_dur",
                                 type = "pred",
                                 y_lab = "time (proportion)",
-                                y_lim = c(0, 1),
-                                breaks = seq(0, 1, 0.2),
+                                y_lim = c(0, 1.2),
+                                breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                panel_prefix = "a. "
+                                panel_prefix = "b. ",
+                                short_caption = T
                                 )
 
 printTidyPredictions(nuc_h_t_re_v_dur_mdl.trimmed)
@@ -1086,86 +1211,3 @@ charts$slopes %>% tidyStatNumbers() %>%
   ~ round(as.numeric(.), 2)))
 ```
 
-
-
-```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
-### Analysis of E timing
-# E timing is not of much interest as it is just the last f0 time point in the IP
-
-h_t_re_ft_dur_equation = formula(
-  `h_t as ratio of foot` ~ 
-    foot_syls
- #+ fin_phon
-  + (1 | speaker)
-  + (1 | fin_phon)
-  + (1 | gender)
-  + (1 | nuc_str_syl)
-)
-
-optimizer = "optimx"
-
-nuc_data <- nuc_data %>%
-  mutate(`h_t as ratio of foot` = h_t  / (foot_end_t - v_onset_t))
-
-nuc_h_t_re_ft_dur_mdl = lmer(
-  h_t_re_ft_dur_equation,
-  nuc_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = F,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = F,
-      kkt = F
-    )
-  )
-)
-
-nuc_h_t_re_ft_dur_mdl <- nuc_h_t_re_ft_dur_mdl %>% optimizeModel()
- mdl_summary <- summariseLME(nuc_h_t_re_ft_dur_mdl,
-             run_step = T,
-             print_summary = F
-             )
-
-
-mdl_summary <- summariseLME(nuc_h_t_re_ft_dur_mdl,
-                            run_step = F,
-                            write = "5_nuc_output/nuc_h_t_re_ft_dur_anova.csv")
-
-adjustP_posthoc("5_nuc_output/",
-                p.value,
-                suffix_id = "_anova")
-
-read_csv("5_nuc_output/nuc_h_t_re_ft_dur_anova.csv") %>%
-  tidyStatNumbers() %>%
-  formattable(caption = paste(
-    "ANOVA of model:",
-    getModelFormula(nuc_h_t_re_ft_dur_mdl)
-  ))
-```
-
-```{r h_t_re_ft_dur model analysis, fig.height=2.5, fig.width=2.823, results="asis"}
-mdl_summary$omega2
-
-nuc_h_t_re_ft_dur_mdl.tidy <- analyseModel(nuc_h_t_re_ft_dur_mdl,
-                                write="5_nuc_output/nuc_h_t_re_ft_dur",
-                                type = "pred",
-                                y_lab = "time (proportion)",
-                                y_lim = c(0, 1),
-                                breaks = seq(0, 1, 0.2),
-                                plot_rounding = 2,
-                                panel_prefix = "b. "
-                                )
-
-printTidyPredictions(nuc_h_t_re_ft_dur_mdl)
-
-charts <- getModelFixedFX(
-  nuc_h_t_re_ft_dur_mdl,
-  write="5_nuc_output/nuc_h_t_re_ft_dur_mdl"
-)
-
-charts$slopes %>% tidyStatNumbers() %>% 
-  mutate(across(
-          any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.),2)))
-```

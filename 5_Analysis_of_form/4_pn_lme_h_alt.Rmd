@@ -46,17 +46,7 @@ source("0_get_AH.R")
 
 h_star_type <-  c("L*H", ">H*", "H*")
 pn_h_data <- pn %>%
-  select(speaker,
-         gender,
-         acc_phon,
-         ana_syls,
-         foot_syls,
-         wrd_end_syl,
-         pn_str_syl,
-         h_t,
-         h_f0,
-         foot_end_t,
-         v_onset_t) %>%
+
   mutate(stress_clash = factor((foot_syls == 1), levels = c(F, T)))  %>%
   filter(acc_phon %in% h_star_type)
 
@@ -230,6 +220,8 @@ pn_h_f0_alt_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "f0 (ST re speaker median)",
   hjust = 1.5,
+  y_lim = c(-1, 4.5),
+  breaks = seq(-1, 4.5, 1),
   plot_rounding =  1
 )
 pn_h_f0_alt_mdl.tidy$table %>% tidyStatNumbers()
@@ -326,7 +318,7 @@ pn_h_t_lh_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "time (ms)",
   y_lim = c(0, 350),
-  breaks = seq(50, 350, 100),
+  breaks = seq(0, 350, 100),
   plot_rounding = 0,
   hjust = 1,
   panel_prefix = "a. L*H-only: ")
@@ -416,7 +408,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "time (ms)",
   y_lim = c(0, 350),
-  breaks = seq(50, 350, 100),
+  breaks = seq(0, 350, 100),
   plot_rounding = 0,
   hjust = 1,
   panel_prefix = "b. H*-only: ")
@@ -439,23 +431,21 @@ charts$slopes %>% tidyStatNumbers() %>%
 
 ### Analysis of PN Peak timing proportional to foot
 ```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
-
-
 h_t_re_ft_dur_equation = formula(
   `h_t as ratio of foot` ~ 
     foot_syls
   + (1 | speaker)
   + (1 | gender)
   + (1 | ana_syls)
-  + (1 | wrd_end_syl)
+  #+ (1 | pn_new_word)
   + (1 | pn_str_syl)
-
+  + (1 | wrd_end_syl)
 )
 
 optimizer = "optimx"
 
 pn_h_data_lh <- pn_h_data %>%
-  mutate(`h_t as ratio of foot` = h_t / (foot_end_t - v_onset_t)) %>% 
+  mutate(`h_t as ratio of foot` = h_t_foot_ratio)  %>% 
   filter(acc_phon == "L*H")
 
 pn_h_t_re_ft_dur_mdl = lmer(
@@ -471,23 +461,39 @@ pn_h_t_re_ft_dur_mdl = lmer(
     )
   )
 )
+  
+
 
 pn_h_t_re_ft_dur_mdl <- pn_h_t_re_ft_dur_mdl %>% optimizeModel()
  mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl,
-             run_step = T,
+             run_step = F,
              print_summary = F
              )
 
 
-pn_h_t_re_ft_dur_mdl.trimmed = update(pn_h_t_re_ft_dur_mdl,
-                                   data = pn_h_data_lh %>%
-                                     filter(abs(scale(resid(
-                                       pn_h_t_re_ft_dur_mdl
-                                     ))) <= 2.5))
+ pn_h_t_re_ft_dur_mdl.trimmed = lmer(
+   pn_h_t_re_ft_dur_mdl,
+   data = pn_h_data_lh %>%
+     filter(abs(scale(
+       resid(pn_h_t_re_ft_dur_mdl)
+     )) <= 2.5),
+   control = lmerControl(
+     optimizer = optimizer,
+     calc.derivs = F,
+     optCtrl = list(
+       method = "nlminb",
+       starttests = F,
+       kkt = F
+     )
+   )
+ )
+ pn_h_t_re_ft_dur_mdl.trimmed <- pn_h_t_re_ft_dur_mdl.trimmed %>% optimizeModel()
  
-mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl.trimmed,
-                            run_step = F,
-                            write = "4_pn_output/pn_h_t_re_ft_dur_anova.csv")
+ 
+ mdl_summary <- summariseLME(pn_h_t_re_ft_dur_mdl.trimmed,
+                             run_step = F,
+                             write = "4_pn_output/pn_h_t_re_ft_dur_anova.csv")
+
 
 adjustP_posthoc("4_pn_output/",
                 p.value,
@@ -507,10 +513,10 @@ pn_h_t_re_ft_dur_mdl.tidy <- analyseModel(pn_h_t_re_ft_dur_mdl.trimmed,
                                 write="4_pn_output/pn_h_t_re_ft_dur",
                                 type = "pred",
                                 y_lab = "time (proportion)",
-                                y_lim = c(0, 1),
-                                breaks = seq(0, 1, 0.2),
+                                y_lim = c(0, 1.2),
+                                breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                panel_prefix = "a. "
+                                panel_prefix = "letters"
                                 )
 
 printTidyPredictions(pn_h_t_re_ft_dur_mdl.trimmed)
