@@ -481,7 +481,9 @@ analyseModel <-
            panel_prefix = NULL,
            breaks = waiver(),
            hjust = "inward",
-           per_row = 2
+           per_row = 2,
+           page_width = 15.5,
+           short_caption = F
            )
   {
     require("formattable")
@@ -510,8 +512,15 @@ analyseModel <-
       "p.value"
     )
 
+    if (per_row < 3){short_caption = T}
+
     my_stat = enquo(my_stat)
 
+    if (!short_caption){
+      pred_prefix = "Predicted "}
+    else{
+      pred_prefix = " "
+    }
     if (is_GLM) {
       my_headers <- my_headers[my_headers != "df"]
     }
@@ -623,7 +632,7 @@ analyseModel <-
           png(
             filename =
               paste0(write, "_re_", cur_factor, "_pred.png"),
-            width =  15.25 / per_row,
+            width =  page_width / per_row,
             height = 6.5,
             units = "cm",
             res = 300
@@ -686,7 +695,7 @@ analyseModel <-
             png(
               filename =
                 paste0(write, "_re_", cur_factor, "_pred.png"),
-              width =  15.25 / per_row,
+              width =  page_width / per_row,
               height = 6.5,
               units = "cm",
               res = 300
@@ -736,16 +745,19 @@ analyseModel <-
           lettering = panel_prefix
         }
 
-
+        if (!short_caption){
+          caption_suffix = paste0(" re ",
+          cur_factor)}
+        else{
+          caption_suffix = ""
+        }
          my_plot <- ggpredict(my_model,
                              terms = paste(cur_factor, all),
                              ci.lvl = ci.lvl) %>%
           plot() +
           ylab(y_lab) +
-          labs(caption = paste0 (lettering, "Predicted ",
-                                 dependent_var,
-                                 " re ",
-                                 cur_factor, ".")) +
+          labs(caption = paste0 (lettering, pred_prefix,
+                                 dependent_var, caption_suffix, ".")) +
           geom_label(aes(label = round(predicted, plot_rounding)),
                      label.padding = unit(0.5, "mm"),
                      label.r = unit(0.0, "mm"),
@@ -765,7 +777,7 @@ analyseModel <-
            png(
              filename =
                paste0(write, "_re_", cur_factor, "_pred.png"),
-             width =  15.25 / per_row,
+             width =  page_width / per_row,
              height = 6.5,
              units = "cm",
              res = 300
