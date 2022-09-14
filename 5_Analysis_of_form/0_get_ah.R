@@ -114,6 +114,8 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     # redo excursion based on z-scores
     f0_exc_z = h_f0_z - l_f0_z,
     e_f0_exc_z = e_f0_z - h_f0_z,
+    # get ratio of h_t to foot_dur
+    h_t_foot_ratio = (h_t - foot_start_t) /  (foot_end_t - foot_start_t),
     # Make L and H times relative to vowel onset (TBU).
     s_t = s_t - v_onset_t,
     l_t = l_t - v_onset_t,
@@ -203,6 +205,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
          l_f0,
          h_t,
          h_f0,
+         h_t_foot_ratio,
          f0_exc,
          lh_dur,
          lh_slope,
