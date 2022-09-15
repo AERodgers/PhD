@@ -482,7 +482,7 @@ analyseModel <-
            breaks = waiver(),
            hjust = "inward",
            per_row = 2,
-           page_width = 15.5,
+           page_width = 15.4,
            short_caption = F
            )
   {
