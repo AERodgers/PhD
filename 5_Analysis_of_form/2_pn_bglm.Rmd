@@ -98,6 +98,7 @@ isLH_equation <- formula(isLH ~
 
 #### Run isLH model
 
+
 ```{r run isLH models}
 lh_pn_model <- bglmer(
   isLH_equation,
@@ -107,28 +108,46 @@ lh_pn_model <- bglmer(
   glmerControl(optimizer = "nlminbwrap",
                tol = 2e-5)
 )
-lh_pn_model <- optimizeModel(lh_pn_model, reject_nm = T)
+lh_pn_model <- optimizeModel(lh_pn_model, reject_nm = T, checks = c("nloptwrap"))
 summary(lh_pn_model)
 
 ```
 
-```{r random LH effects 3, 4, fig.height=3, fig.width=3.05}
+
+```{r random LH effect 1, fig.height=4, fig.width=3.05}
 plot_model(lh_pn_model,
            type="re",
            show.values = T, ci.lvl= 0.95,
+           value.offset = .31
+           )[[1]]
+```
+
+```{r random LH effect 2, fig.height=5, fig.width=6.1}
+
+plot_model(lh_pn_model,
+           type="re",
+           value.offset = .25,
+           show.values = T, ci.lvl= 0.95,
+           )[[2]] +
+  theme(axis.title.x = element_text(size = 9),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.title = element_text(hjust = 0, size = 10),
+        axis.text.x = element_blank(),
+        plot.caption.position = "plot")
+
+```
+
+```{r random LH effect 3 and 4, fig.height=3, fig.width=3.05}
+plot_model(lh_pn_model,
+           type="re",
+           show.values = T, ci.lvl= 0.95,
+           value.offset = .35
            )[[3]]
 plot_model(lh_pn_model,
            type="re",
            show.values = T, ci.lvl= 0.95,
+           value.offset = .35
            )[[4]]
-```
-
-
-```{r random LH effect 2, fig.height=3, fig.width=6.1}
-plot_model(lh_pn_model,
-           type="re",
-           show.values = T, ci.lvl= 0.95,
-           )[[2]]
 
 ```
 
@@ -164,7 +183,15 @@ cat(
   isSingular(lh_pn_model, tol = 1e-5),
   "\n"
 )
-
+tidy_summary <- analyseModel(lh_pn_model,
+                             write = "2_output/lh_model_3",
+                             is_GLM = T,
+                             type = "pred",
+                             ci.lvl=0.95,
+                             breaks = seq(0, 1, 0.2),
+                             panel_prefix = "letters",
+                             plot_rounding = 2,
+                             per_row = 3)
 tidy_summary <- analyseModel(lh_pn_model,
                              write = "2_output/lh_model",
                              is_GLM = T,
@@ -214,9 +241,9 @@ h_star_model <- bglmer(isHStar_equation,
                        pn,
                        fixef.prior = normal(),
                        family = binomial(link = "logit"),
-                       glmerControl(optimizer = "nlminbwrap",
+                       glmerControl(optimizer = "bobyqa",
                                     tol = 2e-5))
-h_star_model <- optimizeModel(h_star_model, reject_nm = T)
+h_star_model <- optimizeModel(h_star_model, reject_nm = T, checks = c("allFit", "nloptwrap"))
 summary(h_star_model)
 ```
 
@@ -279,7 +306,15 @@ cat(
 )
 
 tidy_summary <- analyseModel(h_star_model,
-                             write = "2_output/h_star_model",
+                             write = "2_output_3",
+                             is_GLM = T,
+                             type = "pred",
+                             breaks = seq(0, 1, 0.2),
+                             panel_prefix = "letters",
+                             plot_rounding = 2,
+                             per_row = 3)
+tidy_summary <- analyseModel(h_star_model,
+                             write = "2_output",
                              is_GLM = T,
                              type = "pred",
                              breaks = seq(0, 1, 0.2),

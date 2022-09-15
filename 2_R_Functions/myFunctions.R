@@ -512,12 +512,12 @@ analyseModel <-
       "p.value"
     )
 
-    if (per_row < 3){short_caption = T}
+    if (per_row > 2){short_caption = T}
 
     my_stat = enquo(my_stat)
 
     if (!short_caption){
-      pred_prefix = "Predicted "}
+      pred_prefix = "Predicted probability "}
     else{
       pred_prefix = " "
     }
@@ -645,6 +645,7 @@ analyseModel <-
       }
       else{
         letters = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+
         cur_letter = 0
         for (cur_factor in fixed_factors) {
           if (typeof(my_model@frame[[cur_factor]]) == "double"){
@@ -654,16 +655,28 @@ analyseModel <-
             all = NULL
           }
 
-
           if (is.null(y_lab)){y_lab = cur_factor}
           cur_letter = cur_letter + (1 * cur_letter < length(letters))
 
-            if(panel_prefix == "letters") {
-              lettering = paste0((letters[cur_letter]), ".")
-            }
-          else{
+          if(is.null(panel_prefix)){
             lettering = ""
           }
+          else
+            if(panel_prefix == "letters") {
+              lettering = paste0((letters[cur_letter]), ". ")
+            }
+
+          else {
+            lettering = panel_prefix
+          }
+
+          # if (!short_caption){
+            caption_suffix = paste0(" re ", cur_factor)
+          #   }
+          # else{
+          #   caption_suffix = paste0(" re ",
+          #                           cur_factor)
+          # }
 
 
           my_plot <- ggpredict(my_model,
@@ -673,10 +686,8 @@ analyseModel <-
             xlab(cur_factor) +
             ylim(0,1) +
             ylab("predicted probability") +
-            labs(caption = paste (lettering, "Predicted probability of",
-                                  dependent_var,
-                                  "re",
-                                  cur_factor)) +
+            labs(caption = paste0 (lettering, pred_prefix,
+                                   dependent_var, caption_suffix, ".")) +
             scale_y_continuous(breaks=breaks, limits = c(0, 1)) +
             theme(plot.title=element_blank(),
                   axis.title.x=element_blank(),
