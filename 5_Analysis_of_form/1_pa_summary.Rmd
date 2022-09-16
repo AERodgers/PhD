@@ -10,11 +10,10 @@ output:
 knitr::opts_chunk$set(echo = F,
                       warning = F,
                       message = F)
-```
 
-```{r warning=T, message=F}
 # Load functions and packages
 source("../2_R_Functions/myFunctions.R") 
+source("../2_R_Functions/myColours.R") 
 installMissingPackages(c("tidyverse",
                          "knitr",
                          "speakr",
@@ -30,9 +29,7 @@ installMissingPackages(c("tidyverse",
 # PRAAT DIRECTORY
 # Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
-```
 
-```{r warning=F}
 # LOAD CORPUS
 # Read in AH corpus.
 source("0_get_AH.R")
@@ -140,10 +137,10 @@ pn_by_speaker_ratio %>%
   adorn_totals(where = "row") %>% 
   relocate(mean_speech_rate, .after = speaker) %>% 
   select(-gender) %>% 
-  mutate(mean_speech_rate = str_replace(mean_speech_rate,
+  mutate(mean_speech_rate = str_replace(round(mean_speech_rate, 2),
                                  as.character(max(mean_speech_rate)),
                                  "")) %>% 
-  rename(`mean speech rate (syls/sec)` = mean_speech_rate) %>% 
+  rename(`mean speech rate (syls/s)` = mean_speech_rate) %>% 
   formattable(
     caption = "Prenuclear pitch accent distribution (adjusted) and speech rate by speaker",
     list(area(
@@ -211,7 +208,7 @@ lh_plot <- ggplot(pn_by_speaker_ratio,
               col = "DarkRed") + stat_cor(method = "pearson",
                                           label.x = 5,
                                           label.y = 25) +
-  xlab("speech rate (syls/sec)") +
+  xlab("speech rate (syls/s)") +
   ylab("proportion of L*H") +
   labs(caption = "a. Correlation between L*H and speech rate") +
   theme(plot.caption=element_text(hjust = 0, size = 10),
@@ -225,13 +222,22 @@ h_plot <- ggplot(pn_by_speaker_ratio,
               col = "DarkRed") + stat_cor(method = "pearson",
                                           label.x = 5,
                                           label.y = 25) +
-  xlab("speech rate (syls/sec)") +
+  xlab("speech rate (syls/s)") +
   ylab("proportion of H*") +
   labs(caption = "b. Correlation between H* and speech rate") +
   theme(plot.caption=element_text(hjust = 0, size = 10),
         plot.caption.position= "plot")
 
-grid.arrange(lh_plot, h_plot, ncol = 2)
+my_plot <- grid.arrange(lh_plot, h_plot, ncol = 2)
+ggsave(filename =  paste0("1_output/correlation_plots.png"),
+       plot = my_plot,
+       device = "png",
+    width =  15.5,
+    height = 7.75,
+    units = "cm",
+    dpi = 300
+    )
+print(my_plot)
 ```
 
 

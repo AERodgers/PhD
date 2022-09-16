@@ -183,15 +183,15 @@ cat(
   isSingular(lh_pn_model, tol = 1e-5),
   "\n"
 )
-tidy_summary <- analyseModel(lh_pn_model,
-                             write = "2_output/lh_model_3",
-                             is_GLM = T,
-                             type = "pred",
-                             ci.lvl=0.95,
-                             breaks = seq(0, 1, 0.2),
-                             panel_prefix = "letters",
-                             plot_rounding = 2,
-                             per_row = 3)
+# tidy_summary <- analyseModel(lh_pn_model,
+#                              write = "2_output/lh_model_3",
+#                              is_GLM = T,
+#                              type = "pred",
+#                              ci.lvl=0.95,
+#                              breaks = seq(0, 1, 0.2),
+#                              panel_prefix = "letters",
+#                              plot_rounding = 2,
+#                              per_row =3)
 tidy_summary <- analyseModel(lh_pn_model,
                              write = "2_output/lh_model",
                              is_GLM = T,
@@ -305,16 +305,16 @@ cat(
   "\n"
 )
 
+# tidy_summary <- analyseModel(h_star_model,
+#                              write = "2_output/h_star_model_3",
+#                              is_GLM = T,
+#                              type = "pred",
+#                              breaks = seq(0, 1, 0.2),
+#                              panel_prefix = "letters",
+#                              plot_rounding = 2,
+#                              per_row = 3)
 tidy_summary <- analyseModel(h_star_model,
-                             write = "2_output_3",
-                             is_GLM = T,
-                             type = "pred",
-                             breaks = seq(0, 1, 0.2),
-                             panel_prefix = "letters",
-                             plot_rounding = 2,
-                             per_row = 3)
-tidy_summary <- analyseModel(h_star_model,
-                             write = "2_output",
+                             write = "2_output/h_star_model",
                              is_GLM = T,
                              type = "pred",
                              breaks = seq(0, 1, 0.2),
