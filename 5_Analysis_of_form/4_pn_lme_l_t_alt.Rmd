@@ -152,9 +152,6 @@ mdl_summary <- summariseLME(
   )
 
 plot_model(pn_l_t_mdl_late, show.values = T, value.offset = 0.25, axis.title = "estimates (ms)", title = "")
-# +
-#   labs (caption = paste("Estimated effects for model",
-#                         getModelFormula(pn_l_t_mdl_late)))
 ```
 
 
@@ -176,8 +173,8 @@ pn_l_t_mdl_late.tidy <- analyseModel(
   type = NULL,
   factor_matrix = T,
   y_lab = "time (ms)",
-  y_lim = c(-80, 180),
-  breaks = seq(-80, 180, 40)
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   )
 
 

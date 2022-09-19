@@ -145,6 +145,8 @@ pn_h_t_alt_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "time (ms)",
   hjust = 1.5,
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   plot_rounding =  0)
 
 pn_h_t_alt_mdl.tidy$table %>% tidyStatNumbers()
@@ -220,8 +222,8 @@ pn_h_f0_alt_mdl.tidy <- analyseModel(
   type = "pred",
   y_lab = "f0 (ST re speaker median)",
   hjust = 1.5,
-  y_lim = c(-1, 4.5),
-  breaks = seq(-1, 4.5, 1),
+  y_lim = c(-3, 4.5),
+  breaks = seq(-3, 4.5, 1),
   plot_rounding =  1
 )
 pn_h_f0_alt_mdl.tidy$table %>% tidyStatNumbers()
@@ -317,11 +319,12 @@ pn_h_t_lh_mdl.tidy <- analyseModel(
   write="4_pn_output/pn_h_t_lh",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(0, 350),
-  breaks = seq(0, 350, 100),
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "a. L*H-only: ")
+  panel_prefix = "a. L*H-only: ",
+  short_caption = T)
 
 ```
 
@@ -407,11 +410,12 @@ pn_h_t_mdl.tidy <- analyseModel(
   write="4_pn_output/pn_h_t_h",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(0, 350),
-  breaks = seq(0, 350, 100),
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "b. H*-only: ")
+  panel_prefix = "b. H*-only: ",
+  short_caption = T)
 
 ```
 

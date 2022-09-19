@@ -837,18 +837,17 @@ read_csv("5_nuc_output/nuc_f0_exc_anova.csv") %>%
                               getModelFormula(nuc_f0_exc_mdl.trimmed)))
 ```
 ```{r plot f0_exc estimated effects, fig.height=2.5, fig.width=4.3}
-a <- plot_model(
-  nuc_f0_exc_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T
- ) + labs(
-   caption =
-     "b. Estimated effects on f0_exc."
-   ) +
-  theme(title=element_blank(),
-                  plot.caption=element_text(hjust = 0, size = 10),
-                  plot.caption.position= "plot") +
+a <- plot_model(nuc_f0_exc_mdl.trimmed,
+                type = "est",
+                transform = NULL,
+                show.values = T) +
+  
+  labs(caption = "b. Estimated effects on f0_exc.") +
+  
+  theme(title = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot") +
+  
   geom_hline(yintercept = 0, size = 0.5, color = "red")
 ```
 
@@ -859,7 +858,8 @@ nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="5_nuc_output/nuc_f0_exc",
                                 type = "pred",
                                 y_lab = "f0 (ST)",
-                                panel_prefix = "a. ")
+                                panel_prefix = "a. ",
+                                short_caption = T)
 
 ```
 
@@ -870,9 +870,8 @@ charts <- getModelFixedFX(nuc_f0_exc_mdl.trimmed,
                           write = "5_nuc_output/nuc_f0_exc")
 
 charts$slopes %>% tidyStatNumbers() %>% 
-  mutate(across(
-          any_of(c("estimate", "conf.low", "conf.high")),
-          ~ round(as.numeric(.), 1)))
+  mutate(across(any_of(c("estimate", "conf.low", "conf.high")),
+                ~ round(as.numeric(.), 1)))
 
 
 ```
@@ -900,19 +899,16 @@ optimizer = "optimx"
 
 - model needs trimming (|sd| residuals > 3.5)
 ```{r run lh_slope models, fig.height=3, fig.width=9}
-nuc_lh_slope_mdl = lmer(
-  lh_slope_equation,
-  nuc_data,
-  control = lmerControl(
-    optimizer = optimizer,
-    calc.derivs = F,
-    optCtrl = list(
-      method = "nlminb",
-      starttests = F,
-      kkt = F
-    )
-  )
-)
+nuc_lh_slope_mdl = lmer(lh_slope_equation,
+                        nuc_data,
+                        control = lmerControl(optimizer = optimizer,
+                                              calc.derivs = F,
+                                              optCtrl = list(method = "nlminb",
+                                                             starttests = F,
+                                                             kkt = F)
+                                              )
+                        )
+
 nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = F, reject_nm = T)
 
 # model needs trimming
@@ -943,18 +939,17 @@ read_csv("5_nuc_output/nuc_lh_slope_anova.csv", show_col_types = FALSE) %>%
 ```
 
 ```{r plot lh slope estimated effects, fig.height=2.5, fig.width=4.3}
-b <- plot_model(
-  nuc_lh_slope_mdl.trimmed,
-  type = "est",
-  transform = NULL,
-  show.values = T
- ) + labs(
-   caption =
-     "b. Estimated effects on log_lh_slope."
-   ) +
-  theme(title=element_blank(),
-                  plot.caption=element_text(hjust = 0, size = 10),
-                  plot.caption.position= "plot") +
+b <- plot_model(nuc_lh_slope_mdl.trimmed,
+                type = "est",
+                transform = NULL,
+                show.values = T) +
+  
+  labs(caption = "b. Estimated effects on log_lh_slope.") +
+
+    theme(title=element_blank(),
+        plot.caption=element_text(hjust = 0, size = 10),
+        plot.caption.position= "plot") +
+  
   geom_hline(yintercept = 0, size = 0.5, color = "red")
 ```
 
@@ -966,7 +961,8 @@ nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
                                 type = "pred",
                                 panel_prefix = "b. ",
                                 y_lab = "log(ST/sec)",
-                                plot_rounding = 2)
+                                plot_rounding = 2,
+                                short_caption = T)
 ```
 
 ```{r do lh_slope pairwise analysis, results="asis"}

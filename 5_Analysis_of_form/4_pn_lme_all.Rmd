@@ -244,8 +244,8 @@ pn_l_t_mdl.tidy <- analyseModel(
   write="4_pn_output/pn_l_t",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(-80, 180),
-  breaks = seq(-80, 180, 40),
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   panel_prefix = "a. "
   )
@@ -295,16 +295,6 @@ pn_l_f0_mdl = lmer(
 pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
 mdl_summary <- summariseLME(pn_l_f0_mdl, print_summary = F, plot_resids = F, run_step = F)
 
-l_f0_equation = formula(
-  l_f0 ~
-    acc_phon
-  + ana_syls
-  + foot_syls
-  + wrd_end_syl
-  + pn_new_word
-  + gender
-  + (1 | speaker)
- )
 
 pn_l_f0_mdl <- update(pn_l_f0_mdl, formula = l_f0_equation)
 pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
@@ -343,8 +333,8 @@ pn_l_f0_mdl.tidy <- analyseModel(
   write = "4_pn_output/pn_l_f0",
   type = "pred",
   y_lab = "f0 (ST re median)",
-  y_lim = c(-3, 1.5),
-  breaks = seq(-3, 1.5, 1),
+  y_lim = c(-3, 4.5),
+  breaks = seq(-3, 4.5, 1),
   plot_rounding = 1,
   panel_prefix = "b. "
   )
@@ -537,11 +527,11 @@ pn_h_t_mdl.tidy <- analyseModel(
   write="4_pn_output/pn_h_t",
   type = "pred",
   y_lab = "time (ms)",
-  y_lim = c(0, 350),
-  breaks = seq(0, 350, 100),
+  y_lim = c(-100, 350),
+  breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "a. ")
+  panel_prefix = "b. ")
 
 ```
 
@@ -621,8 +611,8 @@ pn_h_f0_mdl.tidy <- analyseModel(
   write = "4_pn_output/pn_h_f0",
   type = "pred",
   y_lab = "f0 (ST re median)",
-  y_lim = c(-1, 4.5),
-  breaks = seq(-1, 4.5, 1),
+  y_lim = c(-3, 4.5),
+  breaks = seq(-3, 4.5, 1),
   plot_rounding =  1,
   panel_prefix = "b. ")
 ```
@@ -703,7 +693,7 @@ As with nuclear data, I am retaining the overall model structure as much as poss
 
 f0_exc_equation = formula(
   f0_exc ~ 
-  + foot_syls
+  foot_syls
   + (1 | speaker)
   + (1 | ana_syls)
   + (1 | gender)

@@ -240,7 +240,8 @@ get_m_corpus <- function(file_address)
         gender = factor(gender, levels = unique(gender)),
 
         # create mode and prompt columns
-        mode = factor(str_sub(stim, 1, 3), levels = c("MDC", "MWH", "MYN", "MDQ")),
+        mode = factor(str_sub(stim, 1, 3),
+                      levels = c("MDC", "MWH", "MYN", "MDQ")),
         prompt = str_sub(stim, 4, 4),
         prompt = str_replace(prompt, "1", "vases"),
         prompt = str_replace(prompt, "2", "valley"),
@@ -329,7 +330,7 @@ get_m_corpus <- function(file_address)
 
 
 ###
-###  Get Formula as String from LME/(B)GLM model ##################################
+###  Get Formula as String from LME/(B)GLM model ###############################
 getModelFormula <-function(my_model) {
   installMissingPackages("stringr")
   my_formula <- str_c(formula(my_model))
@@ -756,12 +757,13 @@ analyseModel <-
           lettering = panel_prefix
         }
 
-        if (!short_caption){
+        # if (!short_caption){
           caption_suffix = paste0(" re ",
-          cur_factor)}
-        else{
-          caption_suffix = ""
-        }
+          cur_factor)
+        #   }
+        # else{
+        #   caption_suffix = ""
+        # }
          my_plot <- ggpredict(my_model,
                              terms = paste(cur_factor, all),
                              ci.lvl = ci.lvl) %>%
@@ -917,7 +919,12 @@ getModelFixedFX <- function(model,
     keep_terms <- c(keep_terms, initial_keep_terms)
     # loop through dataframe, reordering levels of current factor each time.
     for (cur_level in 1:(num_levels)) {
-      model <- update(model, data = data)
+
+      factor_var <- sym(cur_factor)
+
+      model <- update(model, data = data %>%
+                        mutate(!!factor_var := factor(!!factor_var,
+                                                      levels = cur_levels)))
 
       # Get tidy model.
       if (is_GLM) {
@@ -977,17 +984,10 @@ getModelFixedFX <- function(model,
       # restructure the order of levels for next LME model.
       cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
 
-      factor_var <- sym(cur_factor)
-      factor_var_name <- quo_name(cur_factor)
-
-
-      data <- data %>%
-        mutate(!!factor_var := factor(!!factor_var,
-                                      levels = cur_levels))
-
     }
 
-    # Reset initial_keep_terms to it doesn't contain 2-level or continuous factors.
+    # Reset initial_keep_terms so it doesn't contain 2-level or continuous
+    # factors.
     initial_keep_terms <- NULL
   }
 
@@ -1075,7 +1075,9 @@ getModelFixedFX <- function(model,
   }
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
-    mutate(intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
+    mutate(intercept = str_replace_all(intercept,
+                                       "([\\*\\[\\^\\>])",
+                                       "\\\\\\1")) %>%
     formattable(
       caption = paste(
         "b0 for",
@@ -1127,7 +1129,8 @@ getModelFixedFX <- function(model,
           as.character(round(., 1), digits = 1),
         )
       )
-    ))
+    )) %>%
+    filter(intercept != slope)
 
   return(list(
     "intercepts" = my_intercepts,
@@ -1139,7 +1142,7 @@ getModelFixedFX <- function(model,
 
 
 ###
-###  Post-hoc bulk adjust p Value   ####################################################
+###  Post-hoc bulk adjust p Value   ############################################
 adjustP_posthoc <-
   function(my_folder,            # source folder with .csv files to be updated.
            p_column = "p.value", # name of p.column
@@ -1287,7 +1290,7 @@ adjustP_posthoc <-
     }
   }
 ###
-###  Tidy Predictions ####################################################
+###  Tidy Predictions ##########################################################
 printTidyPredictions <-
   function(model, caption_suffix, factor_matrix = F) {
     require("ggeffects")
@@ -1343,7 +1346,7 @@ printTidyPredictions <-
       }
   }
 ###
-###  Shorten P Adjustment method name #########################################
+###  Shorten P Adjustment method name ##########################################
 shortPAdjMeth <- function(method){
   require("mefa4")
   if(method %in% c("hochberg", "hommel", "bonferroni")) {
@@ -1436,7 +1439,7 @@ tidyNumbers <- function(data,
 
 
 ###
-###  Tidy Stat Table Numbers ####################################################
+###  Tidy Stat Table Numbers ###################################################
 tidyStatNumbers <- function(stats) {
   installMissingPackages(c("tidyverse", "weights"))
   original_nrow <- nrow(stats)
@@ -1444,7 +1447,9 @@ tidyStatNumbers <- function(stats) {
   original_factors <- as.vector(select(stats, 1))$term
   stats <- filter(stats, !is.na(stats[[2]]))
   if(nrow(stats) != original_nrow){
-    lost_factors <- original_factors[original_factors %notin% as.vector(select(stats, 1))$term]
+    lost_factors <- original_factors[original_factors %notin% as.vector(
+      select(stats, 1)
+      )$term]
     cat(paste(lost_factors, sep = ", "), " couldn't be calculated.\n")
         }
 
@@ -1484,7 +1489,7 @@ tidyStatNumbers <- function(stats) {
 }
 
 ###
-###  Optimize Models based on lme4 package ######################################
+###  Optimize Models based on lme4 package #####################################
 optimizeModel <- function(model,
                        checks = c("allFit", "optimx", "nloptwrap"),
                        verbose = T,
@@ -1519,7 +1524,8 @@ optimizeModel <- function(model,
   original_model <- model
 
   if(verbose){
-  cat("Searching for good optimization settings with optimizeModel().\n", sep = "")
+  cat("Searching for good optimization settings with optimizeModel().\n",
+      sep = "")
   cat("  Formula:   ", getModelFormula(model), "\n", sep = "")
   cat("  Optimizer: ", model@optinfo$optimizer, "\n", sep = "")
   }
