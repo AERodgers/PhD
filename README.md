@@ -1,33 +1,65 @@
-# PhD: "Uprising, the Phonology and Phonetics of Intonation in Derry City English"
-## Database and Code
+# Uprising, the Phonology and Phonetics of Intonation in Derry City English
+  GitHub repository for PhD Thesis by Antoin Eoin Rodgers. Phonetics and Speech Laboratory, Trinity College Dublin. September 2022
+  
+  This repository is divided into several sections, outlined below.
+  
+## 1. Praat Scripts
+  
+This contains three plugins and miscellaneous scripts which I wrote to aid my PhD analysis. The plugin can be install in Praat by copying the folders beginning with 
+"plugin_" to your [Praat preferences folder](https://www.fon.hum.uva.nl/praat/manual/preferences_folder.html). If you do not have Praat or the scripts and plugins do not work on your version, the latest version can be downloaded [here](https://www.fon.hum.uva.nl/praat/). 
 
-### TO DO
+### a. 2017-2018 TextGrid Scripts
 
-* ~~Update OR LMEs to extract ANOVA tables and statistics for 2-level factor statistics.~~
-* ~~Update post-hoc p.value script so it can:~~
-  ~~1. Extract a list of p.values from tables even if they do not follow the same table structure~~
-  ~~2. Insert p.adj back into the appropriate table AFTER p.value~~
-  ~~3. Overwrite previous p.adj columns using the same p.adj method~~
-  ~~4. Remove any previous signif. columns and insert a new one as a last column.~~
+This includes two scripts, **create_textgrids.praat** and **create_more_tiers.praat**.
 
-    **Alternative solution**
-    
-    getModelFixedFX now automatically distinguishes two-level factors from multilevel factors and adds the slope statistics of the two-level factros them to the pairwise analysis.
-    
-    Also, p values of ANOVAs of models need to be assessed separately as they already incorporate statistics and p.values from the terns in the model.
+**create_textgrids.praat** generates textgrids with a syllable and comments tier for all sound files in a folder.
 
+**create_more_tiers.praat** automatically genderates othrographic, rhythmic, and phonological tiers (among others) from a pre-annotated syllable tier. The pre-annotated tier must use allcaps for stressed syllables and hyphens between syllables of the same word.
 
-#### 2022.07.08
+### b. plugin_AERoPlot
 
-* ~~Correct errors in composite models in mode and acc_phon folder~~
-* ~~Correct errors in all models in mode only folder~~
-* ~~Update Excel workbooks to include 2-level fixed effect factors.~~
+This plugin contains a range of scripts which were developed, in part, for this thesis. It includes the C3P-o-gram script which draws f0 contours that also show the strength of periodicity via Cepstral Peak Prominence (CPP) (Thus, Cepstral Peak Prominence and Pitch or C3P.) The complete plugin with a manual can be also be found [here](https://github.com/AERodgers/plugin_AERoPlot).
 
-#### 2022.07.10
+### c. plugin_KMax
 
-* Have done:
-    * Added ability to print tables with adjusted p.values to post_hoc_p_adj.
-    * Save formula to anova folder and to output folder
-* to do
-    * ~~Get post_hoc_p_correction to use formula as caption in print output.~~ 
+This is the plugin used for the secondary target / turning point analyses of pitch contours. A stand-alone repository is also available for this plugin [here](https://github.com/AERodgers/Praat-K-Max).
 
+The 2020 Speech Prosody paper describing K-Max in detail can found [here](https://www.isca-speech.org/archive/SpeechProsody_2020/pdfs/287.pdf). 
+
+### d. plugin_PhD
+
+This plugin includes a set of tools developed specifically for this PhD Thesis. When installed, the tools can be found in the **Praat Objects Window >> [Praat] >> [PhD]**. The tools are:
+
+1. Process TextGrids - used to process annotated TextGrids and pitch data to generate a csv database for analysis.  
+2. Corpus Audit - used to trim invalid phrases from the A- and H-Corpora
+3. Get Specific Data - a search function to find target phrases and textgfrids in the csv database.
+
+There are also three separate scripts:
+
+1. **adjustedSummaryByGender.praat**. A script called from R to help adjust raw data for to generate balanced representation of the data for visual presentation.
+2. **make_anonymous_contours.praat**. A script which converts the original recordings into unidentifiable sound files using Praat inbuild Klaat synthesiser. The output contains resynthesised f0 and voice source components but no segmental / filter components of speech.
+3. **run_praat**. A redundant R script used to call a redundant praat script.  
+		
+## 2. R Functions
+	
+This folder has two files.
+`myFunctions.R` has all the functions written to facillitate statistical analysis in R.
+`myColours.R` creates the colour code variables used for R plots.
+
+## 3. Recordings
+
+This folder contains the .wav, .TextGrids, and .Pitch files of the data used in the Thesis. NOTE: all original recordings have been made anonymous by removing any personal identifiable features via the **adjustedSummaryByGender.praat** script
+	
+## 4. Data
+
+This folder contains all the dataframes used for the analyses in the thesis. 
+
+## 5. Analysis of Form
+	
+This folder contains all the R markdown, HTML, and Excel files used to analyse the data in Chapter 6. Analysis of Form: Metrical and Lexical Effects. It also includes .csv and .png output from the analyses. 
+	
+## 6. Analysis of Sentence Mode
+	
+This folder contains all the R markdown, HTML, and Excel files used to analyse the data in Chapter 7. Analysis of Function: Sentence Modes. It also includes .csv and .png output from the analyses. 
+	
+		
