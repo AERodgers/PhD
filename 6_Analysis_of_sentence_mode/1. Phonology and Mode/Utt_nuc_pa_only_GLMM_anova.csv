@@ -1,3 +1,0 @@
-npar,AIC,BIC,logLik,deviance,Chisq,Df,Pr(>Chisq),p.adj (BH),signif.
-3,580.602,593.981,-287.301,574.602,NA,NA,NA,NA,NA
-7,468.274,499.493,-227.137,454.274,120.328,4,4.5e-25,7.5e-25,p<0.0001

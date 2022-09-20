@@ -1,1 +1,0 @@
-high register in nucleus ~ mode + gender + (1 | speaker) + (1 | prompt)(assuming no register tier)

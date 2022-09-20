@@ -1,4 +1,4 @@
-#123456789#123456789#123456789#123456789#123456789#123456789#123456789#123456789
+# 123456789#123456789#123456789#123456789#123456789#123456789#123456789#123456789
 # author: "Antoin Eoin Rodgers"
 # date: '2022-05-06'
 # Bank of personal functions
@@ -19,14 +19,12 @@ options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ###
 ###  Install Missing Packages ##################################################
-installMissingPackages <- function (package_list)
-{
+installMissingPackages <- function(package_list) {
   # installs packages from  package_list which are not already installed in.
   installed_packages <-
     package_list %in% rownames(installed.packages())
 
-  if (any(installed_packages == F))
-  {
+  if (any(installed_packages == F)) {
     install.packages(package_list[!installed_packages])
   }
 
@@ -36,7 +34,6 @@ installMissingPackages <- function (package_list)
     suppressPackageStartupMessages(library),
     character.only = T
   ))
-
 }
 ###
 ###  Balance data  #############################################################
@@ -46,8 +43,7 @@ balancedData <- function(data_set,
                          gender_filter,
                          num_speakers,
                          num_reps,
-                         use_pa_hierarchy = T)
-{
+                         use_pa_hierarchy = T) {
   # Returns an data matrix of phonological data of a projected balanced dataset.
   #    This function takes a subset of the data, calculates each token count
   #     per speaker per condition as a ratio of the total tokens for that
@@ -66,18 +62,17 @@ balancedData <- function(data_set,
   #     num_reps ....... number of repetitions per speaker in ideal corpus.
   if (gender_filter == "M") {
     data_set <- data_set %>% filter(gender == "M")
-  }
-  else {
+  } else {
     if (gender_filter == "F") {
       data_set <- data_set %>% filter(gender == "F")
     }
   }
 
-  treatment_col = enquo(arg = treatment_col)
-  response_col = enquo(arg = response_col)
+  treatment_col <- enquo(arg = treatment_col)
+  response_col <- enquo(arg = response_col)
 
   # Get number of speakers per target.
-  speakers_per_target = data_set %>%
+  speakers_per_target <- data_set %>%
     select(speaker, !!treatment_col) %>%
     group_by(!!treatment_col) %>%
     summarise(speakers = n_distinct(speaker), .groups = "keep")
@@ -101,8 +96,7 @@ balancedData <- function(data_set,
 
   # Convert tokens to ratios of tokens per speaker per target
   balanced <- balanced %>%
-
-    mutate(across(pa_columns,  ~  (.x / acc_count * num_reps))) %>%
+    mutate(across(pa_columns, ~ (.x / acc_count * num_reps))) %>%
     group_by(!!treatment_col) %>%
     select(-speaker, -acc_count)
 
@@ -115,7 +109,8 @@ balancedData <- function(data_set,
   if (use_pa_hierarchy) {
     balanced <- balanced %>%
       mutate(acc_phon = factor(!!response_col,
-                               levels = c("(*)", "L*", "H*", ">H*", "L*H")))
+        levels = c("(*)", "L*", "H*", ">H*", "L*H")
+      ))
   }
 
   balanced <- balanced %>%
@@ -124,7 +119,7 @@ balancedData <- function(data_set,
     spread(!!response_col, mod_sum) %>%
     # Adjust token count re number of speakers per target condition.
     left_join(speakers_per_target) %>%
-    mutate(across(pa_columns,  ~  round(.x / speakers * num_speakers))) %>%
+    mutate(across(pa_columns, ~ round(.x / speakers * num_speakers))) %>%
     select(-speakers)
 
   return(balanced)
@@ -137,22 +132,26 @@ sigCodesTidy <-
   function(my_tibble,
            p_value = "p.adj",
            incl_marginal_sig = T)
-    # Create significance column in tibble using p_value
+  # Create significance column in tibble using p_value
   {
     p_value <- enquo(p_value)
     my_tibble <- mutate(my_tibble,
-                        `signif.` = if_else(!!p_value < 0.05,
-                                            "_p_ < .05",
-                                            "")) %>%
-      mutate(`signif.` =
-               if_else(
-                 !is.na(!!p_value),
-                 `signif.`,
-                 if_else(p.value < 0.05,
-                         "_p_ < .05",
-                         "")
-
-               ))
+      `signif.` = if_else(!!p_value < 0.05,
+        "_p_ < .05",
+        ""
+      )
+    ) %>%
+      mutate(
+        `signif.` =
+          if_else(
+            !is.na(!!p_value),
+            `signif.`,
+            if_else(p.value < 0.05,
+              "_p_ < .05",
+              ""
+            )
+          )
+      )
 
 
 
@@ -163,9 +162,8 @@ sigCodesTidy <-
 ###
 ###  Get m_corpus #############################################################
 get_m_corpus <- function(file_address)
-
-  # Include package for %in% / %notin% syntactic notation
-  {
+# Include package for %in% / %notin% syntactic notation
+{
   installMissingPackages(c("mefa4"))
   return(
     as_tibble(read.csv(file_address)) %>%
@@ -221,7 +219,7 @@ get_m_corpus <- function(file_address)
         s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
         e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
         utt_mean_f0_z = (utt_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
-        lh_mean_f0_z = ( lh_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
+        lh_mean_f0_z = (lh_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
         # redo excursion based on z-scores
         f0_exc_z = h_f0_z - l_f0_z,
         e_f0_exc_z = e_f0_z - h_f0_z,
@@ -241,14 +239,15 @@ get_m_corpus <- function(file_address)
 
         # create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3),
-                      levels = c("MDC", "MWH", "MYN", "MDQ")),
+          levels = c("MDC", "MWH", "MYN", "MDQ")
+        ),
         prompt = str_sub(stim, 4, 4),
         prompt = str_replace(prompt, "1", "vases"),
         prompt = str_replace(prompt, "2", "valley"),
         prompt = str_replace(prompt, "3", "valuables"),
-        prompt = factor(prompt, levels=c("vases", "valley", "valuables")),
+        prompt = factor(prompt, levels = c("vases", "valley", "valuables")),
         # Ignore downstep.
-        #acc_phon = str_replace(acc_phon, "!", ""),
+        # acc_phon = str_replace(acc_phon, "!", ""),
 
         # Arrange speaker factors in more intuitive order.
         speaker = factor(
@@ -293,10 +292,13 @@ get_m_corpus <- function(file_address)
         nuc_contour = if_else(
           str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
           paste("^[", nuc_contour, sep = ""),
-          nuc_contour),
-        nuc_contour = str_replace(nuc_contour,
-                                  "\\^\\[L\\*H\\s\\%]",
-                                  "^[L*H] %"),
+          nuc_contour
+        ),
+        nuc_contour = str_replace(
+          nuc_contour,
+          "\\^\\[L\\*H\\s\\%]",
+          "^[L*H] %"
+        ),
         nuc_contour = factor(
           nuc_contour,
           levels = c(
@@ -315,23 +317,26 @@ get_m_corpus <- function(file_address)
         ),
         # Correct acc_phon
         acc_phon = str_replace_all(acc_phon, "\\s%|\\sL%", ""),
-        acc_phon = str_replace_all(acc_phon,"^(L\\*H\\]|\\^\\[L\\*H)$",
-                               "^[L*H]"),
+        acc_phon = str_replace_all(
+          acc_phon, "^(L\\*H\\]|\\^\\[L\\*H)$",
+          "^[L*H]"
+        ),
         acc_phon = str_replace_all(acc_phon, "^L\\*\\^\\[H$", "L*^[H]"),
         # Correct fin_phon
         fin_phon = str_replace(fin_phon, "\\%\\]|L\\%\\]", "^[L%]"),
-       # fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
-        across(c("phr_phon", "acc_phon", "fin_phon"),
-               ~ factor(., levels = unique(.)))
+        # fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
+        across(
+          c("phr_phon", "acc_phon", "fin_phon"),
+          ~ factor(., levels = unique(.))
         )
+      )
   )
-
 }
 
 
 ###
 ###  Get Formula as String from LME/(B)GLM model ###############################
-getModelFormula <-function(my_model) {
+getModelFormula <- function(my_model) {
   installMissingPackages("stringr")
   my_formula <- str_c(formula(my_model))
   my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
@@ -343,64 +348,68 @@ summariseLME <-
   function(my_model,
            run_step = F,
            my_tolerance = 1e-05,
-           write=NULL,
-           extra_text="",
+           write = NULL,
+           extra_text = "",
            post_hoc_method = "BH",
            print_summary = T,
            plot_resids = T)
-    # short function to remove need for repetition of optimized used throughout.
+  # short function to remove need for repetition of optimized used throughout.
   {
-    installMissingPackages(c("lme4",
-                             "lmerTest",
-                             "optimx",
-                             "stringr",
-                             "broomExtra",
-                             "ggplot2",
-                             "effectsize",
-                             "knitr",
-                             "kableExtra",
-                             "sjlabelled",
-                             "weights"))
-
-
+    installMissingPackages(c(
+      "lme4",
+      "lmerTest",
+      "optimx",
+      "stringr",
+      "broomExtra",
+      "ggplot2",
+      "effectsize",
+      "knitr",
+      "kableExtra",
+      "sjlabelled",
+      "weights"
+    ))
 
     ### inner function
     ##################
-    drawResiduals <- function(myModel)
-    {
+    drawResiduals <- function(myModel) {
       myResiduals <- residuals(myModel)
       par(mfrow = c(1, 3))
       hist(myResiduals,
-           xlab = "Residuals",
-           main = "(a) Histogram of residuals")
+        xlab = "Residuals",
+        main = "(a) Histogram of residuals"
+      )
       qqnorm(myResiduals,
-             main = "(b) Q-Q Plot of residuals")
+        main = "(b) Q-Q Plot of residuals"
+      )
       qqline(myResiduals,
-             xlab = "Fitted values",
-             ylab = "Residuals")
+        xlab = "Fitted values",
+        ylab = "Residuals"
+      )
       plot(fitted(myModel),
-           myResiduals,
-           main = "(c) Residual plot")
+        myResiduals,
+        main = "(c) Residual plot"
+      )
     }
     ##################
 
     ### Outer function
     ##################
     post_hoc_method <- paste("p.adj (",
-                             shortPAdjMeth(post_hoc_method),
-                             ")",
-                             sep="")
+      shortPAdjMeth(post_hoc_method),
+      ")",
+      sep = ""
+    )
     post_hoc_method <- enquo(post_hoc_method)
 
     my_formula <- getModelFormula(my_model)
     # output results
 
 
-    if(plot_resids) {
+    if (plot_resids) {
       drawResiduals(my_model)
-      }
+    }
 
-    if(print_summary) {
+    if (print_summary) {
       cat("\nFormula:\n", my_formula, "\n\n", sep = "")
       print(summary(my_model))
     }
@@ -409,37 +418,42 @@ summariseLME <-
       tidy() %>%
       mutate(across(`sumsq`:`statistic`, ~ round(., 3))) %>%
       formattable(
-        caption=paste(
-          "Anova of model", my_formula, sep=": ")
+        caption = paste(
+          "Anova of model", my_formula,
+          sep = ": "
+        )
       ) %>%
       sigCodesTidy(p.value, F) %>%
       rename(`F value` = statistic)
-    if(!is_null(write)){
-      anova %>% mutate(!!post_hoc_method := NA, signif. = NA) %>%
-      relocate(signif., .after=!!post_hoc_method) %>%
-      write_csv(write)
+    if (!is_null(write)) {
+      anova %>%
+        mutate(!!post_hoc_method := NA, signif. = NA) %>%
+        relocate(signif., .after = !!post_hoc_method) %>%
+        write_csv(write)
       formula_save <- str_replace(write, "_anova.csv", "_formula.txt") %>%
         str_replace(".csv", ".txt")
       write(
         paste(str_replace_all(my_formula, "\\`", ""), extra_text),
-        formula_save)
-
+        formula_save
+      )
     }
 
-    if (run_step)
-    {
+    if (run_step) {
       cat("\nRunning step() ...\n", sep = "")
       step_result <- step(my_model)
-      cat("Model found:",
-          getModelFormula(get_model(step_result)), "\n\n")
-      }
+      cat(
+        "Model found:",
+        getModelFormula(get_model(step_result)), "\n\n"
+      )
+    }
 
 
     cat("\nisSingular(my_model, tol =",
-        my_tolerance,
-        ") -->",
-        isSingular(my_model, tol=my_tolerance),
-        "\n\n", sep = ""
+      my_tolerance,
+      ") -->",
+      isSingular(my_model, tol = my_tolerance),
+      "\n\n",
+      sep = ""
     )
 
 
@@ -448,19 +462,27 @@ summariseLME <-
       omega_squared(ci = 0.95, alternative = "two.sided") %>%
       tidyStatNumbers() %>%
       as_tibble() %>%
-
-      mutate(across(c("CI_low", "CI_high", "Omega2_partial"),
-                    ~ trim_zeros(., digits = 2)),
-             `95% CI` = paste0("[", CI_low, ", ",	CI_high, "]")) %>%
+      mutate(across(
+        c("CI_low", "CI_high", "Omega2_partial"),
+        ~ trim_zeros(., digits = 2)
+      ),
+      `95% CI` = paste0("[", CI_low, ", ", CI_high, "]")
+      ) %>%
       select(Parameter, Omega2_partial, `95% CI`) %>%
       rename(`Omega^2^ (partial)` = Omega2_partial) %>%
-      knitr::kable(caption = paste0("Effect Size for ANOVA of model of ",
-                                   response_labels(my_model), "."),
-                   align = "l")  %>%
+      knitr::kable(
+        caption = paste0(
+          "Effect Size for ANOVA of model of ",
+          response_labels(my_model), "."
+        ),
+        align = "l"
+      ) %>%
       kable_styling(full_width = F, position = "left")
 
-    return(list("anova" = anova,
-                "omega2" = omega2))
+    return(list(
+      "anova" = anova,
+      "omega2" = omega2
+    ))
 
     ##################
   }
@@ -484,9 +506,8 @@ analyseModel <-
            hjust = "inward",
            per_row = 2,
            page_width = 15.4,
-           short_caption = F
-           )
-  {
+           short_caption = F,
+           caption_suffix = NULL) {
     require("formattable")
     require("tidyverse")
     require("mefa4")
@@ -501,7 +522,7 @@ analyseModel <-
     require("sjlabelled")
 
     my_stat <- ifelse(is_GLM, "z.value", "t.value")
-
+    my_caption <- caption_suffix
     my_headers <- c(
       "term",
       "estimate",
@@ -513,27 +534,28 @@ analyseModel <-
       "p.value"
     )
 
-    if (per_row > 2){short_caption = T}
+    if (per_row > 2) {
+      short_caption <- T
+    }
 
-    my_stat = enquo(my_stat)
+    my_stat <- enquo(my_stat)
 
-    if (!short_caption){
-      pred_prefix = "Predicted probability "}
-    else{
-      pred_prefix = " "
+    if (!short_caption) {
+      pred_prefix <- "Predicted probability "
+    } else {
+      pred_prefix <- " "
     }
     if (is_GLM) {
       my_headers <- my_headers[my_headers != "df"]
     }
 
-    my_headers = enquos(my_headers)
+    my_headers <- enquos(my_headers)
     my_formula <- getModelFormula(my_model)
 
     if (is_GLM) {
       tidy_model <-
         tidy(my_model, exponentiate = exponentiate, conf.int = T)
-    }
-    else{
+    } else {
       tidy_model <-
         tidy(my_model, conf.int = T) %>% mutate(df = round(df, 2))
     }
@@ -549,9 +571,13 @@ analyseModel <-
       rename(!!my_stat := statistic) %>%
       # re-order columns
       select(!!!my_headers) %>%
-      formattable(caption = paste("summary of model:",
-                                  str_replace_all(my_formula, "\\`", "")),
-                  title = "") %>%
+      formattable(
+        caption = paste(
+          "summary of model:",
+          str_replace_all(my_formula, "\\`", "")
+        ),
+        title = ""
+      ) %>%
       mutate(
         # avoid escape character errors
         term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
@@ -559,7 +585,8 @@ analyseModel <-
         p.value = if_else(
           p.value < 0.0001,
           as.character(formatC(
-            p.value, format = "e", digits = 1
+            p.value,
+            format = "e", digits = 1
           )),
           as.character(round(p.value, 4), digits = 2)
         )
@@ -567,14 +594,15 @@ analyseModel <-
 
     if (is_GLM) {
       tidy_model <- tidy_model %>%
-        mutate(# report log odds
+        mutate( # report log odds
           # across(c(estimate, conf.low, conf.high), ~ exp(.)),
           across(
             c(estimate, conf.low, conf.high),
             ~ if_else(
               abs(.) < 0.001 | abs(.) > 100000,
               as.character(formatC(
-                ., format = "e", digits = 1
+                .,
+                format = "e", digits = 1
               )),
               if_else(
                 abs(.) < 10,
@@ -582,20 +610,21 @@ analyseModel <-
                 as.character(round(., 1), digits = 1),
               )
             )
-          ))
+          )
+        )
     }
 
     r2 <- r2(my_model)
     `marginal R^2^` <- r2$R2_marginal[[1]]
     `conditional R^2^` <- r2$R2_conditional[[1]]
 
-    r2 = tibble(`marginal R^2^`, `conditional R^2^`) %>%
+    r2 <- tibble(`marginal R^2^`, `conditional R^2^`) %>%
       mutate(across(everything(), ~ trim_zeros(., digits = 2))) %>%
-
-    knitr::kable(
-      caption = "Conditional and marginal R^2^ of model",
-      align = "l"
-    )  %>% kable_styling(full_width = F, position = "left")
+      knitr::kable(
+        caption = "Conditional and marginal R^2^ of model",
+        align = "l"
+      ) %>%
+      kable_styling(full_width = F, position = "left")
     print(r2)
 
 
@@ -604,36 +633,38 @@ analyseModel <-
         write.csv(paste(write, "_r2.csv", sep = ""))
     }
 
-    if (is_GLM)
-    {
+    if (is_GLM) {
       dependent_var <- deparse(formula(my_model)[[2]])
       fixed_factors <-
         formula(my_model, fixed.only = T)[3] %>%
         deparse() %>%
         str_replace_all("[\\(|\\)|+ ]", " ") %>%
         str_squish() %>%
-        str_split(" ") %>%  unlist()
-      fixed_factors = fixed_factors[fixed_factors != "*"]
+        str_split(" ") %>%
+        unlist()
+      fixed_factors <- fixed_factors[fixed_factors != "*"]
 
       if (factor_matrix) {
         my_plot <- ggpredict(my_model,
-                             terms = fixed_factors,
-                             ci.lvl = ci.lvl) %>%
+          terms = fixed_factors,
+          ci.lvl = ci.lvl
+        ) %>%
           plot() +
           ylim(0, 1) +
           geom_text(aes(
-            label = round(predicted, 2),
+            label = round(predicted, plot_rounding),
             hjust = hjust,
-            position = "dodge"),
-            check_overlap = T,
-            size=3) +
-          theme(axis.title.x=element_blank())
-        if (!is.null(write))
-        {
+            position = "dodge"
+          ),
+          check_overlap = T,
+          size = 3
+          ) +
+          theme(axis.title.x = element_blank())
+        if (!is.null(write)) {
           png(
             filename =
               paste0(write, "_re_", cur_factor, "_pred.png"),
-            width =  page_width / per_row,
+            width = page_width / per_row,
             height = 6.5,
             units = "cm",
             res = 300
@@ -643,71 +674,69 @@ analyseModel <-
         }
 
         print(my_plot)
-      }
-      else{
-        letters = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+      } else {
+        letters <- c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
 
-        cur_letter = 0
+        cur_letter <- 0
         for (cur_factor in fixed_factors) {
-          if (typeof(my_model@frame[[cur_factor]]) == "double"){
-            all = "[all]"
-          }
-          else{
-            all = NULL
-          }
-
-          if (is.null(y_lab)){y_lab = cur_factor}
-          cur_letter = cur_letter + (1 * cur_letter < length(letters))
-
-          if(is.null(panel_prefix)){
-            lettering = ""
-          }
-          else
-            if(panel_prefix == "letters") {
-              lettering = paste0((letters[cur_letter]), ". ")
-            }
-
-          else {
-            lettering = panel_prefix
+          if (typeof(my_model@frame[[cur_factor]]) == "double") {
+            all <- "[all]"
+          } else {
+            all <- NULL
           }
 
-          # if (!short_caption){
-            caption_suffix = paste0(" re ", cur_factor)
-          #   }
-          # else{
-          #   caption_suffix = paste0(" re ",
-          #                           cur_factor)
-          # }
+          if (is.null(y_lab)) {
+            y_lab <- cur_factor
+          }
+          cur_letter <- cur_letter + (1 * cur_letter < length(letters))
+
+          if (is.null(panel_prefix)) {
+            lettering <- ""
+          } else
+          if (panel_prefix == "letters") {
+            lettering <- paste0((letters[cur_letter]), ".")
+          } else {
+            lettering <- panel_prefix
+          }
+
+          caption_suffix <- paste0(" re ", cur_factor, my_caption)
 
 
           my_plot <- ggpredict(my_model,
-                               terms = paste(cur_factor, all),
-                               ci.lvl = ci.lvl) %>%
+            terms = paste(cur_factor, all),
+            ci.lvl = ci.lvl
+          ) %>%
             plot() +
             xlab(cur_factor) +
-            ylim(0,1) +
+            ylim(0, 1) +
             ylab("predicted probability") +
-            labs(caption = paste0 (lettering, pred_prefix,
-                                   dependent_var, caption_suffix, ".")) +
-            scale_y_continuous(breaks=breaks, limits = c(0, 1)) +
-            theme(plot.title=element_blank(),
-                  axis.title.x=element_blank(),
-                  plot.caption=element_text(hjust = 0, size = 10),
-                  plot.caption.position= "plot")
-          if(is.null(all)) {
+            labs(caption = paste0(
+              lettering, pred_prefix,
+              dependent_var, caption_suffix, "."
+            )) +
+            scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+            theme(
+              plot.title = element_blank(),
+              axis.title.x = element_blank(),
+              plot.caption = element_text(hjust = 0, size = 10),
+              plot.caption.position = "plot"
+            )
+          if (is.null(all)) {
             my_plot <- my_plot +
-              geom_label(aes(label = round(predicted, plot_rounding)),
-                         label.padding = unit(0.5, "mm"),
-                         label.r = unit(0.0, "mm"),
-                         check_overlap = T,
-                         size=3)
+              geom_label(aes(
+                label = percent(predicted, plot_rounding)
+              ),
+              label.padding = unit(0.5, "mm"),
+              label.r = unit(0.0, "mm"),
+              check_overlap = T,
+              size = 3
+              )
           }
-          if (!is.null(write))
-          {
+          if (!is.null(write)) {
             png(
               filename =
                 paste0(write, "_re_", cur_factor, "_pred.png"),
-              width =  page_width / per_row,
+              width = page_width / per_row,
               height = 6.5,
               units = "cm",
               res = 300
@@ -717,88 +746,84 @@ analyseModel <-
           }
 
           my_plot %>% print()
-
         }
-        }
-    }
-    else
-    {
+      }
+    } else {
       dependent_var <- deparse(formula(my_model)[[2]])
       fixed_factors <-
         formula(my_model, fixed.only = T)[3] %>%
         deparse() %>%
         str_replace_all("[\\(|\\)|+ ]", " ") %>%
         str_squish() %>%
-        str_split(" ") %>%  unlist()
-      fixed_factors = fixed_factors[fixed_factors != "*"]
-      letters = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+        str_split(" ") %>%
+        unlist()
+      fixed_factors <- fixed_factors[fixed_factors != "*"]
+      letters <- c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
 
-      cur_letter = 0
+      cur_letter <- 0
       for (cur_factor in fixed_factors) {
-        if (typeof(my_model@frame[[cur_factor]]) == "double"){
-          all = "[all]"
-        }
-        else{
-          all = NULL
-        }
-
-        if (is.null(y_lab)){y_lab = cur_factor}
-        cur_letter = cur_letter + (1 * cur_letter < length(letters))
-
-        if(is.null(panel_prefix)){
-          lettering = ""
-        }
-        else
-          if(panel_prefix == "letters") {
-            lettering = paste0((letters[cur_letter]), ". ")
-          }
-
-        else {
-          lettering = panel_prefix
+        if (typeof(my_model@frame[[cur_factor]]) == "double") {
+          all <- "[all]"
+        } else {
+          all <- NULL
         }
 
-        # if (!short_caption){
-          caption_suffix = paste0(" re ",
-          cur_factor)
-        #   }
-        # else{
-        #   caption_suffix = ""
-        # }
-         my_plot <- ggpredict(my_model,
-                             terms = paste(cur_factor, all),
-                             ci.lvl = ci.lvl) %>%
+        if (is.null(y_lab)) {
+          y_lab <- cur_factor
+        }
+        cur_letter <- cur_letter + (1 * cur_letter < length(letters))
+
+        if (is.null(panel_prefix)) {
+          lettering <- ""
+        } else
+        if (panel_prefix == "letters") {
+          lettering <- paste0((letters[cur_letter]), ". ")
+        } else {
+          lettering <- panel_prefix
+        }
+
+        caption_suffix <- paste(" re", cur_factor, my_caption)
+
+        my_plot <- ggpredict(my_model,
+          terms = paste(cur_factor, all),
+          ci.lvl = ci.lvl
+        ) %>%
           plot() +
           ylab(y_lab) +
-          labs(caption = paste0 (lettering, pred_prefix,
-                                 dependent_var, caption_suffix, ".")) +
+          labs(caption = paste0(
+            lettering, pred_prefix,
+            dependent_var, caption_suffix, "."
+          )) +
           geom_label(aes(label = round(predicted, plot_rounding)),
-                     label.padding = unit(0.5, "mm"),
-                     label.r = unit(0.0, "mm"),
-                     check_overlap = T,
-                     size=3) +
-          theme(plot.title=element_blank(),
-                legend.position = NULL,
-                plot.caption=element_text(hjust = 0, size = 10),
-                plot.caption.position= "plot")
+            label.padding = unit(0.5, "mm"),
+            label.r = unit(0.0, "mm"),
+            check_overlap = T,
+            size = 3
+          ) +
+          theme(
+            plot.title = element_blank(),
+            legend.position = NULL,
+            plot.caption = element_text(hjust = 0, size = 10),
+            plot.caption.position = "plot"
+          )
 
-         if (!is.null(y_lim)){
-           my_plot <- my_plot +
-             scale_y_continuous(breaks=breaks, limits = y_lim)
-         }
-         if (!is.null(write))
-         {
-           png(
-             filename =
-               paste0(write, "_re_", cur_factor, "_pred.png"),
-             width =  page_width / per_row,
-             height = 6.5,
-             units = "cm",
-             res = 300
-           )
-           print(my_plot)
-           dev.off()
-         }
-           print(my_plot)
+        if (!is.null(y_lim)) {
+          my_plot <- my_plot +
+            scale_y_continuous(breaks = breaks, limits = y_lim)
+        }
+        if (!is.null(write)) {
+          png(
+            filename =
+              paste0(write, "_re_", cur_factor, "_pred.png"),
+            width = page_width / per_row,
+            height = 6.5,
+            units = "cm",
+            res = 300
+          )
+          print(my_plot)
+          dev.off()
+        }
+        print(my_plot)
       }
     }
 
@@ -819,8 +844,7 @@ getModelFixedFX <- function(model,
                             extra_text = "",
                             report = c("slopes", "intercepts"),
                             ignore_list = "",
-                            post_hoc_method = "BH")
-{
+                            post_hoc_method = "BH") {
   require("formattable")
   require("tidyverse")
   require("mefa4")
@@ -829,19 +853,22 @@ getModelFixedFX <- function(model,
 
   # Get information from model
   formula <- formula(model)
-  data = model@frame
-  factor_info <- tibble(factors = colnames(data),
-                        categorical = sapply(data, is.factor)
-                        )
+  data <- model@frame
+  factor_info <- tibble(
+    factors = colnames(data),
+    categorical = sapply(data, is.factor)
+  )
 
 
   fixed_factors <-
-    (str_replace_all(deparse(formula(model, fixed.only = T)[3]),
-                     "[\\(|\\)|+ ]",
-                     " ") %>%
-       str_squish() %>%
-       str_split(" ")) %>%
-    unlist ()
+    (str_replace_all(
+      deparse(formula(model, fixed.only = T)[3]),
+      "[\\(|\\)|+ ]",
+      " "
+    ) %>%
+      str_squish() %>%
+      str_split(" ")) %>%
+    unlist()
 
   is_GLM <- isGLMM(model)
   my_stat <- ifelse(is_GLM, "z.value", "t.value")
@@ -860,16 +887,16 @@ getModelFixedFX <- function(model,
     my_headers <- my_headers[my_headers != "df"]
   }
 
-  my_stat = enquo(my_stat)
-  post_hoc_method <- paste0("p.adj (", shortPAdjMeth(post_hoc_method),  ")")
+  my_stat <- enquo(my_stat)
+  post_hoc_method <- paste0("p.adj (", shortPAdjMeth(post_hoc_method), ")")
   post_hoc_method <- enquo(post_hoc_method)
-  my_headers = enquos(my_headers)
+  my_headers <- enquos(my_headers)
 
 
   # include continuous fixed factors as two_level_factors.
   cont_fixed_factors <-
     fixed_factors[fixed_factors %in% (factor_info %>%
-                                        filter(!categorical))$factors]
+      filter(!categorical))$factors]
   two_level_factors <- cont_fixed_factors
   two_level_terms <- cont_fixed_factors
 
@@ -878,19 +905,22 @@ getModelFixedFX <- function(model,
   # Get list of multi-level factors and exclude continuous factors.
   multilevel_factors <-
     fixed_factors[fixed_factors %in% (factor_info %>%
-                                        filter(categorical))$factors]
+      filter(categorical))$factors]
   # Exclude factors on ignore list.
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% ignore_list]
 
   # Add two-level fixed factors to two_level_factors & two_level_terms.
   for (cur_factor in multilevel_factors) {
-
     if (levels(data[[cur_factor]]) %>% length() == 2) {
       two_level_factors <- c(two_level_factors, cur_factor)
-      two_level_terms <- c(two_level_terms,
-                           paste0(cur_factor,
-                                  levels(data[[cur_factor]])[2]))
+      two_level_terms <- c(
+        two_level_terms,
+        paste0(
+          cur_factor,
+          levels(data[[cur_factor]])[2]
+        )
+      )
     }
   }
 
@@ -903,36 +933,38 @@ getModelFixedFX <- function(model,
   all_models_tidy <- tibble()
   # loop through each multilevel fixed factor of interest (multilevel_factors)
 
-  if(!length(multilevel_factors)){multilevel_factors = two_level_factors}
+  if (!length(multilevel_factors)) {
+    multilevel_factors <- two_level_factors
+  }
 
   for (cur_factor in multilevel_factors)
   {
     # Get levels for current factor
-    cur_levels = levels(data[[cur_factor]])
-    num_levels = length(cur_levels)
+    cur_levels <- levels(data[[cur_factor]])
+    num_levels <- length(cur_levels)
 
-    keep_terms = NULL
+    keep_terms <- NULL
     # Make list of terms to keep
     for (level_name in cur_levels) {
-      keep_terms = c(keep_terms, paste(cur_factor, level_name, sep = ""))
+      keep_terms <- c(keep_terms, paste(cur_factor, level_name, sep = ""))
     }
     keep_terms <- c(keep_terms, initial_keep_terms)
     # loop through dataframe, reordering levels of current factor each time.
     for (cur_level in 1:(num_levels)) {
-
       factor_var <- sym(cur_factor)
 
       model <- update(model, data = data %>%
-                        mutate(!!factor_var := factor(!!factor_var,
-                                                      levels = cur_levels)))
+        mutate(!!factor_var := factor(!!factor_var,
+          levels = cur_levels
+        )))
 
       # Get tidy model.
       if (is_GLM) {
         model_tidy <- tidy(model,
-                           exponentiate = exponentiate,
-                           conf.int = T)
-      }
-      else {
+          exponentiate = exponentiate,
+          conf.int = T
+        )
+      } else {
         model_tidy <- tidy(model, conf.int = T)
       }
 
@@ -944,7 +976,8 @@ getModelFixedFX <- function(model,
         # Tidy up numbers.
         mutate(across(
           any_of(c("df", "estimate", "std.error", "statistic")),
-          ~ round(., 2))) %>%
+          ~ round(., 2)
+        )) %>%
         rename(!!my_stat := statistic)
 
       model_tidy <- model_tidy %>%
@@ -956,18 +989,21 @@ getModelFixedFX <- function(model,
         mutate(
           pairwise =
             if_else(term == "(Intercept)",
-                    "intercept",
-                    if_else(term %notin% c(keep_terms),
-                            "N/A",
-                            keep_terms[cur_level])),
+              "intercept",
+              if_else(term %notin% c(keep_terms),
+                "N/A",
+                keep_terms[cur_level]
+              )
+            ),
           # change 'term' so "intercept" states the target condition name.
           term =
             if_else(term == "(Intercept)",
-                    keep_terms[cur_level],
-                    term)
+              keep_terms[cur_level],
+              term
+            )
         )
 
-      keep_comparisons = NULL
+      keep_comparisons <- NULL
       # make list of pairwise comparisons to keeps
       for (j in cur_level:(num_levels))
       {
@@ -983,7 +1019,6 @@ getModelFixedFX <- function(model,
 
       # restructure the order of levels for next LME model.
       cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
-
     }
 
     # Reset initial_keep_terms so it doesn't contain 2-level or continuous
@@ -1004,17 +1039,16 @@ getModelFixedFX <- function(model,
 
   if (is_GLM) {
     two_level_factor_slopes <- tidy(model,
-                                    conf.int = T,
-                                    exponentiate = exponentiate) %>%
+      conf.int = T,
+      exponentiate = exponentiate
+    ) %>%
       filter(effect %notin% "ran_pars") %>%
       mutate(
         estimate = round(estimate, 3),
         std.error = round(std.error, 3),
         statistic = round(statistic, 3)
       )
-  }
-  else
-  {
+  } else {
     two_level_factor_slopes <- tidy(model, conf.int = T) %>%
       filter(effect %notin% "ran_pars") %>%
       mutate(
@@ -1037,11 +1071,12 @@ getModelFixedFX <- function(model,
       std.error = round(std.error, 3),
       statistic = round(statistic, 3),
     ) %>%
-    mutate(intercept = "intercept", .before = term)  %>%
+    mutate(intercept = "intercept", .before = term) %>%
     relocate(conf.high, .after = "std.error") %>%
     relocate(conf.low, .after = "std.error") %>%
     rename(!!my_stat := statistic,
-           slope = term)
+      slope = term
+    )
   # put B1 only parameters at bottom of tibble
   my_pairwise.temp <- my_pairwise %>%
     filter(slope %in% c(two_level_terms, cont_fixed_factors)) %>%
@@ -1056,28 +1091,31 @@ getModelFixedFX <- function(model,
 
   # Write tables to file
   my_formula <- getModelFormula(model)
-  if (!is.null(write))
-  {
+  if (!is.null(write)) {
     write(
       paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
       paste(write, "_formula.txt", sep = "")
     )
-    if ("intercepts" %in% report)
-    {
-      write_csv(my_intercepts %>% mutate( !!post_hoc_method := NA,signif. = NA),
-                paste(write, "_b0.csv", sep = ""))
+    if ("intercepts" %in% report) {
+      write_csv(
+        my_intercepts %>% mutate(!!post_hoc_method := NA, signif. = NA),
+        paste(write, "_b0.csv", sep = "")
+      )
     }
-    if ("slopes" %in% report)
-    {
-      write_csv(my_pairwise %>% mutate( !!post_hoc_method := NA,signif. = NA),
-                paste(write, "_b1.csv", sep = ""))
+    if ("slopes" %in% report) {
+      write_csv(
+        my_pairwise %>% mutate(!!post_hoc_method := NA, signif. = NA),
+        paste(write, "_b1.csv", sep = "")
+      )
     }
   }
   # Output formatted tables
   my_intercepts <- my_intercepts %>%
-    mutate(intercept = str_replace_all(intercept,
-                                       "([\\*\\[\\^\\>])",
-                                       "\\\\\\1")) %>%
+    mutate(intercept = str_replace_all(
+      intercept,
+      "([\\*\\[\\^\\>])",
+      "\\\\\\1"
+    )) %>%
     formattable(
       caption = paste(
         "b0 for",
@@ -1092,7 +1130,8 @@ getModelFixedFX <- function(model,
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
         as.character(formatC(
-          ., format = "e", digits = 1
+          .,
+          format = "e", digits = 1
         )),
         if_else(
           abs(.) < 10,
@@ -1102,7 +1141,7 @@ getModelFixedFX <- function(model,
       )
     ))
 
-  my_pairwise <-  my_pairwise %>%
+  my_pairwise <- my_pairwise %>%
     mutate(
       intercept = str_replace_all(intercept, "([\\*\\[\\^\\>])", "\\\\\\1"),
       slope = str_replace_all(slope, "([\\*\\[\\^\\>])", "\\\\\\1")
@@ -1121,7 +1160,8 @@ getModelFixedFX <- function(model,
       ~ if_else(
         abs(.) < 0.001 | abs(.) > 100000,
         as.character(formatC(
-          ., format = "e", digits = 1
+          .,
+          format = "e", digits = 1
         )),
         if_else(
           abs(.) < 10,
@@ -1144,19 +1184,17 @@ getModelFixedFX <- function(model,
 ###
 ###  Post-hoc bulk adjust p Value   ############################################
 adjustP_posthoc <-
-  function(my_folder,            # source folder with .csv files to be updated.
+  function(my_folder, # source folder with .csv files to be updated.
            p_column = "p.value", # name of p.column
-           method = "BH",        # p. adjustment method
-           significance = T,     # flag for including significance column,
-           marginal = F,         # include marginal significance flag.
-           write = T,         # write results to file flag.
-           report = F,       # flag to report total number of tests and
-                                 # p.values < 0.05 before and after adjustment.
-           print = F,        # Print output or not
-           suffix_id=""          # suffix ID for files for analysis,
-
-  )
-  {
+           method = "BH", # p. adjustment method
+           significance = T, # flag for including significance column,
+           marginal = F, # include marginal significance flag.
+           write = T, # write results to file flag.
+           report = F, # flag to report total number of tests and
+           # p.values < 0.05 before and after adjustment.
+           print = F, # Print output or not
+           suffix_id = "" # suffix ID for files for analysis,
+  ) {
     # Load required packages
     require("dplyr")
     require("formattable")
@@ -1173,38 +1211,49 @@ adjustP_posthoc <-
 
 
     # Enquote variables which whose values will be evaluated as variables.
-    p_column = enquo(p_column)
-    new_adj_col = paste("p.adj (", my_meth, ")", sep="")
-    new_adj_col = enquo(new_adj_col)
+    p_column <- enquo(p_column)
+    new_adj_col <- paste("p.adj (", my_meth, ")", sep = "")
+    new_adj_col <- enquo(new_adj_col)
 
-      # Get tibble of files to be adjusted
-      file_tibble <-
-        list.files(my_folder,
-                   paste("*", suffix_id, ".csv", sep=""),
-                   full.names = T) %>%
-        read_csv(id = "file_name",
-                 col_names = T,
-                 show_col_types = F) %>%
-
-        # avoid reduplication of columns
-        select(-any_of(c("p.adj.",
-                         "p.adj (holm)",
-                         "p.adj (hoch)",
-                         "p.adj (homm)",
-                         "p.adj (bonf)",
-                         "p.adj (BH)",
-                         "p.adj (BY)",
-                         "p.adj (FDR)",
-                         "p.adj (none)",
-                         "signif."))) %>%
-        # Add p.adjusted column using method.
-        mutate(p.adj = p.adjust(!!p_column,
-                                method = method),
-               .after = !!p_column)
+    # Get tibble of files to be adjusted
+    file_tibble <-
+      list.files(my_folder,
+        paste("*", suffix_id, ".csv", sep = ""),
+        full.names = T
+      ) %>%
+      read_csv(
+        id = "file_name",
+        col_names = T,
+        show_col_types = F
+      ) %>%
+      # avoid reduplication of columns
+      select(-any_of(c(
+        "p.adj.",
+        "p.adj (holm)",
+        "p.adj (hoch)",
+        "p.adj (homm)",
+        "p.adj (bonf)",
+        "p.adj (BH)",
+        "p.adj (BY)",
+        "p.adj (FDR)",
+        "p.adj (none)",
+        "signif."
+      ))) %>%
+      # Add p.adjusted column using method.
+      mutate(
+        p.adj = p.adjust(!!p_column,
+          method = method
+        ),
+        .after = !!p_column
+      )
     # Get summary info about p values.
     p_values <- file_tibble %>% nrow()
-    sig_p_values <- file_tibble %>% filter(!!p_column < 0.05) %>% nrow()
-    sig_p_values_adj  <- file_tibble %>% filter(p.adj < 0.05) %>% nrow()
+    sig_p_values <- file_tibble %>%
+      filter(!!p_column < 0.05) %>%
+      nrow()
+    sig_p_values_adj <- file_tibble %>%
+      filter(p.adj < 0.05) %>%
+      nrow()
     p_counts <- tibble(p_values, sig_p_values, sig_p_values_adj)
 
 
@@ -1219,70 +1268,71 @@ adjustP_posthoc <-
       mutate(
         # Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
-                        as.character(formatC(p.adj, format="e", digits = 1)),
-                        as.character(round(p.adj, 3), digits = 2)),
+          as.character(formatC(p.adj, format = "e", digits = 1)),
+          as.character(round(p.adj, 3), digits = 2)
+        ),
         !!p_column := if_else(
           !!p_column < 0.001,
-          as.character(formatC(!!p_column, format="e", digits = 1)),
-          as.character(round(!!p_column, 3), digits = 2))
+          as.character(formatC(!!p_column, format = "e", digits = 1)),
+          as.character(round(!!p_column, 3), digits = 2)
+        )
       )
 
     # remove p,adj from file with "none" method, i.e., no p.adjustment.
     if (method == "none") {
-      file_tibble <- select(file_tibble,-p.adj)
+      file_tibble <- select(file_tibble, -p.adj)
     }
 
 
-      i = 0
-      for (cur_file in unique(file_tibble$file_name))
-      {
-        cur_set <- file_tibble %>%
-          filter(file_name == cur_file) %>%
-          select(-file_name)
+    i <- 0
+    for (cur_file in unique(file_tibble$file_name))
+    {
+      cur_set <- file_tibble %>%
+        filter(file_name == cur_file) %>%
+        select(-file_name)
 
-        # Re-save updated tables as original file name (depending of whether or
-        # not method is "none".
-        if (write) {
-          if (method == "none") {
-            write_csv(cur_set , cur_file)
-          }
-          else{
-            write_csv(cur_set %>% rename(!!new_adj_col := p.adj), cur_file)
-          }
-
-        }
-
-
-        # print table.
-        if (print) {
-          i = i + 1
-          formula_file <- cur_file %>%
-            str_replace("_b0.csv|_b1.csv|_anova.csv", "_formula.txt")
-          if (file.exists(formula_file)) {
-            my_caption <-
-              paste(i, "\\. ", read_lines(formula_file), sep = "")
-          }
-          else{
-            my_caption  <-
-              paste(i, ". ", str_replace(cur_file, ".csv", ""), sep = "")
-          }
-
-          print_this <- cur_set %>%
-            tidyStatNumbers() %>%
-            mutate(across(everything(),
-                          ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")))
-
-          if (method != "none"){
-          print_this <- print_this %>% rename(!!new_adj_col := p.adj)
-          }
-
-          print_this <- print_this %>%
-            knitr::kable(caption = my_caption) %>%
-            kable_styling(full_width = F, position = "left")
-
-          print(print_this)
+      # Re-save updated tables as original file name (depending of whether or
+      # not method is "none".
+      if (write) {
+        if (method == "none") {
+          write_csv(cur_set, cur_file)
+        } else {
+          write_csv(cur_set %>% rename(!!new_adj_col := p.adj), cur_file)
         }
       }
+
+
+      # print table.
+      if (print) {
+        i <- i + 1
+        formula_file <- cur_file %>%
+          str_replace("_b0.csv|_b1.csv|_anova.csv", "_formula.txt")
+        if (file.exists(formula_file)) {
+          my_caption <-
+            paste(i, "\\. ", read_lines(formula_file), sep = "")
+        } else {
+          my_caption <-
+            paste(i, ". ", str_replace(cur_file, ".csv", ""), sep = "")
+        }
+
+        print_this <- cur_set %>%
+          tidyStatNumbers() %>%
+          mutate(across(
+            everything(),
+            ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1")
+          ))
+
+        if (method != "none") {
+          print_this <- print_this %>% rename(!!new_adj_col := p.adj)
+        }
+
+        print_this <- print_this %>%
+          knitr::kable(caption = my_caption) %>%
+          kable_styling(full_width = F, position = "left")
+
+        print(print_this)
+      }
+    }
 
 
     if (report) {
@@ -1292,71 +1342,82 @@ adjustP_posthoc <-
 ###
 ###  Tidy Predictions ##########################################################
 printTidyPredictions <-
-  function(model, caption_suffix, factor_matrix = F) {
+  function(model, caption_suffix, factor_matrix = F,
+           digits = 2) {
     require("ggeffects")
     require("tidyverse")
     require("knitr")
     require("kableExtra")
 
 
-      pred_list <- ggpredict(model)
-      obj_names <- names(pred_list)
-      obj_i = 0
-      if (factor_matrix) {
-        ggpredict(model, terms = obj_names) %>%
-          as_tibble() %>%
+    pred_list <- ggpredict(model)
+    obj_names <- names(pred_list)
+    obj_i <- 0
+    if (factor_matrix) {
+      ggpredict(model, terms = obj_names) %>%
+        as_tibble() %>%
+        relocate(std.error, .after = conf.high) %>%
+        relocate(group, .before = x) %>%
+        tidyNumbers(digits = digits) %>%
+        rename(estimate = x) %>%
+        arrange(group) %>%
+        mutate(across(
+          c(group, estimate),
+          ~ str_replace_all(
+            .,
+            "(\\_|\\[|\\]|\\$|\\^|\\>)",
+            "\\\\\\1"
+          )
+        )) %>%
+        knitr::kable(caption = paste(
+          "predicted probability of",
+          response_labels(model)
+        )) %>%
+        kable_styling(full_width = F, position = "left") %>%
+        print()
+    } else {
+      for (cur_obj in pred_list)
+      {
+        obj_i <- obj_i + 1
+        cur_obj_name <- obj_names[obj_i]
+        cur_obj_name <- enquo(cur_obj_name)
+        cur_caption <- cur_obj %>%
+          get_title() %>%
+          paste(caption_suffix)
+
+        as_tibble(cur_obj) %>%
+          select(-group) %>%
           relocate(std.error, .after = conf.high) %>%
-          relocate(group , .before = x) %>%
-          tidyNumbers() %>%
-          rename(estimate = x) %>%
-          arrange(group) %>%
-          mutate(across(c(group, estimate),
-                        ~ str_replace_all(.,
-                                          "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                                          "\\\\\\1"))) %>%
-          knitr::kable(caption = paste("predicted probability of",
-                                       response_labels(model))) %>%
+          mutate(
+            x = str_replace_all(
+              x,
+              "(\\_|\\[|\\]|\\$|\\^|\\>)",
+              "\\\\\\1"
+            )
+          ) %>%
+          tidyNumbers(digits = digits) %>%
+          rename(!!cur_obj_name := x) %>%
+          knitr::kable(caption = cur_caption) %>%
           kable_styling(full_width = F, position = "left") %>%
           print()
       }
-      else
-      {
-        for (cur_obj in pred_list)
-        {
-          obj_i = obj_i + 1
-          cur_obj_name <- obj_names[obj_i]
-          cur_obj_name = enquo(cur_obj_name)
-          cur_caption <- cur_obj %>% get_title
-
-          as_tibble(cur_obj) %>%
-            select(-group) %>%
-            relocate(std.error, .after = conf.high) %>%
-            mutate(
-              x = str_replace_all(x,
-                                  "(\\_|\\[|\\]|\\$|\\^|\\>)",
-                                  "\\\\\\1")
-            ) %>%
-            tidyNumbers() %>%
-            rename(!!cur_obj_name := x) %>%
-            knitr::kable(caption = cur_caption) %>%
-            kable_styling(full_width = F, position = "left") %>%
-            print()
-
-        }
-      }
+    }
   }
 ###
 ###  Shorten P Adjustment method name ##########################################
-shortPAdjMeth <- function(method){
+shortPAdjMeth <- function(method) {
   require("mefa4")
-  if(method %in% c("hochberg", "hommel", "bonferroni")) {
+  if (method %in% c("hochberg", "hommel", "bonferroni")) {
     short_meth <- switch(method,
-                         "hochberg" = "hoch",
-                         "hommel" = "homm",
-                         "bonferroni" = "bonf")
+      "hochberg" = "hoch",
+      "hommel" = "homm",
+      "bonferroni" = "bonf"
+    )
+  } else {
+    short_meth <- method
   }
-  else{short_meth <- method}
-  return(short_meth)}
+  return(short_meth)
+}
 
 ###
 ###  Output Chi Squared Results ################################################
@@ -1364,16 +1425,15 @@ outputChiSqResults <- function(anova,
                                model,
                                extra_text = "",
                                write = "test",
-                               post_hoc_method = "BH")
-
-{
+                               post_hoc_method = "BH") {
   # rename and enquote relevant arguments.
   my_formula <- getModelFormula(model)
 
   post_hoc_method <- paste("p.adj (",
-                           shortPAdjMeth(post_hoc_method),
-                           ")",
-                           sep = "")
+    shortPAdjMeth(post_hoc_method),
+    ")",
+    sep = ""
+  )
   post_hoc_method <- enquo(post_hoc_method)
 
   # convert anova to formattable object
@@ -1381,26 +1441,33 @@ outputChiSqResults <- function(anova,
     formattable(caption = paste("ANOVA:", my_formula, extra_text)) %>%
     # tidy up decimal places
     mutate(
-      across(2:last_col(),
-             ~ if_else(abs(.) > 100000,
-                       as.character(formatC(., format = "e", digits = 1)),
-                       if_else(round(.) == .,
-                               as.character(.),
-                               as.character(round(., 3), digits = 3)))))
+      across(
+        2:last_col(),
+        ~ if_else(abs(.) > 100000,
+          as.character(formatC(., format = "e", digits = 1)),
+          if_else(round(.) == .,
+            as.character(.),
+            as.character(round(., 3), digits = 3)
+          )
+        )
+      )
+    )
 
-    # Save anova
-    anova %>%
+  # Save anova
+  anova %>%
     # add blank p.adj and significance columns.
     mutate(!!post_hoc_method := NA, signif. = NA) %>%
     relocate(signif., .after = !!post_hoc_method) %>%
     write_csv(paste(write, "_anova.csv", sep = ""))
 
-    # Save formula
-    write(paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
-          paste(write, "_formula.txt", sep = ""))
+  # Save formula
+  write(
+    paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
+    paste(write, "_formula.txt", sep = "")
+  )
 
-    # Return tidy anova.
-    return(anova)
+  # Return tidy anova.
+  return(anova)
 }
 
 
@@ -1411,29 +1478,36 @@ tidyNumbers <- function(data,
                         p.decimals = 3,
                         abs.max = 10^4,
                         abs.min = 0.01,
-                        digits = 2){
-
+                        digits = 2) {
+  abs.min <- 10^(-digits)
   data %>%
     mutate(
       across(
         any_of(p.value) & where(is.numeric),
         ~ if_else(
-          . < 10 ^(-p.decimals),
-          paste("<", format(10^-p.decimals, scientific = F), sep="") %>%
+          . < 10^(-p.decimals),
+          paste("<", format(10^(-p.decimals), scientific = F),
+            sep =
+              ""
+          ) %>%
             str_replace("0\\.", "."),
           as.character(round(., p.decimals))
         )
       ),
       across(
         where(is.numeric),
-        ~ if_else(abs(.) < abs.min | abs(.) >= abs.max,
-                  as.character(formatC(., format = "e", (digits - 1))),
-                  as.character(round(., digits))
+        ~ if_else(
+          abs(.) >= abs.max,
+          as.character(formatC(., format = "e", (digits - 1))),
+          if_else(
+            abs(.) <= abs.min & abs(.) > 0,
+            paste("<", abs.min),
+            as.character(round(., digits))
+          )
         )
       )
     ) %>%
     return()
-
 }
 
 
@@ -1446,54 +1520,60 @@ tidyStatNumbers <- function(stats) {
   lost_factors <- NULL
   original_factors <- as.vector(select(stats, 1))$term
   stats <- filter(stats, !is.na(stats[[2]]))
-  if(nrow(stats) != original_nrow){
+  if (nrow(stats) != original_nrow) {
     lost_factors <- original_factors[original_factors %notin% as.vector(
       select(stats, 1)
-      )$term]
+    )$term]
     cat(paste(lost_factors, sep = ", "), " couldn't be calculated.\n")
-        }
+  }
 
 
-    stats <- mutate(stats,
-           across(contains("signif."),
-                  ~ if_else(is.na(.), "", as.character(.))),
-           across(
-             where(is_double) & !(contains("p.") | contains("Pr")),
-             ~
-               if_else(
-                 abs(.) > 1000,
-                 as.character(round(., 0)),
-                 as.character(round(., 2), digits = 2)
-               )
-           ),
-           across(starts_with("p.") | starts_with("p_") | starts_with("Pr"),
-                  ~ if_else(as.numeric(.) < 0.001,
-                            "< .001",
-                           trim_zeros(.))
-                  ),
-           across(where(is_character),
-                  ~ if_else(. == "0.0e+00" | . == "-0.0e+00", "0", .)),
-           across(where(is_character), ~ str_replace(., "TRUE", "T")),
-           across(where(is_character), ~ str_replace(., "FALSE", "F"))
-           )
+  stats <- mutate(
+    stats,
+    across(
+      contains("signif."),
+      ~ if_else(is.na(.), "", as.character(.))
+    ),
+    across(
+      where(is_double) & !(contains("p.") | contains("Pr")),
+      ~
+        if_else(
+          abs(.) > 1000,
+          as.character(round(., 0)),
+          as.character(round(., 2), digits = 2)
+        )
+    ),
+    across(
+      starts_with("p.") | starts_with("p_") | starts_with("Pr"),
+      ~ if_else(as.numeric(.) < 0.001,
+        "< .001",
+        trim_zeros(.)
+      )
+    ),
+    across(
+      where(is_character),
+      ~ if_else(. == "0.0e+00" | . == "-0.0e+00", "0", .)
+    ),
+    across(where(is_character), ~ str_replace(., "TRUE", "T")),
+    across(where(is_character), ~ str_replace(., "FALSE", "F"))
+  )
 
 
-    for(i in lost_factors){
-      stats <- add_row(stats, term = i)
-    }
+  for (i in lost_factors) {
+    stats <- add_row(stats, term = i)
+  }
 
-    # stats <- mutate(stats,
-    #                 across(.cols = everything(), ~ if_else(is.na(.), "", .)))
-    return(stats)
-
+  # stats <- mutate(stats,
+  #                 across(.cols = everything(), ~ if_else(is.na(.), "", .)))
+  return(stats)
 }
 
 ###
 ###  Optimize Models based on lme4 package #####################################
 optimizeModel <- function(model,
-                       checks = c("allFit", "optimx", "nloptwrap"),
-                       verbose = T,
-                       reject_nm = T) {
+                          checks = c("allFit", "optimx", "nloptwrap"),
+                          verbose = T,
+                          reject_nm = T) {
 
   ###
   # Returns lme4-based model which converges, if possible.
@@ -1523,11 +1603,12 @@ optimizeModel <- function(model,
   solution <- "original model"
   original_model <- model
 
-  if(verbose){
-  cat("Searching for good optimization settings with optimizeModel().\n",
-      sep = "")
-  cat("  Formula:   ", getModelFormula(model), "\n", sep = "")
-  cat("  Optimizer: ", model@optinfo$optimizer, "\n", sep = "")
+  if (verbose) {
+    cat("Searching for good optimization settings with optimizeModel().\n",
+      sep = ""
+    )
+    cat("  Formula:   ", getModelFormula(model), "\n", sep = "")
+    cat("  Optimizer: ", model@optinfo$optimizer, "\n", sep = "")
   }
 
   ### inner functions
@@ -1538,25 +1619,30 @@ optimizeModel <- function(model,
     ncores <- detectCores()
 
     # Run allFit on multiple cores.
-    if (verbose){
-    cat("\nchecking allFit()\n", sep = "")
-      }
+    if (verbose) {
+      cat("\nchecking allFit()\n", sep = "")
+    }
     diff_optims <-
       allFit(model,
-             maxfun = 1e5,
-             verbose = verbose,
-             parallel = "multicore",
-             ncpus = ncores)
+        maxfun = 1e5,
+        verbose = verbose,
+        parallel = "multicore",
+        ncpus = ncores
+      )
 
     # Get list of allFit() model messages
     diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
-    lapply(diff_optims_OK, function(x)
-      x@optinfo$conv$lme4$messages)
+    lapply(diff_optims_OK, function(x) {
+      x@optinfo$conv$lme4$messages
+    })
 
     # Get logical list of "well" optimized models (i.e. no messages).
-    convergence_results <-lapply(diff_optims_OK,
-                                 function(x)
-                                   x@optinfo$conv$lme4$messages)
+    convergence_results <- lapply(
+      diff_optims_OK,
+      function(x) {
+        x@optinfo$conv$lme4$messages
+      }
+    )
 
     working_indices <- sapply(convergence_results, is.null)
 
@@ -1574,47 +1660,60 @@ optimizeModel <- function(model,
     original_model <- model
     optimx_options <-
       c("L-BFGS-B", "nlminb", "nlm", "bobyqa", "hjkb")
-    if (!reject_nm){optimx_options <- c(optimx_options,  "nmkb")}
+    if (!reject_nm) {
+      optimx_options <- c(optimx_options, "nmkb")
+    }
 
     num_options <- length(optimx_options)
     info <- "No option"
-    if(verbose){
-    cat("\nChecking optimx optimization settings", sep = "")
-      }
+    if (verbose) {
+      cat("\nChecking optimx optimization settings", sep = "")
+    }
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nm)) {
-      i  <-  i + 1
-      if(verbose){
-      cat(",", optimx_options[i])
+      i <- i + 1
+      if (verbose) {
+        cat(",", optimx_options[i])
 
         # Either use glmerControl...
-        if(isGLMM(model)) {
+        if (isGLMM(model)) {
           try(model <- update(model,
-                              control = glmerControl(
-                                optimizer = "optimx",
-                                optCtrl = list(method = optimx_options[i],
-                                               maxit = 1e9))),
-              silent = T)
+            control = glmerControl(
+              optimizer = "optimx",
+              optCtrl = list(
+                method = optimx_options[i],
+                maxit = 1e9
+              )
+            )
+          ),
+          silent = T
+          )
         }
         # ... or use lmerControl
         else {
           try(model <- update(model,
-                              control = lmerControl(
-                                optimizer = "optimx",
-                                optCtrl = list(method = optimx_options[i],
-                                               maxit = 1e9))),
-              silent = T)
+            control = lmerControl(
+              optimizer = "optimx",
+              optCtrl = list(
+                method = optimx_options[i],
+                maxit = 1e9
+              )
+            )
+          ),
+          silent = T
+          )
         }
       }
     }
 
-    if(verbose){cat("\n")}
+    if (verbose) {
+      cat("\n")
+    }
 
     if (modelIsOK(model, reject_nm)) {
       info <- optimx_options[i]
-    }
-    else {
+    } else {
       model <- original_model
     }
 
@@ -1624,69 +1723,85 @@ optimizeModel <- function(model,
   trynlopt <- function(model, reject_nm = T, verbose = F) {
     # Tries to return a model which converges by through lnloptwrap algorithms.
     original_model <- model
-    opts <- c("NLOPT_LN_PRAXIS",
-              "NLOPT_GN_CRS2_LM",
-              "NLOPT_LN_COBYLA",
-              "NLOPT_LN_NEWUOA",
-              "NLOPT_LN_NEWUOA_BOUND",
-              "NLOPT_LN_SBPLX",
-              "NLOPT_LN_BOBYQA")
+    opts <- c(
+      "NLOPT_LN_PRAXIS",
+      "NLOPT_GN_CRS2_LM",
+      "NLOPT_LN_COBYLA",
+      "NLOPT_LN_NEWUOA",
+      "NLOPT_LN_NEWUOA_BOUND",
+      "NLOPT_LN_SBPLX",
+      "NLOPT_LN_BOBYQA"
+    )
     if (!reject_nm) {
-      opts = c(opts, "NLOPT_LN_NELDERMEAD")
+      opts <- c(opts, "NLOPT_LN_NELDERMEAD")
     }
 
     num_options <- length(opts)
     info <- "No option"
-    if(verbose){cat("\nChecking nloptwrap options", sep = "")}
+    if (verbose) {
+      cat("\nChecking nloptwrap options", sep = "")
+    }
 
     i <- 0
     while (i < num_options & !modelIsOK(model, reject_nm)) {
-      i  <- i + 1
-      if(verbose){cat(",", opts[i])}
+      i <- i + 1
+      if (verbose) {
+        cat(",", opts[i])
+      }
       cur_option <- opts[i]
 
       # Either use glmerControl...
-      if(isGLMM(model)) {
+      if (isGLMM(model)) {
         try(model <- update(model, control = glmerControl(
-          optimizer = "nloptwrap", optCtrl = list(algorithm = opts[i],
-                                                  maxfun = 1e9,
-                                                  maxeval = 1e7,
-                                                  xtol_abs = 1e-9,
-                                                  ftol_abs = 1e-9,
-                                                  tol = 1e-9)
+          optimizer = "nloptwrap", optCtrl = list(
+            algorithm = opts[i],
+            maxfun = 1e9,
+            maxeval = 1e7,
+            xtol_abs = 1e-9,
+            ftol_abs = 1e-9,
+            tol = 1e-9
+          )
         )),
-        silent = T)
+        silent = T
+        )
       }
       # ... or use lmerControl
       else {
         try(model <- update(model, control = lmerControl(
-          optimizer = "nloptwrap", optCtrl = list(algorithm = opts[i],
-                                                  maxfun = 1e9,
-                                                  maxeval = 1e7,
-                                                  xtol_abs = 1e-9,
-                                                  ftol_abs = 1e-9)
-          )),
-          silent = T)
+          optimizer = "nloptwrap", optCtrl = list(
+            algorithm = opts[i],
+            maxfun = 1e9,
+            maxeval = 1e7,
+            xtol_abs = 1e-9,
+            ftol_abs = 1e-9
+          )
+        )),
+        silent = T
+        )
       }
-
-
     }
-    if(verbose){cat("\n")}
+    if (verbose) {
+      cat("\n")
+    }
 
     if (modelIsOK(model, reject_nm)) {
       info <- opts[i]
+      if (isGLMM(model)) {
+        ctrlPrefix <- "g"
+      } else {
+        ctrlPrefix <- "g"
+      }
       cat("\n\n")
       cat("***** WARNING ****\n")
-      cat("NB: manually update lmerControl:\n\n")
-            cat("control = lmerControl(\n")
-            cat("  optimizer = \"nloptwrap\",\n")
-      cat(paste("  optCtrl = list(algorithm = \"",  opts[i], "\",\n", sep = ""))
-            cat("                 maxfun = 1e9,\n")
-            cat("                 maxeval = 1e7,\n")
-            cat("                 xtol_abs = 1e-9,\n")
-            cat("                 ftol_abs = 1e-9))\n")
-    }
-    else{
+      cat(paste0("NB: manually update ", ctrlPrefix, "lmerControl:\n\n"))
+      cat("control = lmerControl(\n")
+      cat("  optimizer = \"nloptwrap\",\n")
+      cat(paste0("  optCtrl = list(algorithm = \"", opts[i], "\",\n"))
+      cat("                 maxfun = 1e9,\n")
+      cat("                 maxeval = 1e7,\n")
+      cat("                 xtol_abs = 1e-9,\n")
+      cat("                 ftol_abs = 1e-9))\n")
+    } else {
       model <- original_model
     }
 
@@ -1702,10 +1817,12 @@ optimizeModel <- function(model,
         # check for singularity
         !isSingular(model) &
         # check for other warnings
-        is.null(model@optinfo$conv$lme4$warnings))
+        is.null(model@optinfo$conv$lme4$warnings)
+    )
 
-    if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nm){
-      ans <- F}
+    if (model@optinfo$optimizer %in% c("nmkbw", "Nelder_Mead") & reject_nm) {
+      ans <- F
+    }
 
     return(ans)
   }
@@ -1713,9 +1830,9 @@ optimizeModel <- function(model,
   getModelElements <- function(model) {
     # Get elements of a model used for functions associated with optimizeModel
     ans <- list(
-      "formula" =  formula <- formula(model),
-      "optimizer" =  model@optinfo$optimizer,
-      "frame" =  model@frame,
+      "formula" = formula <- formula(model),
+      "optimizer" = model@optinfo$optimizer,
+      "frame" = model@frame,
       "maxfun" = model@optinfo$control$maxfun,
       "package" = model@resp$.objectPackage
     )
@@ -1726,36 +1843,42 @@ optimizeModel <- function(model,
 
   ### Outer function
   if (!modelIsOK(model, reject_nm)) {
-    if(verbose){
-    cat("\nRunning basic model with less strict control settings.\n", sep = "")
+    if (verbose) {
+      cat("\nRunning basic model with less strict control settings.\n", sep = "")
     }
 
     # Either use glmerControl...
-    if(isGLMM(model)){
+    if (isGLMM(model)) {
       try(model <- update(model, control = glmerControl(
-        optCtrl = list(maxfun = 10e9,
-                       xtol_abs = 1e-9,
-                       ftol_abs = 1e-9
-                       ))))
+        optCtrl = list(
+          maxfun = 10e9,
+          xtol_abs = 1e-9,
+          ftol_abs = 1e-9
+        )
+      )))
     }
 
     # ... or lmerControl
     else {
-    try(model <- update(model, control = lmerControl(
-      optCtrl = list(maxit = 1e9,
-                     maxfun = 1e9,
-                     xtol_abs = 1e-9,
-                     ftol_abs = 1e-9))),
-      silent = T)
+      try(model <- update(model, control = lmerControl(
+        optCtrl = list(
+          maxit = 1e9,
+          maxfun = 1e9,
+          xtol_abs = 1e-9,
+          ftol_abs = 1e-9
+        )
+      )),
+      silent = T
+      )
     }
 
-    if (modelIsOK(model, reject_nm)){
-      solution  <-  "less strict control settings"
-      }
+    if (modelIsOK(model, reject_nm)) {
+      solution <- "less strict control settings"
+    }
   }
 
   if (!modelIsOK(model, reject_nm) &
-      "allFit" %in% checks) {
+    "allFit" %in% checks) {
     try(model <- tryAllFit(model, verbose), silent = T)
     if (modelIsOK(model, reject_nm)) {
       solution <- "after trying allFit()"
@@ -1779,16 +1902,17 @@ optimizeModel <- function(model,
   if (!modelIsOK(model, reject_nm)) {
     model <- original_model
     cat("\nNo alternatives converged. Reverting to original model.\n\n",
-        sep = "")
-  }
-  else {
+      sep = ""
+    )
+  } else {
     found <- getModelElements(model)
     cat("\nModel found using ",
-        found$optimizer,
-        " after trying ",
-        solution,
-        ".\n\n",
-        sep = "")
+      found$optimizer,
+      " after trying ",
+      solution,
+      ".\n\n",
+      sep = ""
+    )
   }
 
   return(model)
@@ -1804,13 +1928,14 @@ modelIsOK <- function(model, reject_nm = T) {
       # check for singularity
       !isSingular(model) &
       # check for other warnings
-      is.null(model@optinfo$conv$lme4$warnings))
+      is.null(model@optinfo$conv$lme4$warnings)
+  )
 
-  if (model@optinfo$optimizer %in% c("nmkbw","Nelder_Mead") & reject_nm){
-    ans <- F}
+  if (model@optinfo$optimizer %in% c("nmkbw", "Nelder_Mead") & reject_nm) {
+    ans <- F
+  }
 
   return(ans)
-
 }
 
 

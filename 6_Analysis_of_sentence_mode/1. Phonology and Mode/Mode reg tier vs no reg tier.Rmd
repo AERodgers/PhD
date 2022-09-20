@@ -1,28 +1,25 @@
 ---
-title: "compare phonology no-reg and reg"
-author: "Antoin Rodgers"
-date: "2022-07-26"
-output: html_document
+title: 'Chapter 07: Analysis of Function'
+subtitle: '7.5.3 Comparing the non-register tier analysis and the register tier analysis'
+output:
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=F}
-knitr::opts_chunk$set(echo = F,
-                      message = F,
-                      warning=F)
+knitr::opts_chunk$set(message = F, warning=F, tidy = "styler")
 
 
-# Load Functions.
+# Load Functions and colour variables
 source("../../2_R_Functions/myFunctions.R") 
+source("../../2_R_Functions/myColours.R")
 
 # Load packages.
 installMissingPackages(
   c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer", "blme")
 )
-```
 
 
-
-```{r Load and prepare m corpus, include=F}
 # Get  Data.
 m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
@@ -35,15 +32,15 @@ m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
       c("acc_phon", "fin_phon"),
       ~ str_replace_all(., "\\^|\\[|\\]", "")
     ),
-    is_H_boundary =  str_replace(fin_phon, "HL\\%", "H%"),
-    is_H_boundary = factor(is_H_boundary=="H%", level = c(F, T))
+    `H% likelihood` =  str_replace(fin_phon, "HL\\%", "H%"),
+    `H% likelihood` = factor(`H% likelihood`=="H%", level = c(F, T))
   ) %>%
   # Select only columns for analysis
   select(speaker,
          gender,
          mode,
          prompt,
-         is_H_boundary)
+          `H% likelihood`)
 
 
 
@@ -61,10 +58,13 @@ m_corpus_H_reg <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 
 ```
 
-### __BGLMM analysis for likelihood of H% (non-register tier analysis)__
-```{r GLMM Test of H boundary re mode in non-reg tier analysis, results='asis', fig.width = 4.2, fig.height = 2.5}
+## BGLMM Models {.tabset}
+
+### likelihood of H% in non-register tier analysis
+
+```{r H boundary re mode in non-reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5,}
 fin_phon_model_H_or_not <- bglmer(
-  is_H_boundary ~ mode + (1 | speaker) + (1 | prompt),
+  `H% likelihood` ~ mode + (1 | speaker) + (1 | prompt),
   data = m_corpus_is_H_boundary,
   family = binomial(link = "logit"),
   fixef.prior = normal()
@@ -72,15 +72,16 @@ fin_phon_model_H_or_not <- bglmer(
 
 tidy_summary_non_reg <- analyseModel(fin_phon_model_H_or_not,
                              is_GLM = T,
-                             type = "pred")
+                             type = "pred",
+                             short_caption = T)
 
-tidy_summary_non_reg$table
+tidy_summary_non_reg$table %>% tidyStatNumbers()
 ```
 
 
-### __BGLMM analysis for likelihood of high register__
+### Likelihood of high register in register-tier analysis
 
-```{r GLMM Test of high reg re mode in reg tier analysis, results='asis', fig.width = 4.2, fig.height = 2.5}
+```{r GLMM Test of high reg re mode in reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5}
 h_reg_model <- bglmer(
   `high register in nucleus` ~ mode + (1 | speaker) + (1 | prompt),
   data = m_corpus_H_reg,
@@ -91,7 +92,7 @@ h_reg_model <- bglmer(
 tidy_summary_reg <- analyseModel(h_reg_model,
                              is_GLM = T,
                              type = "pred",
-                             factor_matrix=T)
+                             short_caption = T)
 
-tidy_summary_reg$table
+tidy_summary_reg$table %>% tidyStatNumbers()
 ```
