@@ -1,1 +1,1 @@
-is_H_boundary ~ mode + gender + (1 | speaker) + (1 | prompt)
+H% ~ mode + gender + (1 | speaker) + (1 | prompt)

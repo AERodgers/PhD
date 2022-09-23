@@ -4,6 +4,8 @@ subtitle: '7.5.1 Non-register-tier analysis of intonational phonology'
 output:
   html_document:
     code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=F}
@@ -12,24 +14,30 @@ knitr::opts_chunk$set(warning = F,
 
 
 # Load Functions and colour variables
-source("../../2_R_Functions/myFunctions.R") 
-source("../../2_R_Functions/myColours.R") 
+source("../../2_R_Functions/myFunctions.R")
+source("../../2_R_Functions/myColours.R")
 # Load packages.
-installMissingPackages(c("tidyverse",
-                         "formattable",
-                         "janitor",
-                         "knitr",
-                         "RColorBrewer",
-                         "ggeffects",
-                         "blme"))
+installMissingPackages(
+  c(
+    "tidyverse",
+    "formattable",
+    "janitor",
+    "knitr",
+    "RColorBrewer",
+    "ggeffects",
+    "blme",
+    "ggrepel"
+  )
+)
 
 # Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
     fin_phon = if_else(
       acc_phon == "L*^[H]",
-      paste("H", fin_phon, sep=""),
-      paste(fin_phon)),
+      paste("H", fin_phon, sep = ""),
+      paste(fin_phon)
+    ),
     acc_phon == str_replace(acc_phon, "L\\*\\^\\[H\\]", "L\\*H"),
     nuc_contour = paste(acc_phon, fin_phon, sep = " "),
     # remove non-accentuation from phr_phon
@@ -71,7 +79,7 @@ threshold = 8
 keep_list <- m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   group_by(phr_phon) %>%
-  summarise(phon_count = n()) %>% 
+  summarise(phon_count = n()) %>%
   filter(phon_count >= 8)
 ```
 
@@ -85,19 +93,18 @@ m_corpus %>%
   pivot_wider(names_from = acc_phon,
               values_from = acc_count,
               values_fill = 0) %>%
-  select("speaker", "H*", "L*H", ">H*")  %>% 
-  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
-  adorn_totals(where = "row") %>% 
+  select("speaker", "H*", "L*H", ">H*")  %>%
+  rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
+  adorn_totals(where = "row") %>%
   formattable(
     caption =
       "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
-    list(area(col = 2:4, row= 1:nrow(.)-1) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], 11),
+    list(area(col = 2:4, row = 1:nrow(.) - 1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[1], 11),
       rep(brewer.pal(6, "Pastel2")[3], 11),
       rep(brewer.pal(6, "Pastel2")[4], 11)
-
-      )))
-    )
+      
+    ))))
 
 ```
 
@@ -108,7 +115,7 @@ m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
   group_by(mode, phr_phon) %>%
-  summarise(phon_count = n(), .groups="rowwise") %>%
+  summarise(phon_count = n(), .groups = "rowwise") %>%
   arrange(desc(phon_count)) %>%
   mutate(phr_phon = str_replace_all(phr_phon,
                                     "(\\*)", "\\\\\\1")) %>%
@@ -129,15 +136,16 @@ m_corpus %>%
       " of all tokens.",
       sep = ""
     ),
-    list(area(col = 3:6) ~ proportion_bar(color = c(
+    list(
+      area(col = 3:6) ~ proportion_bar(color = c(
         rep(brewer.pal(4, "Pastel2")[3], nrow(.)),
         rep(brewer.pal(4, "Pastel2")[2], nrow(.)),
         rep(brewer.pal(4, "Pastel2")[1], nrow(.)),
         rep(brewer.pal(4, "Pastel2")[4], nrow(.))
-        )),
+      )),
       total = proportion_bar(color = "#aaaaaa")
     )
-    )
+  )
 ```
 
 ### Utterance Phonology (all)
@@ -145,13 +153,13 @@ m_corpus %>%
 ```{r print all utterance phonology by mode}
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
-
+  
   group_by(phr_phon) %>%
   summarise(phon_count = n()) %>%
   arrange(desc(phon_count)) %>%
-  mutate(
-    phr_phon = str_replace_all(phr_phon, "([\\*\\[\\^\\>])", "\\\\\\1")
-    ) %>%
+  mutate(phr_phon = str_replace_all(phr_phon,
+                                    "([\\*\\[\\^\\>])",
+                                    "\\\\\\1")) %>%
   formattable(
     caption = paste(
       "Utterance level intonational phonology without Register Tier",
@@ -159,6 +167,7 @@ m_corpus %>%
     )
   )
 ```
+
 
 ## Adjusted Data
 
@@ -173,96 +182,101 @@ Firstly a tibble is created summarising the proportion of pitch accents per mode
 From this table to summary tables are created:
 
 1.  pitch accents per speaker (adjusted)
-    a.  Calculate the sum all proproations per token per speaker.
+    a.  Calculate the sum all proportions per token per speaker.
     b.  Convert proportions to an integer based on an ideal total number of tokens per speaker.
 2.  pitch accents per speaker (adjusted):
-    a.  Calculate the sum all proproations per token per mode.
+    a.  Calculate the sum all proportions per token per mode.
     b.  Convert proportions to an integer based on an ideal total number of tokens per mode
 3.  pitch accents by gender and mode (adjusted):
-    a.  Calculate the sum all proproations per token by mode and gender.
-    b.  Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal numnber of male and female participants.
+    a.  Calculate the sum all proportions per token by mode and gender.
+    b.  Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal number of male and female participants.
 
 ```{r create tables for summarising adjusted pitch accent distributions}
 # Create tibble summarising  proportion of pitch accents per mode per speaker
 pa_adj <- m_corpus %>%
-    # Count the number of acc_phon by speaker and mode
-    group_by(speaker, stim, acc_phon) %>%
-    summarise(nuc_count = n(), .groups = "keep") %>%
-    pivot_wider(names_from=acc_phon, values_from=nuc_count, values_fill = 0) %>%
-    # convert the totals to proportion per stim.
-    adorn_totals("col") %>% 
-    mutate(across(3:5,  ~  (. / Total))) %>%
-    select(-Total) %>% 
-    # Convert stim column to mode.
-    rename(mode = stim) %>% 
-    mutate(mode = substr(mode, 1, 3)) %>%
-    # Convert the values to proportion per mode
-    pivot_longer(3:last_col(), "acc_phon") %>% 
-    group_by(speaker, mode, acc_phon) %>%
-    pivot_wider(names_from=acc_phon,
-                values_from=value,
-                values_fill = 0,
-                values_fn = ~sum(.)) %>%
-    adorn_totals("col") %>% 
-    mutate(across(3:5, ~ (. / Total)),
-           mode = factor(mode, levels = c("MDC", "MWH", "MYN", "MDQ"))
-           ) %>%
-    select(-Total) %>%
-    as_tibble()
+  # Count the number of acc_phon by speaker and mode
+  group_by(speaker, stim, acc_phon) %>%
+  summarise(nuc_count = n(), .groups = "keep") %>%
+  pivot_wider(names_from = acc_phon,
+              values_from = nuc_count,
+              values_fill = 0) %>%
+  # convert the totals to proportion per stim.
+  adorn_totals("col") %>%
+  mutate(across(3:5,  ~  (. / Total))) %>%
+  select(-Total) %>%
+  # Convert stim column to mode.
+  rename(mode = stim) %>%
+  mutate(mode = substr(mode, 1, 3)) %>%
+  # Convert the values to proportion per mode
+  pivot_longer(3:last_col(), "acc_phon") %>%
+  group_by(speaker, mode, acc_phon) %>%
+  pivot_wider(
+    names_from = acc_phon,
+    values_from = value,
+    values_fill = 0,
+    values_fn = ~ sum(.)
+  ) %>%
+  adorn_totals("col") %>%
+  mutate(across(3:5, ~ (. / Total)),
+         mode = factor(mode, levels = c("MDC", "MWH", "MYN", "MDQ"))) %>%
+  select(-Total) %>%
+  as_tibble()
 
 # Create tibble of pitch accents per speaker (adjusted).
 pa_by_speaker_adj <- pa_adj %>%
   # Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
-  select(-mode) %>% 
-  pivot_wider(names_from = acc_phon,
-              values_from = value,
-              values_fill = 0,
-              values_fn = ~ sum(.)
-              ) %>%
+  select(-mode) %>%
+  pivot_wider(
+    names_from = acc_phon,
+    values_from = value,
+    values_fill = 0,
+    values_fn = ~ sum(.)
+  ) %>%
   # Convert proportions to an integer based on an ideal total number of tokens
   # per speaker.
-  mutate(across(2:4, ~ round(. * 15, 0))) %>% 
+  mutate(across(2:4, ~ round(. * 15, 0))) %>%
   select("speaker", "H*", "L*H", ">H*")
 
 # Create tibble of pitch accents per mode (adjusted).
 pa_by_mode_adj <- pa_adj %>%
   # Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
-  select(-speaker) %>% 
-  pivot_wider(names_from = acc_phon,
-              values_from = value,
-              values_fill = 0,
-              values_fn = ~ sum(.)
-              ) %>% 
+  select(-speaker) %>%
+  pivot_wider(
+    names_from = acc_phon,
+    values_from = value,
+    values_fill = 0,
+    values_fn = ~ sum(.)
+  ) %>%
   # Convert proportions to an integer based on an ideal total number of tokens.
-  mutate(across(2:4, ~ round(. * 15, 0))) %>% 
-  select("mode", "H*", "L*H", ">H*")  %>% 
+  mutate(across(2:4, ~ round(. * 15, 0))) %>%
+  select("mode", "H*", "L*H", ">H*")  %>%
   arrange(mode)
 
 # Create tibble of pitch accents by gender and mode (adjusted).
 pa_by_gender_adj <- pa_adj %>%
   # Convert gender to speaker
   mutate(speaker = substr(speaker, 1, 1),
-         speaker = factor(speaker, levels=unique(speaker))) %>% 
-  rename(gender = speaker) %>% 
+         speaker = factor(speaker, levels = unique(speaker))) %>%
+  rename(gender = speaker) %>%
   # Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
-  pivot_wider(names_from = acc_phon,
-              values_from = value,
-              values_fill = 0,
-              values_fn = ~ sum(.)
-              ) %>%
+  pivot_wider(
+    names_from = acc_phon,
+    values_from = value,
+    values_fill = 0,
+    values_fn = ~ sum(.)
+  ) %>%
   # Convert proportions to an integer based on an ideal total number of tokens
   # per speaker.
-  mutate(across(3:5, ~ if_else(gender=="F",
-                               round(. * 15, 0),
-                               # project equal number of Male & Female speakers.
-                               round(. * 18, 0)
-                               )
-                )
-         ) %>% 
-  select("mode", "gender", "H*", "L*H", ">H*")  %>% 
+  mutate(across(3:5, ~ if_else(
+    gender == "F",
+    round(. * 15, 0),
+    # project equal number of Male & Female speakers.
+    round(. * 18, 0)
+  ))) %>%
+  select("mode", "gender", "H*", "L*H", ">H*")  %>%
   arrange(mode)
 
 ```
@@ -273,15 +287,16 @@ pa_by_gender_adj <- pa_adj %>%
 
 ```{r pitch accent by speaker adjusted}
 pa_by_speaker_adj %>%
-  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
-  adorn_totals(where = "row") %>% 
+  rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
+  adorn_totals(where = "row") %>%
   formattable(
-    caption="Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
-    list(area(col = 2:4, row=1:nrow(.)-1) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1)
-      )))
+    caption =
+      "Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
+    list(area(col = 2:4, row = 1:nrow(.) - 1) ~ proportion_bar(
+      color = c(rep(brewer.pal(6, "Pastel2")[1], nrow(.) - 1),
+                rep(brewer.pal(6, "Pastel2")[3], nrow(.) - 1),
+                rep(brewer.pal(6, "Pastel2")[4], nrow(.) - 1))
+      ))
     )
 
 ```
@@ -291,44 +306,50 @@ pa_by_speaker_adj %>%
 ```{r warning=T, fig.width = 5, fig.height = 2.5, results="asis"}
 # Percentage Stacked bar
 
-ggplot(pa_by_speaker_adj %>%
-         #uncount data for chart
-         gather("acc_phon", "count",-c(speaker)) %>%
-         uncount(count) %>%
-         mutate(acc_phon = factor(acc_phon, levels=unique(acc_phon))),
-       aes(fill = acc_phon, x = speaker)) +
+ggplot(
+  pa_by_speaker_adj %>%
+    #uncount data for chart
+    gather("acc_phon", "count", -c(speaker)) %>%
+    uncount(count) %>%
+    mutate(acc_phon = factor(acc_phon, levels = unique(acc_phon))),
+  aes(fill = acc_phon, x = speaker)
+) +
   
-  geom_bar(stat = "count",
-           position = "fill",
-           width = 0.30,
-           colour = "black") +
+  geom_bar(
+    stat = "count",
+    position = "fill",
+    width = 0.30,
+    colour = "black"
+  ) +
   
   scale_fill_manual(
-    values = pitch_accent_colours
-    [colnames(pa_by_speaker_adj[2:length(pa_by_speaker_adj)])]
+    values = pitch_accent_colours[
+      colnames(pa_by_speaker_adj[2:length(pa_by_speaker_adj)])
+      ]
     ) +
   
   
   labs(y = "Proportion of Pitch Accents", x = "Speaker") +
   theme(panel.border = element_rect(fill = NA)) +
-  scale_y_continuous(sec.axis = sec_axis( ~ . * 3 + 4))
+  scale_y_continuous(sec.axis = sec_axis(~ . * 3 + 4))
 ```
 
 #### By Sentence Mode
 
 ```{r warning=F}
-# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
+# Calculate a projected balanced number of tokens for each PA as a function of
+# sentence mode.
 #
 # This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
 
- pa_by_mode_adj %>%
-  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
-  adorn_totals("row") %>% 
+pa_by_mode_adj %>%
+  rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
+  adorn_totals("row") %>%
   formattable(
-    caption=
+    caption =
       "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
-    list(area(col=2:4, row=1:4) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], 4),
+    list(area(col = 2:4, row = 1:4) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[1], 4),
       rep(brewer.pal(6, "Pastel2")[3], 4),
       rep(brewer.pal(6, "Pastel2")[4], 4)
       )))
@@ -436,12 +457,13 @@ nuc_contour_by_speaker_adj %>%
   formattable(
     caption="Distibution by speaker of nuclear contours in M-corpus (adjusted)",
     align="r",
-    list(area(col = 2:6, row=1:nrow(.)-1) ~ proportion_bar(color = c(
+    list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(8, "Pastel2")[3], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[7], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(8, "Pastel2")[8], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[4], nrow(.)-1),
-      rep(brewer.pal(8, "Pastel2")[5], nrow(.)-1)
+      rep(brewer.pal(8, "Pastel2")[1], nrow(.)-1)
       )))
     )
 ```
@@ -480,9 +502,11 @@ ggplot(data = nuc_contour_by_speaker_adj %>%
 #### By nuclear pitch contour and sentence mode
 
 ```{r table of adjusted distribution of nuc contours by mode}
-# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
+# Calculate a projected balanced number of tokens for each PA as a function of
+# sentence mode.
 #
-# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
+# This takes into consideration the number of utterances per speaker per
+# stimulus and the number of speakers per stimulus.
 
 nuc_contour_by_mode_adj %>%
   rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
@@ -495,57 +519,77 @@ nuc_contour_by_mode_adj %>%
       rep(brewer.pal(8, "Pastel2")[2], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[8], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[4], nrow(.)-1),
-      rep(brewer.pal(8, "Pastel2")[5], nrow(.)-1)
+      rep(brewer.pal(8, "Pastel2")[1], nrow(.)-1)
       )))
   )
 
 ```
 
-### Nuclear pitch contour by sentence mode and gender {.tabset}
+### Contour by Mode and Gender {.tabset}
 
 It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this as a general conclusion, especially as it is only M8, M9, and M10 who do this.
 
 #### Common contours
 
 ```{r plot adjusted distrubition of contours by mode, fig.height=4, fig.width=5.1, results="asis"}
-ggplot(
+my_plot <- ggplot(
   nuc_contour_by_mode_adj %>%
     # Uncount table for bar chart.
     pivot_longer(2:last_col(), "nuc_contour") %>%
     uncount(value) %>%
-    mutate(
-      nuc_contour=
-        factor(
-          nuc_contour,
-          levels = c("L*H %", "L*H L%", "L*H H%", "L*H HL%", ">H* L%", "H* L%"))
-      )) +
-  geom_bar(mapping = aes(x = mode,
-                         y = (..count..) / sum(..count..),
-                         fill = nuc_contour),
-           show.legend = F,
-           colour = "black",
-           position = position_dodge2(preserve = "single")) +
+    mutate(nuc_contour =
+             factor(
+               nuc_contour,
+               levels = c(
+                 "L*H %", "L*H L%", "L*H H%", "L*H HL%", ">H* L%", "H* L%"
+                 )
+             ))
+) +
+  geom_bar(
+    mapping = aes(
+      x = mode,
+      y = (..count..) / sum(..count..),
+      fill = nuc_contour
+    ),
+    show.legend = F,
+    colour = "black",
+    position = position_dodge2(preserve = "single")
+  ) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.28)) +
-  facet_wrap(~nuc_contour,nrow=2) +
+  facet_wrap( ~ nuc_contour, nrow = 2) +
   theme(panel.border = element_rect(fill = NA)) +
-  ggtitle("nuclear contours by sentence mode (adjusted, no register tier)") +
+  ggtitle("Nuclear Contour by Sentence Mode (Adjusted, No Register)") +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
-  geom_text(aes(x = mode,
-                y = (..count..) / sum(..count..),
-                label = percent((..count..) / sum(..count..), 1)
-                ),
-            stat = "count",
-            vjust = -0.75,
-            size = 3)
+  geom_text(
+    aes(
+      x = mode,
+      y = (..count..) / sum(..count..),
+      label = percent((..count..) / sum(..count..), 1)
+    ),
+    stat = "count",
+    vjust = -0.75,
+    size = 3
+  )
+ggsave(
+  filename =
+    "output/nuc_contour_by_mode.png",
+  plot = my_plot,
+  width = 12.95,
+  height = 10.16,
+  units = "cm",
+  dpi = 300
+)
+
+my_plot
 
 ```
 
 #### All contours
 
 ```{r plot adjusted distrubition of contours by mode and gender, fig.height=3.1, fig.width=8, results="asis"}
-ggplot(
+my_plot <- ggplot(
   nuc_contour_by_gender_adj %>%
     # uncount date for chart
     pivot_longer(3:last_col(), "nuc_contour") %>%
@@ -564,7 +608,9 @@ ggplot(
   theme(
     panel.border = element_rect(fill = NA)
   ) +
-  ggtitle("Nuclear contours by sentence mode and gender (adjusted, no register tier)") +
+  ggtitle(
+    "Nuclear contours by sentence mode and gender (adjusted, no register tier)"
+    ) +
   scale_fill_manual(values = nuc_contour_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -577,11 +623,22 @@ ggplot(
   vjust = -0.75,
   size=3)
 
+ggsave(
+  filename =
+    "output/nuc_contour_by_mode_gender_non_reg.png",
+  plot = my_plot,
+  width = 22,
+  height = 8,
+  units = "cm",
+  dpi = 300
+)
+my_plot
+
 ```
 
 The overall pattern suggest that L% is more common among YNQs and and DCQs. However, I don't think that the L% is used to signal a question. I think that, as with the A&H corpus, L% is used when the speaker indicates there is a conflict of expectation of shared knowledge between the speaker and listener. Thus in questions like "You live in the valley?" and "Do you live in the valley?", speaker can use the L% to indicate that the propositional content conflicts with what he or she had previously believed; i.e., it indicates surprise. In a reciprocal manner, in the declaratives of the A&H corpus (and here), the use of an L% indicates that the speaker is indicating surprise that the listener does not already share the knowledge. (i.e. "Where do you live?..."I live in the valley [L%] (and I assumed you already knew that / and you should know that already.") ... Perhaps the best way to think of this is as the surprise\~redundancy strategy, with the conflict of expectations expressing redundancy in the declaratives ("This should not be news to you.") and surprise in the questions ("I did not know this at all!").
 
-### Boundary Analysis {.tabset}
+### Boundary Tone Analysis {.tabset}
 
 ```{r Wrangle data for boundary analysis}
 fin_phon_adj <- m_corpus %>%
@@ -671,7 +728,7 @@ fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
 
 ```{r plot fin_phon by mode only, fig.height=2.2, fig.width=6}
 
-ggplot(fin_phon_by_mode_adj_list) +
+my_plot <- ggplot(fin_phon_by_mode_adj_list) +
   geom_bar(
     mapping = aes(
       x = mode,
@@ -687,7 +744,7 @@ ggplot(fin_phon_by_mode_adj_list) +
   theme(
     panel.border = element_rect(fill = NA)
   ) +
-  ggtitle("Final boundary by sentence mode (adjusted)") +
+  ggtitle("Final Boundary by Sentence Mode (Adjusted, No Register)") +
   scale_fill_manual(values = fin_phon_colours, name = "final boundary") +
   labs(x = "Mode", y = "tokens (%)") +
   theme(panel.border = element_rect(fill = NA)) +
@@ -701,12 +758,23 @@ ggplot(fin_phon_by_mode_adj_list) +
   size = 2.5)
 
 
+ggsave(
+  filename =
+    "output/fin_phon_by_mode_non_reg.png",
+  plot = my_plot,
+  width = 15.5,
+  height = 5.5,
+  units = "cm",
+  dpi = 300
+)
+
+my_plot
 ```
 
 #### by sentence mode and gender
 
 ```{r plot fin_phon by mode and gender, fig.width = 6.1, fig.height = 3.5}
-ggplot(fin_phon_by_gender_adj_list) +
+my_plot <- ggplot(fin_phon_by_gender_adj_list) +
   geom_bar(
     mapping = aes(
       x = mode,
@@ -719,7 +787,9 @@ ggplot(fin_phon_by_gender_adj_list) +
   ) +
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
   facet_grid(rows = vars(gender), cols = vars(fin_phon)) +
-  ggtitle("NFinal boundary by sentence mode and gender (adjusted)") +
+  ggtitle(
+    "Final Boundary by Sentence Mode and Gender (Adjusted, No Register)"
+    ) +
   theme(
     panel.border = element_rect(fill = NA)
   ) +
@@ -736,11 +806,25 @@ ggplot(fin_phon_by_gender_adj_list) +
   vjust = -0.75,
   size = 3)
 
+ggsave(
+  filename =
+    "output/fin_phon_by_mode_gender_non_reg.png",
+  width = 15.5,
+  plot = my_plot,
+  height = 8.5,
+  units = "cm",
+  dpi = 300
+)
+
+my_plot
 ```
 
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
 
-### BGLMM analysis of `fin_phonH%` as a Function of Sentence Mode. {.tabset}
+
+## BGLMM analysis
+
+### Likelihood of H%. {.tabset}
 
 **Complete separation issue**
 
@@ -757,29 +841,33 @@ We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 
 ```{r Make binomial subsets of corpus}
 m_corpus_is_H_boundary <- m_corpus %>%
   # treat HL% as for purpose of % vs H%
-  mutate(is_H_boundary =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
-  mutate(is_H_boundary = factor(is_H_boundary=="H%", level = c(F, T)))
+  mutate(`H%` =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
+  mutate(`H%` = factor(`H%` == "H%", level = c(F, T)))
 ```
 
-#### model summary
 
-```{r GLMM Model Summary}
+```{r Run GLMM, results = "hide"}
 fin_phon_model_H_or_not <- bglmer(
-  is_H_boundary ~ mode + gender + (1 | speaker) + (1 | prompt),
+  `H%` ~ mode + gender + (1 | speaker) + (1 | prompt),
   data = m_corpus_is_H_boundary,
   family = binomial(link = "logit"),
-  fixef.prior = normal()
+  fixef.prior = normal(),
+  # change optimizer to avoid convergence errors
+  control = glmerControl(
+    optimizer = "optimx",
+    calc.derivs = FALSE,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = FALSE,
+      kkt = FALSE
+    )
+  )
 )
+
 fin_phon_model_H_or_not <- optimizeModel(fin_phon_model_H_or_not, reject_nm = F)
-
-summary(fin_phon_model_H_or_not)
-
-cat("isSingular(fin_phon_model_H_or_not, tol=1e-5) -->",
-    isSingular(fin_phon_model_H_or_not, tol = 1e-5),
-    "\n")
 ```
 
-#### ANOVA (`drop1()`)
+#### LRT via drop1()
 
 ```{r drop1, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Mode_fin_phon_no_Reg_0H"
@@ -813,28 +901,81 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 #### *R*^2^ and prediction plots
 
 ```{r Tidy Summary, fig.width = 3.05, fig.height = 2.5, results="asis"}
-tidy_summary <- analyseModel(fin_phon_model_H_or_not,
-                             write = write,
-                             is_GLM = T,
-                             type = "pred",
-                             plot_rounding = 1,
-                             caption_suffix = "(no reg tier)",
-                             short_caption = T)
+tidy_summary <- analyseModel(
+  fin_phon_model_H_or_not,
+  write = write,
+  is_GLM = T,
+  type = "pred",
+  plot_rounding = 2,
+  short_caption = F,
+  panel_prefix = "A. "
+)
+
+my_plot <-
+  ggpredict(fin_phon_model_H_or_not,
+            terms = c("mode", "gender"),
+            ci.lvl = 0.95) %>%
+  plot(grid = T, colors = "bw") +
+  labs(caption = "A. Predicted prob. of H% by mode and gender.") +
+  geom_label(
+    aes(label = round(predicted, 2)),
+    label.padding = unit(0.5, "mm"),
+    label.r = unit(0.0, "mm"),
+    size = 3
+  ) +
+  scale_y_continuous(limits = c(0, 1)) +
+  ylab("Probability") +
+  theme(
+    plot.title = element_blank(),
+    axis.title.x = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    plot.caption.position = "plot",
+    legend.position = c(0.12, 0.8),
+    legend.background = element_rect(colour = "darkGray")
+  )
+
+ggsave(
+  filename =
+    paste0(write, "_multi_pred.png"),
+  plot = my_plot,
+  # width = 8.14,
+  width = 14,
+  height = 6.26,
+  units = "cm",
+  dpi = 300
+)
+
+print(my_plot)
 ```
 
-#### prediction tables
+#### Prediction tables
+
 ```{r Pairwise Comparison, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(fin_phon_model_H_or_not,
-                     caption_suffix = "(no reg tier)")
+                     caption_suffix = " (no reg tier)",
+                     digits = 3)
 ```
-#### pairwise comparisons
+
+#### Pairwise comparisons
 
 ```{r GLMM of H re mode Figures and Charts, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
   fin_phon_model_H_or_not,
   write = write,
-  exponentiate = F
+  exponentiate = T
 )
 #charts$intercepts
 charts$slopes %>% tidyStatNumbers()
 ```
+
+#### Model printout
+
+```{r}
+
+summary(fin_phon_model_H_or_not)
+
+cat("isSingular(fin_phon_model_H_or_not, tol=1e-5) -->",
+    isSingular(fin_phon_model_H_or_not, tol = 1e-5),
+    "\n")
+```
+

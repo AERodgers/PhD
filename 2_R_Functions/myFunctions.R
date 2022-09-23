@@ -650,33 +650,41 @@ analyseModel <-
           ci.lvl = ci.lvl
         ) %>%
           plot() +
-          ylim(0, 1) +
+          ylab("probability") +
+          scale_y_continuous(limits = c(0, 1)) +
+          labs(caption = paste0(
+            panel_prefix, "Predicted probability of ",
+            dependent_var, caption_suffix, "."
+          )) +
           geom_text(aes(
             label = round(predicted, plot_rounding),
-            hjust = hjust,
             position = "dodge"
           ),
+          hjust = hjust,
+          nudge_y = 0.05,
           check_overlap = T,
           size = 3
           ) +
-          theme(axis.title.x = element_blank())
+          theme(axis.title.y = element_blank(),
+                plot.title = element_blank(),
+                axis.title.x = element_blank(),
+                plot.caption = element_text(hjust = 0, size = 10),
+                plot.caption.position = "plot")
         if (!is.null(write)) {
-          png(
+          ggsave(
             filename =
-              paste0(write, "_re_", cur_factor, "_pred.png"),
+              paste0(write,"multi_pred.png"),
+            plot = my_plot,
             width = page_width / per_row,
             height = 6.5,
             units = "cm",
-            res = 300
+            dpi = 300
           )
-          print(my_plot)
-          dev.off()
         }
-
         print(my_plot)
-      } else {
-        letters <- c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
 
+      } else {
+        letters <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L")
         cur_letter <- 0
         for (cur_factor in fixed_factors) {
           if (typeof(my_model@frame[[cur_factor]]) == "double") {
@@ -708,13 +716,12 @@ analyseModel <-
           ) %>%
             plot() +
             xlab(cur_factor) +
-            ylim(0, 1) +
-            ylab("predicted probability") +
+            ylab("probability") +
+            scale_y_continuous(limits = c(0, 1)) +
             labs(caption = paste0(
               lettering, pred_prefix,
               dependent_var, caption_suffix, "."
             )) +
-            scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
             theme(
               plot.title = element_blank(),
               axis.title.x = element_blank(),
@@ -724,28 +731,26 @@ analyseModel <-
           if (is.null(all)) {
             my_plot <- my_plot +
               geom_label(aes(
-                label = percent(predicted, plot_rounding)
+                label = round(predicted, plot_rounding)
               ),
               label.padding = unit(0.5, "mm"),
               label.r = unit(0.0, "mm"),
-              check_overlap = T,
               size = 3
               )
           }
           if (!is.null(write)) {
-            png(
+            ggsave(
               filename =
                 paste0(write, "_re_", cur_factor, "_pred.png"),
+              plot = my_plot,
               width = page_width / per_row,
               height = 6.5,
               units = "cm",
-              res = 300
+              dpi = 300
             )
-            print(my_plot)
-            dev.off()
           }
 
-          my_plot %>% print()
+         print(my_plot)
         }
       }
     } else {
@@ -758,7 +763,7 @@ analyseModel <-
         str_split(" ") %>%
         unlist()
       fixed_factors <- fixed_factors[fixed_factors != "*"]
-      letters <- c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
+      letters <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L")
 
       cur_letter <- 0
       for (cur_factor in fixed_factors) {
@@ -797,7 +802,6 @@ analyseModel <-
           geom_label(aes(label = round(predicted, plot_rounding)),
             label.padding = unit(0.5, "mm"),
             label.r = unit(0.0, "mm"),
-            check_overlap = T,
             size = 3
           ) +
           theme(
@@ -812,16 +816,14 @@ analyseModel <-
             scale_y_continuous(breaks = breaks, limits = y_lim)
         }
         if (!is.null(write)) {
-          png(
+          ggsave(
             filename =
               paste0(write, "_re_", cur_factor, "_pred.png"),
             width = page_width / per_row,
             height = 6.5,
             units = "cm",
-            res = 300
+            dpi = 300
           )
-          print(my_plot)
-          dev.off()
         }
         print(my_plot)
       }
@@ -973,11 +975,6 @@ getModelFixedFX <- function(model,
         filter(effect == "fixed") %>%
         # remove unnecessary columns
         select(-c(effect, group)) %>%
-        # Tidy up numbers.
-        mutate(across(
-          any_of(c("df", "estimate", "std.error", "statistic")),
-          ~ round(., 2)
-        )) %>%
         rename(!!my_stat := statistic)
 
       model_tidy <- model_tidy %>%
@@ -1950,4 +1947,11 @@ trim_zeros <- function(x, digits = 3) {
     str_replace_all("(\\.\\d*?[1-9])0+$", "\\1") %>%
     str_replace("0\\.", ".") %>%
     return()
+}
+
+
+niceRatio <- function(vector, digits = 2){
+  (round(as.numeric(vector), digits)) %>%
+            str_replace("0\\.", ".") %>%
+              return()
 }

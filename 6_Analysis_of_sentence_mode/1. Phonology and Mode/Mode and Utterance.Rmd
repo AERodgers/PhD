@@ -1,9 +1,11 @@
 ---
-title: 'Chapter 07: Analysis of Function'
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
 subtitle: '7.5.4 - 7.5.5 Utterance-wide Phonology, High Register, and Mode'
 output:
   html_document:
     code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=F}
@@ -67,7 +69,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv") %>%
 
 ```
 
-# Raw Data
+## Raw Data
 
 ```{r set thresholds}
 #set lower limit for list: more than 8 tokens in the corpus
@@ -81,9 +83,9 @@ keep_list <- m_corpus %>%
   filter(phon_count >= threshold)
 ```
 
-## Utterance-wide Intonational Phonology {.tabset}
+### Utterance-wide Intonation {.tabset}
 
-### Mode
+#### Mode
 
 ```{r Show distribution of utterance level phonology by mode, warning=F}
 # List utterances phonology by mode with 8+ tokens in the corpus
@@ -137,7 +139,7 @@ total_counts <- m_corpus %>%
   select(MDC, MWH, MYN, MDQ, total) 
 ```
 
-### All
+#### All
 
 ```{r All utterance-level phonology, warning=F}
 # List all utterance phonology
@@ -156,9 +158,9 @@ m_corpus %>%
 
 ```
 
-## Nuclear PA-only IPs and High Register in Nuclear PA {.tabset}
+### Possible Q-Signalling Events {.tabset}
 
-### Nuclear PA-only
+#### Nuclear PA-only
 ```{r Show nuc only utterance level phonology summary, warning=F}
 nuc_only <- m_corpus %>%
   filter(`nuclear PA only` == T) %>%
@@ -179,7 +181,7 @@ nuc_only %>%
   kable_styling(full_width = F, position="left")
 ```
 
-### High register in nuclear PA
+#### High register in nuclear PA
 ```{r Show `high register in nucleus` utterance level phonology summary, warning=F}
 uses_h_reg <- m_corpus %>%
   filter(`high register in nucleus` == T) %>%
@@ -201,7 +203,7 @@ uses_h_reg %>%
   kable_styling(full_width = F, position="left")
 ```
 
-### Either
+#### Either
 ```{r Show `high reg. or nuc. PA only` utterance level phonology summary, warning=F}
 uses_h_reg_or_nuc_PA_only <- m_corpus %>%
   filter(`high register in nucleus` == T | `nuclear PA only` == T) %>%
@@ -216,7 +218,7 @@ uses_h_reg_or_nuc_PA_only <- m_corpus %>%
 
 uses_h_reg_or_nuc_PA_only %>% 
   rbind(round((uses_h_reg_or_nuc_PA_only / total_counts*100),1) %>% paste("%", sep="")) %>% 
-  mutate("info" =c("count", "percentage"), .before=1) %>%
+  mutate("info" = c("count", "percentage"), .before=1) %>%
   kable(
   caption = paste("Utterance level intonational phonology by mode with",
                   "high register or nuclear PA only"))%>% 
@@ -224,18 +226,16 @@ uses_h_reg_or_nuc_PA_only %>%
 ```
 
 
+## BGLMM analysis
 
-# BGLMM analysis of utterance wide events, high register, and sentence mode
+### Nuclear PA only  {.tabset}
 
-## Model for Nuclear PA only  {.tabset}
-
-### model summary
-
-```{r nuc_pa_only_model}
+```{r run nuc_pa_only_model, results = "hide"}
 
 nuc_pa_only_model <- bglmer(
-  `nuclear PA only` ~ mode + gender + (1 + mode | speaker) + (1 | prompt),
+  `nuclear PA only` ~ mode + gender + (1 | speaker) + (1 | prompt),
   data = m_corpus,
+  fixef.prior = normal(),
   family = binomial(link = "logit"),
   # change optimizer to avoid convergence errors
   control = glmerControl(
@@ -250,11 +250,9 @@ nuc_pa_only_model <- bglmer(
 )
 h_reg_model <- optimizeModel(nuc_pa_only_model, reject_nm = F)
 
-summary(nuc_pa_only_model)
 ```
 
-
-### ANOVA (`drop1()`)
+#### ANOVA (drop1())
 
 ```{r drop1 nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Utt_nuc_pa_only_GLMM"
@@ -285,7 +283,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-### *R*^2^ and prediction plots
+#### *R*^2^ and prediction plots
 
 ```{r Tidy Summary nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(nuc_pa_only_model,
@@ -296,13 +294,13 @@ tidy_summary <- analyseModel(nuc_pa_only_model,
                              short_caption = T)
 ```
 
-### prediction tables
+#### prediction tables
 ```{r prediction nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(nuc_pa_only_model,
                      caption_suffix = "(reg tier)")
 ```
 
-### pairwise comparisons
+#### pairwise comparisons
 
 ```{r nuc_pa_only_model pairwise, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -314,10 +312,15 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
+#### Model printout
 
-## Model for Nuclear-PA IP only OR high register in nuclear PA {.tabset}
+```{r nuc_pa_only_model printout}
+summary(nuc_pa_only_model)
+```
 
-### model summary
+### Either Nuc-PA or High Reg {.tabset}
+
+#### model summary
 
 ```{r h_reg_or_nuc_pa_only model}
 h_reg_or_nuc_pa_only_model <- bglmer(
@@ -341,7 +344,7 @@ h_reg_model <- optimizeModel(h_reg_or_nuc_pa_only_model, reject_nm = F)
 summary(h_reg_or_nuc_pa_only_model)
 ```
 
-### ANOVA (`drop1()`)
+#### ANOVA (`drop1()`)
 
 ```{r drop1 h_reg_or_nuc_pa_only, fig.width = 3.05, fig.height = 2.5,}
 
@@ -374,7 +377,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-### *R*^2^ and prediction plots
+#### *R*^2^ and prediction plots
 
 ```{r Tidy Summary h_reg_or_nuc_pa_only, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
@@ -385,13 +388,13 @@ tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
                              short_caption = T)
 ```
 
-### prediction tables
+#### Prediction tables
 ```{r prediction h_reg_or_nuc_pa_onl, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(h_reg_or_nuc_pa_only_model,
                      caption_suffix = "(reg tier)")
 ```
 
-### pairwise comparisons
+#### Pairwise comparisons
 
 ```{r h_reg_or_nuc_pa_only_model pairwise, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -401,6 +404,11 @@ charts <- getModelFixedFX(
 )
 #charts$intercepts
 charts$slopes %>% tidyStatNumbers()
+```
+
+#### Model printout
+```{r h_reg_or_nuc_pa_only_model printout}
+summary(h_reg_or_nuc_pa_only_model)
 ```
 
 

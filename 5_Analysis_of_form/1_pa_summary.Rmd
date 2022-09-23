@@ -148,9 +148,9 @@ pn_by_speaker_ratio %>%
       ) ~ color_bar("proportion",
                     color = c(rep(brewer.pal(8, "Pastel2")[8], nrow(.) - 1),
                               rep(brewer.pal(8, "Pastel2")[7], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[4], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1)
                               )
                     )
       )
@@ -228,16 +228,17 @@ h_plot <- ggplot(pn_by_speaker_ratio,
   theme(plot.caption=element_text(hjust = 0, size = 10),
         plot.caption.position= "plot")
 
-my_plot <- grid.arrange(lh_plot, h_plot, ncol = 2)
+lh_plot <- grid.arrange(lh_plot, h_plot, ncol = 2)
 ggsave(filename =  paste0("1_output/correlation_plots.png"),
-       plot = my_plot,
+       plot = lh_plot,
        device = "png",
     width =  15.5,
     height = 7.75,
     units = "cm",
     dpi = 300
     )
-print(my_plot)
+
+lh_plot
 ```
 
 
@@ -288,8 +289,8 @@ nuc_by_speaker %>%
               list(
                 area(col = 2:3, row = 1:nrow(.) - 1) ~ color_bar("proportion",
                                                                  color = c(
-                                                                   rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
-                                                                   rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                                                                   rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                                                                   rep(brewer.pal(8, "Pastel2")[7], nrow(.) - 1)
                                                                  ))
               ))
 ```
@@ -316,9 +317,9 @@ balancedData(pn_foot, foot_syls, acc_phon, "", 11, 5) %>%
       ) ~ color_bar("proportion",
                     color = c(rep(brewer.pal(8, "Pastel2")[8], nrow(.) - 1),
                               rep(brewer.pal(8, "Pastel2")[7], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[4], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1)
                               )
                     )
       )
@@ -344,9 +345,9 @@ balancedData(pn_ana, ana_syls, acc_phon, "", 11, 5) %>%
     list(area(
       col = 2:4, row = 1:nrow(.)-1
       ) ~ color_bar("proportion",
-                    color = c(rep(brewer.pal(8, "Pastel2")[2], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1)
+                    color = c(rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[4], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1)
                               )
                     )
       )
@@ -374,8 +375,8 @@ balancedData(nuc_foot, foot_syls, nuc_contour, "", 11, 5) %>%
     list(area(
       col = 2:3, row = 1:nrow(.)-1
       ) ~ color_bar("proportion",
-                    color = c(rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                    color = c(rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[4], nrow(.) - 1)
                               )
                     )
       )
@@ -400,8 +401,8 @@ balancedData(nuc_pre, pre_syls, nuc_contour, "", 11, 5) %>%
     list(area(
       col = 2:3, row = 1:nrow(.)-1
       ) ~ color_bar("proportion",
-                    color = c(rep(brewer.pal(8, "Pastel2")[1], nrow(.) - 1),
-                              rep(brewer.pal(8, "Pastel2")[6], nrow(.) - 1)
+                    color = c(rep(brewer.pal(8, "Pastel2")[3], nrow(.) - 1),
+                              rep(brewer.pal(8, "Pastel2")[4], nrow(.) - 1)
                               )
                     )
       )
@@ -473,7 +474,7 @@ ggplot(all) +
 
 ```{r fig.height=2, fig.width=6.5}
 # Set themes and colour schemes.
-ggplot(all) +
+my_plot <- ggplot(all) +
   
   geom_bar(mapping = aes(x = foot_syls, fill = acc_phon),
            colour = "black",
@@ -496,6 +497,18 @@ ggplot(all) +
   scale_y_continuous(limits = c(0, 60)) +
   
   labs(x = "foot size (syllables)", y = "tokens (n)")
+
+ggsave(
+  filename =
+    "1_output/PA_by_foot_size.png",
+  plot = my_plot,
+  width = 15.5,
+  height = 4.5,
+  units = "cm",
+  dpi = 300
+)
+
+my_plot
 
 unlink(c(my_table_m, my_table_f, my_table_g))
 ```
@@ -584,7 +597,7 @@ ggplot(all) +
 
 
 ```{r fig.height=2, fig.width=4.2}
-ggplot(all) +
+my_plot <- ggplot(all) +
   geom_bar(
     mapping = aes(x = ana_syls, fill = acc_phon),
     show.legend = F,
@@ -616,6 +629,18 @@ ggplot(all) +
     axis.text = element_text(size = 10),
     axis.title = element_text(size = 10)
   )
+
+ggsave(
+  filename =
+    "1_output/PA_by_anacrusis.png",
+  plot = my_plot,
+  width = 9.5,
+  height = 4.5,
+  units = "cm",
+  dpi = 300
+)
+
+my_plot
 ```
 
 ### Nuclear Pitch Contours

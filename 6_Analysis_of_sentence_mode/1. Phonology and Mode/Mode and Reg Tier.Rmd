@@ -4,6 +4,8 @@ subtitle: '7.5.2 Register-tier analysis of intonational phonology'
 output:
   html_document:
     code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 
@@ -17,6 +19,7 @@ source("../../2_R_Functions/myColours.R")
 installMissingPackages(c("tidyverse",
                          "formattable",
                          "janitor",
+                         "broomExtra",
                          "knitr",
                          "RColorBrewer",
                          "ggeffects",
@@ -24,7 +27,7 @@ installMissingPackages(c("tidyverse",
 
 # Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
-  mutate(`high register in nucleus` = factor( str_detect(acc_phon, "\\^"),
+  mutate(nuc_H_reg = factor( str_detect(acc_phon, "\\^"),
                           levels = c(F, T))) %>% 
   # Select only columns for analysis
   select(speaker,
@@ -35,26 +38,12 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
          acc_phon,
          fin_phon,
          nuc_contour,
-         `high register in nucleus`)
+         nuc_H_reg)
 ```
 
 ## Raw Data {.tabset}
 
-### All pitch contours
-```{r summarise nuc contour , warning=F, results="asis"}
-# Create summary table of Pitch Accent by Speaker.
-m_corpus %>%
-  group_by(nuc_contour) %>%
-  summarise(nuc_count = n(), .groups = "keep") %>% 
-  mutate(nuc_contour = str_replace_all(
-    nuc_contour, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
-  rename(`nuclear contour` = nuc_contour,
-         `count` = nuc_count) %>% 
-  arrange(desc(`count`)) %>% 
-  kable(caption = "Nuclear pitch contours (raw data)")
-```
-
-### Contours by sentence mode
+### Contour by sentence mode
 
 ```{r summarise nuc contour by speaker (raw data), warning=F}
 m_corpus %>%
@@ -81,24 +70,8 @@ m_corpus %>%
       )
   ) %>%
   rename_all(list(~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
-  formattable(caption =
-                "Nuclear contours by mode in M-corpus (raw)",
-              list(area(
-                col = 2:ncol(.), row = 1:nrow(.) - 1
-              ) ~ color_bar("proportion",
-                color = c(
-                  rep(brewer.pal(6, "Set2")[5], nrow(.) - 1),
-                  rep(brewer.pal(6, "Set2")[4], nrow(.) - 1),
-                  rep(brewer.pal(6, "Set2")[6], nrow(.) - 1),
-                  rep(brewer.pal(8, "Set2")[1], nrow(.) - 1),
-                  rep(brewer.pal(8, "Set2")[8], nrow(.) - 1),
-                  rep(brewer.pal(8, "Set2")[7], nrow(.) - 1),
-                  rep(brewer.pal(8, "Set2")[2], nrow(.) - 1),
-                  rep(brewer.pal(6, "Set2")[3], nrow(.) - 1),
-                  rep(brewer.pal(6, "Set2")[3], nrow(.) - 1),
-                  rep(brewer.pal(6, "Set2")[2], nrow(.) - 1),
-                  rep(brewer.pal(8, "Set2")[7], nrow(.) - 1)
-              ))))
+  formattable(align = c("l", rep("r",  ncol(.)-1)),
+    caption = "Nuclear contours by mode in M-corpus (raw)")
 
 
 
@@ -119,22 +92,36 @@ m_corpus %>%
   select("speaker", "H*", "^[L*]H", ">H*", "L*H", "L*^[H]", "^[L*H]")  %>% 
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
-  formattable(
+  formattable(align = c("l", rep("r",  ncol(.)-1)),
     caption =
       "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
     list(area(col = 2:7, row= 1:nrow(.)-1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1)
       )))
     )
 
 ```
+### All pitch contours
 
-## Nuclear Pitch Accents: Adjusted Data {.tabset}
+```{r summarise nuc contour , warning=F, results="asis"}
+# Create summary table of Pitch Accent by Speaker.
+m_corpus %>%
+  group_by(nuc_contour) %>%
+  summarise(nuc_count = n(), .groups = "keep") %>% 
+  mutate(nuc_contour = str_replace_all(
+    nuc_contour, "([\\*\\[\\^\\>])", "\\\\\\1")) %>%
+  rename(`nuclear contour` = nuc_contour,
+         `count` = nuc_count) %>% 
+  arrange(desc(`count`)) %>% 
+  kable(caption = "Nuclear pitch contours (raw data)")
+```
+
+## Adjusted Data
 
 The raw data is unbalanced since the number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
 
@@ -266,26 +253,72 @@ pa_by_mode_speaker_adj <- pa_adj %>%
 
 ```
 
-### by speaker (table)
+### Nuclear PA Tables {.tabset}
+#### by mode (common)
+
+```{r Print table of pitch accent by mode adjusted excluding outliers}
+pa_by_mode_adj %>%
+  select("mode", "L*H", "L*^[H]", "^[L*H]") %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
+  adorn_totals("row") %>% 
+  formattable(align = c("l", rep("r",  ncol(.)-1)),
+    caption = paste("Distibution by of pitch accents by mode in M-corpus",
+                    "(adjusted, outliers excluded)"),
+    list(area(col=2:4, row=1:nrow(.)-1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[3], 4),
+      rep(brewer.pal(6, "Pastel2")[2], 4),
+      rep(brewer.pal(6, "Pastel2")[6], 4)
+      )))
+    )
+
+```
+
+#### by mode (all)
+
+```{r print pitch accent by mode adjusted, warning=F}
+# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
+#
+# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
+
+ pa_by_mode_adj %>%
+  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
+  adorn_totals("row") %>% 
+  formattable(align = c("l", rep("r",  ncol(.)-1)),
+    caption=
+      "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
+    list(area(col=2:7, row=1:4) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1)
+      )))
+    )
+```
+
+#### by speaker
 
 ```{r print pa by speaker adjusted, warning=F}
 pa_by_speaker_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
-  formattable(
+  formattable(align = c("l", rep("r",  ncol(.)-1)),
     caption="Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
+      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
+      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
+      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1)
       )))
     )
 ```
 
-### by speaker (bar chart)
+### Nuclear PA Figures {.tabset}
+
+#### by speaker (chart)
 
 ```{r plot pitch accent by speaker adjusted, fig.width = 8, fig.height = 4}
 
@@ -309,54 +342,7 @@ ggplot(data = pa_by_speaker_adj %>%
     theme(panel.border = element_rect(fill = NA))
 ```
 
-### by mode (table, common)
-
-```{r Print table of pitch accent by mode adjusted excluding outliers}
-pa_by_mode_adj %>%
-  select("mode", "L*H", "L*^[H]", "^[L*H]") %>%
-  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
-  adorn_totals("row") %>% 
-  formattable(
-    caption = paste("Distibution by of pitch accents by mode in M-corpus",
-                    "(adjusted, outliers excluded)"),
-    list(area(col=2:4, row=1:nrow(.)-1) ~ proportion_bar(color = c(
-
-      rep(brewer.pal(6, "Pastel2")[3], 4),
-
-      rep(brewer.pal(6, "Pastel2")[2], 4),
-      rep(brewer.pal(6, "Pastel2")[1], 4)
-      )))
-    )
-
-```
-
-### by mode (all, table)
-
-```{r print pitch accent by mode adjusted, warning=F}
-# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
-#
-# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
-
- pa_by_mode_adj %>%
-  rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
-  adorn_totals("row") %>% 
-  formattable(
-    caption=
-      "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
-    list(area(col=2:7, row=1:4) ~ proportion_bar(color = c(
-      rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[3], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[6], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[2], nrow(.)-1),
-      rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1)
-      )))
-    )
-```
-
-## Pitch Accent Figures {.tabset}
-
-### by mode (common)
+#### by mode (common)
 
 ```{r Plot common pitch accents by mode adjusted, fig.height=2.2, fig.width=5}
 
@@ -392,7 +378,7 @@ ggplot(pa_by_mode_adj %>%
 ```
 
 
-### by mode (all)
+#### by mode (all)
 ```{r Plot common pitch accents by mode and M8 adjusted, fig.height=2.5, fig.width=8.5}
 
 ggplot(
@@ -436,7 +422,7 @@ ggplot(
 
 ```
 
-### by mode and gender (common)
+#### by mode and gender (common)
 
 ```{r Plot common pitch accents by mode and gender adjusted, fig.height=3.5, fig.width=5.15}
 ggplot(pa_by_gender_adj %>%
@@ -478,7 +464,7 @@ ggplot(pa_by_gender_adj %>%
 
 ```
 
-### by mode and speaker (all)
+#### by mode and speaker (all)
 
 ```{r Plot common pitch accents by mode and speaker adjusted, fig.height=12, fig.width=8.5}
 
@@ -491,6 +477,7 @@ ggplot(
       acc_phon,
       levels = c("H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]")))
     ) +
+  
   geom_bar(
     mapping = aes(
       x = mode,
@@ -501,132 +488,51 @@ ggplot(
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
+
+  geom_text(aes(x = mode,
+                y = 11 * (..count..)/ sum(..count..),
+                label = 11 * percent((..count..) / sum(..count..),  0)),
+            stat = "count",
+            vjust = -0.35,
+            size = 2.5) +
+  
   scale_y_continuous(labels = scales::percent, limits = c(0, 0.30)) +
+  
   facet_grid(rows = vars(speaker), cols = vars(acc_phon)) +
+  
   ggtitle("Nuclear pitch accents by mode and speaker (adjusted)") +
-  theme(
-    panel.border = element_rect(fill = NA)
-  ) +
+  
+  theme(panel.border = element_rect(fill = NA),
+        axis.text.x = element_text(angle = 90, size = 7.5),
+        axis.text.y = element_text(size = 7.5),
+        #axis.text.x = element_text(, vjust = 0.5, hjust=1)
+        ) +
+  
   scale_fill_manual(values = pitch_accent_colours, name = "Pitch Accent") +
+  
   labs(x = "Mode", y = "tokens (%)") +
-  theme(panel.border = element_rect(fill = NA)) +
   
-  geom_text(aes(
-    x = mode,
-    y = 11 * (..count..)/ sum(..count..),
-    label = 11 * percent((..count..) / sum(..count..),  0)
-  ),
-  stat = "count",
-  vjust = -0.7,
-  size = 3)
+  theme(panel.border = element_rect(fill = NA))
 
-```
-
-
-## BGLMM analysis of nuclear H register as a function of mode  {.tabset}
-
-__Complete separation issue__
-
-* GLMER cannot correctly estimate the CIs of H:L for MDC and MWH since there are no instances of H for either level, leading to a problem know as "complete separation".
-
-To resolve this issue, I have used the blme package, which uses "Maximum a posteriori estimation for linear and generalized linear mixed-effects models in a Bayesian setting" (documentation).
-
-We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 4 diagonal matrix with diagonal elements equal to 9, for variances of 9 or standard deviations of 3)"
-
-With multivariate fixed effects, I just used normal() without spec
-
-(<http://bbolker.github.io/mixedmodels-misc/ecostats_chap.html#digression-complete-separation>)
-
-(directed from <https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#penalizationhandling-complete-separation>)
-
-### model summary
-
-```{r model test m_corpus_h_reg}
-
-m_corpus_h_reg <- m_corpus %>%
-  select(prompt, speaker, gender, `high register in nucleus`, mode)
-  
-
-h_reg_model <- bglmer(
-  `high register in nucleus` ~ mode + gender + (1 | speaker)+ (1 | prompt),
-  data = m_corpus_h_reg,
-  family = binomial(link = "logit"),
-  fixef.prior = normal()
-  )
-
-h_reg_model <- optimizeModel(h_reg_model, reject_nm = F)
-
-summary(h_reg_model)
-
-```
-
-### ANOVA (`drop1()`)
-
-```{r drop1 m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5,}
-write = "output/Mode_PA_GLMM"
-
-model_formula <- getModelFormula(h_reg_model)
-
-write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
-      paste(write, "_formula.txt", sep = ""))
-
-
-# get, save, and print ANOVA of model
-drop1_analysis <- drop1(h_reg_model, test = "Chisq")
-
-tibble(factor = row.names(drop1_analysis))  %>%
-  cbind(tibble(drop1_analysis)) %>%
-  filter(!is.na(npar)) %>%
-  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
-  write_csv(paste0(write, "_anova.csv"))
-
-
-adjustP_posthoc("output/",
-                `Pr(Chi)`,
-                suffix_id = "_anova")
-
-read_csv(paste(write, "_anova.csv", sep = "")) %>%
-  tidyStatNumbers() %>%
-formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
-
-```
-
-### *R*^2^ and prediction plots
-
-```{r Tidy Summary m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
-tidy_summary <- analyseModel(h_reg_model,
-                             write = write,
-                             is_GLM = T,
-                             type = "pred",
-                             plot_rounding = 1,
-                             caption_suffix = "(reg tier)",
-                             short_caption = T)
-```
-
-
-### prediction tables
-```{r Pairwise Comparison m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
-printTidyPredictions(h_reg_model,
-                     caption_suffix = "(reg tier)")
-```
-
-### pairwise comparisons
-
-```{r GLMM of H re mode Figures and Charts, fig.width = 3.05, fig.height = 2.5, results="asis"}
-charts <- getModelFixedFX(
-  h_reg_model,
-  write = write,
-  exponentiate = F
+ggsave(
+  filename =
+    "output/nuc_PA_by_mode_and_speaker.png",
+  width = 15.45,
+  height = 24,
+  units = "cm",
+  dpi = 300
 )
-#charts$intercepts
-charts$slopes %>% tidyStatNumbers()
+
 ```
+
+
 
 ## Boundary Tone Analysis {.tabset}
 
 ```{r Wrangle data for boundary analysis}
 fin_phon_adj <- m_corpus %>%
-  mutate(fin_phon = str_replace_all(fin_phon, "\\[|\\]|\\^", "")) %>% 
+  mutate(fin_phon = str_replace_all(fin_phon, "\\[|\\]|\\^", "")) %>%
+  mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))) %>% 
   # Count the number of fin_phon by speaker and mode
   group_by(speaker, stim, fin_phon) %>%
   summarise(nuc_count = n(), .groups = "keep") %>%
@@ -671,7 +577,7 @@ fin_phon_by_mode_adj <- fin_phon_adj %>%
 
 # Create tibble of final boundaries  by gender and mode (adjusted).
 fin_phon_by_gender_adj <- fin_phon_adj %>% 
-  # Convert gender to speaker
+  # Convert speaker to gender
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
@@ -759,16 +665,17 @@ ggplot(fin_phon_by_gender_adj_list) +
     colour = "black",
     position = position_dodge2(preserve = "single")
   ) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 0.14)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.13)) +
   facet_grid(rows = vars(gender), cols = vars(fin_phon)) +
 
   theme(
     panel.border = element_rect(fill = NA)
   ) +
-  ggtitle("Final boundary by mode and gender (adjusted, ^[L%]=L%)") +
+  ggtitle("Final boundary by mode and gender") +
   scale_fill_manual(values = fin_phon_colours, name = "nuclear contour") +
   labs(x = "Mode", y = "tokens (%)") +
-  theme(panel.border = element_rect(fill = NA)) +
+  theme(panel.border = element_rect(fill = NA),
+        plot.title = element_blank()) +
   geom_text(aes(
     x = mode,
     y = (..count..) / sum(..count..),
@@ -776,25 +683,164 @@ ggplot(fin_phon_by_gender_adj_list) +
   ),
   stat = "count",
   vjust = -0.75,
-  size = 3)
+  size = 2.75)
+
+ggsave(
+  filename =
+    "output/fin_phon_reg_tier.png",
+  width = 8.5,
+  height = 8,
+  units = "cm",
+  dpi = 300
+)
 
 ```
 
 
+## BGLMM Analysis
 
-## BGLMM test of boundary as a fn of mode {.tabset}
+### H-Register and Mode {.tabset}
+
+```{r run model m_corpus_h_reg, results = "hide"}
+
+m_corpus_h_reg <- m_corpus %>%
+  select(prompt, speaker, gender, nuc_H_reg, mode)
+  
+
+h_reg_model <- bglmer(
+  nuc_H_reg ~ mode + gender + (1 | speaker)+ (1 | prompt),
+  data = m_corpus_h_reg,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+  )
+
+
+h_reg_model <- optimizeModel(h_reg_model, reject_nm = F)
+```
+
+#### LRT
+
+```{r drop1 m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5,}
+write = "output/Mode_PA_GLMM"
+
+model_formula <- getModelFormula(h_reg_model)
+
+write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
+      paste(write, "_formula.txt", sep = ""))
+
+
+# get, save, and print ANOVA of model
+drop1_analysis <- drop1(h_reg_model, test = "Chisq") %>%  tidy() %>% 
+  filter(!is.na(npar)) %>%
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  rename(factor = term) %>% 
+  rename(`Pr(Chi)` = Pr.Chi.) %>% 
+  write_csv(paste0(write, "_anova.csv"))
+
+
+adjustP_posthoc("output/",
+                `Pr(Chi)`,
+                suffix_id = "_anova")
+
+read_csv(paste(write, "_anova.csv", sep = "")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
+
+```
+
+#### *R*^2^ and prediction plots
+
+```{r Tidy Summary m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
+tidy_summary <- analyseModel(
+  h_reg_model,
+  write = write,
+  is_GLM = T,
+  type = "pred",
+  caption_suffix = " (reg tier)",
+  plot_rounding = 2,
+  short_caption = T,
+  panel_prefix = "A. Probability of"
+)
+```
+
+
+```{r Tidy Summary m_corpus_h_reg gender, fig.width = 6.1, fig.height = 2.5, results="asis"}
+ggpredict(h_reg_model,
+            terms = c("mode", "gender"),
+            ci.lvl = 0.95) %>%
+  plot(grid = T, colors = "bw") +
+  geom_label(
+    aes(label = round(predicted, 2)),
+    label.padding = unit(0.5, "mm"),
+    label.r = unit(0.0, "mm"),
+    size = 3
+  ) +
+  scale_y_continuous(limits = c(0, 1)) +
+  ylab("Probability") +
+  theme(
+    plot.title = element_blank(),
+    axis.title.x = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    plot.caption.position = "plot",
+    legend.position = c(0.12, 0.8),
+    legend.background = element_rect(colour = "darkGray")
+  )
+
+ggsave(
+  filename =
+    paste0(write, "_multi_pred.png"),
+  # width = 8.14,
+  width = 15.45,
+  height = 6.26,
+  units = "cm",
+  dpi = 300
+)
+```
+
+
+#### prediction by factor
+```{r  prediction h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
+printTidyPredictions(h_reg_model,
+                     caption_suffix = " (reg tier)",
+                     digits = 3)
+```
+
+#### prediction by mode and gender
+```{r  prediction h_reg together, fig.width = 3.05, fig.height = 2.5, results="asis"}
+x <- printTidyPredictions(h_reg_model,
+                     caption_suffix = " (reg tier)",
+                     digits = 3,
+                     factor_matrix = T) 
+```
+
+#### Pairwise comparisons
+
+```{r GLMM of H re mode Figures and Charts, fig.width = 3.05, fig.height = 2.5, results="asis"}
+charts <- getModelFixedFX(
+  h_reg_model,
+  write = write,
+  exponentiate = T
+)
+#charts$intercepts %>% tidyStatNumbers()
+charts$slopes %>% tidyStatNumbers()
+```
+
+#### Model printout
+```{r h reg model summary}
+summary(h_reg_model)
+```
+
+### Final Boundary and Mode {.tabset}
 
 * Random intercepts only since models with random slopes generate singularity issues.
 
-### model summary
-
-```{r GLMM fin phon Model Summary}
+```{r run GLMM fin phon model, results = "hide"}
 m_corpus_boundaries <- m_corpus %>% 
-  mutate(`L% boundary` = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
+  mutate(`L%` = factor(str_replace_all(fin_phon, "\\[|\\]|\\^", ""),
                            levels=c("%", "L%")))
                            
 fin_phon_model <- bglmer(
-  `L% boundary` ~ mode + gender + (1 | speaker) + (1 | prompt),
+  `L%` ~ mode + gender + (1 | speaker) + (1 | prompt),
   data = m_corpus_boundaries,
   family = binomial(link = "logit"),
   control = glmerControl(
@@ -808,16 +854,13 @@ fin_phon_model <- bglmer(
   )
 )
 
-
 fin_phon_model <- optimizeModel(fin_phon_model, reject_nm = F)
-
-summary(fin_phon_model)
 
 ```
 
-### ANOVA (`drop1()`)
+#### LRT
 
-```{r drop1 fin_phon, fig.width = 3.05, fig.height = 2.5,}
+```{r drop1 fin phon, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Mode_fin_phon_GLMM"
 
 model_formula <- getModelFormula(fin_phon_model)
@@ -845,33 +888,87 @@ read_csv(paste(write, "_anova.csv", sep = "")) %>%
 formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
-### *R*^2^ and prediction plots
+#### *R*^2^ and prediction plots
 
-```{r Tidy Summary fin_phon, fig.width = 3.05, fig.height = 2.5, results="asis"}
-tidy_summary <- analyseModel(fin_phon_model,
-                             write = write,
-                             is_GLM = T,
-                             type = "pred",
-                             plot_rounding = 1,
-                             caption_suffix = "(reg tier)",
-                             short_caption = T)
+```{r Tidy Summary fin phon, fig.width = 3.4, fig.height = 2.5, results="asis"}
+tidy_summary <- analyseModel(
+  fin_phon_model,
+  write = write,
+  is_GLM = T,
+  type = "pred",
+  caption_suffix = " (reg-tier analysis)",
+  plot_rounding = 2,
+  short_caption = T,
+  panel_prefix = "A. Probability of"
+)
 ```
 
-### prediction tables
-```{r Pairwise Comparison fin_phon, fig.width = 3.05, fig.height = 2.5, results="asis"}
+
+```{r Tidy Summary fin phon gender, fig.width = 6.1, fig.height = 2.5, results="asis"}
+ggpredict(fin_phon_model,
+            terms = c("mode", "gender"),
+            ci.lvl = 0.95) %>%
+  plot(grid = T, colors = "bw") +
+  geom_label(
+    aes(label = round(predicted, 2)),
+    label.padding = unit(0.5, "mm"),
+    label.r = unit(0.0, "mm"),
+    size = 3
+  ) +
+  scale_y_continuous(limits = c(0, 1)) +
+  ylab("Probability") +
+  theme(
+    plot.title = element_blank(),
+    axis.title.x = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 10),
+    plot.caption.position = "plot",
+    legend.position = c(0.12, 0.8),
+    legend.background = element_rect(colour = "darkGray")
+  )
+
+ggsave(
+  filename =
+    paste0(write, "_multi_pred.png"),
+  # width = 8.14,
+  width = 14,
+  height = 6.26,
+  units = "cm",
+  dpi = 300
+)
+```
+
+#### prediction by factor
+```{r  prediction fin_phon, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(fin_phon_model,
-                     caption_suffix = "(reg tier)")
+                     caption_suffix = " (reg tier)",
+                     digits = 3)
+```
+
+#### prediction by mode and gender
+```{r  prediction fin_phon together, fig.width = 3.05, fig.height = 2.5, results="asis"}
+x <- printTidyPredictions(fin_phon_model,
+                     caption_suffix = " (reg tier)",
+                     digits = 3,
+                     factor_matrix = T) 
 ```
 
 
-### pairwise comparisons
+#### pairwise comparisons
 
 ```{r GLMM fin_phon Figures and Charts, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
   fin_phon_model,
   write = write,
-  exponentiate = F
+  exponentiate = T
 )
 #charts$intercepts
 charts$slopes %>% tidyStatNumbers()
+```
+
+#### Model printout
+
+```{r summary of GLMM fin phon model}
+
+summary(fin_phon_model)
+
 ```

@@ -1,0 +1,2 @@
+factor,npar,AIC,LRT,Pr(Chi),p.adj (BH),signif.
+fin_phon_model_H_or_not,3,165.6430424932371,65.2988086633166,4.3e-14,1.0e-13,_p_ < .05

@@ -1,1 +1,1 @@
-high register in nucleus ~ mode + gender + (1 | speaker) + (1 | prompt)
+nuc_H_reg ~ mode + gender + (1 | speaker) + (1 | prompt)
