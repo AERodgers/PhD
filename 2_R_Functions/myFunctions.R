@@ -501,7 +501,7 @@ analyseModel <-
            y_lab = NULL,
            y_lim = NULL,
            plot_rounding = 1,
-           panel_prefix = NULL,
+           caption_prefix = NULL,
            breaks = waiver(),
            hjust = "inward",
            per_row = 2,
@@ -653,7 +653,7 @@ analyseModel <-
           ylab("probability") +
           scale_y_continuous(limits = c(0, 1)) +
           labs(caption = paste0(
-            panel_prefix, "Predicted probability of ",
+            caption_prefix, "Predicted probability of ",
             dependent_var, caption_suffix, "."
           )) +
           geom_text(aes(
@@ -698,13 +698,13 @@ analyseModel <-
           }
           cur_letter <- cur_letter + (1 * cur_letter < length(letters))
 
-          if (is.null(panel_prefix)) {
+          if (is.null(caption_prefix)) {
             lettering <- ""
           } else
-          if (panel_prefix == "letters") {
+          if (caption_prefix == "letters") {
             lettering <- paste0((letters[cur_letter]), ".")
           } else {
-            lettering <- panel_prefix
+            lettering <- caption_prefix
           }
 
           caption_suffix <- paste0(" re ", cur_factor, my_caption)
@@ -778,13 +778,13 @@ analyseModel <-
         }
         cur_letter <- cur_letter + (1 * cur_letter < length(letters))
 
-        if (is.null(panel_prefix)) {
+        if (is.null(caption_prefix)) {
           lettering <- ""
         } else
-        if (panel_prefix == "letters") {
+        if (caption_prefix == "letters") {
           lettering <- paste0((letters[cur_letter]), ". ")
         } else {
-          lettering <- panel_prefix
+          lettering <- caption_prefix
         }
 
         caption_suffix <- paste(" re", cur_factor, my_caption)

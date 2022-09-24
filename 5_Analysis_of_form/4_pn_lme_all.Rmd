@@ -247,7 +247,7 @@ pn_l_t_mdl.tidy <- analyseModel(
   y_lim = c(-100, 350),
   breaks = seq(-100, 350, 100),
   plot_rounding = 0,
-  panel_prefix = "a. "
+  caption_prefix = "a. "
   )
 
 
@@ -336,7 +336,7 @@ pn_l_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 4.5),
   breaks = seq(-3, 4.5, 1),
   plot_rounding = 1,
-  panel_prefix = "b. "
+  caption_prefix = "b. "
   )
 ```
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
@@ -531,7 +531,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  panel_prefix = "b. ")
+  caption_prefix = "b. ")
 
 ```
 
@@ -614,7 +614,7 @@ pn_h_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 4.5),
   breaks = seq(-3, 4.5, 1),
   plot_rounding =  1,
-  panel_prefix = "b. ")
+  caption_prefix = "b. ")
 ```
 
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}

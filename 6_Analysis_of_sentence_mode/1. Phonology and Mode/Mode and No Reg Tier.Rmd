@@ -908,7 +908,7 @@ tidy_summary <- analyseModel(
   type = "pred",
   plot_rounding = 2,
   short_caption = F,
-  panel_prefix = "A. "
+  caption_prefix = "A. "
 )
 
 my_plot <-

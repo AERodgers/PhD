@@ -23,6 +23,7 @@ installMissingPackages(c("tidyverse",
                          "knitr",
                          "RColorBrewer",
                          "ggeffects",
+                         "ggrepel",
                          "blme"))
 
 # Get  Data.
@@ -759,30 +760,38 @@ tidy_summary <- analyseModel(
   caption_suffix = " (reg tier)",
   plot_rounding = 2,
   short_caption = T,
-  panel_prefix = "A. Probability of"
+  caption_prefix = "A. Probability of"
 )
 ```
 
 
-```{r Tidy Summary m_corpus_h_reg gender, fig.width = 6.1, fig.height = 2.5, results="asis"}
+```{r Tidy Summary m_corpus_h_reg gender, fig.width = 8.5/2.54, fig.height = 6.25/2.54, results="asis"}
 ggpredict(h_reg_model,
             terms = c("mode", "gender"),
             ci.lvl = 0.95) %>%
-  plot(grid = T, colors = "bw") +
-  geom_label(
-    aes(label = round(predicted, 2)),
-    label.padding = unit(0.5, "mm"),
-    label.r = unit(0.0, "mm"),
-    size = 3
+  plot() +
+    labs(caption = "A. Predicted prob. of nuc_H_ref by mode and gender.") +
+  geom_text_repel(
+    aes(label = round(predicted, 2) %>% niceRatio()),
+    size = 3,
+    label.padding = units(3, "mm"),
+    point.padding = units(2, "mm"),
   ) +
+   scale_color_manual(labels = c("Female", "Male"),
+                      values = c("#000000" ,"#707070")) +
   scale_y_continuous(limits = c(0, 1)) +
   ylab("Probability") +
   theme(
+    panel.spacing.x = unit(1, "mm"),
     plot.title = element_blank(),
     axis.title.x = element_blank(),
-    plot.caption = element_text(hjust = 0, size = 10),
+    plot.caption = element_text(vjust = 1, hjust = 0, size = 10),
     plot.caption.position = "plot",
-    legend.position = c(0.12, 0.8),
+    legend.position = c(0.175, 0.975),
+    legend.justification = "top",
+    legend.margin = margin(0,1,0,1, unit = "mm"),
+    legend.spacing.y = unit(0, "mm"),
+    legend.title = element_blank(),
     legend.background = element_rect(colour = "darkGray")
   )
 
@@ -790,11 +799,12 @@ ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
   # width = 8.14,
-  width = 15.45,
+  width = 8.5,
   height = 6.26,
   units = "cm",
   dpi = 300
 )
+
 ```
 
 
@@ -899,7 +909,7 @@ tidy_summary <- analyseModel(
   caption_suffix = " (reg-tier analysis)",
   plot_rounding = 2,
   short_caption = T,
-  panel_prefix = "A. Probability of"
+  caption_prefix = "A. Probability of"
 )
 ```
 

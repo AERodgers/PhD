@@ -665,7 +665,8 @@ true_anova %&gt;%
   formattable(caption = paste(
     &quot;ANOVA of model:&quot;,
     getModelFormula(fin_phon_model_H_or_not)
-  ))</code></pre>
+  )) %&gt;%
+  rename(`chi^2^` = statistic)</code></pre>
 <table class="table table-condensed">
 <caption>
 ANOVA of model: <code>H%</code> ~ mode + (1 | speaker) + (1 | prompt)
@@ -691,7 +692,7 @@ logLik
 deviance
 </th>
 <th style="text-align:right;">
-statistic
+chi<sup>2</sup>
 </th>
 <th style="text-align:right;">
 df
@@ -950,7 +951,8 @@ true_anova %&gt;%
   formattable(caption = paste(
     &quot;ANOVA of model:&quot;,
     getModelFormula(h_reg_model)
-  ))</code></pre>
+  )) %&gt;%
+  rename(`chi^2^` = statistic)</code></pre>
 <table class="table table-condensed">
 <caption>
 ANOVA of model: nuc_H_reg ~ mode + (1 | speaker) + (1 | prompt)
@@ -976,7 +978,7 @@ logLik
 deviance
 </th>
 <th style="text-align:right;">
-statistic
+chi<sup>2</sup>
 </th>
 <th style="text-align:right;">
 df

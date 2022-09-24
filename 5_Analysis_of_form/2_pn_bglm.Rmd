@@ -189,7 +189,7 @@ cat(
 #                              type = "pred",
 #                              ci.lvl=0.95,
 #                              breaks = seq(0, 1, 0.2),
-#                              panel_prefix = "letters",
+#                              caption_prefix = "letters",
 #                              plot_rounding = 2,
 #                              per_row =3)
 tidy_summary <- analyseModel(lh_pn_model,
@@ -198,7 +198,7 @@ tidy_summary <- analyseModel(lh_pn_model,
                              type = "pred",
                              ci.lvl=0.95,
                              breaks = seq(0, 1, 0.2),
-                             panel_prefix = "letters",
+                             caption_prefix = "letters",
                              plot_rounding = 2)
 
 
@@ -310,7 +310,7 @@ cat(
 #                              is_GLM = T,
 #                              type = "pred",
 #                              breaks = seq(0, 1, 0.2),
-#                              panel_prefix = "letters",
+#                              caption_prefix = "letters",
 #                              plot_rounding = 2,
 #                              per_row = 3)
 tidy_summary <- analyseModel(h_star_model,
@@ -318,7 +318,7 @@ tidy_summary <- analyseModel(h_star_model,
                              is_GLM = T,
                              type = "pred",
                              breaks = seq(0, 1, 0.2),
-                             panel_prefix = "letters",
+                             caption_prefix = "letters",
                              plot_rounding = 2)
 
 

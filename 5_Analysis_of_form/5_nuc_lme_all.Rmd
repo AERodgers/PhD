@@ -192,7 +192,7 @@ nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                  y_lim = c(-0, 650),
                                  breaks = seq(-0, 650, 100),
                                  plot_rounding = 0,
-                                 panel_prefix = "a. "
+                                 caption_prefix = "a. "
                                  )
 
 ```
@@ -269,7 +269,7 @@ nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                   y_lim = c(-7, 4.5),
                                   breaks = seq(-7, 4.5, 2),
                                   plot_rounding = 1,
-                                  panel_prefix = "b. "
+                                  caption_prefix = "b. "
                                   )
 ```
 
@@ -399,7 +399,7 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 y_lim = c(0, 650),
                                 breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
-                                panel_prefix = "a. "
+                                caption_prefix = "a. "
                                 )
 
 
@@ -478,7 +478,7 @@ nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 y_lim = c(-7, 4.5),
                                 breaks = seq(-7, 4.5, 2),
                                 plot_rounding = 1,
-                                panel_prefix = "b. "
+                                caption_prefix = "b. "
                                 )
 
 ```
@@ -614,7 +614,7 @@ nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 y_lim = c(0, 650),
                                 breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
-                                panel_prefix = "a. "
+                                caption_prefix = "a. "
                                 )
 
 ```
@@ -697,7 +697,7 @@ nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
                                 y_lim = c(-7, 4.5),
                                 breaks = seq(-7, 4.5, 2),
                                 plot_rounding = 1,
-                                panel_prefix = "letters"
+                                caption_prefix = "letters"
                                 )
 
 ```
@@ -858,7 +858,7 @@ nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="5_nuc_output/nuc_f0_exc",
                                 type = "pred",
                                 y_lab = "f0 (ST)",
-                                panel_prefix = "a. ",
+                                caption_prefix = "a. ",
                                 short_caption = T)
 
 ```
@@ -959,7 +959,7 @@ mdl_summary$omega2
 nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
                                 write="5_nuc_output/nuc_lh_slope",
                                 type = "pred",
-                                panel_prefix = "b. ",
+                                caption_prefix = "b. ",
                                 y_lab = "log(ST/sec)",
                                 plot_rounding = 2,
                                 short_caption = T)
@@ -1086,7 +1086,7 @@ nuc_h_t_re_ft_dur_mdl.tidy <- analyseModel(nuc_h_t_re_ft_dur_mdl,
                                 y_lim = c(0, 1.2),
                                 breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                panel_prefix = "a. ",
+                                caption_prefix = "a. ",
                                 short_caption = T
                                 )
 
@@ -1192,7 +1192,7 @@ nuc_h_t_re_v_dur_mdl.tidy <- analyseModel(nuc_h_t_re_v_dur_mdl.trimmed,
                                 y_lim = c(0, 1.2),
                                 breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                panel_prefix = "b. ",
+                                caption_prefix = "b. ",
                                 short_caption = T
                                 )
 
