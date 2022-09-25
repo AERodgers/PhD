@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/947236/47d21d417a2f47c08c448d8ea1f9befb
+bundleId: https://api.rpubs.com/api/v1/document/947236/47d21d417a2f47c08c448d8ea1f9befb
+url: http://rpubs.com/phonetic_antoin/947236
+when: 1664124473.47928
+lastSyncTime: 1664124473.47929

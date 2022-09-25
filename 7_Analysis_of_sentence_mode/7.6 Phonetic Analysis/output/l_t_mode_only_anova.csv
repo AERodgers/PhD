@@ -1,0 +1,3 @@
+term,sumsq,meansq,NumDF,DenDF,F value,p.value,p.adj (BH),signif.
+mode,41965.472,13988.491,3,607.497,43.706,1.4e-25,7.8e-25,_p_ < .05
+gender,11551.115,11551.115,1,8.97,36.091,2.0e-04,4.5e-04,_p_ < .05

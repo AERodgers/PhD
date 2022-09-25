@@ -1,0 +1,629 @@
+---
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+subtitle: '7.6.3 Mode and Global Phonetic Parameters'
+author: "Antoin Rodgers"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+```{r setup global phonetic, results="hide", message=F, warning=F}
+knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
+
+# Load Functions
+source("../../2_R_Functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c(
+    # Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    # Include packages for tidy output.
+    "tidyverse",
+    "stringr",
+    "broomExtra",
+    "janitor",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    # Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+# Load Corpus
+m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  # Keep only factors needed for analysis
+  select(speaker,
+         gender,
+         mode,
+         utt_mean_f0,
+         utt_slope,
+         phr_phon,
+         acc_phon,
+         fin_phon,
+         prompt) %>%
+  mutate(
+    # h_start = phrases beginning with a high boundary or H* in first foot.
+    h_start = if_else(!is.na((str_extract(phr_phon, "%H|\\^\\[%H|% H\\*"))),
+                           "H start",
+                           "no H start"),
+    h_start = factor(h_start, levels = c("H start", "no H start")),
+    # Remove register tier identifers from fin_phon. (See Chapter 7.5.2.2.) 
+    fin_phon = factor(str_replace_all(fin_phon, "\\^|\\[|\\]", ""),
+                           levels = c("%", "L%"))
+         )
+
+```
+
+# 7.6.3 Global Phonetic Parameters
+
+## A. Mode-Only Models
+
+### A.1. Utterance mean _f_~0~ {.tabset}
+
+```{r run utt_mean_f0_mode model, results="hide"}
+utt_mean_f0_mode_mdl = lmer(
+  utt_mean_f0 ~
+    mode
+  + gender
+  + (1 + mode | speaker)
+  + (1 | prompt),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+utt_mean_f0_mode_mdl <- optimizeModel(utt_mean_f0_mode_mdl)
+
+# model needs trimming
+utt_mean_f0_mode_mdl = update(
+  utt_mean_f0_mode_mdl,
+  data = m_corpus %>% filter(abs(scale(resid(utt_mean_f0_mode_mdl))) <= 2.9))
+
+utt_mean_f0_mode_mdl <- optimizeModel(utt_mean_f0_mode_mdl)
+```
+
+```{r summarise utt_mean_f0_mode model}
+write = "output/utt_f0_mode_only"
+
+utt_mean_f0_mode.summary <- summariseLME(utt_mean_f0_mode_mdl,
+                            run_step = F,
+                            write = paste0(write, "_anova.csv"),
+                            print_summary = F,
+                            plot_resids = F)
+
+```
+
+#### predictions
+
+```{r utt_mean_f0_mode model predictions, fig.height=2.5, fig.width=3.01, results="asis"}
+utt_mean_f0_mode.tidy <- analyseModel(
+  utt_mean_f0_mode_mdl,
+  write="output/utt_f0_mode_only",
+  print_r2 = F,
+  short_caption = T,
+  y_lim = c(-2, 3),
+  y_lab = "ST re speaker median",
+  caption_suffix = " (mode only model)"
+)
+# utt_mean_f0.tidy$table %>% tidyNumbers(digits = 1) %>% tidyStatNumbers()
+printTidyPredictions(utt_mean_f0_mode_mdl,
+                     digits = 1,
+                     caption_suffix = " (mode only model)")
+```
+
+#### Effect Sizes
+
+```{r utt_mean_f0_mode effect sizes}
+utt_mean_f0_mode.tidy$r2
+utt_mean_f0_mode.summary$omega2
+```
+
+#### Pairwise comparisons
+
+```{r utt_mean_f0_mode model Pairwise Comparisons, fig.align="left"}
+# Get number of levels in target treatment variable.
+
+charts <- getModelFixedFX(
+  utt_mean_f0_mode_mdl,
+  write="output/utt_f0_mode_only"
+)
+
+#charts$intercepts %>% tidyStatNumbers(digits = 1)
+charts$slopes %>% tidyStatNumbers(digits = 1)
+
+```
+
+#### ANOVA
+
+```{r print utt_mean_f0_mode model summary text info, fig.align="left"}
+adjustP_posthoc("output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+read_csv(paste0(write, "_anova.csv")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(utt_mean_f0_mode_mdl)))
+```
+
+#### Details
+
+```{r print utt_mean_f0_mode model model summary, fig.height=3, fig.width=9}
+utt_mean_f0_mode.summary <- summariseLME(utt_mean_f0_mode_mdl,
+                            run_step = F)
+```
+
+#### Random Effects
+
+```{r utt_mean_f0_mode model random effect 1, fig.height=4, fig.width=6.1}
+plot_model(utt_mean_f0_mode_mdl,
+           type = "re", vline.color = "red", show.values = T)[[1]] +
+  labs(caption = "A. Random effect: (1 + speaker | mode)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot"
+  )
+```
+
+```{r utt_mean_f0_mode model random effect 3, fig.height=2, fig.width=3.05}
+plot_model(utt_mean_f0_mode_mdl,
+           type = "re", vline.color = "red", show.values = T)[[2]] +
+  labs(caption = "B. Random effect: (1 | prompt)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+
+### A.2 Utterance slope _f_~0~(t) {.tabset}
+
+```{r run utt_slope_mode model, results="hide"}
+utt_slope_mode_mdl = lmer(
+  utt_slope ~
+    mode
+  + gender
+  + (1 + mode | speaker)
+  + (1 | prompt),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+utt_slope_mode_mdl <- optimizeModel(utt_slope_mode_mdl)
+
+# model needs trimming
+utt_slope_mode_mdl = update(
+  utt_slope_mode_mdl,
+  data = m_corpus %>% filter(abs(scale(resid(utt_slope_mode_mdl))) <= 2.5))
+
+utt_slope_mode_mdl <- optimizeModel(utt_slope_mode_mdl)
+```
+
+```{r summarise utt_slope_mode model}
+write = "output/utt_slope_mode_only"
+
+utt_slope_mode.summary <- summariseLME(utt_slope_mode_mdl,
+                            run_step = F,
+                            write = paste0(write, "_anova.csv"),
+                            print_summary = F,
+                            plot_resids = F)
+
+```
+
+#### predictions
+
+```{r utt_slope_mode model predictions, fig.height=2.5, fig.width=3.01, results="asis"}
+utt_slope_mode.tidy <- analyseModel(
+  utt_slope_mode_mdl,
+  write="output/utt_slope_mode_only",
+  print_r2 = F,
+  short_caption = T,
+  y_lim = c(-10, 8),
+  y_lab = "ST/s",
+  caption_suffix = " (mode only model)"
+)
+# utt_mean_f0.tidy$table %>% tidyNumbers(digits = 1) %>% tidyStatNumbers()
+printTidyPredictions(utt_slope_mode_mdl,
+                     digits = 1,
+                     caption_suffix = " (mode only model)")
+```
+
+#### Effect Sizes
+
+```{r utt_slope_mode effect sizes}
+utt_slope_mode.tidy$r2
+utt_slope_mode.summary$omega2
+```
+
+#### Pairwise comparisons
+
+```{r utt_slope_mode model Pairwise Comparisons, fig.align="left"}
+# Get number of levels in target treatment variable.
+
+charts <- getModelFixedFX(
+  utt_slope_mode_mdl,
+  write="output/utt_slope_mode_only"
+)
+
+#charts$intercepts %>% tidyStatNumbers(digits = 1)
+charts$slopes %>% tidyStatNumbers(digits = 1)
+
+```
+
+#### ANOVA
+
+```{r print utt_slope_mode model summary text info, fig.align="left"}
+adjustP_posthoc("output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+read_csv(paste0(write, "_anova.csv")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(utt_slope_mode_mdl)))
+```
+
+#### Details
+
+```{r print utt_slope_mode model model summary, fig.height=3, fig.width=9}
+utt_slope_mode.summary <- summariseLME(utt_slope_mode_mdl,
+                            run_step = F)
+```
+
+#### Random Effects
+
+```{r utt_slope_mode model random effect 1, fig.height=4, fig.width=6.1}
+plot_model(utt_slope_mode_mdl,
+           type = "re", vline.color = "red", show.values = T)[[1]] +
+  labs(caption = "A. Random effect: (1 + speaker | mode)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot"
+  )
+```
+
+```{r utt_slope_mode model random effect 3, fig.height=2, fig.width=3.05}
+plot_model(utt_slope_mode_mdl,
+           type = "re", vline.color = "red", show.values = T)[[2]] +
+  labs(caption = "B. Random effect: (1 | prompt)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+
+## B Mode-and-Phonology Models
+
+### B.1. Utterance mean _f_~0~ {.tabset}
+```{r run model, results="hide"}
+utt_mean_f0_full_mdl = lmer(
+  utt_mean_f0  ~ mode + gender
+  + (1 + mode | speaker)
+  + (1 | prompt)
+  + (1 | h_start)
+  + (1 | acc_phon)
+  + (1 | fin_phon),
+  data = m_corpus,
+  control = lmerControl(
+    optimizer = "optimx",
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+utt_mean_f0_full_mdl <- optimizeModel(utt_mean_f0_full_mdl)
+```
+
+```{r summarise utt_mean_f0_full model}
+write = "output/utt_f0_full_phon"
+
+utt_mean_f0_full.summary <- summariseLME(utt_mean_f0_full_mdl,
+                            run_step = F,
+                            write = paste0(write, "_anova.csv"),
+                            print_summary = F,
+                            plot_resids = F)
+
+```
+
+#### predictions
+
+```{r utt_mean_f0_full model predictions, fig.height=2.5, fig.width=3.01, results="asis"}
+utt_mean_f0_full.tidy <- analyseModel(
+  utt_mean_f0_full_mdl,
+  write="output/utt_f0_full_phon",
+  print_r2 = F,
+  short_caption = T,
+  y_lim = c(-2, 3),
+  y_lab = "ST re speaker median",
+  caption_suffix = " (mode + phon model)"
+)
+# utt_mean_f0_full.tidy$table %>% tidyNumbers(digits = 1) %>% tidyStatNumbers()
+printTidyPredictions(utt_mean_f0_full_mdl,
+                     digits = 1,
+                     caption_suffix = " (mode + phonology model)")
+```
+
+#### Effect Sizes
+
+```{r utt_mean_f0_full effect sizes}
+utt_mean_f0_full.tidy$r2
+utt_mean_f0_full.summary$omega2
+```
+
+#### Pairwise comparisons
+
+```{r utt_mean_f0_full model Pairwise Comparisons, fig.align="left"}
+# Get number of levels in target treatment variable.
+
+charts <- getModelFixedFX(
+  utt_mean_f0_full_mdl,
+  write="output/utt_f0_full_phon"
+)
+
+#charts$intercepts %>% tidyStatNumbers(digits = 1)
+charts$slopes %>% tidyStatNumbers(digits = 1)
+
+```
+
+#### ANOVA
+
+```{r print utt_mean_f0_full model summary text info, fig.align="left"}
+adjustP_posthoc("output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+read_csv(paste0(write, "_anova.csv")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(utt_mean_f0_full_mdl)))
+```
+
+#### Details
+
+```{r print utt_mean_f0_full model model summary, fig.height=3, fig.width=9}
+utt_mean_f0_full.summary <- summariseLME(utt_mean_f0_full_mdl,
+                            run_step = F)
+```
+
+#### Random Effects
+
+```{r utt_mean_f0_full model random effect 1, fig.height=4, fig.width=6.1}
+plot_model(utt_mean_f0_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[1]] +
+  labs(caption = "A. Random effect: (1 + speaker | mode)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot"
+  )
+```
+```{r utt_mean_f0_full model random effect 2, fig.height=4, fig.width=3.05}
+plot_model(utt_mean_f0_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[2]] +
+  labs(caption = "B. Random effect: (1 | acc_phon)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+```{r utt_mean_f0_full model random effect 3, fig.height=2, fig.width=3.05}
+plot_model(utt_mean_f0_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[3]] +
+  labs(caption = "C. Random effect: (1 | prompt)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+plot_model(utt_mean_f0_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[4]] +
+  labs(caption = "D. Random effect: (1 | fin_phon)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+plot_model(utt_mean_f0_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[5]] +
+  labs(caption = "E. Random effect: (1 | h_start)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+
+### B.2. Utterance slope _f_~0~(t) {.tabset}
+
+```{r run utt_slope_full model, results="hide"}
+utt_slope_full_mdl = lmer(
+    utt_slope ~ mode
+    + gender
+    + (1 + mode | speaker)
+    + (1 | prompt)
+    + (1 | h_start)
+    + (1 | acc_phon)
+    + (1 | fin_phon),
+    data = m_corpus,
+    control = lmerControl(
+      optimizer = "optimx",
+      calc.derivs = F,
+      optCtrl = list(
+        method = "nlminb",
+        starttests = F,
+        kkt = F
+        )
+      )
+    )
+
+utt_slope_full_mdl <- optimizeModel(utt_slope_full_mdl, verbose = F)
+
+utt_slope_full_mdl  <- update(
+  utt_slope_full_mdl,
+  data = m_corpus %>% filter(abs(scale(resid(utt_slope_full_mdl))) <= 3)
+)
+
+utt_slope_full_mdl <- optimizeModel(utt_slope_full_mdl, verbose = F)
+```
+
+```{r summarise utt_slope_full model, include=F}
+write = "output/utt_slope_full_phon"
+
+utt_slope_full.summary <- summariseLME(utt_slope_full_mdl,
+                            run_step = F,
+                            write = paste0(write, "_anova.csv"),
+                            print_summary = F,
+                            plot_resids = F)
+
+```
+
+#### predictions
+
+```{r utt_slope_full model predictions, fig.height=2.5, fig.width=3.01, results="asis"}
+utt_slope_full.tidy <- analyseModel(
+  utt_slope_full_mdl,
+  write="output/utt_slope_full_phon",
+  plot_rounding = 2,
+  print_r2 = F,
+  short_caption = T,
+  y_lim = c(-10, 8),
+  y_lab = "ST/s",
+  caption_suffix = " (mode + phon model)")
+
+# utt_slope_full.tidy$table %>% tidyNumbers(digits = 1) %>% tidyStatNumbers()
+printTidyPredictions(utt_slope_full_mdl,
+                     digits = 2,
+                     caption_suffix = " (mode + phonology model)")
+```
+
+#### Effect Sizes
+
+```{r utt_slope_full model effect sizea}
+utt_slope_full.tidy$r2
+utt_slope_full.summary$omega2
+```
+
+#### Pairwise comparisons
+
+```{r utt_slope_full model Pairwise Comparisons, fig.align="left"}
+# Get number of levels in target treatment variable.
+
+charts <- getModelFixedFX(
+  utt_slope_full_mdl,
+  write="output/utt_slope_full_phon"
+)
+
+#charts$intercepts %>% tidyStatNumbers(digits = 2)
+charts$slopes %>% tidyStatNumbers(digits = 2)
+
+```
+
+#### ANOVA
+
+```{r print sutt_slope_full summary text info, fig.align="left"}
+adjustP_posthoc("output/",
+                p.value,
+                suffix_id = "_anova")
+
+
+read_csv(paste0(write, "_anova.csv")) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:",
+                            getModelFormula(utt_slope_full_mdl)))
+```
+
+#### Details
+
+```{r print utt_slope_full model summary, fig.height=3, fig.width=9}
+mdl_summary <- summariseLME(utt_slope_full_mdl,
+                            run_step = F)
+```
+
+#### Random Effects
+
+```{r utt_slope_full model random effect 1, fig.height=4, fig.width=6.1}
+plot_model(utt_slope_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[1]] +
+  labs(caption = "A. Random effect: (1 + speaker | mode)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot"
+  )
+```
+```{r utt_slope_full model random effect 2, fig.height=4, fig.width=3.05}
+plot_model(utt_slope_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[2]] +
+  labs(caption = "B. Random effect: (1 | acc_phon)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+```{r utt_slope_full model random effect 3, fig.height=2, fig.width=3.05}
+plot_model(utt_slope_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[3]] +
+  labs(caption = "C. Random effect: (1 | prompt)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+plot_model(utt_slope_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[4]] +
+  labs(caption = "D. Random effect: (1 | fin_phon)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+plot_model(utt_slope_full_mdl,
+           type = "re", vline.color = "red", show.values = T)[[5]] +
+  labs(caption = "E. Random effect: (1 | h_start)") +
+  theme(axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.caption = element_text(hjust = 0, size = 10),
+        plot.caption.position = "plot")
+```
+

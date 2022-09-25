@@ -1,0 +1,179 @@
+---
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+subtitle: '7.5.3 Comparing the non-register tier analysis and the register tier analysis'
+output:
+  html_document:
+    code_folding: hide
+---
+
+# 7.5.3 Comparing Both Analyses 
+
+```{r setup C, include=F}
+
+knitr::opts_chunk$set(message = F, warning=F, tidy = "styler")
+
+
+# Load Functions and colour variables
+source("../../2_R_Functions/myFunctions.R") 
+
+# Load packages.
+installMissingPackages(
+  c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer", "blme")
+)
+
+
+# Get  Data.
+m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  mutate(
+    fin_phon = if_else(
+      acc_phon == "L*^[H]",
+      paste("H", fin_phon, sep=""),
+      paste(fin_phon)),
+    # remove register tier
+    across(
+      c("acc_phon", "fin_phon"),
+      ~ str_replace_all(., "\\^|\\[|\\]", "")
+    ),
+    `H%` =  str_replace(fin_phon, "HL\\%", "H%"),
+    `H%` = factor(`H%`=="H%", level = c(F, T))
+  ) %>%
+  # Select only columns for analysis
+  select(speaker,
+         gender,
+         mode,
+         prompt,
+          `H%`)
+
+
+
+# Get  Data.
+m_corpus_H_reg <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  mutate(nuc_H_reg = factor( str_detect(acc_phon, "\\^"),
+                          levels = c(F, T))) %>% 
+  # Select only columns for analysis
+  select(nuc_H_reg)
+
+m_corpus_comp <- cbind(m_corpus_is_H_boundary, m_corpus_H_reg)
+rm(m_corpus_is_H_boundary, m_corpus_H_reg)
+
+```
+
+## BGLMM Analysis {.tabset}
+
+### likelihood of H% in non-register tier analysis
+
+```{r H boundary re mode in non-reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5,}
+write = "output/comp_fin_phon_H_GLMM"
+
+fin_phon_model_H_or_not <- bglmer(
+  `H%` ~ mode + (1 | speaker) + (1 | prompt),
+  data = m_corpus_comp,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+)
+
+fin_phon_model_H_null <- bglmer(
+  `H%` ~ 1 + (1 | speaker) + (1 | prompt),
+  data = m_corpus_comp,
+  family = binomial(link = "logit")
+)
+
+
+tidy_summary_non_reg <- analyseModel(fin_phon_model_H_or_not,
+                             is_GLM = T,
+                             type = "pred",
+                             short_caption = F, 
+                             plot_rounding = 2)
+
+tidy_summary_non_reg$table %>% tidyStatNumbers()
+
+true_anova = anova(fin_phon_model_H_null, fin_phon_model_H_or_not)
+
+# create fake ANOVA to get p.adj(BH) values
+true_anova %>%
+  tidy() %>%
+    filter(!is.na(df)) %>%
+  relocate(df, .after = term) %>% 
+  select(-c(npar, BIC, logLik, deviance)) %>% 
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  rename(factor = term) %>%
+  rename(LRT = statistic) %>% 
+  rename(npar = df) %>% 
+  rename(`Pr(Chi)` = p.value) %>% 
+    write_csv(paste0(write, "_anova.csv"))
+
+
+adjustP_posthoc("output/",
+                `Pr(Chi)`,
+                suffix_id = "_anova")
+
+
+true_anova %>%
+  tidy() %>%
+  filter(!is.na(df)) %>%
+  cbind(read_csv(paste(write, "_anova.csv", sep = "")) %>%
+          select (`p.adj (BH)`, signif.)) %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(fin_phon_model_H_or_not))) %>%
+  rename(`chi^2^` = statistic)  
+
+```
+
+
+### Likelihood of high register in register-tier analysis
+
+```{r GLMM Test of high reg re mode in reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5}
+write = "output/comp_H_reg_GLMM"
+
+h_reg_model <- bglmer(
+  nuc_H_reg ~ mode + (1 | speaker) + (1 | prompt),
+  data = m_corpus_comp,
+  family = binomial(link = "logit"),
+  fixef.prior = normal()
+  )
+
+h_reg_model_null <- bglmer(
+  nuc_H_reg ~ 1 + (1 | speaker) + (1 | prompt),
+  data = m_corpus_comp,
+  family = binomial(link = "logit")
+)
+
+tidy_summary_reg <- analyseModel(h_reg_model,
+                             is_GLM = T,
+                             type = "pred",
+                             short_caption = F, 
+                             plot_rounding = 2)
+
+tidy_summary_reg$table %>% tidyStatNumbers()
+
+true_anova = anova(h_reg_model_null, h_reg_model)
+
+# create fake ANOVA to get p.adj(BH) values
+true_anova %>%
+  tidy() %>%
+    filter(!is.na(df)) %>%
+  relocate(df, .after = term) %>% 
+  select(-c(npar, BIC, logLik, deviance)) %>% 
+  mutate(`p.adj (BH)` = NA, signif. = NA) %>%
+  rename(factor = term) %>%
+  rename(LRT = statistic) %>% 
+  rename(npar = df) %>% 
+  rename(`Pr(Chi)` = p.value) %>% 
+    write_csv(paste0(write, "_anova.csv"))
+
+
+adjustP_posthoc("output/",
+                `Pr(Chi)`,
+                suffix_id = "_anova")
+
+true_anova %>%
+  tidy() %>%
+  filter(!is.na(df)) %>%
+  cbind(read_csv(paste(write, "_anova.csv", sep = "")) %>%
+          select (`p.adj (BH)`, signif.)) %>%
+  tidyStatNumbers() %>%
+formattable(caption = paste("ANOVA of model:", 
+                            getModelFormula(h_reg_model))) %>% 
+  rename(`chi^2^` = statistic)
+```

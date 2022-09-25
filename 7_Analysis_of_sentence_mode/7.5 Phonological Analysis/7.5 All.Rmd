@@ -1,0 +1,20 @@
+---
+title: 'Chapter 7.5: Phonological Analysis of Sentence Modes'
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, tidy = 'styler')
+```
+
+
+```{r}
+#| child = c('A. Mode and No Reg Tier.Rmd',
+#|           'B. Mode and Reg Tier.Rmd',
+#|           'C. Mode reg tier vs no reg tier.Rmd',
+#|           'D. Mode and Utterance.Rmd'),
+#| quiet = T
+```

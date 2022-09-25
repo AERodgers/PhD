@@ -1347,13 +1347,11 @@ printTidyPredictions <-
         rename(estimate = x) %>%
         arrange(group) %>%
         mutate(across(
-          c(group, estimate),
-          ~ str_replace_all(
-            .,
-            "(\\_|\\[|\\]|\\$|\\^|\\>)",
-            "\\\\\\1"
-          )
-        )) %>%
+          everything(),
+          ~ str_replace_all(.,
+                            "([\\*\\[\\^\\>])",
+                            "\\\\\\1")
+          )) %>%
         knitr::kable(caption = paste(
           "predicted probability of",
           response_labels(model)
@@ -1373,15 +1371,14 @@ printTidyPredictions <-
         as_tibble(cur_obj) %>%
           select(-group) %>%
           relocate(std.error, .after = conf.high) %>%
-          mutate(
-            x = str_replace_all(
-              x,
-              "(\\_|\\[|\\]|\\$|\\^|\\>)",
-              "\\\\\\1"
-            )
-          ) %>%
           tidyNumbers(digits = digits) %>%
           rename(!!cur_obj_name := x) %>%
+          mutate(across(
+            everything(),
+            ~ str_replace_all(.,
+                              "([\\*\\[\\^\\>])",
+                              "\\\\\\1")
+          )) %>%
           knitr::kable(caption = cur_caption) %>%
           kable_styling(full_width = F, position = "left") %>%
           print()

@@ -1,0 +1,2 @@
+factor,npar,AIC,LRT,Pr(Chi),p.adj (BH),signif.
+h_reg_model,3,341.5869709425406,318.593115910257,9.4e-69,3.8e-68,_p_ < .05

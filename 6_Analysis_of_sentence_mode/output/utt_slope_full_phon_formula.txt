@@ -1,1 +1,0 @@
-utt_slope ~ mode + (1 + mode | speaker) + (1 | prompt) + (1 | h_start) + (1 | acc_phon) + (1 | fin_phon)

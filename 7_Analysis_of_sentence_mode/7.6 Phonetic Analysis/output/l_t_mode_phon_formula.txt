@@ -1,0 +1,1 @@
+l_t ~ mode + acc_phon + gender + (1 | speaker) + (1 | prompt) + (1 | fin_phon)
