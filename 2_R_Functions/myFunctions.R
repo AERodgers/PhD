@@ -204,10 +204,12 @@ get_m_corpus <- function(file_address)
         utt_mean_f0,
         utt_slope_z,
         spkr_f0_mean,
+        spkr_f0_med,
         spkr_f0_SD
       ) %>%
       mutate(
         # create composite parameters for continuous data.
+        across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
         foot_dur = foot_end_t - foot_start_t,
         speech_rate = round(tot_syls / phr_end_t * 1000, 3),
         f0_exc = h_f0 - l_f0,
@@ -417,12 +419,7 @@ summariseLME <-
     anova <- anova(my_model) %>%
       tidy() %>%
       mutate(across(`sumsq`:`statistic`, ~ round(., 3))) %>%
-      formattable(
-        caption = paste(
-          "Anova of model", my_formula,
-          sep = ": "
-        )
-      ) %>%
+      formattable(caption = paste0("ANOVA of: ", my_formula, ".")) %>%
       sigCodesTidy(p.value, F) %>%
       rename(`F value` = statistic)
     if (!is_null(write)) {
@@ -447,16 +444,6 @@ summariseLME <-
       )
     }
 
-
-    cat("\nisSingular(my_model, tol =",
-      my_tolerance,
-      ") -->",
-      isSingular(my_model, tol = my_tolerance),
-      "\n\n",
-      sep = ""
-    )
-
-
     omega2 <-
       anova(my_model) %>%
       omega_squared(ci = 0.95, alternative = "two.sided") %>%
@@ -469,10 +456,10 @@ summariseLME <-
       `95% CI` = paste0("[", CI_low, ", ", CI_high, "]")
       ) %>%
       select(Parameter, Omega2_partial, `95% CI`) %>%
-      rename(`Omega^2^ (partial)` = Omega2_partial) %>%
+      rename(`ω^2^~_p_~` = Omega2_partial) %>%
       knitr::kable(
         caption = paste0(
-          "Effect Size for ANOVA of model of ",
+          "Omega^2^ (partial) for ",
           response_labels(my_model), "."
         ),
         align = "l"
@@ -507,7 +494,8 @@ analyseModel <-
            per_row = 2,
            page_width = 15.4,
            short_caption = F,
-           caption_suffix = NULL) {
+           caption_suffix = NULL,
+           print_r2 = T) {
     require("formattable")
     require("tidyverse")
     require("mefa4")
@@ -573,7 +561,7 @@ analyseModel <-
       select(!!!my_headers) %>%
       formattable(
         caption = paste(
-          "summary of model:",
+          "summary of:",
           str_replace_all(my_formula, "\\`", "")
         ),
         title = ""
@@ -621,11 +609,11 @@ analyseModel <-
     r2 <- tibble(`marginal R^2^`, `conditional R^2^`) %>%
       mutate(across(everything(), ~ trim_zeros(., digits = 2))) %>%
       knitr::kable(
-        caption = "Conditional and marginal R^2^ of model",
+        caption = "Conditional and marginal R^2^",
         align = "l"
       ) %>%
       kable_styling(full_width = F, position = "left")
-    print(r2)
+    if(print_r2){print(r2)}
 
 
     if (!is.null(write)) {
@@ -787,7 +775,7 @@ analyseModel <-
           lettering <- caption_prefix
         }
 
-        caption_suffix <- paste(" re", cur_factor, my_caption)
+        caption_suffix <- paste0(" re ", cur_factor, my_caption)
 
         my_plot <- ggpredict(my_model,
           terms = paste(cur_factor, all),
@@ -1115,7 +1103,7 @@ getModelFixedFX <- function(model,
     )) %>%
     formattable(
       caption = paste(
-        "b0 for",
+        "b0:",
         str_replace_all(my_formula, "\\`", ""),
         extra_text,
         sep = " "
@@ -1145,7 +1133,7 @@ getModelFixedFX <- function(model,
     ) %>%
     formattable(
       caption = paste(
-        "b1 for",
+        "b1:",
         str_replace_all(my_formula, "\\`", ""),
         extra_text,
         sep = " "
@@ -1339,7 +1327,7 @@ adjustP_posthoc <-
 ###
 ###  Tidy Predictions ##########################################################
 printTidyPredictions <-
-  function(model, caption_suffix, factor_matrix = F,
+  function(model, caption_suffix = NULL, factor_matrix = F,
            digits = 2) {
     require("ggeffects")
     require("tidyverse")
@@ -1511,7 +1499,7 @@ tidyNumbers <- function(data,
 
 ###
 ###  Tidy Stat Table Numbers ###################################################
-tidyStatNumbers <- function(stats) {
+tidyStatNumbers <- function(stats, digits = 2) {
   installMissingPackages(c("tidyverse", "weights"))
   original_nrow <- nrow(stats)
   lost_factors <- NULL
@@ -1552,7 +1540,10 @@ tidyStatNumbers <- function(stats) {
       ~ if_else(. == "0.0e+00" | . == "-0.0e+00", "0", .)
     ),
     across(where(is_character), ~ str_replace(., "TRUE", "T")),
-    across(where(is_character), ~ str_replace(., "FALSE", "F"))
+    across(where(is_character), ~ str_replace(., "FALSE", "F")),
+    across(any_of(c("estimate", "conf.low", "conf.high")),
+           ~ round(as.numeric(.), digits)
+           )
   )
 
 

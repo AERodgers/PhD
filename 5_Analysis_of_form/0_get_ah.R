@@ -54,7 +54,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   rename(pn_new_word = ana_has_word_end) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
-    across(any_of(c("s_f0", "l_f0", "h_f0", "e_f0")), ~ .- spkr_f0_med),
+    across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
     # there must be a more efficient way of doing this but...
     # Create column of stressed syllables in foot 1.
     pn_str_syl = stim,
