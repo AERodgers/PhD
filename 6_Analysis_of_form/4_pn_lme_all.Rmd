@@ -11,12 +11,12 @@ knitr::opts_chunk$set(echo = F,
                       message = F,
                       warning = F)
 
-# Get personal functions and install / load necessary packages.
+## Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    # Include statistical packages.
+    ## Include statistical packages.
     "performance",
     "lmerTest",
     "lme4",
@@ -26,7 +26,7 @@ installMissingPackages(
     "dfoptim",
     "effectsize",
 
-    # Include packages for tidy output.
+    ## Include packages for tidy output.
     "tidyverse",
     "broomExtra",
     "sjPlot",
@@ -34,15 +34,15 @@ installMissingPackages(
     "knitr",
     "gridExtra",
 
-    # Include packages for %in% %notin% syntactic notation
+    ## Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 12))
 
-# Get  data for analysis
+## Get  data for analysis
 
 source("0_get_AH.R")
 
@@ -156,9 +156,9 @@ pn_l_data <- pn %>%
 
 ```
 
-## L targets
+### L targets
 
-### Analysis of L timing
+#### Analysis of L timing
 
 ```{r run l_t models, fig.height=3, fig.width=9}
 l_t_equation = formula(
@@ -264,7 +264,7 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 
-### Analysis of L F0
+#### Analysis of L F0
 
 ```{r run l_f0 models, fig.height=3, fig.width=9}
 l_f0_equation = formula(
@@ -300,7 +300,7 @@ pn_l_f0_mdl <- update(pn_l_f0_mdl, formula = l_f0_equation)
 pn_l_f0_mdl <- optimizeModel(pn_l_f0_mdl, reject_nm = T, verbose = F)
 mdl_summary <- summariseLME(pn_l_f0_mdl, print_summary = F, run_step = F)
 
-# model needs trimming
+## model needs trimming
 pn_l_f0.trimmed <- pn_l_data %>%
   filter(abs(scale(resid(pn_l_f0_mdl))) <= 3.5)
 
@@ -351,12 +351,12 @@ charts$slopes %>% tidyStatNumbers()%>%
 
 
 ```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
-# set terms to plot
+## set terms to plot
 terms = c("acc_phon [L*]",
           "pn_new_word [T]",
           "gender [M]")
 
-# create _t plot
+## create _t plot
 l_t_binom_plot <- plot_model(pn_l_t_mdl.trimmed,
            type = "est",
            transform = NULL,
@@ -374,7 +374,7 @@ l_t_binom_plot <- plot_model(pn_l_t_mdl.trimmed,
       axis.title = element_text(size = 10)
     )
 
-# create _f0 plot
+## create _f0 plot
 l_f0_binom_plot <- plot_model(pn_l_f0_mdl,
            type = "est",
            transform = NULL,
@@ -392,10 +392,10 @@ l_f0_binom_plot <- plot_model(pn_l_f0_mdl,
       axis.title = element_text(size = 10)
     )
 
-# join the plots
+## join the plots
 grid.arrange(l_t_binom_plot, l_f0_binom_plot, ncol = 2)
 
-# save the plots
+## save the plots
 ggsave("4_pn_output/l_target_binomial.png",
         device = "png",
         arrangeGrob(l_t_binom_plot, l_f0_binom_plot, ncol = 2),
@@ -404,9 +404,9 @@ ggsave("4_pn_output/l_target_binomial.png",
         units = "cm")
 ```
 
-## H targets
+### H targets
 
-### Analysis of H timing
+#### Analysis of H timing
 
 ```{r run h_t models, fig.height=3, fig.width=9}
 h_t_equation = formula(
@@ -441,7 +441,7 @@ mdl_summary <- summariseLME(pn_h_t_mdl,
                   run_step = F, print_summary = F
                   )
 
-# model needs trimming
+## model needs trimming
 pn_h_t.trimmed <- pn_h_data %>% filter(abs(scale(resid(pn_h_t_mdl))) <= 2.5)
 pn_h_t_mdl.trimmed = update(pn_h_t_mdl, data = pn_h_t.trimmed)
 #pn_h_t_mdl.trimmed <- optimizeModel(pn_h_t_mdl.trimmed, reject_nm = T, verbose = F)
@@ -546,7 +546,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of H F0
+#### Analysis of H F0
 
 ```{r run h_f0 models, fig.height=3, fig.width=9}
 h_f0_equation = formula(
@@ -594,13 +594,13 @@ formattable(caption = paste("ANOVA of model:",
 ```
 
 ```{r plot h_f0 estimated effects, fig.height=3.5, fig.width=4}
-# plot_model(
-#   pn_h_f0_mdl,
-#   type = "est",
-#   transform = NULL,
-#   show.values = T,
-#   vline = "Red"
-#  )
+## plot_model(
+##   pn_h_f0_mdl,
+##   type = "est",
+##   transform = NULL,
+##   show.values = T,
+##   vline = "Red"
+##  )
 ```
 
 ```{r h_f0 model summary, fig.height=2.5, fig.width=2.823, results="asis"}
@@ -629,11 +629,11 @@ charts$slopes %>% tidyStatNumbers() %>%
 
 
 ```{r h binomial plots, fig.height=4.5/2.54, fig.width=15/2.54}
-# set terms to plot
+## set terms to plot
 terms = c("pn_new_word [T]",
           "gender [M]")
 
-# create _t plot
+## create _t plot
 h_t_binom_plot <- plot_model(pn_h_t_mdl.trimmed,
            type = "est",
            transform = NULL,
@@ -651,7 +651,7 @@ h_t_binom_plot <- plot_model(pn_h_t_mdl.trimmed,
       axis.title = element_text(size = 10)
     )
 
-# create _f0 plot
+## create _f0 plot
 h_f0_binom_plot <- plot_model(pn_h_f0_mdl,
            type = "est",
            transform = NULL,
@@ -669,10 +669,10 @@ h_f0_binom_plot <- plot_model(pn_h_f0_mdl,
       axis.title = element_text(size = 10)
     )
 
-# join the plots
+## join the plots
 grid.arrange(h_t_binom_plot, h_f0_binom_plot, ncol = 2)
 
-# save the plots
+## save the plots
 ggsave("4_pn_output/h_target_binomial.png",
         device = "png",
         arrangeGrob(h_t_binom_plot, h_f0_binom_plot, ncol = 2),
@@ -681,13 +681,13 @@ ggsave("4_pn_output/h_target_binomial.png",
         units = "cm")
 ```
 
-## Truncation and Compression
+### Truncation and Compression
 
 Based on results from tonal target analysis, it looks there is an element of truncation in LH contours as a function of foot size, alongside a degree of rightward drift in L targets as foot size increases. However, superficially, it looks like the slope is stable.
 
 As with nuclear data, I am retaining the overall model structure as much as possible BUT will discard all but foot_syls for analysis.
 
-### LH Excursion
+#### LH Excursion
 
 ```{r run f0_exc models, fig.height=3, fig.width=9}
 
@@ -720,22 +720,22 @@ pn_f0_exc_mdl <- optimizeModel(pn_f0_exc_mdl, reject_nm = T, verbose = F)
 
 mdl_summary <- summariseLME(pn_f0_exc_mdl, run_step = F, print_summary = F)
 
-# model needs trimming
+## model needs trimming
 
 pn_f0_exc.trimmed <-
   pn_tnc_data %>% filter(abs(scale(resid(pn_f0_exc_mdl))) <= 2.5)
 pn_f0_exc_mdl.trimmed = update(pn_f0_exc_mdl, data = pn_f0_exc.trimmed)
 
-# pn_f0_exc_mdl.trimmed <-
-#   optimizeModel(pn_f0_exc_mdl.trimmed,
-#              reject_nm = T,
-#              verbose = F)
+## pn_f0_exc_mdl.trimmed <-
+##   optimizeModel(pn_f0_exc_mdl.trimmed,
+##              reject_nm = T,
+##              verbose = F)
 
 mdl_summary <- summariseLME(pn_f0_exc_mdl.trimmed,
              run_step = F,
              write = "4_pn_output/pn_f0_exc_anova.csv")
 
-# pn_f0_exc_mdl.trimmed = optimizeModel(pn_f0_exc_mdl.trimmed, verbose = F)
+## pn_f0_exc_mdl.trimmed = optimizeModel(pn_f0_exc_mdl.trimmed, verbose = F)
 
 
 adjustP_posthoc("4_pn_output/",
@@ -791,7 +791,7 @@ charts$slopes %>% tidyStatNumbers()%>%
           ~ round(as.numeric(.),1)))
 ```
 
-### LH Slope
+#### LH Slope
 
 ```{r run lh_slope models, fig.height=3, fig.width=9}
 lh_slope_equation = formula(
@@ -832,7 +832,7 @@ mdl_summary <- summariseLME(pn_lh_slope_mdl,
 ```
 - data needs trimming: residual SD > 4
 ```{r run lh_slope models trimmed, fig.height=3, fig.width=9}
-# model needs trimming
+## model needs trimming
 pn_lh_slope.trimmed <-
   pn_tnc_data %>% filter(abs(scale(resid(pn_lh_slope_mdl))) <= 4)
 
@@ -850,10 +850,10 @@ pn_lh_slope_mdl.trimmed = lmer(
   )
 )
 
-# pn_lh_slope_mdl.trimmed <-
-#   optimizeModel(pn_lh_slope_mdl.trimmed,
-#              reject_nm = T,
-#              verbose = F)
+## pn_lh_slope_mdl.trimmed <-
+##   optimizeModel(pn_lh_slope_mdl.trimmed,
+##              reject_nm = T,
+##              verbose = F)
 
 mdl_summary <- summariseLME(pn_lh_slope_mdl.trimmed,
              run_step = F,
@@ -874,7 +874,7 @@ read_csv("4_pn_output/pn_lh_slope_anova.csv",
 b <- plot_model(
   pn_lh_slope_mdl.trimmed,
   type = "est",
-#  rm.terms = "ana_syls [2,3,4]",
+##  rm.terms = "ana_syls [2,3,4]",
   transform = NULL,
   show.values = T
  ) + labs(caption = "b. Estimated effects on log_lh_slope.") +

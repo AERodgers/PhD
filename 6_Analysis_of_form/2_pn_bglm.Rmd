@@ -12,18 +12,18 @@ knitr::opts_chunk$set(echo = F,
                       message = F)
 start <- Sys.time()
 
-# Get personal functions and install / load necessary packages.
+## Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    # Include statistical packages.
+    ## Include statistical packages.
     "lmerTest",
     "blme",
     "optimx",
     "MuMIn",
     
-    # Include packages for tidy output.
+    ## Include packages for tidy output.
     "tidyverse",
     "broomExtra",
     "sjPlot",
@@ -32,14 +32,14 @@ installMissingPackages(
     "ggeffects",
     "weights",
     
-    # Include packages for %in% %notin% syntactic notation
+    ## Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
 
-# Get data frames for AH analysis
+## Get data frames for AH analysis
 source("0_get_AH.R")
-# Add isLH column
+## Add isLH column
 
 
 pn <- pn %>%
@@ -74,7 +74,7 @@ pn <- pn %>%
 rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
 
@@ -96,7 +96,7 @@ isLH_equation <- formula(isLH ~
 
 ```
 
-#### Run isLH model
+##### Run isLH model
 
 
 ```{r run isLH models}
@@ -183,15 +183,15 @@ cat(
   isSingular(lh_pn_model, tol = 1e-5),
   "\n"
 )
-# tidy_summary <- analyseModel(lh_pn_model,
-#                              write = "2_output/lh_model_3",
-#                              is_GLM = T,
-#                              type = "pred",
-#                              ci.lvl=0.95,
-#                              breaks = seq(0, 1, 0.2),
-#                              caption_prefix = "letters",
-#                              plot_rounding = 2,
-#                              per_row =3)
+## tidy_summary <- analyseModel(lh_pn_model,
+##                              write = "2_output/lh_model_3",
+##                              is_GLM = T,
+##                              type = "pred",
+##                              ci.lvl=0.95,
+##                              breaks = seq(0, 1, 0.2),
+##                              caption_prefix = "letters",
+##                              plot_rounding = 2,
+##                              per_row =3)
 tidy_summary <- analyseModel(lh_pn_model,
                              write = "2_output/lh_model",
                              is_GLM = T,
@@ -220,7 +220,7 @@ charts <- getModelFixedFX(lh_pn_model, write="2_output/lh_model")
 charts$slopes %>% tidyStatNumbers()
 ```
 
-## Run isHStar model
+### Run isHStar model
 ```{r set isHStar equation}
 isHStar_equation <- formula(isHStar ~
                            ana_syls
@@ -284,12 +284,12 @@ tibble(factor = row.names(temp))  %>%
   write_csv(paste(write, "_anova.csv", sep = "")) 
 
 
-# p. adjust all phonology models
+## p. adjust all phonology models
 adjustP_posthoc("2_output/",
                 `Pr(Chi)`,
                 suffix_id = "_anova")
 
-# read and print adjusted version
+## read and print adjusted version
 read_csv(paste(write, "_anova.csv", sep = "")) %>%
   tidyStatNumbers() %>%
   formattable(caption = paste("Drop1 ChiSq test of formula:", model_formula))
@@ -305,14 +305,14 @@ cat(
   "\n"
 )
 
-# tidy_summary <- analyseModel(h_star_model,
-#                              write = "2_output/h_star_model_3",
-#                              is_GLM = T,
-#                              type = "pred",
-#                              breaks = seq(0, 1, 0.2),
-#                              caption_prefix = "letters",
-#                              plot_rounding = 2,
-#                              per_row = 3)
+## tidy_summary <- analyseModel(h_star_model,
+##                              write = "2_output/h_star_model_3",
+##                              is_GLM = T,
+##                              type = "pred",
+##                              breaks = seq(0, 1, 0.2),
+##                              caption_prefix = "letters",
+##                              plot_rounding = 2,
+##                              per_row = 3)
 tidy_summary <- analyseModel(h_star_model,
                              write = "2_output/h_star_model",
                              is_GLM = T,

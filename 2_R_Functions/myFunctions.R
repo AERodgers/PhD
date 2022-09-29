@@ -1,26 +1,26 @@
-# 123456789#123456789#123456789#123456789#123456789#123456789#123456789#123456789
-# author: "Antoin Eoin Rodgers"
-# date: '2022-05-06'
-# Bank of personal functions
+## 123456789#123456789#123456789#123456789#123456789#123456789#123456789#123456789
+## author: "Antoin Eoin Rodgers"
+## date: '2022-05-06'
+## Bank of personal functions
 
 require("tidyverse")
 require("parallel")
 ncores <- detectCores()
 
 
-###  Set themes, colours schemes, and formatters ###############################
+####  Set themes, colours schemes, and formatters ###############################
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
 
-# Change this as required
+## Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 
 ###
-###  Install Missing Packages ##################################################
+####  Install Missing Packages ##################################################
 installMissingPackages <- function(package_list) {
-  # installs packages from  package_list which are not already installed in.
+  ## installs packages from  package_list which are not already installed in.
   installed_packages <-
     package_list %in% rownames(installed.packages())
 
@@ -28,7 +28,7 @@ installMissingPackages <- function(package_list) {
     install.packages(package_list[!installed_packages])
   }
 
-  # Packages loading
+  ## Packages loading
   invisible(lapply(
     package_list,
     suppressPackageStartupMessages(library),
@@ -36,7 +36,7 @@ installMissingPackages <- function(package_list) {
   ))
 }
 ###
-###  Balance data  #############################################################
+####  Balance data  #############################################################
 balancedData <- function(data_set,
                          treatment_col,
                          response_col,
@@ -44,22 +44,22 @@ balancedData <- function(data_set,
                          num_speakers,
                          num_reps,
                          use_pa_hierarchy = T) {
-  # Returns an data matrix of phonological data of a projected balanced dataset.
-  #    This function takes a subset of the data, calculates each token count
-  #     per speaker per condition as a ratio of the total tokens for that
-  #     condition and multiplies it by a constant reflecting the target token
-  #     for that utterance. It then calculates the total number of tokens per
-  #     condition as a ratio of the total number of speakers represented for
-  #     that condition. Again, this is multiplied by a constant to reflect the
-  #     intended number of speakers. The values are then rounded to an integer
-  #     to approximate the ideal total tokens for the dataset.
+  ## Returns an data matrix of phonological data of a projected balanced dataset.
+  ##    This function takes a subset of the data, calculates each token count
+  ##     per speaker per condition as a ratio of the total tokens for that
+  ##     condition and multiplies it by a constant reflecting the target token
+  ##     for that utterance. It then calculates the total number of tokens per
+  ##     condition as a ratio of the total number of speakers represented for
+  ##     that condition. Again, this is multiplied by a constant to reflect the
+  ##     intended number of speakers. The values are then rounded to an integer
+  ##     to approximate the ideal total tokens for the dataset.
   #
-  #     data_set ....... target corpus data set
-  #     treatment_col .. treatment column / independent variable)
-  #     response_col ... response column / dependent variable (phonology)
-  #     gender_filter .. "F" for female only, "M" for male only, "" for all
-  #     num_speakers ... number of speakers in ideal corpus
-  #     num_reps ....... number of repetitions per speaker in ideal corpus.
+  ##     data_set ....... target corpus data set
+  ##     treatment_col .. treatment column / independent variable)
+  ##     response_col ... response column / dependent variable (phonology)
+  ##     gender_filter .. "F" for female only, "M" for male only, "" for all
+  ##     num_speakers ... number of speakers in ideal corpus
+  ##     num_reps ....... number of repetitions per speaker in ideal corpus.
   if (gender_filter == "M") {
     data_set <- data_set %>% filter(gender == "M")
   } else {
@@ -71,19 +71,19 @@ balancedData <- function(data_set,
   treatment_col <- enquo(arg = treatment_col)
   response_col <- enquo(arg = response_col)
 
-  # Get number of speakers per target.
+  ## Get number of speakers per target.
   speakers_per_target <- data_set %>%
     select(speaker, !!treatment_col) %>%
     group_by(!!treatment_col) %>%
     summarise(speakers = n_distinct(speaker), .groups = "keep")
 
-  # Get number of reps per speaker per target.
+  ## Get number of reps per speaker per target.
   pn_foot_reps <- data_set %>%
     group_by(speaker, !!treatment_col) %>%
     summarise(acc_count = n(), .groups = "keep")
   kable(pn_foot_reps)
 
-  # Get number of PA tokens per speaker per target
+  ## Get number of PA tokens per speaker per target
   pn_foot_summary <- data_set %>%
     group_by(speaker, !!treatment_col, !!response_col) %>%
     summarise(acc_count = n(), .groups = "keep") %>%
@@ -94,7 +94,7 @@ balancedData <- function(data_set,
   pa_columns <-
     colnames(balanced)[3:(length(colnames(balanced)) - 1)]
 
-  # Convert tokens to ratios of tokens per speaker per target
+  ## Convert tokens to ratios of tokens per speaker per target
   balanced <- balanced %>%
     mutate(across(pa_columns, ~ (.x / acc_count * num_reps))) %>%
     group_by(!!treatment_col) %>%
@@ -105,7 +105,7 @@ balancedData <- function(data_set,
   balanced <- balanced %>%
     gather(!!response_col, mod_count, 2:num_cols)
 
-  # Arrange PA levels according to hypothesized hierarchy.
+  ## Arrange PA levels according to hypothesized hierarchy.
   if (use_pa_hierarchy) {
     balanced <- balanced %>%
       mutate(acc_phon = factor(!!response_col,
@@ -117,7 +117,7 @@ balancedData <- function(data_set,
     group_by(!!treatment_col, !!response_col) %>%
     summarise(mod_sum = sum(mod_count), .groups = "keep") %>%
     spread(!!response_col, mod_sum) %>%
-    # Adjust token count re number of speakers per target condition.
+    ## Adjust token count re number of speakers per target condition.
     left_join(speakers_per_target) %>%
     mutate(across(pa_columns, ~ round(.x / speakers * num_speakers))) %>%
     select(-speakers)
@@ -127,12 +127,12 @@ balancedData <- function(data_set,
 
 
 ###
-###  Significance Code Tidy  ###################################################
+####  Significance Code Tidy  ###################################################
 sigCodesTidy <-
   function(my_tibble,
            p_value = "p.adj",
            incl_marginal_sig = T)
-  # Create significance column in tibble using p_value
+  ## Create significance column in tibble using p_value
   {
     p_value <- enquo(p_value)
     my_tibble <- mutate(my_tibble,
@@ -160,14 +160,14 @@ sigCodesTidy <-
 
 
 ###
-###  Get m_corpus #############################################################
+####  Get m_corpus #############################################################
 get_m_corpus <- function(file_address)
-# Include package for %in% / %notin% syntactic notation
+## Include package for %in% / %notin% syntactic notation
 {
   installMissingPackages(c("mefa4"))
   return(
     as_tibble(read.csv(file_address)) %>%
-      # Only keep pertinent columns!
+      ## Only keep pertinent columns!
       select(
         speaker,
         gender,
@@ -208,7 +208,7 @@ get_m_corpus <- function(file_address)
         spkr_f0_SD
       ) %>%
       mutate(
-        # create composite parameters for continuous data.
+        ## create composite parameters for continuous data.
         across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
         foot_dur = foot_end_t - foot_start_t,
         speech_rate = round(tot_syls / phr_end_t * 1000, 3),
@@ -222,10 +222,10 @@ get_m_corpus <- function(file_address)
         e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
         utt_mean_f0_z = (utt_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
         lh_mean_f0_z = (lh_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
-        # redo excursion based on z-scores
+        ## redo excursion based on z-scores
         f0_exc_z = h_f0_z - l_f0_z,
         e_f0_exc_z = e_f0_z - h_f0_z,
-        # Make L and H times relative to vowel onset (TBU).
+        ## Make L and H times relative to vowel onset (TBU).
         s_t = s_t - v_onset_t,
         l_t = l_t - v_onset_t,
         h_t = h_t - v_onset_t,
@@ -235,11 +235,11 @@ get_m_corpus <- function(file_address)
         h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
         e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
 
-        # Ensure factor variables are interpreted as factors
+        ## Ensure factor variables are interpreted as factors
         foot_syls = factor(foot_syls, levels = unique(foot_syls)),
         gender = factor(gender, levels = unique(gender)),
 
-        # create mode and prompt columns
+        ## create mode and prompt columns
         mode = factor(str_sub(stim, 1, 3),
           levels = c("MDC", "MWH", "MYN", "MDQ")
         ),
@@ -248,10 +248,10 @@ get_m_corpus <- function(file_address)
         prompt = str_replace(prompt, "2", "valley"),
         prompt = str_replace(prompt, "3", "valuables"),
         prompt = factor(prompt, levels = c("vases", "valley", "valuables")),
-        # Ignore downstep.
-        # acc_phon = str_replace(acc_phon, "!", ""),
+        ## Ignore downstep.
+        ## acc_phon = str_replace(acc_phon, "!", ""),
 
-        # Arrange speaker factors in more intuitive order.
+        ## Arrange speaker factors in more intuitive order.
         speaker = factor(
           speaker,
           levels = c(
@@ -269,7 +269,7 @@ get_m_corpus <- function(file_address)
           )
         )
       ) %>%
-      # Remove columns which have outlived their use!
+      ## Remove columns which have outlived their use!
       select(
         -c(
           v_onset_t,
@@ -290,7 +290,7 @@ get_m_corpus <- function(file_address)
         remove = F
       ) %>%
       mutate(
-        # correct nuc_contour
+        ## correct nuc_contour
         nuc_contour = if_else(
           str_detect(nuc_contour, "\\]") & !str_detect(nuc_contour, "\\["),
           paste("^[", nuc_contour, sep = ""),
@@ -317,16 +317,16 @@ get_m_corpus <- function(file_address)
             "^[L*H] L%"
           )
         ),
-        # Correct acc_phon
+        ## Correct acc_phon
         acc_phon = str_replace_all(acc_phon, "\\s%|\\sL%", ""),
         acc_phon = str_replace_all(
           acc_phon, "^(L\\*H\\]|\\^\\[L\\*H)$",
           "^[L*H]"
         ),
         acc_phon = str_replace_all(acc_phon, "^L\\*\\^\\[H$", "L*^[H]"),
-        # Correct fin_phon
+        ## Correct fin_phon
         fin_phon = str_replace(fin_phon, "\\%\\]|L\\%\\]", "^[L%]"),
-        # fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
+        ## fin_phon = str_replace(fin_phon, "^L\\%\\]", "\\^\\[L\\%\\]"),
         across(
           c("phr_phon", "acc_phon", "fin_phon"),
           ~ factor(., levels = unique(.))
@@ -337,7 +337,7 @@ get_m_corpus <- function(file_address)
 
 
 ###
-###  Get Formula as String from LME/(B)GLM model ###############################
+####  Get Formula as String from LME/(B)GLM model ###############################
 getModelFormula <- function(my_model) {
   installMissingPackages("stringr")
   my_formula <- str_c(formula(my_model))
@@ -345,7 +345,7 @@ getModelFormula <- function(my_model) {
   return(my_formula)
 }
 ###
-###  Summarise LME  ############################################################
+####  Summarise LME  ############################################################
 summariseLME <-
   function(my_model,
            run_step = F,
@@ -355,7 +355,7 @@ summariseLME <-
            post_hoc_method = "BH",
            print_summary = T,
            plot_resids = T)
-  # short function to remove need for repetition of optimized used throughout.
+  ## short function to remove need for repetition of optimized used throughout.
   {
     installMissingPackages(c(
       "lme4",
@@ -371,7 +371,7 @@ summariseLME <-
       "weights"
     ))
 
-    ### inner function
+    #### inner function
     ##################
     drawResiduals <- function(myModel) {
       myResiduals <- residuals(myModel)
@@ -394,7 +394,7 @@ summariseLME <-
     }
     ##################
 
-    ### Outer function
+    #### Outer function
     ##################
     post_hoc_method <- paste("p.adj (",
       shortPAdjMeth(post_hoc_method),
@@ -404,7 +404,7 @@ summariseLME <-
     post_hoc_method <- enquo(post_hoc_method)
 
     my_formula <- getModelFormula(my_model)
-    # output results
+    ## output results
 
 
     if (plot_resids) {
@@ -476,7 +476,7 @@ summariseLME <-
 
 
 ###
-###  Analyse Model and extract key info ########################################
+####  Analyse Model and extract key info ########################################
 analyseModel <-
   function(my_model,
            write = NULL,
@@ -557,7 +557,7 @@ analyseModel <-
         statistic = round(statistic, 3)
       ) %>%
       rename(!!my_stat := statistic) %>%
-      # re-order columns
+      ## re-order columns
       select(!!!my_headers) %>%
       formattable(
         caption = paste(
@@ -567,9 +567,9 @@ analyseModel <-
         title = ""
       ) %>%
       mutate(
-        # avoid escape character errors
+        ## avoid escape character errors
         term = str_replace_all(term, "([\\*\\[\\^\\>])", "\\\\\\1"),
-        # make p.value readable
+        ## make p.value readable
         p.value = if_else(
           p.value < 0.0001,
           as.character(formatC(
@@ -582,8 +582,8 @@ analyseModel <-
 
     if (is_GLM) {
       tidy_model <- tidy_model %>%
-        mutate( # report log odds
-          # across(c(estimate, conf.low, conf.high), ~ exp(.)),
+        mutate( ## report log odds
+          ## across(c(estimate, conf.low, conf.high), ~ exp(.)),
           across(
             c(estimate, conf.low, conf.high),
             ~ if_else(
@@ -827,7 +827,7 @@ analyseModel <-
 
 
 ###
-###  Get intercepts and slopes of Fixed Effects of LME/GLMM Model ##############
+####  Get intercepts and slopes of Fixed Effects of LME/GLMM Model ##############
 getModelFixedFX <- function(model,
                             write = NULL,
                             exponentiate = T,
@@ -841,7 +841,7 @@ getModelFixedFX <- function(model,
   require("lme4")
   require("blme")
 
-  # Get information from model
+  ## Get information from model
   formula <- formula(model)
   data <- model@frame
   factor_info <- tibble(
@@ -883,7 +883,7 @@ getModelFixedFX <- function(model,
   my_headers <- enquos(my_headers)
 
 
-  # include continuous fixed factors as two_level_factors.
+  ## include continuous fixed factors as two_level_factors.
   cont_fixed_factors <-
     fixed_factors[fixed_factors %in% (factor_info %>%
       filter(!categorical))$factors]
@@ -892,15 +892,15 @@ getModelFixedFX <- function(model,
 
 
 
-  # Get list of multi-level factors and exclude continuous factors.
+  ## Get list of multi-level factors and exclude continuous factors.
   multilevel_factors <-
     fixed_factors[fixed_factors %in% (factor_info %>%
       filter(categorical))$factors]
-  # Exclude factors on ignore list.
+  ## Exclude factors on ignore list.
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% ignore_list]
 
-  # Add two-level fixed factors to two_level_factors & two_level_terms.
+  ## Add two-level fixed factors to two_level_factors & two_level_terms.
   for (cur_factor in multilevel_factors) {
     if (levels(data[[cur_factor]]) %>% length() == 2) {
       two_level_factors <- c(two_level_factors, cur_factor)
@@ -914,14 +914,14 @@ getModelFixedFX <- function(model,
     }
   }
 
-  # remove 2-level factors from list of multilevel_factors
+  ## remove 2-level factors from list of multilevel_factors
   multilevel_factors <-
     multilevel_factors[multilevel_factors %notin% two_level_factors]
 
-  # set first keep_terms list to include 2-level terms and continuous factors.
+  ## set first keep_terms list to include 2-level terms and continuous factors.
   initial_keep_terms <- c(two_level_terms)
   all_models_tidy <- tibble()
-  # loop through each multilevel fixed factor of interest (multilevel_factors)
+  ## loop through each multilevel fixed factor of interest (multilevel_factors)
 
   if (!length(multilevel_factors)) {
     multilevel_factors <- two_level_factors
@@ -929,17 +929,17 @@ getModelFixedFX <- function(model,
 
   for (cur_factor in multilevel_factors)
   {
-    # Get levels for current factor
+    ## Get levels for current factor
     cur_levels <- levels(data[[cur_factor]])
     num_levels <- length(cur_levels)
 
     keep_terms <- NULL
-    # Make list of terms to keep
+    ## Make list of terms to keep
     for (level_name in cur_levels) {
       keep_terms <- c(keep_terms, paste(cur_factor, level_name, sep = ""))
     }
     keep_terms <- c(keep_terms, initial_keep_terms)
-    # loop through dataframe, reordering levels of current factor each time.
+    ## loop through dataframe, reordering levels of current factor each time.
     for (cur_level in 1:(num_levels)) {
       factor_var <- sym(cur_factor)
 
@@ -948,7 +948,7 @@ getModelFixedFX <- function(model,
           levels = cur_levels
         )))
 
-      # Get tidy model.
+      ## Get tidy model.
       if (is_GLM) {
         model_tidy <- tidy(model,
           exponentiate = exponentiate,
@@ -959,18 +959,18 @@ getModelFixedFX <- function(model,
       }
 
       model_tidy <- model_tidy %>%
-        # Retain fixed factors only
+        ## Retain fixed factors only
         filter(effect == "fixed") %>%
-        # remove unnecessary columns
+        ## remove unnecessary columns
         select(-c(effect, group)) %>%
         rename(!!my_stat := statistic)
 
       model_tidy <- model_tidy %>%
-        # re-order columns
+        ## re-order columns
         select(!!!my_headers) %>%
         filter((term %in% c(keep_terms, "(Intercept)"))) %>%
-        # Prepare current model for pasting to all models output.
-        # Make 'pairwise' column = intercept.
+        ## Prepare current model for pasting to all models output.
+        ## Make 'pairwise' column = intercept.
         mutate(
           pairwise =
             if_else(term == "(Intercept)",
@@ -980,7 +980,7 @@ getModelFixedFX <- function(model,
                 keep_terms[cur_level]
               )
             ),
-          # change 'term' so "intercept" states the target condition name.
+          ## change 'term' so "intercept" states the target condition name.
           term =
             if_else(term == "(Intercept)",
               keep_terms[cur_level],
@@ -989,29 +989,29 @@ getModelFixedFX <- function(model,
         )
 
       keep_comparisons <- NULL
-      # make list of pairwise comparisons to keeps
+      ## make list of pairwise comparisons to keeps
       for (j in cur_level:(num_levels))
       {
         keep_comparisons <- c(keep_comparisons, keep_terms[j])
       }
 
-      # remove pairwise comparisons which have already been done
+      ## remove pairwise comparisons which have already been done
       model_tidy <-
         filter(model_tidy, term %in% keep_comparisons)
 
-      # add remaining pairwise comparisons to main tibble.
+      ## add remaining pairwise comparisons to main tibble.
       all_models_tidy <- bind_rows(all_models_tidy, model_tidy)
 
-      # restructure the order of levels for next LME model.
+      ## restructure the order of levels for next LME model.
       cur_levels <- c(cur_levels[2:num_levels], cur_levels[1])
     }
 
-    # Reset initial_keep_terms so it doesn't contain 2-level or continuous
-    # factors.
+    ## Reset initial_keep_terms so it doesn't contain 2-level or continuous
+    ## factors.
     initial_keep_terms <- NULL
   }
 
-  # Get intercepts and pairwise comparisons tables
+  ## Get intercepts and pairwise comparisons tables
   all_models_tidy <- all_models_tidy %>% relocate(pairwise)
 
   my_intercepts <- filter(all_models_tidy, pairwise == "intercept") %>%
@@ -1062,7 +1062,7 @@ getModelFixedFX <- function(model,
     rename(!!my_stat := statistic,
       slope = term
     )
-  # put B1 only parameters at bottom of tibble
+  ## put B1 only parameters at bottom of tibble
   my_pairwise.temp <- my_pairwise %>%
     filter(slope %in% c(two_level_terms, cont_fixed_factors)) %>%
     arrange(slope)
@@ -1071,10 +1071,10 @@ getModelFixedFX <- function(model,
     rbind(my_pairwise.temp)
 
 
-  # bind two-level factor stats to my_pairwise
+  ## bind two-level factor stats to my_pairwise
   my_pairwise <- rbind(my_pairwise, two_level_factor_slopes)
 
-  # Write tables to file
+  ## Write tables to file
   my_formula <- getModelFormula(model)
   if (!is.null(write)) {
     write(
@@ -1094,7 +1094,7 @@ getModelFixedFX <- function(model,
       )
     }
   }
-  # Output formatted tables
+  ## Output formatted tables
   my_intercepts <- my_intercepts %>%
     mutate(intercept = str_replace_all(
       intercept,
@@ -1167,20 +1167,20 @@ getModelFixedFX <- function(model,
 
 
 ###
-###  Post-hoc bulk adjust p Value   ############################################
+####  Post-hoc bulk adjust p Value   ############################################
 adjustP_posthoc <-
-  function(my_folder, # source folder with .csv files to be updated.
-           p_column = "p.value", # name of p.column
-           method = "BH", # p. adjustment method
-           significance = T, # flag for including significance column,
-           marginal = F, # include marginal significance flag.
-           write = T, # write results to file flag.
-           report = F, # flag to report total number of tests and
-           # p.values < 0.05 before and after adjustment.
-           print = F, # Print output or not
-           suffix_id = "" # suffix ID for files for analysis,
+  function(my_folder, ## source folder with .csv files to be updated.
+           p_column = "p.value", ## name of p.column
+           method = "BH", ## p. adjustment method
+           significance = T, ## flag for including significance column,
+           marginal = F, ## include marginal significance flag.
+           write = T, ## write results to file flag.
+           report = F, ## flag to report total number of tests and
+           ## p.values < 0.05 before and after adjustment.
+           print = F, ## Print output or not
+           suffix_id = "" ## suffix ID for files for analysis,
   ) {
-    # Load required packages
+    ## Load required packages
     require("dplyr")
     require("formattable")
     require("readr")
@@ -1191,16 +1191,16 @@ adjustP_posthoc <-
     require("tidyverse")
     require("weights")
 
-    # Abbreviate method where necessary.
+    ## Abbreviate method where necessary.
     my_meth <- shortPAdjMeth(method)
 
 
-    # Enquote variables which whose values will be evaluated as variables.
+    ## Enquote variables which whose values will be evaluated as variables.
     p_column <- enquo(p_column)
     new_adj_col <- paste("p.adj (", my_meth, ")", sep = "")
     new_adj_col <- enquo(new_adj_col)
 
-    # Get tibble of files to be adjusted
+    ## Get tibble of files to be adjusted
     file_tibble <-
       list.files(my_folder,
         paste("*", suffix_id, ".csv", sep = ""),
@@ -1211,7 +1211,7 @@ adjustP_posthoc <-
         col_names = T,
         show_col_types = F
       ) %>%
-      # avoid reduplication of columns
+      ## avoid reduplication of columns
       select(-any_of(c(
         "p.adj.",
         "p.adj (holm)",
@@ -1224,14 +1224,14 @@ adjustP_posthoc <-
         "p.adj (none)",
         "signif."
       ))) %>%
-      # Add p.adjusted column using method.
+      ## Add p.adjusted column using method.
       mutate(
         p.adj = p.adjust(!!p_column,
           method = method
         ),
         .after = !!p_column
       )
-    # Get summary info about p values.
+    ## Get summary info about p values.
     p_values <- file_tibble %>% nrow()
     sig_p_values <- file_tibble %>%
       filter(!!p_column < 0.05) %>%
@@ -1251,7 +1251,7 @@ adjustP_posthoc <-
 
     file_tibble <- file_tibble %>%
       mutate(
-        # Change p.adj and p_column to more readable format.
+        ## Change p.adj and p_column to more readable format.
         p.adj = if_else(p.adj < 0.001,
           as.character(formatC(p.adj, format = "e", digits = 1)),
           as.character(round(p.adj, 3), digits = 2)
@@ -1263,7 +1263,7 @@ adjustP_posthoc <-
         )
       )
 
-    # remove p,adj from file with "none" method, i.e., no p.adjustment.
+    ## remove p,adj from file with "none" method, i.e., no p.adjustment.
     if (method == "none") {
       file_tibble <- select(file_tibble, -p.adj)
     }
@@ -1276,8 +1276,8 @@ adjustP_posthoc <-
         filter(file_name == cur_file) %>%
         select(-file_name)
 
-      # Re-save updated tables as original file name (depending of whether or
-      # not method is "none".
+      ## Re-save updated tables as original file name (depending of whether or
+      ## not method is "none".
       if (write) {
         if (method == "none") {
           write_csv(cur_set, cur_file)
@@ -1287,7 +1287,7 @@ adjustP_posthoc <-
       }
 
 
-      # print table.
+      ## print table.
       if (print) {
         i <- i + 1
         formula_file <- cur_file %>%
@@ -1325,7 +1325,7 @@ adjustP_posthoc <-
     }
   }
 ###
-###  Tidy Predictions ##########################################################
+####  Tidy Predictions ##########################################################
 printTidyPredictions <-
   function(model, caption_suffix = NULL, factor_matrix = F,
            digits = 2) {
@@ -1336,6 +1336,7 @@ printTidyPredictions <-
 
 
     pred_list <- ggpredict(model)
+    print(pred_list)
     obj_names <- names(pred_list)
     obj_i <- 0
     if (factor_matrix) {
@@ -1386,7 +1387,7 @@ printTidyPredictions <-
     }
   }
 ###
-###  Shorten P Adjustment method name ##########################################
+####  Shorten P Adjustment method name ##########################################
 shortPAdjMeth <- function(method) {
   require("mefa4")
   if (method %in% c("hochberg", "hommel", "bonferroni")) {
@@ -1402,13 +1403,13 @@ shortPAdjMeth <- function(method) {
 }
 
 ###
-###  Output Chi Squared Results ################################################
+####  Output Chi Squared Results ################################################
 outputChiSqResults <- function(anova,
                                model,
                                extra_text = "",
                                write = "test",
                                post_hoc_method = "BH") {
-  # rename and enquote relevant arguments.
+  ## rename and enquote relevant arguments.
   my_formula <- getModelFormula(model)
 
   post_hoc_method <- paste("p.adj (",
@@ -1418,10 +1419,10 @@ outputChiSqResults <- function(anova,
   )
   post_hoc_method <- enquo(post_hoc_method)
 
-  # convert anova to formattable object
+  ## convert anova to formattable object
   anova <- anova %>%
     formattable(caption = paste("ANOVA:", my_formula, extra_text)) %>%
-    # tidy up decimal places
+    ## tidy up decimal places
     mutate(
       across(
         2:last_col(),
@@ -1435,26 +1436,26 @@ outputChiSqResults <- function(anova,
       )
     )
 
-  # Save anova
+  ## Save anova
   anova %>%
-    # add blank p.adj and significance columns.
+    ## add blank p.adj and significance columns.
     mutate(!!post_hoc_method := NA, signif. = NA) %>%
     relocate(signif., .after = !!post_hoc_method) %>%
     write_csv(paste(write, "_anova.csv", sep = ""))
 
-  # Save formula
+  ## Save formula
   write(
     paste(str_replace_all(my_formula, "\\`", ""), extra_text, sep = ""),
     paste(write, "_formula.txt", sep = "")
   )
 
-  # Return tidy anova.
+  ## Return tidy anova.
   return(anova)
 }
 
 
 ###
-###  Tidy numbers in table #####################################################
+####  Tidy numbers in table #####################################################
 tidyNumbers <- function(data,
                         p.value = "p.value",
                         p.decimals = 3,
@@ -1495,7 +1496,7 @@ tidyNumbers <- function(data,
 
 
 ###
-###  Tidy Stat Table Numbers ###################################################
+####  Tidy Stat Table Numbers ###################################################
 tidyStatNumbers <- function(stats, digits = 2) {
   installMissingPackages(c("tidyverse", "weights"))
   original_nrow <- nrow(stats)
@@ -1548,34 +1549,34 @@ tidyStatNumbers <- function(stats, digits = 2) {
     stats <- add_row(stats, term = i)
   }
 
-  # stats <- mutate(stats,
-  #                 across(.cols = everything(), ~ if_else(is.na(.), "", .)))
+  ## stats <- mutate(stats,
+  ##                 across(.cols = everything(), ~ if_else(is.na(.), "", .)))
   return(stats)
 }
 
 ###
-###  Optimize Models based on lme4 package #####################################
+####  Optimize Models based on lme4 package #####################################
 optimizeModel <- function(model,
                           checks = c("allFit", "optimx", "nloptwrap"),
                           verbose = T,
                           reject_nm = T) {
 
   ###
-  # Returns lme4-based model which converges, if possible.
-  # If no better model found, original model is returned with a text Warning.
+  ## Returns lme4-based model which converges, if possible.
+  ## If no better model found, original model is returned with a text Warning.
   #
-  # Notes:
-  #   1. For large or complex models this can be exceedingly slow!
-  #   2. Nelder-mead is not advised for high-dimensional models,
-  #      reject_nm is set to T as default. If you want to include Nelder-Mead
-  #      optimization, set: reject_nm = F.
+  ## Notes:
+  ##   1. For large or complex models this can be exceedingly slow!
+  ##   2. Nelder-mead is not advised for high-dimensional models,
+  ##      reject_nm is set to T as default. If you want to include Nelder-Mead
+  ##      optimization, set: reject_nm = F.
   #
-  # The functions are largely adapted from:
-  #     Nugent, Joshua.
-  #     Using allFit() with (g)lmer.
-  #     https://joshua-nugent.github.io/allFit/.
-  #     15 June, 2022
-  #     last accessed: 30 August, 2022.
+  ## The functions are largely adapted from:
+  ##     Nugent, Joshua.
+  ##     Using allFit() with (g)lmer.
+  ##     https://joshua-nugent.github.io/allFit/.
+  ##     15 June, 2022
+  ##     last accessed: 30 August, 2022.
   ###
 
   library(tidyverse)
@@ -1583,7 +1584,7 @@ optimizeModel <- function(model,
   library(lme4)
   library(optimx)
   library(dfoptim)
-  library(blme) # my preferred bayesian lme package.
+  library(blme) ## my preferred bayesian lme package.
 
   solution <- "original model"
   original_model <- model
@@ -1596,14 +1597,14 @@ optimizeModel <- function(model,
     cat("  Optimizer: ", model@optinfo$optimizer, "\n", sep = "")
   }
 
-  ### inner functions
+  #### inner functions
   ##################
   tryAllFit <- function(model, verbose = F) {
-    # Tries to return a model which converges in allFit()
+    ## Tries to return a model which converges in allFit()
     original_model <- model
     ncores <- detectCores()
 
-    # Run allFit on multiple cores.
+    ## Run allFit on multiple cores.
     if (verbose) {
       cat("\nchecking allFit()\n", sep = "")
     }
@@ -1615,13 +1616,13 @@ optimizeModel <- function(model,
         ncpus = ncores
       )
 
-    # Get list of allFit() model messages
+    ## Get list of allFit() model messages
     diff_optims_OK <- diff_optims[sapply(diff_optims, is, "merMod")]
     lapply(diff_optims_OK, function(x) {
       x@optinfo$conv$lme4$messages
     })
 
-    # Get logical list of "well" optimized models (i.e. no messages).
+    ## Get logical list of "well" optimized models (i.e. no messages).
     convergence_results <- lapply(
       diff_optims_OK,
       function(x) {
@@ -1641,7 +1642,7 @@ optimizeModel <- function(model,
   }
 
   tryOptimx <- function(model, reject_nm = T, verbose = F) {
-    # Tries to return a model which converges by varying optimx() methods.
+    ## Tries to return a model which converges by varying optimx() methods.
     original_model <- model
     optimx_options <-
       c("L-BFGS-B", "nlminb", "nlm", "bobyqa", "hjkb")
@@ -1661,7 +1662,7 @@ optimizeModel <- function(model,
       if (verbose) {
         cat(",", optimx_options[i])
 
-        # Either use glmerControl...
+        ## Either use glmerControl...
         if (isGLMM(model)) {
           try(model <- update(model,
             control = glmerControl(
@@ -1675,7 +1676,7 @@ optimizeModel <- function(model,
           silent = T
           )
         }
-        # ... or use lmerControl
+        ## ... or use lmerControl
         else {
           try(model <- update(model,
             control = lmerControl(
@@ -1706,7 +1707,7 @@ optimizeModel <- function(model,
   }
 
   trynlopt <- function(model, reject_nm = T, verbose = F) {
-    # Tries to return a model which converges by through lnloptwrap algorithms.
+    ## Tries to return a model which converges by through lnloptwrap algorithms.
     original_model <- model
     opts <- c(
       "NLOPT_LN_PRAXIS",
@@ -1735,7 +1736,7 @@ optimizeModel <- function(model,
       }
       cur_option <- opts[i]
 
-      # Either use glmerControl...
+      ## Either use glmerControl...
       if (isGLMM(model)) {
         try(model <- update(model, control = glmerControl(
           optimizer = "nloptwrap", optCtrl = list(
@@ -1750,7 +1751,7 @@ optimizeModel <- function(model,
         silent = T
         )
       }
-      # ... or use lmerControl
+      ## ... or use lmerControl
       else {
         try(model <- update(model, control = lmerControl(
           optimizer = "nloptwrap", optCtrl = list(
@@ -1794,14 +1795,14 @@ optimizeModel <- function(model,
   }
 
   modelIsOK <- function(model, reject_nm = T) {
-    # Returns T is a model converges and is not singular.
+    ## Returns T is a model converges and is not singular.
 
     ans <- as.logical(
-      # Check for convergence
+      ## Check for convergence
       is.null(model@optinfo$conv$lme4$messages) &
-        # check for singularity
+        ## check for singularity
         !isSingular(model) &
-        # check for other warnings
+        ## check for other warnings
         is.null(model@optinfo$conv$lme4$warnings)
     )
 
@@ -1813,7 +1814,7 @@ optimizeModel <- function(model,
   }
 
   getModelElements <- function(model) {
-    # Get elements of a model used for functions associated with optimizeModel
+    ## Get elements of a model used for functions associated with optimizeModel
     ans <- list(
       "formula" = formula <- formula(model),
       "optimizer" = model@optinfo$optimizer,
@@ -1826,13 +1827,13 @@ optimizeModel <- function(model,
   ##################
 
 
-  ### Outer function
+  #### Outer function
   if (!modelIsOK(model, reject_nm)) {
     if (verbose) {
       cat("\nRunning basic model with less strict control settings.\n", sep = "")
     }
 
-    # Either use glmerControl...
+    ## Either use glmerControl...
     if (isGLMM(model)) {
       try(model <- update(model, control = glmerControl(
         optCtrl = list(
@@ -1843,7 +1844,7 @@ optimizeModel <- function(model,
       )))
     }
 
-    # ... or lmerControl
+    ## ... or lmerControl
     else {
       try(model <- update(model, control = lmerControl(
         optCtrl = list(
@@ -1905,14 +1906,14 @@ optimizeModel <- function(model,
 }
 
 modelIsOK <- function(model, reject_nm = T) {
-  # Returns T is a model converges and is not singular.
+  ## Returns T is a model converges and is not singular.
 
   ans <- as.logical(
-    # Check for convergence
+    ## Check for convergence
     is.null(model@optinfo$conv$lme4$messages) &
-      # check for singularity
+      ## check for singularity
       !isSingular(model) &
-      # check for other warnings
+      ## check for other warnings
       is.null(model@optinfo$conv$lme4$warnings)
   )
 
@@ -1924,11 +1925,11 @@ modelIsOK <- function(model, reject_nm = T) {
 }
 
 
-### trim zeros from before decimal place along with trailing zeros.
+#### trim zeros from before decimal place along with trailing zeros.
 
 trim_zeros <- function(x, digits = 3) {
-  # for ratios, removes leading 0 before decimal point, rounds up to "digit"
-  # places and removes any trailing zeros. much nicer than "rd" in weights.
+  ## for ratios, removes leading 0 before decimal point, rounds up to "digit"
+  ## places and removes any trailing zeros. much nicer than "rd" in weights.
   require("tidyverse")
   require("stringr")
   as.character(round(as.numeric(x), digits = digits)) %>%

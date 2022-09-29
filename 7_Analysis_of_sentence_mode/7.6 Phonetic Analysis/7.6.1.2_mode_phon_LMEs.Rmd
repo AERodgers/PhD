@@ -9,7 +9,7 @@ output:
     toc_float: true
 ---
 
-# 7.6.1.2 mode-and-phonology Models
+## 7.6.1.2 mode-and-phonology Models
 
 ```{r setup mode phon}
 #| results="hide",
@@ -18,26 +18,26 @@ output:
 
 knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
 
-# Load Functions.
+## Load Functions.
 source("../../2_R_Functions/myFunctions.R") 
 
-# Load packages.
+## Load packages.
 installMissingPackages(
   c(
-    # Include statistical packages.
+    ## Include statistical packages.
     "performance",
     "lmerTest",
     "lme4",
     "optimx",
     "MuMIn",
-    # Include packages for tidy output.
+    ## Include packages for tidy output.
     "tidyverse",
     "broomExtra",
     "sjPlot",
     "formattable",
     "knitr",
     "RColorBrewer",
-    # Include packages for %in% %notin% syntactic notation
+    ## Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
@@ -51,9 +51,9 @@ y_lim_f0 = c(-4.1, 10.5)
 ```{r load corpus l_t_mode_phon}
 l_star_h_types = c("L*H", "^[L*]H", "L*^[H]", "^[L*H]")
 
-# Load Corpus
+## Load Corpus
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(
     speaker,
     gender,
@@ -72,9 +72,9 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
          )
 ```
 
-## A. Low Targets
+### A. Low Targets
 
-### A.11 l_t model {.tabset}
+#### A.11 l_t model {.tabset}
 
 - Following intercepts only model for parity with other time parameter models.
 - model needs trimmed (residual SD > 3.25)
@@ -82,7 +82,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 ```{r run initial model l_t_mode_phon}
 #| results="hide"
 
-# run model
+## run model
 l_t_mode_phon_mdl <-
   lmer(l_t ~
          mode
@@ -105,7 +105,7 @@ l_t_mode_phon_mdl <-
 
 l_t_mode_phon_mdl <- optimizeModel(l_t_mode_phon_mdl)
 
-# Model needs trimmed.
+## Model needs trimmed.
 l_t_mode_phon_mdl <- update(l_t_mode_phon_mdl,
                     data = m_corpus %>% filter(abs(scale(resid(
                       l_t_mode_phon_mdl
@@ -127,7 +127,7 @@ l_t_mode_phon.summary <- summariseLME(l_t_mode_phon_mdl,
 
 ``` 
 
-#### Predictions
+##### Predictions
 
 ```{r l_t_mode_phon predictions}
 #| fig.height=2.5,
@@ -150,14 +150,14 @@ printTidyPredictions(l_t_mode_phon_mdl,
                      caption_suffix = " (mode-and-phonology model)")
 ```
 
-#### Effect Sizes
+##### Effect Sizes
 
 ```{r l_t_mode_phon effect sizes}
 l_t_mode_phon.tidy$r2
 l_t_mode_phon.summary$omega2
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r l_t_mode_phon model Pairwise Comparisons}
 #| fig.align="left"
@@ -171,7 +171,7 @@ charts$slopes %>% tidyStatNumbers(digits = 1)
 
 ```
 
-#### ANOVA
+##### ANOVA
 
 ```{r print l_t_mode_phon model summary text info}
 #| fig.align="left"
@@ -187,7 +187,7 @@ formattable(caption = paste("ANOVA of model:",
                             getModelFormula(l_t_mode_phon_mdl)))
 ```
 
-#### Details
+##### Details
 
 ```{r print l_t_mode_phon model summary}
 #| fig.height=3,
@@ -198,7 +198,7 @@ l_t_mode_phon.summary <- summariseLME(l_t_mode_phon_mdl,
 ```
 
 
-### A.2. l_f0 model {.tabset}
+#### A.2. l_f0 model {.tabset}
 
 - Using intercepts only model for parity with mode-and-phonology analysis. 
 - model needs trimmed (residual SD > 3)
@@ -206,10 +206,10 @@ l_t_mode_phon.summary <- summariseLME(l_t_mode_phon_mdl,
 ```{r run initial model l_f0_mode_phon}
 #| results="hide"
 
-# model works with intercepts_phon model
-# as per mode and acc_phon model
+## model works with intercepts_phon model
+## as per mode and acc_phon model
 
-# run model
+## run model
 l_f0_mode_phon_mdl <-
   lmer(l_f0 ~
          mode
@@ -233,7 +233,7 @@ l_f0_mode_phon_mdl <-
 
 l_f0_mode_phon_mdl <- optimizeModel(l_f0_mode_phon_mdl)
 
-# Model needs trimmed.
+## Model needs trimmed.
 l_f0_mode_phon_mdl <- update(l_f0_mode_phon_mdl,
                     data = m_corpus %>% filter(abs(scale(resid(
                       l_f0_mode_phon_mdl
@@ -255,7 +255,7 @@ l_f0_mode_phon.summary <- summariseLME(l_f0_mode_phon_mdl,
 
 ``` 
 
-#### Predictions
+##### Predictions
 
 ```{r l_f0_mode_phon predictions}
 #| fig.height=2.5,
@@ -277,14 +277,14 @@ printTidyPredictions(l_f0_mode_phon_mdl,
                      caption_suffix = " (mode-and-phonology model)")
 ```
 
-#### Effect Sizes
+##### Effect Sizes
 
 ```{r l_f0_mode_phon effect sizes}
 l_f0_mode_phon.tidy$r2
 l_f0_mode_phon.summary$omega2
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r l_f0_mode_phon model Pairwise Comparisons}
 #| fig.align="left"
@@ -298,7 +298,7 @@ charts$slopes %>% tidyStatNumbers(digits = 1)
 
 ```
 
-#### ANOVA
+##### ANOVA
 
 ```{r print l_f0_mode_phon model summary text info}
 #| fig.align="left"
@@ -314,7 +314,7 @@ formattable(caption = paste("ANOVA of model:",
                             getModelFormula(l_f0_mode_phon_mdl)))
 ```
 
-#### Details
+##### Details
 
 ```{r print l_f0_mode_phon model summary}
 #| fig.height=3,
@@ -324,9 +324,9 @@ l_f0_mode_phon.summary <- summariseLME(l_f0_mode_phon_mdl,
                             run_step = F)
 ```
 
-## B. High Targets
+### B. High Targets
 
-### B.2. h_t model {.tabset}
+#### B.2. h_t model {.tabset}
 
 - Following intercepts only model as in other time parameter models.
 - model needs trimmed (residual SD > 3.5)
@@ -334,10 +334,10 @@ l_f0_mode_phon.summary <- summariseLME(l_f0_mode_phon_mdl,
 ```{r run initial model h_t_mode_phon}
 #| results="hide"
 
-# model works with intercepts_phon model
-# as per mode and acc_phon model
+## model works with intercepts_phon model
+## as per mode and acc_phon model
 
-# run model
+## run model
 h_t_mode_phon_mdl <-
   lmer(h_t ~
          mode
@@ -360,7 +360,7 @@ h_t_mode_phon_mdl <-
 
 h_t_mode_phon_mdl <- optimizeModel(h_t_mode_phon_mdl)
 
-# Model needs trimmed.
+## Model needs trimmed.
 h_t_mode_phon_mdl <- update(h_t_mode_phon_mdl,
                     data = m_corpus %>% filter(abs(scale(resid(
                       h_t_mode_phon_mdl
@@ -382,7 +382,7 @@ h_t_mode_phon.summary <- summariseLME(h_t_mode_phon_mdl,
 
 ``` 
 
-#### Predictions
+##### Predictions
 
 ```{r h_t_mode_phon predictions}
 #| fig.height=2.5,
@@ -405,14 +405,14 @@ printTidyPredictions(h_t_mode_phon_mdl,
                      caption_suffix = " (mode-and-phonology model)")
 ```
 
-#### Effect Sizes
+##### Effect Sizes
 
 ```{r h_t_mode_phon effect sizes}
 h_t_mode_phon.tidy$r2
 h_t_mode_phon.summary$omega2
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r h_t_mode_phon model Pairwise Comparisons}
 #| fig.align="left"
@@ -426,7 +426,7 @@ charts$slopes %>% tidyStatNumbers(digits = 1)
 
 ```
 
-#### ANOVA
+##### ANOVA
 
 ```{r print h_t_mode_phon model summary text info}
 #| fig.align="left"
@@ -442,7 +442,7 @@ formattable(caption = paste("ANOVA of model:",
                             getModelFormula(h_t_mode_phon_mdl)))
 ```
 
-#### Details
+##### Details
 
 ```{r print h_t_mode_phon model summary}
 #| fig.height=3,
@@ -452,7 +452,7 @@ h_t_mode_phon.summary <- summariseLME(h_t_mode_phon_mdl,
                             run_step = F)
 ```
 
-### B.2. h_f0 model {.tabset}
+#### B.2. h_f0 model {.tabset}
 
 - Using intercepts only model for parity with mode-and-phonology analysis. 
 - (1 | prompt) works as random intercept here, but, again, retaining same model structure for parity across f0 models
@@ -460,10 +460,10 @@ h_t_mode_phon.summary <- summariseLME(h_t_mode_phon_mdl,
 ```{r run initial model h_f0_mode_phon}
 #| results="hide"
 
-# model works with intercepts_phon model
-# as per mode and acc_phon model
+## model works with intercepts_phon model
+## as per mode and acc_phon model
 
-# run model
+## run model
 h_f0_mode_phon_mdl <-
   lmer(h_f0 ~
          mode
@@ -500,7 +500,7 @@ h_f0_mode_phon.summary <- summariseLME(h_f0_mode_phon_mdl,
 
 ``` 
 
-#### Predictions
+##### Predictions
 
 ```{r h_f0_mode_phon predictions}
 #| fig.height=2.5,
@@ -522,14 +522,14 @@ printTidyPredictions(h_f0_mode_phon_mdl,
                      caption_suffix = " (mode-and-phonology model)")
 ```
 
-#### Effect Sizes
+##### Effect Sizes
 
 ```{r h_f0_mode_phon effect sizes}
 h_f0_mode_phon.tidy$r2
 h_f0_mode_phon.summary$omega2
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r h_f0_mode_phon model Pairwise Comparisons}
 #| fig.align="left"
@@ -543,7 +543,7 @@ charts$slopes %>% tidyStatNumbers(digits = 1)
 
 ```
 
-#### ANOVA
+##### ANOVA
 
 ```{r print h_f0_mode_phon model summary text info}
 #| fig.align="left"
@@ -559,7 +559,7 @@ formattable(caption = paste("ANOVA of model:",
                             getModelFormula(h_f0_mode_phon_mdl)))
 ```
 
-#### Details
+##### Details
 
 ```{r print h_f0_mode_phon model summary}
 #| fig.height=3,

@@ -6,30 +6,30 @@ output:
     code_folding: hide
 ---
 
-# 7.5.3 Comparing Both Analyses 
+## 7.5.3 Comparing Both Analyses 
 
 ```{r setup C, include=F}
 
 knitr::opts_chunk$set(message = F, warning=F, tidy = "styler")
 
 
-# Load Functions and colour variables
+## Load Functions and colour variables
 source("../../2_R_Functions/myFunctions.R") 
 
-# Load packages.
+## Load packages.
 installMissingPackages(
   c("tidyverse", "formattable", "janitor", "knitr", "RColorBrewer", "blme")
 )
 
 
-# Get  Data.
+## Get  Data.
 m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
     fin_phon = if_else(
       acc_phon == "L*^[H]",
       paste("H", fin_phon, sep=""),
       paste(fin_phon)),
-    # remove register tier
+    ## remove register tier
     across(
       c("acc_phon", "fin_phon"),
       ~ str_replace_all(., "\\^|\\[|\\]", "")
@@ -37,7 +37,7 @@ m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
     `H%` =  str_replace(fin_phon, "HL\\%", "H%"),
     `H%` = factor(`H%`=="H%", level = c(F, T))
   ) %>%
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(speaker,
          gender,
          mode,
@@ -46,11 +46,11 @@ m_corpus_is_H_boundary <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 
 
 
-# Get  Data.
+## Get  Data.
 m_corpus_H_reg <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(nuc_H_reg = factor( str_detect(acc_phon, "\\^"),
                           levels = c(F, T))) %>% 
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(nuc_H_reg)
 
 m_corpus_comp <- cbind(m_corpus_is_H_boundary, m_corpus_H_reg)
@@ -58,9 +58,9 @@ rm(m_corpus_is_H_boundary, m_corpus_H_reg)
 
 ```
 
-## BGLMM Analysis {.tabset}
+### BGLMM Analysis {.tabset}
 
-### likelihood of H% in non-register tier analysis
+#### likelihood of H% in non-register tier analysis
 
 ```{r H boundary re mode in non-reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5,}
 write = "output/comp_fin_phon_H_GLMM"
@@ -89,7 +89,7 @@ tidy_summary_non_reg$table %>% tidyStatNumbers()
 
 true_anova = anova(fin_phon_model_H_null, fin_phon_model_H_or_not)
 
-# create fake ANOVA to get p.adj(BH) values
+## create fake ANOVA to get p.adj(BH) values
 true_anova %>%
   tidy() %>%
     filter(!is.na(df)) %>%
@@ -121,7 +121,7 @@ true_anova %>%
 ```
 
 
-### Likelihood of high register in register-tier analysis
+#### Likelihood of high register in register-tier analysis
 
 ```{r GLMM Test of high reg re mode in reg tier analysis, results='asis', fig.width = 3.05, fig.height = 2.5}
 write = "output/comp_H_reg_GLMM"
@@ -149,7 +149,7 @@ tidy_summary_reg$table %>% tidyStatNumbers()
 
 true_anova = anova(h_reg_model_null, h_reg_model)
 
-# create fake ANOVA to get p.adj(BH) values
+## create fake ANOVA to get p.adj(BH) values
 true_anova %>%
   tidy() %>%
     filter(!is.na(df)) %>%

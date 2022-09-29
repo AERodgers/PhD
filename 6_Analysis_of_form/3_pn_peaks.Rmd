@@ -11,19 +11,19 @@ knitr::opts_chunk$set(echo = F,
                       message = F,
                       warning = F)
 
-# Get personal functions and install / load necessary packages.
+## Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
 installMissingPackages(c("tidyverse", "formattable","janitor","mefa4", "knitr",
                          "gridExtra", "RColorBrewer"))
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
 ```
 
 
 ```{r get data, include=F}
-# Get  data for analysis
+## Get  data for analysis
 
 source("0_get_AH.R")
 
@@ -329,10 +329,10 @@ print(my_plot)
 ```
 
 
-## Syllable normalised time
+### Syllable normalised time
 
 
-#### Individual Speakers (L*H only)
+##### Individual Speakers (L*H only)
 
 
 ```{r dot plot all LsH peaks, fig.width = 6, fig.height = 8}
@@ -359,7 +359,7 @@ my_plot <- ggplot(
       brewer.pal(6, "Dark2")[1],
       brewer.pal(6, "Pastel2")[5]
     ),
-  #  breaks = pn_phr[6:1],
+  ##  breaks = pn_phr[6:1],
     name = NULL
   ) +
   theme(
@@ -392,7 +392,7 @@ print(my_plot)
 
 ```
 
-#### Individual Speakers (H* and >H*)
+##### Individual Speakers (H* and >H*)
 
 ```{r dot plot all Hs peaks, fig.width = 6, fig.height = 8}
 
@@ -418,7 +418,7 @@ ggplot(
       brewer.pal(6, "Dark2")[1],
       brewer.pal(6, "Pastel2")[5]
     ),
-  #  breaks = pn_phr[6:1],
+  ##  breaks = pn_phr[6:1],
     name = NULL
   ) +
   theme(
@@ -438,7 +438,7 @@ ggplot(
 
 ```
 
-#### Aggregated Times
+##### Aggregated Times
 
 ```{r plot all PN types density, fig.width = 12, fig.height = 5}
 
@@ -464,7 +464,7 @@ ggplot(
       brewer.pal(6, "Dark2")[1],
       brewer.pal(6, "Set2")[5]
     ),
-  #  breaks = pn_phr[6:1],
+  ##  breaks = pn_phr[6:1],
     name = NULL
   ) +
   theme(
@@ -491,7 +491,7 @@ ggplot(
   mapping = aes(x = h_syl_norm_t, fill = pn_wrds)
 ) +
   geom_density(stat = "density", alpha = 0.8) +
- # facet_wrap(vars(pairing)) +
+ ## facet_wrap(vars(pairing)) +
   scale_fill_manual(
     values = c(
       brewer.pal(6, "Dark2")[2],
@@ -501,7 +501,7 @@ ggplot(
       brewer.pal(6, "Dark2")[1],
       brewer.pal(6, "Set2")[5]
     ),
-  #  breaks = pn_phr[6:1],
+  ##  breaks = pn_phr[6:1],
     name = NULL
   ) +
   theme(
@@ -517,7 +517,7 @@ ggplot(
        title = "PN peak timing of L*H (raw data)")
 ```
 
-## Grand mean time
+### Grand mean time
 
 ```{r plot peak LH 4 or more, fig.width = 3.5, fig.height = 2.2}
 pn_phr <- c(
@@ -695,6 +695,14 @@ b <- ggplot(data = lallys_is,
   ylab("density") +
   labs(caption = "b. Lally’s is- (n = 40)")
 
+ggsave(filename =  paste0("3_output/Lallys_is.png"),
+       plot = b,
+       device = "png",
+    width =  10,
+    height = 6.2,
+    units = "cm",
+    dpi = 300
+    )
 
 ```
 
@@ -910,7 +918,7 @@ ggsave(filename =  paste0("3_output/peak_alignment_by_phrase.png"),
 print(my_plot)
 ```
 
-#### Hartigan dip test of unimodality / multimodality (Hartigan and Hartigan, 1985)
+##### Hartigan dip test of unimodality / multimodality (Hartigan and Hartigan, 1985)
 
 NB: Hartigans' dip test is not suitable for these data as observations are not independent!
 However, it is included here as a general indicator.

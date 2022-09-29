@@ -11,12 +11,12 @@ knitr::opts_chunk$set(echo = F,
                       message = F,
                       warning = F)
 
-# Get personal functions and install / load necessary packages.
+## Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    # Include statistical packages.
+    ## Include statistical packages.
     "performance",
     "lmerTest",
     "lme4",
@@ -25,22 +25,22 @@ installMissingPackages(
     "MuMIn",
     "dfoptim",
 
-    # Include packages for tidy output.
+    ## Include packages for tidy output.
     "tidyverse",
     "broomExtra",
     "sjPlot",
     "formattable",
     "knitr",
 
-    # Include packages for %in% %notin% syntactic notation
+    ## Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 14))
 
-# Get  data for analysis
+## Get  data for analysis
 
 source("0_get_AH.R")
 
@@ -56,9 +56,9 @@ rm(pn, nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
 ```
 
 
-## H targets and stress clash
+### H targets and stress clash
 
-### Analysis of H timing and stress clash
+#### Analysis of H timing and stress clash
 
 ```{r set h_t equation}
 h_t_equation = formula(
@@ -95,7 +95,7 @@ mdl_summary <- summariseLME(pn_h_t_alt_mdl,
                   run_step = F, print_summary = F
                   )
 
-# model needs trimming
+## model needs trimming
 pn_h_t_alt.trimmed <-
   pn_h_data %>% filter(abs(scale(resid(pn_h_t_alt_mdl))) <= 2.5)
 
@@ -161,7 +161,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of H F0 and stress clash
+#### Analysis of H F0 and stress clash
 
 ```{r set h_f0 equation}
 h_f0_equation = formula(
@@ -235,7 +235,7 @@ pn_h_f0_alt_mdl.tidy$table %>% tidyStatNumbers()
 printTidyPredictions(pn_h_f0_alt_mdl)
 ```
 
-## Analysis of PN peak timing by individual acc_phon
+### Analysis of PN peak timing by individual acc_phon
 
 ```{r acc_phon by ana_syls}
 pn_h_data %>%
@@ -249,7 +249,7 @@ pn_h_data %>%
   formattable(caption = "acc\\_phon by ana\\_syls in pn\\_h_\\t.trimmed")
 ```
 
-### Analysis of PN peak timing in L*H only
+#### Analysis of PN peak timing in L*H only
 
 
 ```{r run h_t_lh models, fig.height=3, fig.width=9}
@@ -285,7 +285,7 @@ mdl_summary <- summariseLME(pn_h_t_lh_mdl,
                   run_step = T, print_summary = F
                   )
 
-# model needs trimming
+## model needs trimming
 
 pn_h_t_lh_mdl.trimmed = update(pn_h_t_lh_mdl, data = pn_h_data_lh %>%
                                  filter(abs(scale(resid(pn_h_t_lh_mdl))) <= 3))
@@ -341,7 +341,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of PN peak timing in H* only
+#### Analysis of PN peak timing in H* only
 
 ```{r run h_t_h models, fig.height=3, fig.width=9}
 h_t_h_equation = formula(
@@ -376,7 +376,7 @@ mdl_summary <- summariseLME(pn_h_t_h_mdl,
                   run_step = F, print_summary = F
                   )
 
-# model needs trimming
+## model needs trimming
 
 pn_h_t_h_mdl.trimmed = update(pn_h_t_h_mdl, data = pn_h_data_h %>%
                                  filter(abs(scale(resid(pn_h_t_h_mdl))) <= 3))
@@ -433,7 +433,7 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 
-### Analysis of PN Peak timing proportional to foot
+#### Analysis of PN Peak timing proportional to foot
 ```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
 h_t_re_ft_dur_equation = formula(
   `h_t as ratio of foot` ~ 

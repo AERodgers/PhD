@@ -8,15 +8,15 @@ output:
     toc_float: true
 ---
 
-# 7.5.2 Register-tier Analysis
+## 7.5.2 Register-tier Analysis
 
 ```{r setup B, include=F}
 knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
 
-# Load Functions and colour variables
+## Load Functions and colour variables
 source("../../2_R_Functions/myFunctions.R") 
 source("../../2_R_Functions/myColours.R") 
-# Load packages.
+## Load packages.
 installMissingPackages(c("tidyverse",
                          "formattable",
                          "janitor",
@@ -27,11 +27,11 @@ installMissingPackages(c("tidyverse",
                          "ggrepel",
                          "blme"))
 
-# Get  Data.
+## Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(nuc_H_reg = factor( str_detect(acc_phon, "\\^"),
                           levels = c(F, T))) %>% 
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(speaker,
          gender,
          stim,
@@ -43,9 +43,9 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
          nuc_H_reg)
 ```
 
-## Raw Data {.tabset}
+### Raw Data {.tabset}
 
-### Contour by sentence mode
+#### Contour by sentence mode
 
 ```{r summarise nuc contour by speaker (raw data), warning=F}
 m_corpus %>%
@@ -79,10 +79,10 @@ m_corpus %>%
 
 ```
 
-### Pitch accents by speaker
+#### Pitch accents by speaker
 
 ```{r summarise PA by speaker (raw data), warning=F}
-# Create summary table of Pitch Accent by Speaker.
+## Create summary table of Pitch Accent by Speaker.
 
 
 m_corpus %>%
@@ -108,10 +108,10 @@ m_corpus %>%
     )
 
 ```
-### All pitch contours
+#### All pitch contours
 
 ```{r summarise nuc contour , warning=F, results="asis"}
-# Create summary table of Pitch Accent by Speaker.
+## Create summary table of Pitch Accent by Speaker.
 m_corpus %>%
   group_by(nuc_contour) %>%
   summarise(nuc_count = n(), .groups = "keep") %>% 
@@ -123,7 +123,7 @@ m_corpus %>%
   kable(caption = "Nuclear pitch contours (raw data)")
 ```
 
-## Adjusted Data
+### Adjusted Data
 
 The raw data is unbalanced since the number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
 
@@ -147,21 +147,21 @@ From this table summary tables are created:
 
 ```{r create tables for adjusted data, warning=F}
 
-# Create tibble summarising  proportion of pitch accents per mode per speaker
-# 
+## Create tibble summarising  proportion of pitch accents per mode per speaker
+## 
 pa_adj <- m_corpus %>%
-    # Count the number of acc_phon by speaker and mode
+    ## Count the number of acc_phon by speaker and mode
     group_by(speaker, stim, acc_phon) %>%
     summarise(nuc_count = n(), .groups = "keep") %>%
     pivot_wider(names_from=acc_phon, values_from=nuc_count, values_fill = 0) %>%
-    # convert the totals to proportion per stim.
+    ## convert the totals to proportion per stim.
     adorn_totals("col") %>% 
     mutate(across(3:8,  ~  (. / Total))) %>%
     select(-Total) %>% 
-    # Convert stim column to mode.
+    ## Convert stim column to mode.
     rename(mode = stim) %>% 
     mutate(mode = substr(mode, 1, 3)) %>%
-    # Convert the values to proportion per mode
+    ## Convert the values to proportion per mode
     pivot_longer(3:last_col(), "acc_phon") %>% 
     group_by(speaker, mode, acc_phon) %>%
     pivot_wider(names_from=acc_phon,
@@ -176,10 +176,10 @@ pa_adj <- m_corpus %>%
     as_tibble()
 
 
-# Create tibble of pitch accents per speaker (adjusted).
-# 
+## Create tibble of pitch accents per speaker (adjusted).
+## 
 pa_by_speaker_adj <- pa_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   select(-mode) %>% 
   pivot_wider(names_from = acc_phon,
@@ -187,16 +187,16 @@ pa_by_speaker_adj <- pa_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(2:7, ~ round(. * 15, 0))) %>% 
   select("speaker", "H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]")
 
 
-# Create tibble of pitch accents per mode (adjusted).
-# 
+## Create tibble of pitch accents per mode (adjusted).
+## 
 pa_by_mode_adj <- pa_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   select(-speaker) %>% 
   pivot_wider(names_from = acc_phon,
@@ -204,31 +204,31 @@ pa_by_mode_adj <- pa_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>% 
-  # Convert proportions to an integer based on an ideal total number of tokens.
+  ## Convert proportions to an integer based on an ideal total number of tokens.
   mutate(across(2:7, ~ round(. * 15, 0))) %>% 
   select("mode", "H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]") %>% 
   arrange(mode)
 
 
-# Create tibble of pitch accents by gender and mode (adjusted).
-# 
+## Create tibble of pitch accents by gender and mode (adjusted).
+## 
 pa_by_gender_adj <- pa_adj %>%
-  # Convert gender to speaker
+  ## Convert gender to speaker
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   pivot_wider(names_from = acc_phon,
               values_from = value,
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(3:8, ~ if_else(gender=="F",
                                round(. * 15, 0),
-                               # project equal number of Male & Female speakers.
+                               ## project equal number of Male & Female speakers.
                                round(. * 18, 0)
                                )
                 )
@@ -237,26 +237,26 @@ pa_by_gender_adj <- pa_adj %>%
   arrange(mode) 
 
 
-# Create tibble of pitch accents by gender and mode (adjusted).
-# 
+## Create tibble of pitch accents by gender and mode (adjusted).
+## 
 pa_by_mode_speaker_adj <- pa_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   pivot_wider(names_from = acc_phon,
               values_from = value,
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to integer based on ideal number of by-speaker tokens.
+  ## Convert proportions to integer based on ideal number of by-speaker tokens.
   mutate(across(3:last_col(), ~ round(.* 16)))%>% 
-  # re-order the columns
+  ## re-order the columns
   select("mode", "speaker", "H*", ">H*", "^[L*]H", "L*H", "L*^[H]", "^[L*H]") %>% 
   arrange(speaker)
 
 ```
 
-### Nuclear PA Tables {.tabset}
-#### by mode (common)
+#### Nuclear PA Tables {.tabset}
+##### by mode (common)
 
 ```{r Print table of pitch accent by mode adjusted excluding outliers}
 pa_by_mode_adj %>%
@@ -275,12 +275,12 @@ pa_by_mode_adj %>%
 
 ```
 
-#### by mode (all)
+##### by mode (all)
 
 ```{r print pitch accent by mode adjusted, warning=F}
-# Calculate a projected balanced number of tokens for each PA as a function of # sentence mode.
+## Calculate a projected balanced number of tokens for each PA as a function of ## sentence mode.
 #
-# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
+## This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
 
  pa_by_mode_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
@@ -299,7 +299,7 @@ pa_by_mode_adj %>%
     )
 ```
 
-#### by speaker
+##### by speaker
 
 ```{r print pa by speaker adjusted, warning=F}
 pa_by_speaker_adj %>%
@@ -318,15 +318,15 @@ pa_by_speaker_adj %>%
     )
 ```
 
-### Nuclear PA Figures {.tabset}
+#### Nuclear PA Figures {.tabset}
 
-#### by speaker (chart)
+##### by speaker (chart)
 
 ```{r plot pitch accent by speaker adjusted, fig.width = 8, fig.height = 4}
 
-# Percentage Stacked bar
+## Percentage Stacked bar
 ggplot(data = pa_by_speaker_adj %>%
-         # uncount data for plotting
+         ## uncount data for plotting
          gather("acc_phon", "count",-c(speaker)) %>%
          uncount(count),
        aes(fill = acc_phon, x = speaker)) +
@@ -344,15 +344,15 @@ ggplot(data = pa_by_speaker_adj %>%
     theme(panel.border = element_rect(fill = NA))
 ```
 
-#### by mode (common)
+##### by mode (common)
 
 ```{r Plot common pitch accents by mode adjusted, fig.height=2.2, fig.width=5}
 
 ggplot(pa_by_mode_adj %>%
-         # uncount table for bar chart
+         ## uncount table for bar chart
          pivot_longer(2:last_col(), "acc_phon") %>%
          uncount(value) %>%
-         # exclude outliers.
+         ## exclude outliers.
          filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>%
          mutate(acc_phon = factor(acc_phon,
                                   levels = c("L*H", "L*^[H]", "^[L*H]")))
@@ -380,13 +380,13 @@ ggplot(pa_by_mode_adj %>%
 ```
 
 
-#### by mode (all)
+##### by mode (all)
 ```{r Plot common pitch accents by mode and M8 adjusted, fig.height=2.5, fig.width=8.5}
 
 ggplot(
   pa_by_mode_speaker_adj %>%
     filter(speaker == "M8") %>% 
-    # Uncount tables bar chart.
+    ## Uncount tables bar chart.
     pivot_longer(3:last_col(), "acc_phon") %>%
     uncount(value) %>% 
     mutate(acc_phon = factor(
@@ -424,14 +424,14 @@ ggplot(
 
 ```
 
-#### by mode and gender (common)
+##### by mode and gender (common)
 
 ```{r Plot common pitch accents by mode and gender adjusted, fig.height=3.5, fig.width=5.15}
 ggplot(pa_by_gender_adj %>%
-    # Uncount tables bar chart.
+    ## Uncount tables bar chart.
     pivot_longer(3:last_col(), "acc_phon") %>%
     uncount(value) %>% 
-    # Exclude outliers.
+    ## Exclude outliers.
     filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>% 
     mutate(acc_phon = factor(acc_phon, levels = c("L*H", "L*^[H]", "^[L*H]")))) +
   
@@ -466,13 +466,13 @@ ggplot(pa_by_gender_adj %>%
 
 ```
 
-#### by mode and speaker (all)
+##### by mode and speaker (all)
 
 ```{r Plot common pitch accents by mode and speaker adjusted, fig.height=12, fig.width=8.5}
 
 ggplot(
   pa_by_mode_speaker_adj %>%
-    # Uncount tables bar chart.
+    ## Uncount tables bar chart.
     pivot_longer(3:last_col(), "acc_phon") %>%
     uncount(value) %>% 
     mutate(acc_phon = factor(
@@ -529,26 +529,26 @@ ggsave(
 
 
 
-## Boundary Tone Analysis {.tabset}
+### Boundary Tone Analysis {.tabset}
 
 ```{r Wrangle reg data for boundary analysis}
 fin_phon_adj <- m_corpus %>%
   mutate(fin_phon = str_replace_all(fin_phon, "\\[|\\]|\\^", "")) %>%
   mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon))) %>% 
-  # Count the number of fin_phon by speaker and mode
+  ## Count the number of fin_phon by speaker and mode
   group_by(speaker, stim, fin_phon) %>%
   summarise(nuc_count = n(), .groups = "keep") %>%
   pivot_wider(names_from = fin_phon,
               values_from = nuc_count,
               values_fill = 0) %>%
-  # convert the totals to proportion per stim.
+  ## convert the totals to proportion per stim.
   adorn_totals("col") %>%
   mutate(across(3:(last_col()-1),  ~  (. / Total))) %>%
   select(-Total) %>%
-  # Convert stim column to mode.
+  ## Convert stim column to mode.
   rename(mode = stim) %>%
   mutate(mode = substr(mode, 1, 3)) %>%
-  # Convert the values to proportion per mode
+  ## Convert the values to proportion per mode
   pivot_longer(3:last_col(), "fin_phon") %>%
   group_by(speaker, mode, fin_phon) %>%
   pivot_wider(
@@ -563,9 +563,9 @@ fin_phon_adj <- m_corpus %>%
   select(-Total) %>%
   as_tibble()
 
-# Create tibble of final boundaries per mode (adjusted).
+## Create tibble of final boundaries per mode (adjusted).
 fin_phon_by_mode_adj <- fin_phon_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "fin_phon") %>%
   select(-c(speaker)) %>% 
   pivot_wider(names_from = fin_phon,
@@ -573,17 +573,17 @@ fin_phon_by_mode_adj <- fin_phon_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>% 
-  # Convert proportions to an integer based on an ideal total number of tokens.
+  ## Convert proportions to an integer based on an ideal total number of tokens.
   mutate(across(2:last_col(), ~ round(. * 15, 0))) %>% 
   arrange(mode)
 
-# Create tibble of final boundaries  by gender and mode (adjusted).
+## Create tibble of final boundaries  by gender and mode (adjusted).
 fin_phon_by_gender_adj <- fin_phon_adj %>% 
-  # Convert speaker to gender
+  ## Convert speaker to gender
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "fin_phon") %>%
 
   pivot_wider(names_from = fin_phon,
@@ -591,25 +591,25 @@ fin_phon_by_gender_adj <- fin_phon_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(3:last_col(), ~ if_else(gender=="F",
                                round(. * 15, 0),
-                               # project equal number of Male & Female speakers.
+                               ## project equal number of Male & Female speakers.
                                round(. * 18, 0)
                                )
                 )
          ) %>% 
   arrange(mode)
 
-# Make lists of projected boundary tokens.
+## Make lists of projected boundary tokens.
 fin_phon_by_mode_adj_list <- fin_phon_by_mode_adj %>%
   pivot_longer(2:last_col(), "fin_phon") %>%
     uncount(value) %>%
     mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
 
 
-# Get list of projected boundary tokens by mode and gender.
+## Get list of projected boundary tokens by mode and gender.
 fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
     pivot_longer(3:last_col(), "fin_phon") %>%
     uncount(value) %>% 
@@ -617,7 +617,7 @@ fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
 
 ```
 
-### by sentence mode
+#### by sentence mode
 
 ```{r plot fin_phon by mode only mode reg, fig.width = 5, fig.height = 2.5}
 
@@ -653,7 +653,7 @@ ggplot(fin_phon_by_mode_adj_list) +
 
 ```
 
-### by sentence mode and gender
+#### by sentence mode and gender
 
 ```{r plot fin_phon by mode and gender mode reg, fig.width = 5, fig.height = 4}
 ggplot(fin_phon_by_gender_adj_list) +
@@ -699,9 +699,9 @@ ggsave(
 ```
 
 
-## BGLMM Analysis
+### BGLMM Analysis
 
-### H-Register and Mode {.tabset}
+#### H-Register and Mode {.tabset}
 
 ```{r run model m_corpus_h_reg, results = "hide"}
 
@@ -720,7 +720,7 @@ h_reg_model <- bglmer(
 h_reg_model <- optimizeModel(h_reg_model, reject_nm = F)
 ```
 
-#### LRT
+##### LRT
 
 ```{r drop1 m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Mode_PA_GLMM"
@@ -731,7 +731,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
       paste(write, "_formula.txt", sep = ""))
 
 
-# get, save, and print ANOVA of model
+## get, save, and print ANOVA of model
 drop1_analysis <- drop1(h_reg_model, test = "Chisq") %>%  tidy() %>% 
   filter(!is.na(npar)) %>%
   mutate(`p.adj (BH)` = NA, signif. = NA) %>%
@@ -750,7 +750,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-#### *R*^2^ and prediction plots
+##### *R*^2^ and prediction plots
 
 ```{r Tidy Summary m_corpus_h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(
@@ -799,7 +799,7 @@ ggpredict(h_reg_model,
 ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
-  # width = 8.14,
+  ## width = 8.14,
   width = 8.5,
   height = 6.26,
   units = "cm",
@@ -809,22 +809,22 @@ ggsave(
 ```
 
 
-#### prediction by factor
+##### prediction by factor
 ```{r  prediction h_reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(h_reg_model,
                      caption_suffix = " (reg tier)",
-                     digits = 3)
+                     digits = 2)
 ```
 
-#### prediction by mode and gender
+##### prediction by mode and gender
 ```{r  prediction h_reg together, fig.width = 3.05, fig.height = 2.5, results="asis"}
 x <- printTidyPredictions(h_reg_model,
                      caption_suffix = " (reg tier)",
-                     digits = 3,
+                     digits = 2,
                      factor_matrix = T) 
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r GLMM of H re mode Figures and Charts reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -836,12 +836,12 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
-#### Model printout
+##### Model printout
 ```{r h reg model summary}
 summary(h_reg_model)
 ```
 
-### Final Boundary and Mode {.tabset}
+#### Final Boundary and Mode {.tabset}
 
 * Random intercepts only since models with random slopes generate singularity issues.
 
@@ -869,7 +869,7 @@ fin_phon_model <- optimizeModel(fin_phon_model, reject_nm = F)
 
 ```
 
-#### LRT
+##### LRT
 
 ```{r drop1 fin phon, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Mode_fin_phon_GLMM"
@@ -880,7 +880,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
       paste(write, "_formula.txt", sep = ""))
 
 
-# get, save, and print ANOVA of model
+## get, save, and print ANOVA of model
 drop1_analysis <- drop1(fin_phon_model, test = "Chisq")
 
 tibble(factor = row.names(drop1_analysis))  %>%
@@ -899,7 +899,7 @@ read_csv(paste(write, "_anova.csv", sep = "")) %>%
 formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
-#### *R*^2^ and prediction plots
+##### *R*^2^ and prediction plots
 
 ```{r Tidy Summary fin phon, fig.width = 3.4, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(
@@ -940,7 +940,7 @@ ggpredict(fin_phon_model,
 ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
-  # width = 8.14,
+  ## width = 8.14,
   width = 14,
   height = 6.26,
   units = "cm",
@@ -948,23 +948,23 @@ ggsave(
 )
 ```
 
-#### prediction by factor
+##### prediction by factor
 ```{r  prediction fin_phon, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(fin_phon_model,
                      caption_suffix = " (reg tier)",
-                     digits = 3)
+                     digits = 2)
 ```
 
-#### prediction by mode and gender
+##### prediction by mode and gender
 ```{r  prediction fin_phon together, fig.width = 3.05, fig.height = 2.5, results="asis"}
 x <- printTidyPredictions(fin_phon_model,
                      caption_suffix = " (reg tier)",
-                     digits = 3,
+                     digits = 2,
                      factor_matrix = T) 
 ```
 
 
-#### pairwise comparisons
+##### pairwise comparisons
 
 ```{r GLMM fin_phon Figures and Charts, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -976,7 +976,7 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
-#### Model printout
+##### Model printout
 
 ```{r summary of GLMM fin phon model}
 

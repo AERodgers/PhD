@@ -11,12 +11,12 @@ knitr::opts_chunk$set(echo = F,
                       message = F,
                       warning = F)
 
-# Get personal functions and install / load necessary packages.
+## Get personal functions and install / load necessary packages.
 source("../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
-    # Include statistical packages.
+    ## Include statistical packages.
     "performance",
     "lmerTest",
     "lme4",
@@ -25,7 +25,7 @@ installMissingPackages(
     "MuMIn",
     "dfoptim",
 
-    # Include packages for tidy output.
+    ## Include packages for tidy output.
     "tidyverse",
     "broomExtra",
     "sjPlot",
@@ -34,21 +34,21 @@ installMissingPackages(
     "janitor",
     "gridExtra",
     
-    # Include packages for %in% %notin% syntactic notation
+    ## Include packages for %in% %notin% syntactic notation
     "mefa4"
   )
 )
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 12))
 
-# Get  data for analysis
+## Get  data for analysis
 
 source("0_get_AH.R")
 
 nuc_data <- nuc %>%
-  # there must be a more efficient way of doing this but...
-  # Create column of stressed syllables in foot 2.
+  ## there must be a more efficient way of doing this but...
+  ## Create column of stressed syllables in foot 2.
     select(
     stim,
     speaker,
@@ -123,9 +123,9 @@ nuc_data %>%
   formattable(caption = "nuc_new_word stim variety")
 ```
 
-## L targets
+### L targets
 
-### Analysis of L timing
+#### Analysis of L timing
 
 ```{r run l_t models, fig.height=3, fig.width=9}
 l_t_equation = formula(
@@ -153,7 +153,7 @@ nuc_l_t_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_l_t_data.trimmed <- nuc_data %>% filter(abs(scale(resid(nuc_l_t_mdl))) <= 3)
 nuc_l_t_mdl.trimmed = update(nuc_l_t_mdl, data = nuc_l_t_data.trimmed)
  mdl_summary <- summariseLME(nuc_l_t_mdl.trimmed,
@@ -184,7 +184,7 @@ re_plot <- re_plot +
     plot.caption = element_text(hjust = 0, size = 9),
     plot.caption.position = "plot"
   )
-# re_plot
+## re_plot
 nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                  write = "5_nuc_output/nuc_l_t",
                                  type = "pred",
@@ -208,7 +208,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of L F0
+#### Analysis of L F0
 
 ```{r set l_f0 equation}
 l_f0_equation = formula(
@@ -239,7 +239,7 @@ nuc_l_f0_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_l_f0.trimmed <-
   nuc_data %>% filter(abs(scale(resid(nuc_l_f0_mdl))) <= 2.5)
 
@@ -288,12 +288,12 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 ```{r l binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
-# set terms to plot
+## set terms to plot
 terms = c("fin_phon [L%]",
           "nuc_new_word [T]",
           "gender [M]")
 
-# create _t plot
+## create _t plot
 l_t_binom_plot <- plot_model(nuc_l_t_mdl,
            show.values = T,
            show.intercept = T,
@@ -309,7 +309,7 @@ l_t_binom_plot <- plot_model(nuc_l_t_mdl,
       axis.title = element_text(size = 10)
     )
 
-# create _f0 plot
+## create _f0 plot
 l_f0_binom_plot <- plot_model(nuc_l_f0_mdl.trimmed,
            show.values = T,
            terms = terms) +
@@ -324,10 +324,10 @@ l_f0_binom_plot <- plot_model(nuc_l_f0_mdl.trimmed,
       axis.title = element_text(size = 10)
     )
 
-# join the plots
+## join the plots
 grid.arrange(l_t_binom_plot, l_f0_binom_plot, ncol = 2)
 
-# save the plots
+## save the plots
 ggsave("5_nuc_output/l_target_binomial.png",
         device = "png",
         arrangeGrob(l_t_binom_plot, l_f0_binom_plot, ncol = 2),
@@ -335,9 +335,9 @@ ggsave("5_nuc_output/l_target_binomial.png",
         height = 5.5,
         units = "cm")
 ```
-## H targets
+### H targets
 
-### Analysis of H timing
+#### Analysis of H timing
 
 ```{r set h_t equation}
 h_t_equation = formula(
@@ -369,7 +369,7 @@ nuc_h_t_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_h_t_mdl = update(nuc_h_t_mdl,
                      data = nuc_data %>%
                        filter(abs(scale(resid(nuc_h_t_mdl))) <= 3))
@@ -417,7 +417,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of H F0
+#### Analysis of H F0
 
 ```{r set h_f0 equation}
 h_f0_equation = formula(
@@ -449,7 +449,7 @@ nuc_h_f0_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_h_f0_mdl.trimmed = update(nuc_h_f0_mdl,
                               data = nuc_data %>%
                                 filter(abs(scale(resid(nuc_h_f0_mdl))) <= 4))
@@ -495,12 +495,12 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 ```{r h binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
-# set terms to plot
+## set terms to plot
 terms = c("fin_phon [L%]",
           "nuc_new_word [T]",
           "gender [M]")
 
-# create _t plot
+## create _t plot
 h_t_binom_plot <- plot_model(nuc_h_t_mdl,
            type = "est",
            transform = NULL,
@@ -518,7 +518,7 @@ h_t_binom_plot <- plot_model(nuc_h_t_mdl,
       axis.title = element_text(size = 10)
     )
 
-# create _f0 plot
+## create _f0 plot
 h_f0_binom_plot <- plot_model(nuc_h_f0_mdl.trimmed,
            type = "est",
            transform = NULL,
@@ -536,10 +536,10 @@ h_f0_binom_plot <- plot_model(nuc_h_f0_mdl.trimmed,
       axis.title = element_text(size = 10)
     )
 
-# join the plots
+## join the plots
 grid.arrange(h_t_binom_plot, h_f0_binom_plot, ncol = 2)
 
-# save the plots
+## save the plots
 ggsave("5_nuc_output/h_target_binomial.png",
         device = "png",
         arrangeGrob(h_t_binom_plot, h_f0_binom_plot, ncol = 2),
@@ -548,11 +548,11 @@ ggsave("5_nuc_output/h_target_binomial.png",
         units = "cm")
 ```
 
-## E targets
+### E targets
 e_t is not important for evaluation. However, the timing has been modelled just for visualisation purposes.
 ```{r set e_t equation}
-### Analysis of E timing
-# E timing is not of much interest as it is just the last f0 time point in the IP... except in terms of seeing how h_t and e_t differ.
+#### Analysis of E timing
+## E timing is not of much interest as it is just the last f0 time point in the IP... except in terms of seeing how h_t and e_t differ.
 
 e_t_equation = formula(
   e_t ~ 
@@ -583,7 +583,7 @@ nuc_e_t_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_e_t_mdl.trimmed = update(nuc_e_t_mdl,
                              data = nuc_data %>%
                                filter(abs(scale(resid(
@@ -633,7 +633,7 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
-### Analysis of E F0
+#### Analysis of E F0
 
 ```{r set e_f0 equation}
 e_f0_equation = formula(
@@ -666,7 +666,7 @@ nuc_e_f0_mdl = lmer(
   )
 )
 
-# model needs trimming
+## model needs trimming
 nuc_e_f0_mdl.trimmed = update(nuc_e_f0_mdl,
                               data = nuc_data %>% filter(abs(scale(
                                 resid(nuc_e_f0_mdl)
@@ -715,12 +715,12 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 ```{r e binomial plots, fig.height=5.5/2.54, fig.width=15/2.54}
-# set terms to plot
+## set terms to plot
 terms = c("fin_phon [L%]",
           "nuc_new_word [T]",
           "gender [M]")
 
-# create _t plot
+## create _t plot
 e_t_binom_plot <- plot_model(nuc_e_t_mdl,
            type = "est",
            transform = NULL,
@@ -738,7 +738,7 @@ e_t_binom_plot <- plot_model(nuc_e_t_mdl,
       axis.title = element_text(size = 10)
     )
 
-# create _f0 plot
+## create _f0 plot
 e_f0_binom_plot <- plot_model(nuc_e_f0_mdl.trimmed,
            type = "est",
            transform = NULL,
@@ -756,10 +756,10 @@ e_f0_binom_plot <- plot_model(nuc_e_f0_mdl.trimmed,
       axis.title = element_text(size = 10)
     )
 
-# join the plots
+## join the plots
 grid.arrange(e_t_binom_plot, e_f0_binom_plot, ncol = 2)
 
-# save the plots
+## save the plots
 ggsave("5_nuc_output/e_target_binomial.png",
         device = "png",
         arrangeGrob(e_t_binom_plot, e_f0_binom_plot, ncol = 2),
@@ -767,9 +767,9 @@ ggsave("5_nuc_output/e_target_binomial.png",
         height = 5.5,
         units = "cm")
 ```
-## Truncation and Compression Effects
+### Truncation and Compression Effects
 
-### LH Excursion
+#### LH Excursion
 
 ```{r set f0_exc equation}
 
@@ -877,7 +877,7 @@ charts$slopes %>% tidyStatNumbers() %>%
 ```
 
 
-### LH Slope
+#### LH Slope
 
 Based on results from tonal target analysis, it looksl like compression and truncation may be in effect.
 As compression leads to decrease in duration of rise (but not necessarily much descrease in excursion size), and as slope increases exponentially as duration decreases, slope has been logged here.
@@ -911,7 +911,7 @@ nuc_lh_slope_mdl = lmer(lh_slope_equation,
 
 nuc_lh_slope_mdl <- optimizeModel(nuc_lh_slope_mdl, verbose = F, reject_nm = T)
 
-# model needs trimming
+## model needs trimming
 nuc_lh_slope_mdl.trimmed = update(
   nuc_lh_slope_mdl,
   data = nuc_data %>% filter(abs(scale(resid(nuc_lh_slope_mdl))) <= 3.5))
@@ -1018,14 +1018,14 @@ printTidyPredictions(lh_dur_mdl)
 ```
 
 
-## Additional model
+### Additional model
 
-### H time proportional to duration of foot
+#### H time proportional to duration of foot
 
 
 ```{r  h_t_re_ft_dur, fig.height=3, fig.width=9}
-### Analysis of E timing
-# E timing is not of much interest as it is just the last f0 time point in the IP
+#### Analysis of E timing
+## E timing is not of much interest as it is just the last f0 time point in the IP
 
 h_t_re_ft_dur_equation = formula(
   `h_t as ratio of foot` ~ 
@@ -1103,11 +1103,11 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),2)))
 ```
 
-### H time proportional to duration of voicing
+#### H time proportional to duration of voicing
 
 ```{r  nuc_h_t_re_v_dur, fig.height=3, fig.width=9}
-### Analysis of E timing
-# E timing is not of much interest as it is just the last f0 time point in the IP
+#### Analysis of E timing
+## E timing is not of much interest as it is just the last f0 time point in the IP
 
 nuc_h_t_re_v_dur_equation = formula(
   `h_t as ratio of voicing` ~ 
@@ -1147,7 +1147,7 @@ nuc_h_t_re_v_dur_mdl <- nuc_h_t_re_v_dur_mdl %>% optimizeModel()
 nuc_nuc_h_t_re_v_dur.trimmed <- nuc_data %>%
     filter(abs(scale(resid(nuc_h_t_re_v_dur_mdl))) <= 3)
 
-# model needs trimming
+## model needs trimming
 nuc_h_t_re_v_dur_mdl.trimmed = update(
   nuc_h_t_re_v_dur_mdl,
   data = nuc_nuc_h_t_re_v_dur.trimmed,

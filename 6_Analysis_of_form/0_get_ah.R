@@ -1,11 +1,11 @@
-# LOAD AND PROCESS AH CORPUS
-# --------------------------
+## LOAD AND PROCESS AH CORPUS
+## --------------------------
 
-## Get per-speaker f0 stats.
+### Get per-speaker f0 stats.
 stress <- read_csv("../4_data/stressed_syls.csv", show_col_types = F)
 #corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_Form/data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
-  # Only keep pertinent columns!
+  ## Only keep pertinent columns!
   select(
     speaker,
     gender,
@@ -55,8 +55,8 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
     across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
-    # there must be a more efficient way of doing this but...
-    # Create column of stressed syllables in foot 1.
+    ## there must be a more efficient way of doing this but...
+    ## Create column of stressed syllables in foot 1.
     pn_str_syl = stim,
     pn_str_syl = str_replace(pn_str_syl, stress$stim[1], stress$pn_syl[1]),
     pn_str_syl = str_replace(pn_str_syl, stress$stim[2], stress$pn_syl[2]),
@@ -74,7 +74,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     pn_str_syl = str_replace(pn_str_syl, stress$stim[14], stress$pn_syl[14]),
     pn_str_syl = str_replace(pn_str_syl, stress$stim[15], stress$pn_syl[15]),
     pn_str_syl = factor(pn_str_syl, levels = unique(pn_str_syl)),
-    # Create column of stressed syllables in foot 2.
+    ## Create column of stressed syllables in foot 2.
     nuc_str_syl = stim,
     nuc_str_syl = str_replace(nuc_str_syl, stress$stim[1], stress$nuc_syl[1]),
     nuc_str_syl = str_replace(nuc_str_syl, stress$stim[2], stress$nuc_syl[2]),
@@ -93,13 +93,13 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     nuc_str_syl = str_replace(nuc_str_syl, stress$stim[15], stress$nuc_syl[15]),
     nuc_str_syl = factor(nuc_str_syl, levels = unique(nuc_str_syl)),
 
-    # Make interlocutor gender column
+    ## Make interlocutor gender column
     partner_gender = factor(
       if_else(speaker %in%  c("F17", "M04", "M05", "M08"), "M", "F"),
       levels = c("F", "M")
       ),
 
-    # create composite parameters for continuous data.
+    ## create composite parameters for continuous data.
     foot_dur = foot_end_t - foot_start_t,
     foot_v_dur = foot_end_t - v_onset_t,
     speech_rate = round(tot_syls / phr_end_t * 1000, 3),
@@ -111,32 +111,32 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
     s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
     e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
-    # redo excursion based on z-scores
+    ## redo excursion based on z-scores
     f0_exc_z = h_f0_z - l_f0_z,
     e_f0_exc_z = e_f0_z - h_f0_z,
-    # get ratio of h_t to foot_dur
+    ## get ratio of h_t to foot_dur
     h_t_foot_ratio = (h_t - foot_start_t) /  (foot_end_t - foot_start_t),
-    # Make L and H times relative to vowel onset (TBU).
+    ## Make L and H times relative to vowel onset (TBU).
     s_t = s_t - v_onset_t,
     l_t = l_t - v_onset_t,
     h_t = h_t - v_onset_t,
     e_t = e_t - v_onset_t,
-   # s_grand_mean_t = s_grand_mean_t - v_grand_mean_t,
-   # l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
-   # h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
-   # e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
+   ## s_grand_mean_t = s_grand_mean_t - v_grand_mean_t,
+   ## l_grand_mean_t = l_grand_mean_t - v_grand_mean_t,
+   ## h_grand_mean_t = h_grand_mean_t - v_grand_mean_t,
+   ## e_grand_mean_t = e_grand_mean_t - v_grand_mean_t,
 
-    # treat foot_syls and ana_syls as factor
+    ## treat foot_syls and ana_syls as factor
     ana_syls = factor(ana_syls, levels = unique(ana_syls)),
     foot_syls = factor(foot_syls, levels = unique(foot_syls)),
     wrd_end_syl = factor(wrd_end_syl, levels = 1:3),
-    # remove errors in str
+    ## remove errors in str
     sent = str_replace(sent, "\\.", "") %>% tolower() %>% str_trim(),
-    # Ignore downstep.
+    ## Ignore downstep.
     acc_phon = str_replace(acc_phon, "!", ""),
-    # Arrange PA levels according to hypothesized hierarchy.
+    ## Arrange PA levels according to hypothesized hierarchy.
     acc_phon = factor(acc_phon, levels = c("(*)", "L*", "H*", ">H*", "L*H")),
-    # Arrange speaker factors in more intuitive order.
+    ## Arrange speaker factors in more intuitive order.
     speaker = factor(
       speaker,
       levels = c(
@@ -158,14 +158,14 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     foot_syls = factor(foot_syls, levels=(1:4)),
     ana_text = if_else(is.na(ana_text), "0", ana_text),
     ana_text = factor(ana_text, level = unique(ana_text)),
-    # Make new new word the intercept.
+    ## Make new new word the intercept.
     pn_new_word = factor(as.logical(pn_new_word), level = c(F, T)),
     nuc_new_word = factor(as.logical(nuc_new_word), level = c(F, T)),
     nuc_pre_text = if_else(is.na(nuc_pre_text), "0", nuc_pre_text),
     nuc_pre_text = factor(nuc_pre_text, level = unique(nuc_pre_text)),
   ) %>%
 
-  # Remove columns which have outlived their use!
+  ## Remove columns which have outlived their use!
   select(-c(
     tot_syls,
     phr_end_t,
@@ -174,10 +174,10 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   ))
 
 
-# CREATE PN SUBSETS
-# -----------------
+## CREATE PN SUBSETS
+## -----------------
 
-# Extract PN data.
+## Extract PN data.
 pn <- filter(corpus, cur_foot == 1) %>%
   unite(init_contour,
         init_phon,
@@ -215,44 +215,44 @@ pn <- filter(corpus, cur_foot == 1) %>%
          wrd_end_t,
          foot_end_t)
 
-# Extract PN anacrusis data.
+## Extract PN anacrusis data.
 pn_ana <- pn %>%
   filter(stim %in% c("A0423", "A1422", "A2422", "A3422"))
 
 
-# Make PN foot-size dataset.
+## Make PN foot-size dataset.
 pn_foot <- pn %>%
   filter(stim %in% c("A0131", "A0221", "A0321", "A0423"))
 
-# Make PN word-boundary dataset.
+## Make PN word-boundary dataset.
 pn_lex <- pn %>% filter(stim %in% c(
   "A0321", "H0322", "H0433", "A0423",  "H1321", "H1322"))
 
-# CREATE NUCLEAR PA SUBSETS
-# -------------------------
+## CREATE NUCLEAR PA SUBSETS
+## -------------------------
 
 nuc <- filter(corpus, cur_foot == 2) %>%
-  # remove columns which are no needed for nuclear PA analysis.
+  ## remove columns which are no needed for nuclear PA analysis.
   select(-init_phon,-ana_syls) %>%
-  # Create nuclear contour column.
+  ## Create nuclear contour column.
   unite(nuc_contour,
         acc_phon,
         fin_phon,
         sep = " ",
         remove = F) %>%
-  # Get number of preceding syllables from stim code
+  ## Get number of preceding syllables from stim code
   mutate(pre_syls = as.integer(str_sub(stim, 3, 3)) - 1,
          pre_syls = factor(pre_syls, levels = unique(pre_syls))
   ) %>%
   select(-c(s_f0, s_f0_z, s_t, s_grand_mean_t))
 
-# Make nuclear PA preceding syllable dataset.
+## Make nuclear PA preceding syllable dataset.
 nuc_pre <- nuc %>%
   filter(stim %in% c("A1111", "A0221", "A0321", "A0423"))
 
 
-# Make nuclear PA foot size dataset.
+## Make nuclear PA foot size dataset.
 nuc_foot <- nuc %>%
-  # Get dataset for syllables preceding nuclear PA.
+  ## Get dataset for syllables preceding nuclear PA.
   filter(stim %in% c("A1211", "A0221", "A1231", "A1241"))
 

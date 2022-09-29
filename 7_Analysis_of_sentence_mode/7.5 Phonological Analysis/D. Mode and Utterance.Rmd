@@ -8,20 +8,20 @@ output:
     toc_float: true
 ---
 
-# 7.5.4-5 Utterance-wide Phonology
+## 7.5.4-5 Utterance-wide Phonology
 
 ```{r setup D, include=F}
 knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
 
 
-# Load Functions and colour variables.
+## Load Functions and colour variables.
 source("../../2_R_Functions/myFunctions.R")
 source("../../2_R_Functions/myColours.R")
 
-# Load packages.
+## Load packages.
 installMissingPackages(
   c(
-    # Load tidy packages.
+    ## Load tidy packages.
     "formattable",
     "janitor",
     "kableExtra",
@@ -29,22 +29,22 @@ installMissingPackages(
     "tidyverse",
     "ggeffects",
     "ggrepel",
-    # Load stats package.
+    ## Load stats package.
     "blme"
   )
 )
 
-# Set themes and colour schemes.
+## Set themes and colour schemes.
 theme_set(theme_minimal(base_size = 10))
 
-# Change this as required
+## Change this as required
 options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
-# Get data
+## Get data
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv") %>%
-  # Consolidate nuc_contour based on observation and types of register shift.
+  ## Consolidate nuc_contour based on observation and types of register shift.
   mutate(
-    # remove non-accentuation from phr_phon
+    ## remove non-accentuation from phr_phon
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
     nuc_PA_only = factor(str_count(phr_phon, "\\*") == 1,
       levels = c(F, T)
@@ -57,7 +57,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv") %>%
       levels = c(F, T)
     )
   ) %>%
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(
     speaker,
     gender,
@@ -72,7 +72,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv") %>%
 
 ```
 
-## Raw Data
+### Raw Data
 
 ```{r set thresholds}
 #set lower limit for list: more than 8 tokens in the corpus
@@ -86,12 +86,12 @@ keep_list <- m_corpus %>%
   filter(phon_count >= threshold)
 ```
 
-### Utterance-wide Intonation {.tabset}
+#### Utterance-wide Intonation {.tabset}
 
-#### Mode
+##### Mode
 
 ```{r Show distribution of utterance level phonology by mode, warning=F}
-# List utterances phonology by mode with 8+ tokens in the corpus
+## List utterances phonology by mode with 8+ tokens in the corpus
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   filter(phr_phon %in% keep_list$phr_phon) %>%
@@ -130,7 +130,7 @@ m_corpus %>%
 ```
 ```{r Prep. for utterance-level phonology, warning=F}
 
-# get tibble of total counts per cell 
+## get tibble of total counts per cell 
 total_counts <- m_corpus %>%
   group_by(mode) %>%
   summarise(phon_count = n(), .groups="rowwise") %>%
@@ -142,10 +142,10 @@ total_counts <- m_corpus %>%
   select(MDC, MWH, MYN, MDQ, total) 
 ```
 
-#### All
+##### All
 
 ```{r All utterance-level phonology, warning=F}
-# List all utterance phonology
+## List all utterance phonology
 m_corpus %>%
   mutate(phr_phon = factor(phr_phon, levels = unique(phr_phon))) %>%
   group_by(phr_phon) %>%
@@ -161,9 +161,9 @@ m_corpus %>%
 
 ```
 
-### Possible Q-Signalling Events {.tabset}
+#### Possible Q-Signalling Events {.tabset}
 
-#### Nuclear PA-only
+##### Nuclear PA-only
 ```{r Show nuc only utterance level phonology summary, warning=F}
 nuc_only <- m_corpus %>%
   filter(nuc_PA_only == T) %>%
@@ -184,7 +184,7 @@ nuc_only %>%
   kable_styling(full_width = F, position="left")
 ```
 
-#### High register in nuclear PA
+##### High register in nuclear PA
 ```{r Show `high register in nucleus` utterance level phonology summary, warning=F}
 uses_h_reg <- m_corpus %>%
   filter(`high register in nucleus` == T) %>%
@@ -206,7 +206,7 @@ uses_h_reg %>%
   kable_styling(full_width = F, position="left")
 ```
 
-#### Either
+##### Either
 ```{r Show `at_least_1_strat` utterance level phonology summary, warning=F}
 uses_h_reg_or_nuc_PA_only <- m_corpus %>%
   filter(`high register in nucleus` == T | nuc_PA_only == T) %>%
@@ -229,9 +229,9 @@ uses_h_reg_or_nuc_PA_only %>%
 ```
 
 
-## BGLMM analysis
+### BGLMM analysis
 
-### Nuclear PA only  {.tabset}
+#### Nuclear PA only  {.tabset}
 
 ```{r run nuc_pa_only_model, results = "hide"}
 
@@ -240,7 +240,7 @@ nuc_pa_only_model <- bglmer(
   data = m_corpus,
   fixef.prior = normal(),
   family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
+  ## change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
     calc.derivs = F,
@@ -255,7 +255,7 @@ h_reg_model <- optimizeModel(nuc_pa_only_model, reject_nm = F)
 
 ```
 
-#### LRT
+##### LRT
 
 ```{r drop1 nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Utt_nuc_pa_only_GLMM"
@@ -266,7 +266,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
       paste(write, "_formula.txt", sep = ""))
 
 
-# get, save, and print ANOVA of model
+## get, save, and print ANOVA of model
 drop1_analysis <- drop1(nuc_pa_only_model, test = "Chisq")
 
 tibble(factor = row.names(drop1_analysis))  %>%
@@ -286,7 +286,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-#### *R*^2^ and prediction plots
+##### *R*^2^ and prediction plots
 
 ```{r Tidy Summary nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(nuc_pa_only_model,
@@ -332,7 +332,7 @@ ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
   plot = my_plot,
-  # width = 8.14,
+  ## width = 8.14,
   width = 8.5,
   height = 6.26,
   units = "cm",
@@ -342,14 +342,14 @@ ggsave(
 print(my_plot)
 ```
 
-#### prediction tables
+##### prediction tables
 ```{r prediction nuc_pa_only_model, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(nuc_pa_only_model,
                      caption_suffix = "(reg tier)",
                      digits = 3)
 ```
 
-#### prediction by mode and gender
+##### prediction by mode and gender
 ```{r  prediction pa_only mode_utt, fig.width = 3.05, fig.height = 2.5, results="asis"}
 x <- printTidyPredictions(nuc_pa_only_model,
                      caption_suffix = " (reg tier)",
@@ -357,7 +357,7 @@ x <- printTidyPredictions(nuc_pa_only_model,
                      factor_matrix = T) 
 ```
 
-#### pairwise comparisons
+##### pairwise comparisons
 
 ```{r nuc_pa_only_model pairwise, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -369,22 +369,22 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
-#### Model printout
+##### Model printout
 
 ```{r nuc_pa_only_model printout}
 summary(nuc_pa_only_model)
 ```
 
-### Either Nuc-PA or High Reg {.tabset}
+#### Either Nuc-PA or High Reg {.tabset}
 
-#### model summary
+##### model summary
 
 ```{r h_reg_or_nuc_pa_only model}
 h_reg_or_nuc_pa_only_model <- bglmer(
   `at_least_1_strat` ~ mode + gender +(1 | speaker) + (1 | prompt),
   data = m_corpus,
   family = binomial(link = "logit"),
-  # change optimizer to avoid convergence errors
+  ## change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
     calc.derivs = F,
@@ -401,7 +401,7 @@ h_reg_model <- optimizeModel(h_reg_or_nuc_pa_only_model, reject_nm = F)
 summary(h_reg_or_nuc_pa_only_model)
 ```
 
-#### LRT
+##### LRT
 
 ```{r drop1 h_reg_or_nuc_pa_only, fig.width = 3.05, fig.height = 2.5,}
 
@@ -414,7 +414,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
       paste(write, "_formula.txt", sep = ""))
 
 
-# get, save, and print ANOVA of model
+## get, save, and print ANOVA of model
 drop1_analysis <- drop1(h_reg_or_nuc_pa_only_model, test = "Chisq")
 
 tibble(factor = row.names(drop1_analysis))  %>%
@@ -434,7 +434,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-#### *R*^2^ and prediction plots
+##### *R*^2^ and prediction plots
 
 ```{r Tidy Summary h_reg_or_nuc_pa_only, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
@@ -472,7 +472,7 @@ ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
   plot = my_plot,
-  # width = 8.14,
+  ## width = 8.14,
   width = 7.7,
   height = 6.26,
   units = "cm",
@@ -482,14 +482,14 @@ ggsave(
 print(my_plot)
 ```
 
-#### Prediction tables
+##### Prediction tables
 ```{r prediction h_reg_or_nuc_pa_onl, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(h_reg_or_nuc_pa_only_model,
                      caption_suffix = "(reg tier)",
                      digits = 3)
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r h_reg_or_nuc_pa_only_model pairwise, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -501,7 +501,7 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
-#### Model printout
+##### Model printout
 ```{r h_reg_or_nuc_pa_only_model printout}
 summary(h_reg_or_nuc_pa_only_model)
 ```

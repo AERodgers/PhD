@@ -8,11 +8,11 @@ output: html_document
 ```{r setup, include=F}
 knitr::opts_chunk$set(echo = TRUE)
 
-# load functions
+## load functions
 source("../2_R_Functions/myFunctions.R") 
 
-# Load packages.
-installMissingPackages(c(# Load tidy packages
+## Load packages.
+installMissingPackages(c(## Load tidy packages
                          "formattable",
                          "janitor",
                          "kableExtra",

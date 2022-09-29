@@ -8,17 +8,17 @@ output:
     toc_float: true
 ---
 
-# 7.5.1 Non-register-tier Analysis
+## 7.5.1 Non-register-tier Analysis
 
 ```{r setup A, include=F}
 knitr::opts_chunk$set(warning = F,
                       message = F)
 
 
-# Load Functions and colour variables
+## Load Functions and colour variables
 source("../../2_R_Functions/myFunctions.R")
 source("../../2_R_Functions/myColours.R")
-# Load packages.
+## Load packages.
 installMissingPackages(
   c(
     "tidyverse",
@@ -32,7 +32,7 @@ installMissingPackages(
   )
 )
 
-# Get  Data.
+## Get  Data.
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   mutate(
     fin_phon = if_else(
@@ -42,24 +42,24 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
     ),
     acc_phon == str_replace(acc_phon, "L\\*\\^\\[H\\]", "L\\*H"),
     nuc_contour = paste(acc_phon, fin_phon, sep = " "),
-    # remove non-accentuation from phr_phon
+    ## remove non-accentuation from phr_phon
     phr_phon = str_replace_all(phr_phon, "\\(\\*\\)", ""),
-    # replace L*^[H] with L*H H(L)% in phr_phon
+    ## replace L*^[H] with L*H H(L)% in phr_phon
     phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] %", "L\\*H H%"),
     phr_phon = str_replace(phr_phon, "L\\*\\^\\[H\\] L%", "L\\*H HL%"),
-    # remove register tier
+    ## remove register tier
     across(
       c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
       ~ str_replace_all(., "\\^|\\[|\\]", "")
     ),
-    # re-factorise phonological columns
+    ## re-factorise phonological columns
     across(
       c("phr_phon", "acc_phon", "nuc_contour", "fin_phon"),
       ~ factor(.,
                levels = unique(.))
     )
   ) %>%
-  # Select only columns for analysis
+  ## Select only columns for analysis
   select(speaker,
          gender,
          mode,
@@ -72,7 +72,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 
 ```
 
-## Raw Data {.tabset}
+### Raw Data {.tabset}
 
 ```{r prep corpus for tables}
 tot_rows = nrow(m_corpus)
@@ -85,10 +85,10 @@ keep_list <- m_corpus %>%
   filter(phon_count >= 8)
 ```
 
-### Nuclear Pitch Accent by Speaker
+#### Nuclear Pitch Accent by Speaker
 
 ```{r nuclear pitch accent by speaker, warning=F}
-# Create summary table of Pitch Accent by Speaker.
+## Create summary table of Pitch Accent by Speaker.
 m_corpus %>%
   group_by(speaker, acc_phon) %>%
   summarise(acc_count = n(), .groups = "keep") %>%
@@ -110,7 +110,7 @@ m_corpus %>%
 
 ```
 
-### Utterance Phonology (most common)
+#### Utterance Phonology (most common)
 
 ```{r print utterance phonology by mode}
 m_corpus %>%
@@ -150,7 +150,7 @@ m_corpus %>%
   )
 ```
 
-### Utterance Phonology (all)
+#### Utterance Phonology (all)
 
 ```{r print all utterance phonology by mode}
 m_corpus %>%
@@ -171,7 +171,7 @@ m_corpus %>%
 ```
 
 
-## Adjusted Data
+### Adjusted Data
 
 The raw data is unbalanced since there number of utterances per target speaker varies slightly. For some speakers, there are no repetitions of some target utterances. Therefore, the data has been adjusted to project an estimated balanced number of tokens per speaker per target utterance.
 
@@ -194,22 +194,22 @@ From this table to summary tables are created:
     b.  Convert proportions to an integer based on an ideal total number of tokens per mode as if there were an equal number of male and female participants.
 
 ```{r create tables for summarising adjusted pitch accent distributions}
-# Create tibble summarising  proportion of pitch accents per mode per speaker
+## Create tibble summarising  proportion of pitch accents per mode per speaker
 pa_adj <- m_corpus %>%
-  # Count the number of acc_phon by speaker and mode
+  ## Count the number of acc_phon by speaker and mode
   group_by(speaker, stim, acc_phon) %>%
   summarise(nuc_count = n(), .groups = "keep") %>%
   pivot_wider(names_from = acc_phon,
               values_from = nuc_count,
               values_fill = 0) %>%
-  # convert the totals to proportion per stim.
+  ## convert the totals to proportion per stim.
   adorn_totals("col") %>%
   mutate(across(3:5,  ~  (. / Total))) %>%
   select(-Total) %>%
-  # Convert stim column to mode.
+  ## Convert stim column to mode.
   rename(mode = stim) %>%
   mutate(mode = substr(mode, 1, 3)) %>%
-  # Convert the values to proportion per mode
+  ## Convert the values to proportion per mode
   pivot_longer(3:last_col(), "acc_phon") %>%
   group_by(speaker, mode, acc_phon) %>%
   pivot_wider(
@@ -224,9 +224,9 @@ pa_adj <- m_corpus %>%
   select(-Total) %>%
   as_tibble()
 
-# Create tibble of pitch accents per speaker (adjusted).
+## Create tibble of pitch accents per speaker (adjusted).
 pa_by_speaker_adj <- pa_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   select(-mode) %>%
   pivot_wider(
@@ -235,14 +235,14 @@ pa_by_speaker_adj <- pa_adj %>%
     values_fill = 0,
     values_fn = ~ sum(.)
   ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(2:4, ~ round(. * 15, 0))) %>%
   select("speaker", "H*", "L*H", ">H*")
 
-# Create tibble of pitch accents per mode (adjusted).
+## Create tibble of pitch accents per mode (adjusted).
 pa_by_mode_adj <- pa_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   select(-speaker) %>%
   pivot_wider(
@@ -251,18 +251,18 @@ pa_by_mode_adj <- pa_adj %>%
     values_fill = 0,
     values_fn = ~ sum(.)
   ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens.
+  ## Convert proportions to an integer based on an ideal total number of tokens.
   mutate(across(2:4, ~ round(. * 15, 0))) %>%
   select("mode", "H*", "L*H", ">H*")  %>%
   arrange(mode)
 
-# Create tibble of pitch accents by gender and mode (adjusted).
+## Create tibble of pitch accents by gender and mode (adjusted).
 pa_by_gender_adj <- pa_adj %>%
-  # Convert gender to speaker
+  ## Convert gender to speaker
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels = unique(speaker))) %>%
   rename(gender = speaker) %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "acc_phon") %>%
   pivot_wider(
     names_from = acc_phon,
@@ -270,12 +270,12 @@ pa_by_gender_adj <- pa_adj %>%
     values_fill = 0,
     values_fn = ~ sum(.)
   ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(3:5, ~ if_else(
     gender == "F",
     round(. * 15, 0),
-    # project equal number of Male & Female speakers.
+    ## project equal number of Male & Female speakers.
     round(. * 18, 0)
   ))) %>%
   select("mode", "gender", "H*", "L*H", ">H*")  %>%
@@ -283,9 +283,9 @@ pa_by_gender_adj <- pa_adj %>%
 
 ```
 
-### Nuclear Pitch Accent {.tabset}
+#### Nuclear Pitch Accent {.tabset}
 
-#### By speaker (table)
+##### By speaker (table)
 
 ```{r pitch accent by speaker adjusted}
 pa_by_speaker_adj %>%
@@ -303,10 +303,10 @@ pa_by_speaker_adj %>%
 
 ```
 
-#### By speaker (Bar chart)
+##### By speaker (Bar chart)
 
 ```{r warning=T, fig.width = 5, fig.height = 2.5, results="asis"}
-# Percentage Stacked bar
+## Percentage Stacked bar
 
 ggplot(
   pa_by_speaker_adj %>%
@@ -336,13 +336,13 @@ ggplot(
   scale_y_continuous(sec.axis = sec_axis(~ . * 3 + 4))
 ```
 
-#### By Sentence Mode
+##### By Sentence Mode
 
 ```{r warning=F}
-# Calculate a projected balanced number of tokens for each PA as a function of
-# sentence mode.
+## Calculate a projected balanced number of tokens for each PA as a function of
+## sentence mode.
 #
-# This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
+## This takes into consideration the number of utterances per speaker per stimulus and the number of speakers per stimulus.
 
 pa_by_mode_adj %>%
   rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
@@ -362,25 +362,25 @@ It is clear that there is little relationship between the pitch accent and mode 
 
 Therefore, it might be worth looking at the nuclear contour as a whole in this data set.
 
-### Nuclear Pitch Contour {.tabset}
+#### Nuclear Pitch Contour {.tabset}
 
 ```{r adjusted tables for nuclear contours per speaker}
-# Create tibble summarising nuclear contours per mode per speaker
+## Create tibble summarising nuclear contours per mode per speaker
 nuc_contour_adj <- m_corpus %>%
-  # Count the number of nuc_contour by speaker and mode
+  ## Count the number of nuc_contour by speaker and mode
   group_by(speaker, stim, nuc_contour) %>%
   summarise(nuc_count = n(), .groups = "keep") %>%
   pivot_wider(names_from = nuc_contour,
               values_from = nuc_count,
               values_fill = 0) %>%
-  # convert the totals to proportion per stim.
+  ## convert the totals to proportion per stim.
   adorn_totals("col") %>%
   mutate(across(3:6,  ~  (. / Total))) %>%
   select(-Total) %>%
-  # Convert stim column to mode.
+  ## Convert stim column to mode.
   rename(mode = stim) %>%
   mutate(mode = substr(mode, 1, 3)) %>%
-  # Convert the values to proportion per mode
+  ## Convert the values to proportion per mode
   pivot_longer(3:last_col(), "nuc_contour") %>%
   group_by(speaker, mode, nuc_contour) %>%
   pivot_wider(
@@ -395,9 +395,9 @@ nuc_contour_adj <- m_corpus %>%
   select(-Total) %>%
   as_tibble()
 
-# Create tibble of nuclear contours per speaker (adjusted).
+## Create tibble of nuclear contours per speaker (adjusted).
 nuc_contour_by_speaker_adj <- nuc_contour_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "nuc_contour") %>%
   select(-c(mode)) %>% 
   pivot_wider(names_from = nuc_contour,
@@ -405,13 +405,13 @@ nuc_contour_by_speaker_adj <- nuc_contour_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(2:5, ~ round(. * 15, 0)))
 
-# Create tibble of nuclear contours per mode (adjusted).
+## Create tibble of nuclear contours per mode (adjusted).
 nuc_contour_by_mode_adj <- nuc_contour_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "nuc_contour") %>%
   select(-c(speaker)) %>% 
   pivot_wider(names_from = nuc_contour,
@@ -419,17 +419,17 @@ nuc_contour_by_mode_adj <- nuc_contour_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>% 
-  # Convert proportions to an integer based on an ideal total number of tokens.
+  ## Convert proportions to an integer based on an ideal total number of tokens.
   mutate(across(2:5, ~ round(. * 15, 0))) %>% 
   arrange(mode)
 
-# Create tibble of nuclear contours by gender and mode (adjusted).
+## Create tibble of nuclear contours by gender and mode (adjusted).
 nuc_contour_by_gender_adj <- nuc_contour_adj %>% 
-  # Convert gender to speaker
+  ## Convert gender to speaker
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "nuc_contour") %>%
 
   pivot_wider(names_from = nuc_contour,
@@ -437,11 +437,11 @@ nuc_contour_by_gender_adj <- nuc_contour_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(3:6, ~ if_else(gender=="F",
                                round(. * 15, 0),
-                               # project equal number of Male & Female speakers.
+                               ## project equal number of Male & Female speakers.
                                round(. * 18, 0)
                                )
                 )
@@ -450,7 +450,7 @@ nuc_contour_by_gender_adj <- nuc_contour_adj %>%
 
 ```
 
-#### By speaker and sentence mode (table)
+##### By speaker and sentence mode (table)
 
 ```{r warning=F}
 nuc_contour_by_speaker_adj %>%
@@ -470,12 +470,12 @@ nuc_contour_by_speaker_adj %>%
     )
 ```
 
-#### By speaker and sentence mode (bar chart)
+##### By speaker and sentence mode (bar chart)
 
 ```{r plot adjusts nuc countours per speaker, fig.width = 5, fig.height = 2.5, }
-# Percentage Stacked bar
+## Percentage Stacked bar
 ggplot(data = nuc_contour_by_speaker_adj %>%
-         # Uncount table for bar chart
+         ## Uncount table for bar chart
          gather("nuc_contour", "count", -c(speaker)) %>%
          uncount(count) %>%
          #arrange levels
@@ -501,14 +501,14 @@ ggplot(data = nuc_contour_by_speaker_adj %>%
   scale_y_continuous(sec.axis = sec_axis(~ . * 3 + 4))
 ```
 
-#### By nuclear pitch contour and sentence mode
+##### By nuclear pitch contour and sentence mode
 
 ```{r table of adjusted distribution of nuc contours by mode}
-# Calculate a projected balanced number of tokens for each PA as a function of
-# sentence mode.
+## Calculate a projected balanced number of tokens for each PA as a function of
+## sentence mode.
 #
-# This takes into consideration the number of utterances per speaker per
-# stimulus and the number of speakers per stimulus.
+## This takes into consideration the number of utterances per speaker per
+## stimulus and the number of speakers per stimulus.
 
 nuc_contour_by_mode_adj %>%
   rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
@@ -527,16 +527,16 @@ nuc_contour_by_mode_adj %>%
 
 ```
 
-### Contour by Mode and Gender {.tabset}
+#### Contour by Mode and Gender {.tabset}
 
 It appears that the male speakers are more likely to begin using L% across the question mode hierarchy more than the female speakers. There are not enough speakers, I believe, however, to justify this as a general conclusion, especially as it is only M8, M9, and M10 who do this.
 
-#### Common contours
+##### Common contours
 
 ```{r plot adjusted distrubition of contours by mode, fig.height=4, fig.width=5.1, results="asis"}
 my_plot <- ggplot(
   nuc_contour_by_mode_adj %>%
-    # Uncount table for bar chart.
+    ## Uncount table for bar chart.
     pivot_longer(2:last_col(), "nuc_contour") %>%
     uncount(value) %>%
     mutate(nuc_contour =
@@ -588,15 +588,15 @@ my_plot
 
 ```
 
-#### All contours
+##### All contours
 
 ```{r plot adjusted distrubition of contours by mode and gender, fig.height=3.1, fig.width=8, results="asis"}
 my_plot <- ggplot(
   nuc_contour_by_gender_adj %>%
-    # uncount date for chart
+    ## uncount date for chart
     pivot_longer(3:last_col(), "nuc_contour") %>%
     uncount(value) %>%
-    mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour))) # %>% 
+    mutate(nuc_contour = factor(nuc_contour, levels = unique(nuc_contour))) ## %>% 
     #filter(nuc_contour %notin% c(">H* L%", "H* L%"))
   ) +
   geom_bar(mapping = aes(x = mode,
@@ -640,24 +640,24 @@ my_plot
 
 The overall pattern suggest that L% is more common among YNQs and and DCQs. However, I don't think that the L% is used to signal a question. I think that, as with the A&H corpus, L% is used when the speaker indicates there is a conflict of expectation of shared knowledge between the speaker and listener. Thus in questions like "You live in the valley?" and "Do you live in the valley?", speaker can use the L% to indicate that the propositional content conflicts with what he or she had previously believed; i.e., it indicates surprise. In a reciprocal manner, in the declaratives of the A&H corpus (and here), the use of an L% indicates that the speaker is indicating surprise that the listener does not already share the knowledge. (i.e. "Where do you live?..."I live in the valley [L%] (and I assumed you already knew that / and you should know that already.") ... Perhaps the best way to think of this is as the surprise\~redundancy strategy, with the conflict of expectations expressing redundancy in the declaratives ("This should not be news to you.") and surprise in the questions ("I did not know this at all!").
 
-### Boundary Tone Analysis {.tabset}
+#### Boundary Tone Analysis {.tabset}
 
 ```{r Wrangle mode no reg data for boundary analysis}
 fin_phon_adj <- m_corpus %>%
-  # Count the number of fin_phon by speaker and mode
+  ## Count the number of fin_phon by speaker and mode
   group_by(speaker, stim, fin_phon) %>%
   summarise(nuc_count = n(), .groups = "keep") %>%
   pivot_wider(names_from = fin_phon,
               values_from = nuc_count,
               values_fill = 0) %>%
-  # convert the totals to proportion per stim.
+  ## convert the totals to proportion per stim.
   adorn_totals("col") %>%
   mutate(across(3:6,  ~  (. / Total))) %>%
   select(-Total) %>%
-  # Convert stim column to mode.
+  ## Convert stim column to mode.
   rename(mode = stim) %>%
   mutate(mode = substr(mode, 1, 3)) %>%
-  # Convert the values to proportion per mode
+  ## Convert the values to proportion per mode
   pivot_longer(3:last_col(), "fin_phon") %>%
   group_by(speaker, mode, fin_phon) %>%
   pivot_wider(
@@ -672,9 +672,9 @@ fin_phon_adj <- m_corpus %>%
   select(-Total) %>%
   as_tibble()
 
-# Create tibble of final boundaries per mode (adjusted).
+## Create tibble of final boundaries per mode (adjusted).
 fin_phon_by_mode_adj <- fin_phon_adj %>%
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "fin_phon") %>%
   select(-c(speaker)) %>% 
   pivot_wider(names_from = fin_phon,
@@ -682,17 +682,17 @@ fin_phon_by_mode_adj <- fin_phon_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>% 
-  # Convert proportions to an integer based on an ideal total number of tokens.
+  ## Convert proportions to an integer based on an ideal total number of tokens.
   mutate(across(2:5, ~ round(. * 15, 0))) %>% 
   arrange(mode)
 
-# Create tibble of final boundaries  by gender and mode (adjusted).
+## Create tibble of final boundaries  by gender and mode (adjusted).
 fin_phon_by_gender_adj <- fin_phon_adj %>% 
-  # Convert gender to speaker
+  ## Convert gender to speaker
   mutate(speaker = substr(speaker, 1, 1),
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
-  # Get the sum of all token proportions per speaker.
+  ## Get the sum of all token proportions per speaker.
   pivot_longer(3:last_col(), "fin_phon") %>%
 
   pivot_wider(names_from = fin_phon,
@@ -700,25 +700,25 @@ fin_phon_by_gender_adj <- fin_phon_adj %>%
               values_fill = 0,
               values_fn = ~ sum(.)
               ) %>%
-  # Convert proportions to an integer based on an ideal total number of tokens
-  # per speaker.
+  ## Convert proportions to an integer based on an ideal total number of tokens
+  ## per speaker.
   mutate(across(3:6, ~ if_else(gender=="F",
                                round(. * 15, 0),
-                               # project equal number of Male & Female speakers.
+                               ## project equal number of Male & Female speakers.
                                round(. * 18, 0)
                                )
                 )
          ) %>% 
   arrange(mode)
 
-# Make lists of projected boundary tokens.
+## Make lists of projected boundary tokens.
 fin_phon_by_mode_adj_list <- fin_phon_by_mode_adj %>%
   pivot_longer(2:last_col(), "fin_phon") %>%
     uncount(value) %>%
     mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
 
 
-# Get list of projected boundary tokens by mode and gender.
+## Get list of projected boundary tokens by mode and gender.
 fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
     pivot_longer(3:last_col(), "fin_phon") %>%
     uncount(value) %>% 
@@ -726,7 +726,7 @@ fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
 
 ```
 
-#### by sentence mode
+##### by sentence mode
 
 ```{r plot fin_phon by mode only mode no reg, fig.height=2.2, fig.width=6}
 
@@ -773,7 +773,7 @@ ggsave(
 my_plot
 ```
 
-#### by sentence mode and gender
+##### by sentence mode and gender
 
 ```{r plot fin_phon by mode and gender mode no reg, fig.width = 6.1, fig.height = 3.5}
 my_plot <- ggplot(fin_phon_by_gender_adj_list) +
@@ -824,9 +824,9 @@ my_plot
 The results give the impression that this is a feature of male rather than female speech. However, only three out of the five male speakers do this, so it is unlikely to be a features of "male speech". More likely, different speakers interpreted the motivation behind the prompt statement and their response, in terms of the intonational phonology, reflects whether or not they chose to use a surprise/redundancy falling boundary.
 
 
-## BGLMM analysis
+### BGLMM analysis
 
-### Likelihood of H%. {.tabset}
+#### Likelihood of H%. {.tabset}
 
 **Complete separation issue**
 
@@ -842,7 +842,7 @@ We can use this to "impose zero-mean Normal priors on the fixed effects (a 4 × 
 
 ```{r Make binomial subsets of corpus}
 m_corpus_is_H_boundary <- m_corpus %>%
-  # treat HL% as for purpose of % vs H%
+  ## treat HL% as for purpose of % vs H%
   mutate(`H%` =  str_replace(fin_phon, "HL\\%", "H%")) %>% 
   mutate(`H%` = factor(`H%` == "H%", level = c(F, T)))
 ```
@@ -854,7 +854,7 @@ fin_phon_model_H_or_not <- bglmer(
   data = m_corpus_is_H_boundary,
   family = binomial(link = "logit"),
   fixef.prior = normal(),
-  # change optimizer to avoid convergence errors
+  ## change optimizer to avoid convergence errors
   control = glmerControl(
     optimizer = "optimx",
     calc.derivs = FALSE,
@@ -869,7 +869,7 @@ fin_phon_model_H_or_not <- bglmer(
 fin_phon_model_H_or_not <- optimizeModel(fin_phon_model_H_or_not, reject_nm = F)
 ```
 
-#### LRT via drop1()
+##### LRT via drop1()
 
 ```{r drop1, fig.width = 3.05, fig.height = 2.5,}
 write = "output/Mode_fin_phon_no_Reg_0H"
@@ -880,7 +880,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
       paste(write, "_formula.txt", sep = ""))
 
 
-# get, save, and print ANOVA of model
+## get, save, and print ANOVA of model
 drop1_analysis <- drop1(fin_phon_model_H_or_not, test = "Chisq")
 
 tibble(factor = row.names(drop1_analysis))  %>%
@@ -900,7 +900,7 @@ formattable(caption = paste("Drop 1 ChiSq test of model:", model_formula))
 
 ```
 
-#### *R*^2^ and prediction plots
+##### *R*^2^ and prediction plots
 
 ```{r Tidy Summary, fig.width = 3.05, fig.height = 2.5, results="asis"}
 tidy_summary <- analyseModel(
@@ -940,7 +940,7 @@ ggsave(
   filename =
     paste0(write, "_multi_pred.png"),
   plot = my_plot,
-  # width = 8.14,
+  ## width = 8.14,
   width = 14,
   height = 6.26,
   units = "cm",
@@ -950,7 +950,7 @@ ggsave(
 print(my_plot)
 ```
 
-#### Prediction tables
+##### Prediction tables
 
 ```{r Pairwise Comparison, fig.width = 3.05, fig.height = 2.5, results="asis"}
 printTidyPredictions(fin_phon_model_H_or_not,
@@ -958,7 +958,7 @@ printTidyPredictions(fin_phon_model_H_or_not,
                      digits = 3)
 ```
 
-#### Pairwise comparisons
+##### Pairwise comparisons
 
 ```{r GLMM of H re mode Figures and Charts no reg, fig.width = 3.05, fig.height = 2.5, results="asis"}
 charts <- getModelFixedFX(
@@ -970,7 +970,7 @@ charts <- getModelFixedFX(
 charts$slopes %>% tidyStatNumbers()
 ```
 
-#### Model printout
+##### Model printout
 
 ```{r}
 

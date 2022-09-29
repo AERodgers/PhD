@@ -1,0 +1,37 @@
+---
+title: "Chapter 7. Analysis of function: Sentence Modes"
+subtitle: "Analyses from PhD Thesis on Phonology and Phonetics of Derry City English Intonation"
+author: Antion Eoin Rodgers, Phonetics and Speech Laboratory, Trinity College Dublin
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
+```
+
+This page contains all analyses conducted in R for Chapter 7 of my PhD thesis on the phonology and phonetics of intonation in Derry City English (DCE).
+This particular chapter focuses on describing the intonation associated with sentence mode (declarative statements, wh-questions, yes-no questions and declarative questions).
+
+There are are two key aims in this chapter. One is simply to provide a description of intonation and sentence mode in DCE within the Autosegmental Metrical (AM) framework. The other is theoretical and aims to assess the viability and descriptive efficiency of an AM analysis which includes a separate register tier alongside the tonal tier.
+
+# Chapter 7.5: Phonological Analysis
+
+```{r}
+#| child = c("7.5 Phonological Analysis/A. Mode and No Reg Tier.Rmd",
+#|           "7.5 Phonological Analysis/B. Mode and Reg Tier.Rmd",
+#|           "7.5 Phonological Analysis/C. Mode reg tier vs no reg tier.Rmd",
+#|           "7.5 Phonological Analysis/D. Mode and Utterance.Rmd"),
+#| quiet = T
+```
+
+# Chapter 7.6: Phonetic Analysis
+```{r}
+#| child = c("7.6 Phonetic Analysis/7.6.1.1_mode_only_LMEs.Rmd",
+#|           "7.6 Phonetic Analysis/7.6.1.2_mode_phon_LMEs.Rmd",
+#|           "7.6 Phonetic Analysis/7.6.3_M_Global_Param_LMEs.Rmd"),
+#| quiet = T
+```

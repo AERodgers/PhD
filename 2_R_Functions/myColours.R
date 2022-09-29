@@ -1,9 +1,9 @@
 #123456789#123456789#123456789#123456789#123456789#123456789#123456789#123456789
-# author: "Antoin Eoin Rodgers"
-# date: '2022-05-06'
-# Bank of personal colour settings
+## author: "Antoin Eoin Rodgers"
+## date: '2022-05-06'
+## Bank of personal colour settings
 #
-## set colours
+### set colours
 ##
 require("RColorBrewer")
 mode_colours <- c("MDC" = brewer.pal(8, "Dark2")[3],
@@ -22,17 +22,17 @@ pitch_accent_colours <- c("H*"     = brewer.pal(8, "Dark2")[1],
                           "(*)"    = brewer.pal(8, "Dark2")[8])
 
 
-# nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(8, "Set2")[5],
-#                                 ">H* L%"    = brewer.pal(8, "Set2")[4],
-#                                 "^[L*]H L%" = brewer.pal(8, "Set2")[6],
-#                                 "L*H L%"    = brewer.pal(8, "Set2")[1],
-#                                 "L*^[H] L%" = brewer.pal(8, "Set2")[8],
-#                                 "^[L*H] L%" = brewer.pal(8, "Set2")[7],
-#                                 "L*^[H L]%" = brewer.pal(8, "Set2")[2],
-#                                 "^[L*H L]%" = brewer.pal(8, "Set2")[3],
-#                                 "L*H %"     = brewer.pal(8, "Set2")[3],
-#                                 "L*^[H] %" = brewer.pal(8, "Set2")[2],
-#                                 "^[L*H] %" = brewer.pal(8, "Set2")[7])
+## nuc_contour_colours_h_reg  <- c("H* L%"     = brewer.pal(8, "Set2")[5],
+##                                 ">H* L%"    = brewer.pal(8, "Set2")[4],
+##                                 "^[L*]H L%" = brewer.pal(8, "Set2")[6],
+##                                 "L*H L%"    = brewer.pal(8, "Set2")[1],
+##                                 "L*^[H] L%" = brewer.pal(8, "Set2")[8],
+##                                 "^[L*H] L%" = brewer.pal(8, "Set2")[7],
+##                                 "L*^[H L]%" = brewer.pal(8, "Set2")[2],
+##                                 "^[L*H L]%" = brewer.pal(8, "Set2")[3],
+##                                 "L*H %"     = brewer.pal(8, "Set2")[3],
+##                                 "L*^[H] %" = brewer.pal(8, "Set2")[2],
+##                                 "^[L*H] %" = brewer.pal(8, "Set2")[7])
 
 nuc_contour_colours <- c(
     "L*H %"   = brewer.pal(8, "Dark2")[3],
