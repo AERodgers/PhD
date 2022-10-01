@@ -1,0 +1,5 @@
+Parameter	Value
+Minimum_F0	75
+Maximum_F0	250
+Pre_smoothing	12
+Coarse_smoothing	10

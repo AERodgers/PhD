@@ -1,0 +1,15 @@
+count	sound	tonalText	comments	pre_smooth	coarse_smooth
+1	M5_MWH2_3	0 H* L*_0 L_L*+H 0	?	12	8
+1	M5_H0322_5	L_0 L*+H L_L*+H 0	?	12	8
+1	F12_MDQ2_1	0_L H* L_L*+H L__0	?	12	10
+1	F5_H0322_r2	0 H*_0 L_L*+H 0	?	12	8
+1	M8_A1422_1	0 l*+H L_L*+H 0	?	12	5
+2	M5_MWH3_2	0 H*_0 L_L*+H 0	?	12	8
+2	F12_MDQ2_4	L H* L_L*+H 0	?	12	8
+3	M5_MWH3_3	0 H* L_L*+H 0	?	12	8
+4	M8_MWH2_3	0 H* L* L*+H 0	?	12	8
+4	M8_MWH1_1	0_H L* L* H 0	?	12	8
+4	M5_MDQ1_3	0_L l* H* L_L*+H 0	?	12	8
+5	M8_MWH3_3	0_0 H* L_L* H H 0	?	12	8
+5	M8_MWH1_5	0 H* L_H* L_L*+H 0	?	12	8
+8	M8_MDQ2_3	0_L H*_0 L_L* H 0	?	12	8
