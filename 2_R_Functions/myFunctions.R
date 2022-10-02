@@ -372,7 +372,6 @@ summariseLME <-
     ))
 
     #### inner function
-    ##################
     drawResiduals <- function(myModel) {
       myResiduals <- residuals(myModel)
       par(mfrow = c(1, 3))
@@ -392,10 +391,8 @@ summariseLME <-
         main = "(c) Residual plot"
       )
     }
-    ##################
 
     #### Outer function
-    ##################
     post_hoc_method <- paste("p.adj (",
       shortPAdjMeth(post_hoc_method),
       ")",
@@ -471,7 +468,6 @@ summariseLME <-
       "omega2" = omega2
     ))
 
-    ##################
   }
 
 
@@ -529,7 +525,10 @@ analyseModel <-
     my_stat <- enquo(my_stat)
 
     if (!short_caption) {
-      pred_prefix <- "Predicted probability "
+      if(is_GLM)
+      {pred_prefix <- "Predicted probability of "}
+      else
+      {{pred_prefix <- "Predicted values of "}}
     } else {
       pred_prefix <- " "
     }
@@ -1336,7 +1335,6 @@ printTidyPredictions <-
 
 
     pred_list <- ggpredict(model)
-    print(pred_list)
     obj_names <- names(pred_list)
     obj_i <- 0
     if (factor_matrix) {
@@ -1598,7 +1596,6 @@ optimizeModel <- function(model,
   }
 
   #### inner functions
-  ##################
   tryAllFit <- function(model, verbose = F) {
     ## Tries to return a model which converges in allFit()
     original_model <- model
@@ -1824,7 +1821,6 @@ optimizeModel <- function(model,
     )
     return(ans)
   }
-  ##################
 
 
   #### Outer function

@@ -247,7 +247,7 @@ pn_l_t_mdl.tidy <- analyseModel(
   y_lim = c(-100, 350),
   breaks = seq(-100, 350, 100),
   plot_rounding = 0,
-  caption_prefix = "a. "
+  caption_prefix = "A. "
   )
 
 
@@ -336,7 +336,7 @@ pn_l_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 4.5),
   breaks = seq(-3, 4.5, 1),
   plot_rounding = 1,
-  caption_prefix = "b. "
+  caption_prefix = "B. "
   )
 ```
 ```{r do l_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
@@ -366,7 +366,7 @@ l_t_binom_plot <- plot_model(pn_l_t_mdl.trimmed,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
     labs(
-         caption = paste0 ("a. PN l_t model binomial factor effects.")) +
+         caption = paste0 ("A. PN l_t model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -384,7 +384,7 @@ l_f0_binom_plot <- plot_model(pn_l_f0_mdl,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ST)") +
     labs(title = "",
-         caption = paste0 ("b. PN l_f0 model binomial factor effects.")) +
+         caption = paste0 ("B. PN l_f0 model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -495,7 +495,7 @@ for(cur_term in my_terms) {
     ylim(-100, 100) +
     ylab("time (ms)") +
     labs(title = "",
-         caption = paste0 ("a. Estimated effects of ",
+         caption = paste0 ("A. Estimated effects of ",
                            cur_factor,
                            " on h_t in PN pitch accent.")) +
     theme(
@@ -531,7 +531,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  caption_prefix = "b. ")
+  caption_prefix = "B. ")
 
 ```
 
@@ -614,7 +614,7 @@ pn_h_f0_mdl.tidy <- analyseModel(
   y_lim = c(-3, 4.5),
   breaks = seq(-3, 4.5, 1),
   plot_rounding =  1,
-  caption_prefix = "b. ")
+  caption_prefix = "B. ")
 ```
 
 ```{r do h_f0 pairwise analysis, fig.height=2.5, fig.width=2.823, results = "asis"}
@@ -643,7 +643,7 @@ h_t_binom_plot <- plot_model(pn_h_t_mdl.trimmed,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
     labs(
-         caption = paste0 ("a. PN h_t model binomial factor effects.")) +
+         caption = paste0 ("A. PN h_t model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -661,7 +661,7 @@ h_f0_binom_plot <- plot_model(pn_h_f0_mdl,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ST)") +
     labs(title = "",
-         caption = paste0 ("b. PN h_f0 model binomial factor effects.")) +
+         caption = paste0 ("B. PN h_f0 model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -757,7 +757,7 @@ a <- plot_model(
   transform = NULL,
   show.values = T,
   vline = "Red",
- ) + labs(caption = "a. Estimated effects on f0_exc.") +
+ ) + labs(caption = "A. Estimated effects on f0_exc.") +
   theme(title=element_blank(),
                   plot.caption=element_text(hjust = 0, size = 10),
                   plot.caption.position= "plot") +
@@ -877,7 +877,7 @@ b <- plot_model(
 ##  rm.terms = "ana_syls [2,3,4]",
   transform = NULL,
   show.values = T
- ) + labs(caption = "b. Estimated effects on log_lh_slope.") +
+ ) + labs(caption = "B. Estimated effects on log_lh_slope.") +
   theme(title=element_blank(),
                   plot.caption=element_text(hjust = 0, size = 10),
                   plot.caption.position= "plot") +

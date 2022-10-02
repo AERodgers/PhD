@@ -192,7 +192,7 @@ nuc_l_t_mdl.tidy <- analyseModel(nuc_l_t_mdl,
                                  y_lim = c(-0, 650),
                                  breaks = seq(-0, 650, 100),
                                  plot_rounding = 0,
-                                 caption_prefix = "a. "
+                                 caption_prefix = "A. "
                                  )
 
 ```
@@ -269,7 +269,7 @@ nuc_l_f0_mdl.tidy <- analyseModel(nuc_l_f0_mdl.trimmed,
                                   y_lim = c(-7, 4.5),
                                   breaks = seq(-7, 4.5, 2),
                                   plot_rounding = 1,
-                                  caption_prefix = "b. "
+                                  caption_prefix = "B. "
                                   )
 ```
 
@@ -301,7 +301,7 @@ l_t_binom_plot <- plot_model(nuc_l_t_mdl,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
     labs(
-         caption = paste0 ("a. Nuclear l_t model binomial factor effects.")) +
+         caption = paste0 ("A. Nuclear l_t model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -316,7 +316,7 @@ l_f0_binom_plot <- plot_model(nuc_l_f0_mdl.trimmed,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ST)") +
     labs(title = "",
-         caption = paste0 ("b. Nuclear l_f0 model binomial factor effects.")) +
+         caption = paste0 ("B. Nuclear l_f0 model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -399,7 +399,7 @@ nuc_h_t_mdl.tidy <- analyseModel(nuc_h_t_mdl,
                                 y_lim = c(0, 650),
                                 breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
-                                caption_prefix = "a. "
+                                caption_prefix = "A. "
                                 )
 
 
@@ -478,7 +478,7 @@ nuc_h_f0_mdl.tidy <- analyseModel(nuc_h_f0_mdl.trimmed,
                                 y_lim = c(-7, 4.5),
                                 breaks = seq(-7, 4.5, 2),
                                 plot_rounding = 1,
-                                caption_prefix = "b. "
+                                caption_prefix = "B. "
                                 )
 
 ```
@@ -510,7 +510,7 @@ h_t_binom_plot <- plot_model(nuc_h_t_mdl,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
     labs(
-         caption = paste0 ("a. Nuclear h_t model binomial factor effects.")) +
+         caption = paste0 ("A. Nuclear h_t model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -528,7 +528,7 @@ h_f0_binom_plot <- plot_model(nuc_h_f0_mdl.trimmed,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ST)") +
     labs(title = "",
-         caption = paste0 ("b. Nuclear h_f0 model binomial factor effects.")) +
+         caption = paste0 ("B. Nuclear h_f0 model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -614,7 +614,7 @@ nuc_e_t_mdl.tidy <- analyseModel(nuc_e_t_mdl.trimmed,
                                 y_lim = c(0, 650),
                                 breaks = seq(0, 650, 100),
                                 plot_rounding = 0,
-                                caption_prefix = "a. "
+                                caption_prefix = "A. "
                                 )
 
 ```
@@ -730,7 +730,7 @@ e_t_binom_plot <- plot_model(nuc_e_t_mdl,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ms)") +
     labs(
-         caption = paste0 ("a. Nuclear e_t model binomial factor effects.")) +
+         caption = paste0 ("A. Nuclear e_t model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -748,7 +748,7 @@ e_f0_binom_plot <- plot_model(nuc_e_f0_mdl.trimmed,
   geom_hline(yintercept = 0, size = 0.5, color = "red") +
     ylab("estimate (ST)") +
     labs(title = "",
-         caption = paste0 ("b. Nuclear e_f0 model binomial factor effects.")) +
+         caption = paste0 ("B. Nuclear e_f0 model binomial factor effects.")) +
     theme(
       plot.title = element_blank(),
       plot.caption = element_text(hjust = 0, size = 10),
@@ -842,7 +842,7 @@ a <- plot_model(nuc_f0_exc_mdl.trimmed,
                 transform = NULL,
                 show.values = T) +
   
-  labs(caption = "b. Estimated effects on f0_exc.") +
+  labs(caption = "B. Estimated effects on f0_exc.") +
   
   theme(title = element_blank(),
         plot.caption = element_text(hjust = 0, size = 10),
@@ -858,7 +858,7 @@ nuc_f0_exc_mdl.tidy <- analyseModel(nuc_f0_exc_mdl.trimmed,
                                 write="5_nuc_output/nuc_f0_exc",
                                 type = "pred",
                                 y_lab = "f0 (ST)",
-                                caption_prefix = "a. ",
+                                caption_prefix = "A. ",
                                 short_caption = T)
 
 ```
@@ -944,7 +944,7 @@ b <- plot_model(nuc_lh_slope_mdl.trimmed,
                 transform = NULL,
                 show.values = T) +
   
-  labs(caption = "b. Estimated effects on log_lh_slope.") +
+  labs(caption = "B. Estimated effects on log_lh_slope.") +
 
     theme(title=element_blank(),
         plot.caption=element_text(hjust = 0, size = 10),
@@ -959,7 +959,7 @@ mdl_summary$omega2
 nuc_lh_slope_mdl.tidy <- analyseModel(nuc_lh_slope_mdl.trimmed,
                                 write="5_nuc_output/nuc_lh_slope",
                                 type = "pred",
-                                caption_prefix = "b. ",
+                                caption_prefix = "B. ",
                                 y_lab = "log(ST/sec)",
                                 plot_rounding = 2,
                                 short_caption = T)
@@ -1086,7 +1086,7 @@ nuc_h_t_re_ft_dur_mdl.tidy <- analyseModel(nuc_h_t_re_ft_dur_mdl,
                                 y_lim = c(0, 1.2),
                                 breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                caption_prefix = "a. ",
+                                caption_prefix = "A. ",
                                 short_caption = T
                                 )
 
@@ -1192,7 +1192,7 @@ nuc_h_t_re_v_dur_mdl.tidy <- analyseModel(nuc_h_t_re_v_dur_mdl.trimmed,
                                 y_lim = c(0, 1.2),
                                 breaks = seq(0, 1.2, 0.2),
                                 plot_rounding = 2,
-                                caption_prefix = "b. ",
+                                caption_prefix = "B. ",
                                 short_caption = T
                                 )
 
