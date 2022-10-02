@@ -489,7 +489,7 @@ analyseModel <-
            hjust = "inward",
            per_row = 2,
            page_width = 15.4,
-           short_caption = F,
+           short_caption = T,
            caption_suffix = NULL,
            print_r2 = T) {
     require("formattable")

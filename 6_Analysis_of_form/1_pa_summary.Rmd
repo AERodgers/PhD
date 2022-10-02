@@ -210,7 +210,7 @@ lh_plot <- ggplot(pn_by_speaker_ratio,
                                           label.y = 25) +
   xlab("speech rate (syls/s)") +
   ylab("proportion of L*H") +
-  labs(caption = "a. Correlation between L*H and speech rate") +
+  labs(caption = "A. Correlation between L*H and speech rate") +
   theme(plot.caption=element_text(hjust = 0, size = 10),
         plot.caption.position= "plot")
 
@@ -224,7 +224,7 @@ h_plot <- ggplot(pn_by_speaker_ratio,
                                           label.y = 25) +
   xlab("speech rate (syls/s)") +
   ylab("proportion of H*") +
-  labs(caption = "b. Correlation between H* and speech rate") +
+  labs(caption = "B. Correlation between H* and speech rate") +
   theme(plot.caption=element_text(hjust = 0, size = 10),
         plot.caption.position= "plot")
 
