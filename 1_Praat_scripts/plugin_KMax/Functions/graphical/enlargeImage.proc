@@ -22,5 +22,5 @@ procedure enlargeImage: .w, .h
     Select outer viewport: 0, .w  * (.multiple), .h, .h * (1 + .multiple)
     deleteFile: "praat_tmp.png"
     Remove
-    Font size: 10
+    Font size: 12
 endproc

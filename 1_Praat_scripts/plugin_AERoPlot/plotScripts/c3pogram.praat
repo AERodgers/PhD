@@ -61,6 +61,7 @@
 
 form c3pogram
     sentence Image_title
+    sentence Caption
 
     comment Enter number of textgrid tier for display (also sets min and max time of output display)
 
@@ -69,7 +70,7 @@ form c3pogram
 
     natural Smoothing 999
     boolean Paint_spectrogram 1
-    natural Window_width 8
+    positive Window_width 8
     comment Enter parameter settings
     natural minF0 60
     natural maxF0 400
@@ -81,10 +82,11 @@ form c3pogram
         option Intensity
     choice Parameter_two 1
         option Cepstral Peak Prominence
-        option Residual of intensity (linear regression)
-        option H1-H2 of differentiated glottal pulse (LPC-IF)
-        option Harmonicity (Praat function)
+        #option Residual of intensity (linear regression)
+        #option H1-H2 of differentiated glottal pulse (LPC-IF)
+        #option Harmonicity (Praat function)
         option F0 only
+    boolean Superimpose 0
     comment CPP appears to reflect more intuitive expectations of contour.
     comment Residual of linear regression of intensity used to compensate for global declination.
     comment H1-H2 estimation is very basic. It also emphasises very tense / creaky stretches
@@ -112,7 +114,7 @@ if title$ = ""
     title$ = selected$("Sound")
     title$ = replace_regex$ (title$, "[%#\^_]", "\\& ", 0)
 endif
-@c3pogram: parameter_two, scale, paint_spectrogram, title$,
+@c3pogram: parameter_two, scale, paint_spectrogram, title$, caption$,
     ... grid, sound, pitch_obj, use_tier,
     ... minF0, maxF0, mindB, maxdB, window_width, smoothing
 
@@ -121,7 +123,7 @@ selectObject: original_state#
 
 
 # C3POGRAM FUNCTIONS
-procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
+procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$, .caption$,
     ... .grid, .sound, .pitch_two, .tier,
     ...  .minF0, .maxF0, .mindB, .maxdB, .vpWidth, .smoothing
 
@@ -144,16 +146,18 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     endif
 
     # reset draw space
-    Erase all
+    if (!superimpose)
+        Erase all
+    endif
     Black
-    10
+    Font size: 12
     Line width: 1
     Solid line
-    Courier
-    Select outer viewport: 0, .vpWidth, 0, 3.35
+    Helvetica
+    Select outer viewport: 0, .vpWidth, 0, 3.39
 
     # draw spectrogram
-    if .paintSpect
+    if (.paintSpect) and (!superimpose)
         selectObject: .sound
         specky = To Spectrogram: 0.005, 5000, 0.002, 20, "Gaussian"
         Paint: .minT, .maxT, 0, 0, 100, "yes", 50, .vpWidth, 0, "no"
@@ -199,14 +203,14 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     .name$ = .secondParam$[.param2]
     if .param2 = 1
         @cpp: .sound, .minF0, .maxF0, pitch2Table.table
-    elsif .param2 = 2
-        @intensity: .sound, .minF0, .minT, .maxT
-    elsif .param2 = 3
-        @h1h2: .sound, pitch2Table.table
-        selectObject: h1h2.table
-        Formula: "value", "-self"
-    elsif .param2 = 4
-        @harmonicity: .sound, .minF0
+    #elsif .param2 = 2
+    #    @intensity: .sound, .minF0, .minT, .maxT
+    #elsif .param2 = 3
+    #    @h1h2: .sound, pitch2Table.table
+    #    selectObject: h1h2.table
+    #    Formula: "value", "-self"
+    #elsif .param2 = 4
+    #    @harmonicity: .sound, .minF0
     else
         '.name$'.table = 0
     endif
@@ -214,17 +218,25 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
 
     # draw cp3ogram
     #intensity hack
-    if .param2 = 5
+    if .param2 = 2
         if .pitch_two
-            @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-            ... .vpWidth, pitch.obj, .smoothing, "Silver"
+            if !superimpose
+                @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
+                ... .vpWidth, pitch.obj, .smoothing,
+                ... "{0.6, 0.85, 1}", "{0.2, 0.2, 0.5}"
+            endif
             @uninterpolate: .sound, .pitch_two, .minF0, .maxF0
+            if superimpose
+                .color$ = "{0.9, 0.1, 0.1}"
+            else
+                .color$ = "Blue"
+            endif
             @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-            ... .vpWidth, uninterpolate.obj, .smoothing, "Blue"
+            ... .vpWidth, uninterpolate.obj, .smoothing, .color$, "White"
             removeObject: uninterpolate.obj
         else
             @draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-            ... .vpWidth, pitch.obj, .smoothing, "Blue"
+            ... .vpWidth, pitch.obj, .smoothing, "Blue", "White"
         endif
     elsif .hz_ST != 3
         @drawC3Pogram: pitch2Table.table, .vqTable, .minT, .maxT, .minF0,
@@ -234,7 +246,7 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     endif
 
     # add pitch axis information
-    Select outer viewport: 0, .vpWidth, 0, 3.35
+    Select outer viewport: 0, .vpWidth, 0, 3.39
     if .hz_ST = 2
         .leftMajor = 5
         .leftText$ = "F0 (ST re 1 Hz)"
@@ -258,15 +270,26 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$,
     endif
 
     # add title
+    .add_caption = (caption$ != "") * 0.5
     if .grid * .tier > 0
-        Select outer viewport: 0, .vpWidth, 0, 4
+        Select outer viewport: 0, .vpWidth, 0, 4 + .add_caption
     else
-        Select outer viewport: 0, .vpWidth, 0, 3.35
+        Select outer viewport: 0, .vpWidth, 0, 3.39 + .add_caption
     endif
 
-    Font size: 14
+    Font size: 12
     nowarn Text top: "yes", "##" + .title$
-    Font size: 10
+
+
+    Font size: 12
+    Axes: 0, 1, 0, 1
+    nowarn Text special: -0.105, "left", -0.05, "half", "Helvetica", 12, "0", .caption$
+
+    if .grid * .tier > 0
+        Select outer viewport: 0, .vpWidth, 0, 4 + .add_caption * 0.75
+    else
+        Select outer viewport: 0, .vpWidth, 0, 3.39 + .add_caption * 0.75
+    endif
 
     selectObject: pitch2Table.table
     plusObject: pitch.obj
@@ -297,11 +320,11 @@ procedure drawC3Pogram: .pitchTable, .secondParam, .minT, .maxT, .minF0,
     Formula: "shade", "1 - (self[""value""] - .minPar2) / (.maxPar2 - .minPar2)"
 
     # set picture window
-    Select outer viewport: 0, .vpWidth, 0, 3.35
+    Select outer viewport: 0, .vpWidth, 0, 3.39
     Axes: .minT, .maxT, .minF0, .maxF0
     .di = Horizontal mm to world coordinates: 3
-    Font size: 10
-    Courier
+    Font size: 12
+    Helvetica
     Solid line
 
     # Draw C3POGRAM points
@@ -336,11 +359,11 @@ procedure drawIntensity: .sound, .minT, .maxT, .minF0, .mindB, .maxdB, .vpWidth
     .intensity = To Intensity: .minF0, 0, "yes"
 
     # set picture window
-    Select outer viewport: 0, .vpWidth, 0, 3.35
+    Select outer viewport: 0, .vpWidth, 0, 3.39
     Axes: .minT, .maxT, .mindB, .maxdB
 
-    Font size: 10
-    Courier
+    Font size: 12
+    Helvetica
     Solid line
     Line width: 7
     Black
@@ -766,7 +789,7 @@ procedure tableStats: .table, .colX$, .colY$
 endproc
 
 procedure draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
-    ... .vpWidth, .pitch_two, .smoothing, .colour$
+    ... .vpWidth, .pitch_two, .smoothing, .colour$, outline$
     Solid line
     if .hz_ST = 2
         .line_minF0 = log2(.minF0/100) * 12
@@ -776,27 +799,33 @@ procedure draw_f0_line: .hz_ST, .minT, .maxT, .minF0, .maxF0,
         .line_maxF0 = .maxF0
     endif
 
-    Select outer viewport: 0, .vpWidth, 0, 3.35
+    Select outer viewport: 0, .vpWidth, 0, 3.39
     Axes: .minT, .maxT, .line_minF0, .line_maxF0
     if .pitch_two
         .foreground_pitch = .pitch_two
     else
          .foreground_pitch = pitch.obj
     endif
-    White
-    Line width: 9
+    Colour: outline$
+    .bg_line_width = (!superimpose * 2) + 19
+    .fg_line_width = (!superimpose * 2) + 14
+    if superimpose
+        .bg_line_width -= 7
+        .fg_line_width -= 6
+    endif
+    Line width: .bg_line_width
     selectObject: .foreground_pitch
     .smooth_pitch = Smooth: .smoothing
     if .hz_ST = 1
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
-        '.colour$'
-        Line width: 7
+        Colour: .colour$
+        Line width: .fg_line_width
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
     else
         Draw semitones (re 100 Hz):
         ... .minT, .maxT, .line_minF0, .line_maxF0, "no"
-        '.colour$'
-        Line width: 7
+        Colour: .colour$
+        Line width: .fg_line_width
         Draw: .minT, .maxT, .line_minF0, .line_maxF0, "no"
         Draw semitones (re 100 Hz):
         ... .minT, .maxT, .line_minF0, .line_maxF0, "no"

@@ -531,7 +531,7 @@ pn_h_t_mdl.tidy <- analyseModel(
   breaks = seq(-100, 350, 100),
   plot_rounding = 0,
   hjust = 1,
-  caption_prefix = "B. ")
+  caption_prefix = "A. ")
 
 ```
 

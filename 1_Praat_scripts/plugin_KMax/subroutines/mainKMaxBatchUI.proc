@@ -29,7 +29,7 @@ procedure mainKMaxBatchUI
 	draw_tonal = tonal_annotation_and_ideal_targets
 	coarse_smoothing = physiological_constraints
 	pre_smoothing = praat_smooothing_bandwidth
-    widthCoeff = 2
+    widthCoeff = 4
 	draw_figure = 1
     drawSpectro = paint_spectrogram
 endproc

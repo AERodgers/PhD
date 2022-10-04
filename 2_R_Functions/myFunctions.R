@@ -470,8 +470,6 @@ summariseLME <-
 
   }
 
-
-###
 ####  Analyse Model and extract key info ########################################
 analyseModel <-
   function(my_model,

@@ -187,13 +187,13 @@ procedure drawLegend: .xMin, .xMax, .yMin, .yMax,
             Set numeric value: 1, "Xs" , .x_start + 1.25 * .x_unit + .xS
             Set numeric value: 1, "Ys" , .y_start + .y_unit * .iRef - .yS
             Set string value: 1, "Mrk", .style$[.i]
-            Line width: 2 * .widthCoeff
+            Line width: .widthCoeff
             Colour: "White"
             Scatter plot (mark): "Xs", .xMin, .xMax, "Ys",
-                ... .yMin, .yMax, 2 + (.widthCoeff/2), "no", left$(.style$[.i], 1)
+                ... .yMin, .yMax, 2 + (.widthCoeff/4), "no", left$(.style$[.i], 1)
             Colour: .colour$[.i]
             Scatter plot (mark): "X", .xMin, .xMax, "Y",
-                ... .yMin, .yMax, 2 + (.widthCoeff/2), "no", left$(.style$[.i], 1)
+                ... .yMin, .yMax, 2 + (.widthCoeff/4), "no", left$(.style$[.i], 1)
             Remove
         endif
     endfor

@@ -18,7 +18,7 @@
 # INPUT FORM
 form K-MAX: Master UI Menu
     comment Directory and file Information
-    sentence Directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings\Analysis_2_STH\F5\focus
+    sentence Directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD\5 Write up\Ch 8\M5 STH
     sentence Pitch_directory pitch
     sentence Output_directory output
     sentence Image_directory image
@@ -32,8 +32,8 @@ form K-MAX: Master UI Menu
     word Tonal_tier tones
     sentence Other_tiers_to_show phono rhythm
     comment Pitch Processing Parameters
-    natural Minimum_F0 100
-    natural Maximum_F0 450
+    natural Minimum_F0 75
+    natural Maximum_F0 250
     natural Praat_smooothing_bandwidth 10
     boolean Call_detailed_pitch_parameter_menu 0
     comment Post-idealisation smoothing parameters

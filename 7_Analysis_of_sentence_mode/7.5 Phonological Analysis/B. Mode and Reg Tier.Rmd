@@ -96,7 +96,7 @@ m_corpus %>%
   adorn_totals(where = "row") %>% 
   formattable(align = c("l", rep("r",  ncol(.)-1)),
     caption =
-      "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
+      "distribution by speaker of nuclear pitch accents in M-corpus (raw)",
     list(area(col = 2:7, row= 1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[5], nrow(.)-1),
@@ -264,7 +264,7 @@ pa_by_mode_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
   adorn_totals("row") %>% 
   formattable(align = c("l", rep("r",  ncol(.)-1)),
-    caption = paste("Distibution by of pitch accents by mode in M-corpus",
+    caption = paste("distribution by of pitch accents by mode in M-corpus",
                     "(adjusted, outliers excluded)"),
     list(area(col=2:4, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[3], 4),
@@ -287,7 +287,7 @@ pa_by_mode_adj %>%
   adorn_totals("row") %>% 
   formattable(align = c("l", rep("r",  ncol(.)-1)),
     caption=
-      "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
+      "distribution by mode of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col=2:7, row=1:4) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
@@ -306,7 +306,7 @@ pa_by_speaker_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
   formattable(align = c("l", rep("r",  ncol(.)-1)),
-    caption="Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
+    caption="distribution by speaker of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[1], nrow(.)-1),
       rep(brewer.pal(6, "Pastel2")[4], nrow(.)-1),
@@ -771,7 +771,7 @@ ggpredict(h_reg_model,
             terms = c("mode", "gender"),
             ci.lvl = 0.95) %>%
   plot() +
-    labs(caption = "A. Predicted prob. of nuc_H_ref by mode and gender.") +
+    labs(caption = "A. Probability of nuc_h_reg by mode and gender.") +
   geom_text_repel(
     aes(label = round(predicted, 2) %>% niceRatio()),
     size = 3,

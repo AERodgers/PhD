@@ -1,12 +1,12 @@
 variable	value
 draw_figure	1
 format_for_printing	1
-widthCoeff	2
+widthCoeff	4
 draw_f0_corrected	0
 draw_K	0
 draw_resynth	1
 draw_tonal	1
-coarse_smoothing	8
+coarse_smoothing	5
 pre_smoothing	12
 drawSpectro	1
 enlarge_image	0

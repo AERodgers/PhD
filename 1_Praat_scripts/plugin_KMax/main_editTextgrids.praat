@@ -46,7 +46,7 @@
 
 # UI FORM
 form Text grid editor: Choose Directory
-    sentence Directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD - Derry Intonation\2 Field Recordings\Analysis_1_standard\F5\focus
+    sentence Directory C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD\5 Write up\Ch 8\M5 STH
     word Sound_file_extension .wav
 endform
 @versionCheck
@@ -440,7 +440,7 @@ procedure c3pogram: .param2, .hz_ST, .paintSpect, .title$, .grid, .sound,
     Black
     10
     Solid line
-    Courier
+    Helvetica
     Select outer viewport: 0, .vpWidth, 0, 3.35
 
     # draw spectrogram
@@ -573,9 +573,9 @@ procedure drawC3Pogram: .pitchTable, .secondParam, .minT, .maxT, .minF0,
     # set picture window
     Select outer viewport: 0, .vpWidth, 0, 3.35
     Axes: .minT, .maxT, .minF0, .maxF0
-    .di = Horizontal mm to world coordinates: 0.9
+    .di = Horizontal mm to world coordinates: 3
     Font size: 10
-    Courier
+    Helvetica
     Solid line
 
     # Draw C3POGRAM points
@@ -592,7 +592,7 @@ procedure drawC3Pogram: .pitchTable, .secondParam, .minT, .maxT, .minF0,
         if not(abs(.shT - .curT)*1000 > 5.5555)
             Paint circle: "{'.sh','.sh',1-0.8*'.sh'}", .curT, .curF0,
             ... .di * 0.1 + .di * (1 - .sh)
-            Colour: "blue"
+            Colour: "cyan"
             Line width: 0.5
             Draw circle: .curT, .curF0, .di * 0.1 + .di * (1 - .sh)
         else
@@ -613,7 +613,7 @@ procedure drawIntensity: .sound, .minT, .maxT, .minF0, .mindB, .maxdB, .vpWidth
     Axes: .minT, .maxT, .mindB, .maxdB
 
     Font size: 10
-    Courier
+    Helvetica
     Solid line
     Line width: 7
     Black

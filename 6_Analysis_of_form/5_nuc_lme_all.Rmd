@@ -700,6 +700,16 @@ nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
                                 caption_prefix = "letters"
                                 )
 
+# nuc_e_f0_mdl.tidy <- analyseModel(nuc_e_f0_mdl.trimmed,
+#                                 write="5_nuc_output/nuc_e_f0_3",
+#                                 type = "pred",
+#                                 y_lab = "f0 (ST re median)",
+#                                 y_lim = c(-7, 4.5),
+#                                 breaks = seq(-7, 4.5, 2),
+#                                 plot_rounding = 1,
+#                                 caption_prefix = "letters",
+#                                 per_row =3)
+
 ```
 
 ```{r do e_f0 pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}

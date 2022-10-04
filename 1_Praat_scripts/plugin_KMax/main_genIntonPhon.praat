@@ -37,8 +37,8 @@
 #                         deleted tonal target.
 
 form STH ToneTierAnalysis
-    sentence Directory_with_TextGrid_files example
-    word Rhythmic_tier rhythm
+    sentence Directory_with_TextGrid_files C:\Users\antoi\OneDrive\00 Academic\Phonetics and speech\PhD\5 Write up\Ch 8\M5 STH
+    word Rhythmic_tier rhythmic
     word Tonal_tier tones
 endform
 

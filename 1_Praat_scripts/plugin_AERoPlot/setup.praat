@@ -142,3 +142,20 @@ Add action command:
 ... "C3P-o-Gram...",
 ... "", 0,
 ... "plotScripts/c3pogram.praat"
+
+
+Add action command:
+... "Sound", 1,
+... "TextGrid", 1,
+... "", 0,
+... "C3P-o-Gram...",
+... "", 0,
+... "plotScripts/c3pogram.praat"
+
+Add action command:
+... "Sound", 1,
+... "TextGrid", 1,
+... "Pitch", 1,
+... "C3P-o-Gram...",
+... "", 0,
+... "plotScripts/c3pogram.praat"

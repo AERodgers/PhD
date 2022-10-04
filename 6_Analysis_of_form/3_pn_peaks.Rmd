@@ -650,7 +650,7 @@ a <- ggplot(data = vals_is_in,
   ylim(0, 0.04) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "a. Val’s is in- (n = 33)")
+  labs(caption = "A. Val’s is in- (n = 33)")
 
 b <- ggplot(data = lallys_is,
        mapping = aes(x = h_grand_mean_t, fill = pn_wrds)) +
@@ -693,7 +693,7 @@ b <- ggplot(data = lallys_is,
   ylim(0, 0.04) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "b. Lally’s is- (n = 40)")
+  labs(caption = "B. Lally’s is- (n = 40)")
 
 ggsave(filename =  paste0("3_output/Lallys_is.png"),
        plot = b,
@@ -750,7 +750,7 @@ c <- ggplot(data = lallys_is_in,
   ylim(0, 0.02) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "c. Lally’s is in- (n = 44)")
+  labs(caption = "C. Lally’s is in- (n = 44)")
 
 
 d <- ggplot(data = valeries_is,
@@ -796,7 +796,7 @@ d <- ggplot(data = valeries_is,
   ylim(0, 0.02) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "d. Valerie’s is n = 28)")
+  labs(caption = "D. Valerie’s is n = 28)")
 
 ```
 
@@ -849,7 +849,7 @@ e <- ggplot(
   ylim(0, 0.01) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "e. Elaine was a (n = 30)")
+  labs(caption = "E. Elaine was a (n = 30)")
 
 f <- ggplot(
   data = elainas_a,
@@ -898,7 +898,7 @@ f <- ggplot(
   ylim(0, 0.01) +
   xlab("norm. time (ms)") +
   ylab("density") +
-  labs(caption = "f. Elaina’s a (n = 51)", size = 10) 
+  labs(caption = "F. Elaina’s a (n = 51)", size = 10) 
 
 
 ```

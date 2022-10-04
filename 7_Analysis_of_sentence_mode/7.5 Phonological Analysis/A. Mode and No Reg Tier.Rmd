@@ -100,7 +100,7 @@ m_corpus %>%
   adorn_totals(where = "row") %>%
   formattable(
     caption =
-      "Distibution by speaker of nuclear pitch accents in M-corpus (raw)",
+      "distribution by speaker of nuclear pitch accents in M-corpus (raw)",
     list(area(col = 2:4, row = 1:nrow(.) - 1) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[1], 11),
       rep(brewer.pal(6, "Pastel2")[3], 11),
@@ -293,7 +293,7 @@ pa_by_speaker_adj %>%
   adorn_totals(where = "row") %>%
   formattable(
     caption =
-      "Distibution by speaker of nuclear pitch accents in M-corpus (adjusted)",
+      "distribution by speaker of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col = 2:4, row = 1:nrow(.) - 1) ~ proportion_bar(
       color = c(rep(brewer.pal(6, "Pastel2")[1], nrow(.) - 1),
                 rep(brewer.pal(6, "Pastel2")[3], nrow(.) - 1),
@@ -349,7 +349,7 @@ pa_by_mode_adj %>%
   adorn_totals("row") %>%
   formattable(
     caption =
-      "Distibution by mode of nuclear pitch accents in M-corpus (adjusted)",
+      "distribution by mode of nuclear pitch accents in M-corpus (adjusted)",
     list(area(col = 2:4, row = 1:4) ~ proportion_bar(color = c(
       rep(brewer.pal(6, "Pastel2")[1], 4),
       rep(brewer.pal(6, "Pastel2")[3], 4),
@@ -457,7 +457,7 @@ nuc_contour_by_speaker_adj %>%
   rename_all(list(~str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%  
   adorn_totals(where = "row") %>% 
   formattable(
-    caption="Distibution by speaker of nuclear contours in M-corpus (adjusted)",
+    caption="distribution by speaker of nuclear contours in M-corpus (adjusted)",
     align="r",
     list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(8, "Pastel2")[3], nrow(.)-1),
@@ -514,7 +514,7 @@ nuc_contour_by_mode_adj %>%
   rename_all(list( ~ str_replace_all(., "([\\*\\[\\^\\>])", "\\\\\\1"))) %>%
   adorn_totals("row") %>%
   formattable(caption =
-                "Distibution by mode of nuclear contours in M-corpus (adjusted)",
+                "distribution by mode of nuclear contours in M-corpus (adjusted)",
     list(area(col = 2:7, row=1:nrow(.)-1) ~ proportion_bar(color = c(
       rep(brewer.pal(8, "Pastel2")[3], nrow(.)-1),
       rep(brewer.pal(8, "Pastel2")[7], nrow(.)-1),

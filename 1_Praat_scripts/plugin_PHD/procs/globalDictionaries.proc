@@ -10,7 +10,7 @@ procedure globalDictionaries
     #       recordings folder.
     root_G$ = homeDirectory$ +
         ... "\OneDrive\00 Academic\Phonetics and speech\PhD\2 Recordings"
-    public_root_G$ = homeDirectory$ + "/Github/PhD/recordings"
+    public_root_G$ = homeDirectory$ + "/Github/PhD/3_Recordings"
 
     if (variableExists("live_version"))
         if live_version = 2

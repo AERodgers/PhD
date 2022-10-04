@@ -26,5 +26,5 @@ procedure c3Po2ndDraw: .type, .pitch_scale, .title$, .subtitle$
     Text top: "yes", "##" + .title$
     Font size: 12
     Text top: "no", .subtitle$
-    Font size: 10
+    Font size: 12
 endproc

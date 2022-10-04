@@ -302,7 +302,7 @@ my_plot <-
             terms = c("mode", "gender"),
             ci.lvl = 0.95) %>%
   plot() +
-  labs(caption = "A. Predicted prob. of H% by mode and gender.") +
+  labs(caption = "A. Prob.ability of nuc_PA_only by mode and gender.") +
   geom_text_repel(
     seed = 55,
     force = 4,
@@ -443,14 +443,14 @@ tidy_summary <- analyseModel(h_reg_or_nuc_pa_only_model,
                              type = "pred",
                              plot_rounding = 2,
                              short_caption = T,
-                             caption_prefix = "A. ")
+                             caption_prefix = "A. Probability of")
 
 my_plot <-
   ggpredict(h_reg_or_nuc_pa_only_model,
             terms = c("mode", "gender"),
             ci.lvl = 0.95) %>%
   plot(grid = T, colors = "bw") +
-  labs(caption = "A. Predicted prob. of nuclear-PA-only IP.") +
+  labs(caption = "A. Probability of at_least_1_strat") +
   geom_label(
     aes(label = round(predicted, 2)),
     label.padding = unit(0.5, "mm"),

@@ -42,7 +42,7 @@ procedure drawC3pogram: .pitchTable, .secondParam,
 
     Select outer viewport: 0, 6.5, 0, 3.35
     Axes: .minT, .maxT, .minF0, .maxF0
-    .diam = Horizontal mm to world coordinates: 0.5 * .widthCoeff + 0.4
+    .diam = Horizontal mm to world coordinates: 3
     Font size: 10
     Helvetica
     Solid line
@@ -60,26 +60,15 @@ procedure drawC3pogram: .pitchTable, .secondParam,
         .curShadeT = Get value: findNearestTable.index, "Time"
         if  .curT >= .minT and .curT <= .maxT
             if not(abs(.curShadeT - .curT)*1000 > 5.5555)
-                if .type  = 1
-                    Paint circle: "Black",
-                       ... .curT, .curF0, .diam * 0.2 + .diam * (1 - .curShade)
-                    Paint circle: "{'.curShade','.curShade','.curShade'}",
-                       ... .curT, .curF0, .diam * 0.1 + .diam * (1 - .curShade)
-                elsif .type  = 2
-                    Paint circle: "Black",
-                       ... .curT, .curF0, .diam * 0.2 + .diam * (1 - .curShade)
-                    Paint circle: "{'.curShade','.curShade','.curShade'}",
-                       ... .curT, .curF0, .diam * 0.1 + .diam * (1 - .curShade)
-                else
-                    Paint circle: "Black",
-                       ... .curT, .curF0, .diam * 0.2 + .diam * (1 - .curShade)
-                    Paint circle: "{'.curShade','.curShade',1-'.curShade'}",
-                       ... .curT, .curF0, .diam * 0.1 + .diam * (1 - .curShade)
-                endif
+
+            Paint circle: "{'.curShade','.curShade',1-0.8*'.curShade'}", .curT, .curF0,
+            ... .diam * 0.1 + .diam * (1 - .curShade)
+            Colour: "cyan"
+            Line width: 1
+            Draw circle: .curT, .curF0, .diam * 0.1 + .diam * (1 - .curShade)
+
             else
-                Paint circle: "{0.1,0,0}", .curT, .curF0, .diam * 0.2
-                Line width: 0.5
-                Paint circle: "{1,0,0}", .curT, .curF0, .diam * 0.1
+                Paint circle: "{0.1,0,0}", .curT, .curF0, .diam * 0.1
                 Line width: 0.5
 
             endif

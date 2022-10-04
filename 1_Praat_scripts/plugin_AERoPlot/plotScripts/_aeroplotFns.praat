@@ -315,7 +315,7 @@ procedure addShared_UI_2
     optionMenu: "Font choice", font_choice
         option: "Helvetica"
         option: "Times"
-        option: "Courier"
+        option: "Helvetica"
         option: "Palatino"
     optionMenu: "Base font size", (fontM - 8) / 2
         option: "8"
@@ -375,7 +375,7 @@ procedure processShared_UIs
     elsif font_choice = 2
         font$ = "Times"
     elsif font_choice = 3
-        font$ = "Courier"
+        font$ = "Helvetica"
     else
         font$ = "Palatino"
     endif
