@@ -840,6 +840,7 @@ getModelFixedFX <- function(model,
 
   ## Get information from model
   formula <- formula(model)
+  print(formula)
   data <- model@frame
   factor_info <- tibble(
     factors = colnames(data),

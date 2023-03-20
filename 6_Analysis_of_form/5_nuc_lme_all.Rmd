@@ -633,6 +633,139 @@ charts$slopes %>% tidyStatNumbers() %>%
           ~ round(as.numeric(.),0)))
 ```
 
+
+#### Corrections: Adding evalution of H timing as proporational to the end of the foot.
+
+```{r set he_t equation}
+
+he_t_equation = formula(
+  h_t ~ 
+    e_t
+  + fin_phon
+  + (1 | pre_syls)
+  + (1 | nuc_new_word)
+  + (1 | gender)
+  + (1 | speaker)
+  + (1 | nuc_str_syl)
+)
+
+
+optimizer = "optimx"
+```
+
+```{r run he_t models, fig.height=3, fig.width=9}
+nuc_he_t_mdl = lmer(
+  he_t_equation,
+  nuc_data,
+  control = lmerControl(
+    optimizer = optimizer,
+    calc.derivs = F,
+    optCtrl = list(
+      method = "nlminb",
+      starttests = F,
+      kkt = F
+    )
+  )
+)
+
+## model needs trimming
+nuc_he_t_mdl.trimmed = update(nuc_he_t_mdl,
+                             data = nuc_data %>%
+                               filter(abs(scale(resid(
+                                 nuc_he_t_mdl
+                               ))) <= 3))
+
+mdl_summary <- summariseLME(nuc_he_t_mdl.trimmed,
+                            run_step = T
+                            ,
+                            write = "5_nuc_output/nuc_he_t_anova.csv"
+                            )
+
+adjustP_posthoc("5_nuc_output/",
+                p.value,
+                suffix_id = "_anova")
+
+read_csv("5_nuc_output/nuc_he_t_anova.csv") %>%
+  tidyStatNumbers() %>%
+  formattable(caption = paste("ANOVA of model:",
+                              getModelFormula(nuc_he_t_mdl.trimmed)))
+```
+
+```{r he_t model summary, fig.height=2.5, fig.width=2.823, results="asis"}
+mdl_summary$omega2
+
+nuc_he_t_mdl.tidy <- analyseModel(nuc_he_t_mdl.trimmed,
+                                  write="5_nuc_output/nuc_he_t",
+                                  type = "pred",
+                                  y_lab = "time (ms)",
+                                  y_lim = c(0, 650),
+                                  breaks = seq(0, 650, 100),
+                                  plot_rounding = 0,
+                                  caption_prefix = "letters"
+                                  )
+
+h_t_re_e_t_plot <- ggpredict(nuc_he_t_mdl.trimmed, ci.lvl = 0.95)$e_t %>%
+  plot() +
+  ylab("time (ms)") +
+  labs(caption = "A.  h_t re e_t.") +
+  theme(
+    plot.title = element_blank(),
+    legend.position = NULL,
+    plot.caption = element_text(hjust = 0, size = 10),
+    plot.caption.position = "plot"
+  ) +
+  scale_y_continuous(breaks = seq(0, 650, 100), limits = c(0, 650))
+print(h_t_re_e_t_plot)
+ggsave(filename = "h_t_re_e_t_pred.png",
+       plot = h_t_re_e_t_plot,
+       width =7.7,
+       height = 6.5,
+       units = "cm",
+       dpi = 300)
+```
+
+```{r do he_t pairwise analysis, fig.height=2.5, fig.width = 3.01, results="asis"}
+printTidyPredictions(nuc_he_t_mdl.trimmed)
+
+tidy_he_model <- tidy(nuc_he_t_mdl.trimmed, conf.int = T )%>%
+  mutate(df = round(df, 2)) %>% 
+  ## Retain fixed factors only
+  filter(effect == "fixed") %>%
+  ## remove unnecessary columns
+  select(-c(effect, group)) %>%
+  mutate(
+    estimate = round(estimate, 3),
+    std.error = round(std.error, 3),
+    statistic = round(statistic, 3)
+  ) %>%
+  select(c(
+    "term",
+    "estimate",
+    "conf.low",
+    "conf.high",
+    "std.error",
+    "statistic",
+    "df",
+    "p.value"
+  )) %>% 
+  rename(t.value = statistic) %>% 
+  formattable(
+    caption = paste(
+      "b1:",
+      str_replace_all(getModelFormula(nuc_he_t_mdl.trimmed), "\\`", "")
+    ),
+    title = ""
+  ) %>%
+
+  filter(term != "(Intercept)") %>% 
+  mutate(across(
+    any_of(c("estimate", "conf.low", "conf.high")),
+    ~ round(as.numeric(.),3))) %>% tidyStatNumbers() 
+
+tidy_he_model
+```
+
+
 #### Analysis of E F0
 
 ```{r set e_f0 equation}
