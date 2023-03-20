@@ -707,7 +707,7 @@ nuc_he_t_mdl.tidy <- analyseModel(nuc_he_t_mdl.trimmed,
 h_t_re_e_t_plot <- ggpredict(nuc_he_t_mdl.trimmed, ci.lvl = 0.95)$e_t %>%
   plot() +
   ylab("time (ms)") +
-  labs(caption = "A.  h_t re e_t.") +
+  labs(caption = "A.  h_t estimated as a function of e_t.") +
   theme(
     plot.title = element_blank(),
     legend.position = NULL,
@@ -1022,8 +1022,8 @@ charts$slopes %>% tidyStatNumbers() %>%
 
 #### LH Slope
 
-Based on results from tonal target analysis, it looksl like compression and truncation may be in effect.
-As compression leads to decrease in duration of rise (but not necessarily much descrease in excursion size), and as slope increases exponentially as duration decreases, slope has been logged here.
+Based on results from tonal target analysis, it looks like compression and truncation may be in effect.
+As compression leads to decrease in duration of rise (but not necessarily much decrease in excursion size), and as slope increases exponentially as duration decreases, slope has been logged here.
 
 - model works once random intercepts of speech_rate and foot_dur removed
 ```{r set lh_slope equation}
