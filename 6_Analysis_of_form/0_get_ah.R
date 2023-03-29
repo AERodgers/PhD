@@ -209,6 +209,7 @@ pn <- filter(corpus, cur_foot == 1) %>%
          f0_exc,
          lh_dur,
          lh_slope,
+         v_grand_mean_t,
          h_grand_mean_t,
          h_syl,
          h_syl_ratio,
