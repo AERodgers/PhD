@@ -1,0 +1,16 @@
+stim,sentence,ana_text,nuc_pre_text,ana_has_word_end,nuc_is_new_word
+A0131,Val's valuables.,NA,NA,0,1
+A0221,Val's is valid.,NA,is,0,1
+A0321,Val's is invalid.,NA,is in-,0,0
+A0423,Valerie's is valid.,NA,erie's is,0,1
+A1111,They know Val.,they,NA,1,1
+A1211,He lives with Val.,he,with,1,1
+A1231,I live with Valerie.,i,with,1,1
+A1241,They need evaluating.,they,e-,1,0
+A1422,The valley's by the river.,they,-ey's by the,1,1
+A2422,There's a valley with a river.,there's a,-ey with a,1,1
+A3422,There was a valley with a river.,there was a,-ey with a,1,1
+H0322,Lally's is valid.,NA,-y's is,0,1
+H0422,Lally's is invalid.,NA,-y's is in-,0,0
+H1321,Elaine was a nanny.,E-,was a,0,1
+H1322,Elaina's a nanny.,E-,-a's a,0,1
