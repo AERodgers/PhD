@@ -1,0 +1,191 @@
+---
+title: "Visual Analysis of final boundaries in A-Corpus"
+author: "Antoin Rodgers"
+date: "14.03.2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F, 
+                      message = F,
+                      warning = F)
+
+## Get personal functions and install / load necessary packages.
+source("../2_R_Functions/myFunctions.R")
+
+installMissingPackages(c("tidyverse", "formattable","janitor","mefa4", "knitr",
+                         "gridExtra", "RColorBrewer"))
+
+## Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+```
+
+
+```{r get data, include=F}
+## Get  data for analysis
+
+source("0_get_AH.R")
+rm(pn, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
+nuc <- nuc %>% 
+  select(speaker, stim, code, fin_phon, e_f0)
+
+```
+
+```{r check data}
+nuc %>%
+  group_by(speaker, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora fin_phon per speaker")
+
+
+nuc %>%
+  group_by(speaker, stim) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1) %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora repetitions per stimulus per speaker")
+
+nuc %>%
+  group_by(stim, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = fin_phon,
+                                         values_fill = 1)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora repetitions per stimulus")
+
+  unbalanced = c("A0423", "A1211", "A1231")
+nuc_balanced <- nuc %>% filter(stim %notin% unbalanced)
+ 
+nuc_balanced %>%
+  group_by(speaker, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora fin_phon per speaker (excl. A0423, A1211, A1231)")
+
+# nuc_balanced <- nuc_balanced %>% filter(speaker %in% c("M9", "F12"))
+
+nuc_balanced %>%
+  mutate(fin_phon = str_replace_all(fin_phon, "([\\*\\>])", "\\\\\\1")) %>% 
+  group_by(fin_phon, stim) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = fin_phon,
+                                         values_fill = 1) %>%
+  arrange(stim)  %>%
+  adorn_totals(where = "col") %>%
+  adorn_totals(where = "row") %>% 
+  formattable(caption = "Distribution of nuclear boundaries in A- and H-corpora (excl. A0423, A1211, A1231)")
+
+
+```
+
+```{r Get means and SD}
+
+
+nuc_balanced_sum <- nuc_balanced %>%
+  group_by(fin_phon) %>%
+  summarise(e_f0 = mean(e_f0)) %>% 
+  arrange(fin_phon)
+
+nuc_balanced_sum %>% formattable(caption = "Average peak to fin_phon excursion size (ST)")
+
+nuc_balanced %>%
+  group_by(fin_phon) %>%
+  summarise(e_f0 = sd(e_f0)) %>% 
+  arrange(fin_phon) %>% 
+  formattable(caption = "SD peak to fin_phon excursion size (ST)")
+```
+
+### Boundary fall all speakers
+```{r dotplot for all, fig.width = 6, fig.height = 3}
+my_palette <- brewer.pal(3, "Dark2")[2:3]
+
+
+ggplot(
+  data = nuc_balanced 
+  ,
+  mapping = aes(x = e_f0, fill = fin_phon)
+  ) +
+  geom_dotplot(stackgroups = TRUE, binpositions = "all", stackratio = 0.175) +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+    ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(.9, .8),
+    legend.margin = margin(-6, 6, -6, 6),
+        legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (ST)") +
+  ylab("density") +
+  xlim(-10, 10) +
+  labs(title = "Dotplot of Boundary f0 Scaling in A- and H-Corpora")
+```
+
+
+```{r density plot for all, fig.width = 6, fig.height = 3}
+ggplot(
+  data = nuc_balanced,
+  mapping = aes(x = e_f0)
+  ) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.size = unit(0.5, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  theme_minimal(base_size = 12)+
+  xlab("f0 (ST)") +
+  ylab("density") +
+  xlim(-10, 10) +
+  labs(title = "Distribution of Boundary f0 Scaling in A- and H-Corpora")
+
+```
+
+### Boundary fall F12
+```{r plot F12 only, fig.width = 6, fig.height = 3}
+
+ggplot(
+  data = nuc_balanced %>% 
+    filter(speaker == "F12"),
+  mapping = aes(x = e_f0)
+  ) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  geom_dotplot(alpha = 0.4, binpositions = "all", stackratio = 1.1) +
+  scale_fill_manual(
+    values = brewer.pal(11, "Spectral"),
+    name = NULL
+  ) +
+  theme(
+    legend.position = "right",
+    legend.key.size = unit(0.5, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+    theme_minimal(base_size = 12)+
+  xlab("f0 (ST)") +
+  ylab("density") +
+ ylim(0, 0.25) +
+  xlim(-10, 10) +
+  labs(title = "Distribution of Boundary f0 Scaling for F12")
+
+```

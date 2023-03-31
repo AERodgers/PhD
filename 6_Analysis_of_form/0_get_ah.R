@@ -2,8 +2,9 @@
 ## --------------------------
 
 ### Get per-speaker f0 stats.
+# stress <- as_tibble(read.csv("d:/Users/antoi/GitHub/PhD/4_data/stressed_syls.csv"))
 stress <- read_csv("../4_data/stressed_syls.csv", show_col_types = F)
-#corpus <- as_tibble(read.csv("D:/Users/antoi/GitHub/PhD/Ch_Form/data/a_corpus_audited.csv")) %>%
+# corpus <- as_tibble(read.csv("d:/Users/antoi/GitHub/PhD/4_data/a_corpus_audited.csv")) %>%
 corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   ## Only keep pertinent columns!
   select(
@@ -11,6 +12,7 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     gender,
     stim,
     sent,
+    code,
     cur_foot,
     init_phon,
     fin_phon,
@@ -54,6 +56,14 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
   rename(pn_new_word = ana_has_word_end) %>%
   rename(nuc_new_word = nuc_is_new_word) %>%
   mutate(
+    # Get z-scored f0 values
+    l_f0_z = (l_f0 - spkr_f0_mean) / spkr_f0_SD,
+    h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
+    s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
+    e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
+    f0_exc_z = h_f0_z - l_f0_z,
+    e_f0_exc_z = e_f0_z - h_f0_z,
+    # Make _f0 values relative to speaker median
     across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
     ## there must be a more efficient way of doing this but...
     ## Create column of stressed syllables in foot 1.
@@ -107,13 +117,6 @@ corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
     e_f0_exc = e_f0 - h_f0,
     lh_dur = h_t - l_t,
     he_dur = e_t - h_t,
-    l_f0_z = (l_f0 - spkr_f0_mean) / spkr_f0_SD,
-    h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
-    s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
-    e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
-    ## redo excursion based on z-scores
-    f0_exc_z = h_f0_z - l_f0_z,
-    e_f0_exc_z = e_f0_z - h_f0_z,
     ## get ratio of h_t to foot_dur
     h_t_foot_ratio = (h_t - foot_start_t) /  (foot_end_t - foot_start_t),
     ## Make L and H times relative to vowel onset (TBU).
