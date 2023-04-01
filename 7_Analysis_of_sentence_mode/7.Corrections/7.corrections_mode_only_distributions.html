@@ -2222,10 +2222,10 @@ most noticeably for M9, I don’t think that using the raw data will lead
 to a misrepresentation of the data in the dotplots and density
 distribution graphs.</p>
 </div>
-<div id="means-and-standard-deviations" class="section level2 tabset">
-<h2 class="tabset">Means and standard deviations</h2>
-<div id="means-and-st-dev-st" class="section level3">
-<h3>Means and ST Dev (ST)</h3>
+<div id="means-and-standard-deviations-z-scores" class="section level2 tabset">
+<h2 class="tabset">Means and standard deviations (z-scores)</h2>
+<div id="nuclear-peak-f0-scaling" class="section level3">
+<h3>Nuclear peak f0 scaling</h3>
 <pre class="r"><code>m_corpus %&gt;%
   group_by(mode) %&gt;%
   summarise(h_f0_z = mean(h_f0_z)) %&gt;%
@@ -2337,8 +2337,8 @@ MDQ
 </tbody>
 </table>
 </div>
-<div id="means-and-st-dev-z-csore" class="section level3">
-<h3>Means and ST Dev (z-csore)</h3>
+<div id="utterance-mean-f0" class="section level3">
+<h3>Utterance mean f0</h3>
 <pre class="r"><code>m_corpus %&gt;%
   group_by(mode) %&gt;%
   summarise(utt_mean_f0_z = mean(utt_mean_f0_z)) %&gt;%

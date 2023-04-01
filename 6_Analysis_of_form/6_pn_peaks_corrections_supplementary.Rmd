@@ -1,9 +1,12 @@
 ---
-title: "Visual Analysis of PN peaks in A-Corpus PNs (H*, >H*, L*H)"
+title: "Visual Analysis of PN peaks in A-Corpus PNs (H\\*, >H\\*, L\\*H)"
 author: "Antoin Rodgers"
 date: "18.05.2022"
 output:
-  html_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=F}
@@ -83,7 +86,11 @@ rm(nuc, nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre)
 
 ```
 
-```{r check data}
+## Check Disribution of tokens per speaker {.tabset}
+
+### All tokens
+
+```{r check data 1}
 pn %>%
   filter(acc_phon %in% h_star_type) %>%
   mutate(acc_phon = str_replace_all(acc_phon, "([\\*\\>])", "\\\\\\1")) %>% 
@@ -107,8 +114,9 @@ pn_wrd_data %>%
   formattable(caption = "L\\*H, \\>H\\*, and H\\*")
 
 ```
+It appears that ana_syls_0 is not evenly represented across speakers, so it will be excluded
 
-
+### All tokens except ana_syls_0
 ```{r check data excluding ana_0 condition}
 pn_wrd_data <- pn_wrd_data %>%
   filter(acc_phon %in% h_star_type,
@@ -133,17 +141,15 @@ pn_wrd_data %>%
 ```
 
 ```{r Get means etc }
-
-
 pn_wrd_data_sum <- pn_wrd_data %>%
   group_by(speaker, acc_phon, ana_syls) %>%
   summarise(mean_gm_h_t = mean(h_grand_mean_t_re_v)) %>% 
   arrange(ana_syls)
 ```
-
+### Graph of PA distribution by ana_syls condition
 
 ```{r adjusted PA distribution, fig.width = 6.1, fig.height = 3}
-my_plot <- ggplot(data = pn_wrd_adj %>%
+ggplot(data = pn_wrd_adj %>%
                     filter(acc_phon %in% h_star_type) %>% 
                     mutate(acc_phon = factor(acc_phon, levels = h_star_type),
                            pn_wrds = factor(ana_syls, levels = c(1,2,3))),
@@ -175,104 +181,75 @@ my_plot <- ggplot(data = pn_wrd_adj %>%
   xlab("prenuclear pitch accent") +
   ylab("count (adjusted)")
 
-png(
-  filename =
-    paste0("6_corrections_supplemental/PA_peak_by_ana_syls.png"),
-  width =  15.25,
-  height = 6.5,
-  units = "cm",
-  res = 300
-)
-print(my_plot)
-dev.off()
-
-
-
-print(my_plot)
 ```
 
-
-```{r plot SNT acc phon, fig.width = 6, fig.height = 4, include = F}
-
+## Cumulative Density Distibution{.tabset}
+### Pitch Accent
+```{r plot acc_phon cumulative, fig.width = 6, fig.height = 4}
 ggplot(
   data = pn_wrd_data,
-  mapping = aes(x = h_syl_norm_t
+  mapping = aes(x = h_grand_mean_t_re_v
                 , fill = acc_phon
                 )
 ) +
-  geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 0.67, alpha = 0.4) +
+  geom_dotplot(dotsize = 0.925, stackgroups = TRUE, binpositions = "all", stackratio = 1) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  #facet_wrap(vars(ana_syls)) +
   scale_fill_manual(
-    values = brewer.pal(6, "Dark2"),
+    values = brewer.pal(3, "Dark2"),
     name = NULL
   ) +
   theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
+    legend.position = c(.85, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  xlim(0, 4) +
-  xlab("syllable normalised time (from onset of foot)") +
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
+  ylim(0, 0.01) +
+  xlab("grand mean syllable normalised time (from onset of vowel)") +
   ylab("density") +
-  labs(title = "PN peak timing of L*H, >H*, H*")
+  labs(title = "Density Distribution of PN Peak Alignment (PA Type)")
 
+```
 
+### Anacrusis
+```{r plot ana_syls cumulative, fig.width = 6, fig.height = 4}
 ggplot(
   data = pn_wrd_data,
-  mapping = aes(x = h_syl_norm_t
+  mapping = aes(x = h_grand_mean_t_re_v
                 , fill = ana_syls
                 )
 ) +
-  geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 0.75, alpha = 0.4) +
+  geom_dotplot(dotsize = 0.925, stackgroups = TRUE, binpositions = "all", stackratio = 1) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
   #facet_wrap(vars(ana_syls)) +
   scale_fill_manual(
     values = brewer.pal(6, "Dark2"),
     name = NULL
   ) +
   theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
+    legend.position = c(.85, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  xlim(0, 4) +
-  xlab("syllable normalised time (from onset of foot)") +
-  ylab("proportion") +
-  labs(title = "PN peak timing aggregating by ana_syls")
-
-ggplot(
-  data = pn_wrd_data %>% 
-    filter(ana_syls != 1),
-  mapping = aes(x = h_syl_norm_t)
-) +
-  geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 0.6, alpha = 0.4) +
-  scale_fill_manual(
-    values = brewer.pal(1, "Dark2"),
-    name = NULL
-  ) +
-  theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
-    panel.grid.major.x = element_line(color = "grey",
-                                      size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  xlim(0, 4) +
-  xlab("syllable normalised time (from onset of foot)") +
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
+  ylim(0, 0.01) +
+  xlab("grand mean syllable normalised time (from onset of vowel)") +
   ylab("density") +
-  labs(title = "PN peak timing ana_syls 2 and 3 only")
-
+  labs(title = "Density Distribution of PN Peak Alignment (Anacrusis Size)")
 ```
 
-
-### Grand mean normalised time
-```{r plot GMT acc phon, fig.width = 6, fig.height = 4}
-
+## Overlapping Density Distibution {.tabset}
+### Pitch Accent
+```{r plot GMT acc phon overlapping, fig.width = 6, fig.height = 4}
 ggplot(
   data = pn_wrd_data,
   mapping = aes(x = h_grand_mean_t_re_v
@@ -286,21 +263,23 @@ ggplot(
     name = NULL
   ) +
   theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
+    legend.position = c(.85, .7),
+    legend.margin = margin(4,4,4,4),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
   ylim(0, 0.025) +
   xlab("grand mean syllable normalised time (from onset of vowel)") +
   ylab("density") +
   labs(title = "PN peak timing of L*H, >H*, H*")
-
 ```
 
-```{r plot GMT1, fig.width = 8, fig.height = 4, include = F}
-
+### Anacrusis
+```{r plot GMT ana_syls overlapping, fig.width = 6, fig.height = 4}
 ggplot(
   data = pn_wrd_data,
   mapping = aes(x = h_grand_mean_t_re_v
@@ -308,76 +287,30 @@ ggplot(
                 )
 ) +
   geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 2, alpha = 0.4) +
-  facet_wrap(vars(ana_syls)) +
+  geom_dotplot(dotsize = 0.67, alpha = 0.4) +
   scale_fill_manual(
     values = brewer.pal(6, "Dark2"),
     name = NULL
   ) +
   theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
+    legend.position = c(.85, .7),
+    legend.margin = margin(4,4,4,4),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  ylim(0, 0.0115) +
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
+  ylim(0, 0.0125) +
   xlab("grand mean syllable normalised time (from onset of vowel)") +
   ylab("density") +
-  labs(title = "PN peak timing by ana_syls")
+  labs(title = "PN peak timing across ana_syls")
 
 ```
 
-```{r plot GMT2, fig.width = 6, fig.height = 4}
-ggplot(
-  data = pn_wrd_data,
-  mapping = aes(x = h_grand_mean_t_re_v
-                , fill = ana_syls
-                )
-) +
-  geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 1, alpha = 0.4) +
-  #facet_wrap(vars(ana_syls)) +
-  scale_fill_manual(
-    values = brewer.pal(6, "Dark2"),
-    name = NULL
-  ) +
-  theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
-    panel.grid.major.x = element_line(color = "grey",
-                                      size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  ylim(0, 0.0115) +
-  xlab("grand mean syllable normalised time (from onset of vowel)") +
-  ylab("density") +
-  labs(title = "PN peak timing by ana_syls")
 
-ggplot(
-  data = pn_wrd_data %>% 
-    filter(ana_syls != 1),
-  mapping = aes(x = h_grand_mean_t_re_v
-                
-                )
-) +
-  geom_density(stat = "density", alpha = 0.4) +
-  geom_dotplot(dotsize = 1, alpha = 0.4) +
-  scale_fill_manual(
-    values = brewer.pal(1, "Dark2"),
-    name = NULL
-  ) +
-  theme(
-    legend.position = "right",
-    legend.key.size = unit(0.5, "cm"),
-    panel.grid.major.x = element_line(color = "grey",
-                                      size = 0.5),
-    panel.grid.minor.x = element_blank()) +
-    theme_minimal(base_size = 12)+
-  ylim(0, 0.0115) +
-  xlab("grand mean syllable normalised time (from onset of vowel)") +
-  ylab("density") +
-  labs(title = "PN peak timing ana_syls 2 and 3 only")
 
-```
+
+
 

@@ -79,9 +79,9 @@ m_corpus %>%
 
 While there are some missing tokens per speaker and target phrse, most noticeably for M9, I don't think that using the raw data will lead to a misrepresentation of the data in the dotplots and density distribution graphs.
 
-## Means and standard deviations {.tabset}
+## Means and standard deviations (z-scores) {.tabset}
 
-### Means and ST Dev (ST)
+### Nuclear peak f0 scaling
 ```{r Get means and SD by ST}
 
 m_corpus %>%
@@ -99,7 +99,7 @@ m_corpus %>%
   formattable(caption = "Standard deviation of nuclear peak by mode (ST)")
 ```
 
-### Means and ST Dev (z-csore)
+### Utterance mean f0
 ```{r Get means by s-score}
 
 m_corpus %>%
@@ -174,7 +174,7 @@ ggplot(
   theme(
     legend.position = c(.9, .7),
     legend.margin = margin(-6, 6, -6, 6),
-        legend.background = element_rect(),
+    legend.background = element_rect(),
     legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
