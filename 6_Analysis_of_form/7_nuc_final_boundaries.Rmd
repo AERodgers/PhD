@@ -1,5 +1,5 @@
 ---
-title: "Chapter 06: Visual Analysis of final boundaries in A-Corpus"
+title: "Chapter 06: Distribution of A- and H-Corpora Final Boundary f0 Scaling"
 author: "Antoin Rodgers"
 date: "14.03.2022"
 output:
@@ -39,8 +39,10 @@ nuc <- nuc %>%
 
 ```
 
-## Checking Distribution of tokens
-```{r check data}
+## Distribution of tokens {.tabset}
+
+### Boundary Tone by Speaker
+```{r check data tone by speaker}
 nuc %>%
   group_by(speaker, fin_phon) %>%
   summarise(count = n()) %>% pivot_wider(values_from = count,
@@ -49,8 +51,12 @@ nuc %>%
   adorn_totals(where = "col") %>%
   adorn_totals("row", fill = "") %>%
   formattable(caption = "A and H corpora fin_phon per speaker")
+```
 
+It is clear that only F12 uses L% with any regularity.
 
+### Representation of Stimuli
+```{r check data 2}
 nuc %>%
   group_by(speaker, stim) %>%
   summarise(count = n()) %>% pivot_wider(values_from = count,
@@ -68,10 +74,14 @@ nuc %>%
   adorn_totals(where = "col") %>%
   adorn_totals("row", fill = "") %>%
   formattable(caption = "A and H corpora repetitions per stimulus")
+```
+A0423, A1211, and A1231 are underrepresented. These will be removed from the dataset so that repetitions per speaker per target are balanced across utterances.
 
-  unbalanced = c("A0423", "A1211", "A1231")
+### Well-represented Stimuli Only
+```{r check data 3}
+unbalanced = c("A0423", "A1211", "A1231")
 nuc_balanced <- nuc %>% filter(stim %notin% unbalanced)
- 
+
 nuc_balanced %>%
   group_by(speaker, fin_phon) %>%
   summarise(count = n()) %>% pivot_wider(values_from = count,
@@ -80,8 +90,6 @@ nuc_balanced %>%
   adorn_totals(where = "col") %>%
   adorn_totals("row", fill = "") %>%
   formattable(caption = "A and H corpora fin_phon per speaker (excl. A0423, A1211, A1231)")
-
-# nuc_balanced <- nuc_balanced %>% filter(speaker %in% c("M9", "F12"))
 
 nuc_balanced %>%
   mutate(fin_phon = str_replace_all(fin_phon, "([\\*\\>])", "\\\\\\1")) %>% 
@@ -96,6 +104,8 @@ nuc_balanced %>%
 
 
 ```
+
+
 ## Means and Standard Deviations
 ```{r Get means and SD}
 
@@ -112,7 +122,7 @@ nuc_balanced %>%
   arrange(fin_phon) %>% 
   formattable(caption = "SD peak to fin_phon excursion size (ST)")
 ```
-## Graphs
+## Graphs {.tabset}
 ### Boundary scaling All Speakers
 ```{r Density and dotplot for all, fig.width = 6, fig.height = 3}
 my_palette <- brewer.pal(3, "Dark2")[2:3]
@@ -141,7 +151,7 @@ ggplot(
   ylab("density") +
   xlim(-4, 4) +
  ylim(0, 0.4) +
-  labs(title = "Density and Dotplot of Boundary f0 Scaling in A- and H-Corpora")
+  labs(title = "Density Disribution of Boundary f0 in A- and H-Corpora")
 ```
 
 ### Boundary Scaling, F12 only 
@@ -169,6 +179,6 @@ ggplot(
   ylab("density") +
  ylim(0, 0.7) +
   xlim(-4, 4) +
-  labs(title = "Distribution of Boundary f0 Scaling for F12")
+  labs(title = "Density Distribution of Boundary f0 in A- and H- corpora (F12)")
 
 ```
