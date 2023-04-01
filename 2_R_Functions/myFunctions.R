@@ -209,6 +209,14 @@ get_m_corpus <- function(file_address)
       ) %>%
       mutate(
         ## create composite parameters for continuous data.
+        ## Get z-scored f0 values
+        l_f0_z = (l_f0 - spkr_f0_mean) / spkr_f0_SD,
+        h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
+        s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
+        e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
+        utt_mean_f0_z = (utt_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
+        lh_mean_f0_z = (lh_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
+
         across(any_of(ends_with("_f0")), ~ .- spkr_f0_med),
         foot_dur = foot_end_t - foot_start_t,
         speech_rate = round(tot_syls / phr_end_t * 1000, 3),
@@ -216,12 +224,6 @@ get_m_corpus <- function(file_address)
         e_f0_exc = e_f0 - h_f0,
         lh_dur = h_t - l_t,
         he_dur = e_t - h_t,
-        l_f0_z = (l_f0 - spkr_f0_mean) / spkr_f0_SD,
-        h_f0_z = (h_f0 - spkr_f0_mean) / spkr_f0_SD,
-        s_f0_z = (s_f0 - spkr_f0_mean) / spkr_f0_SD,
-        e_f0_z = (e_f0 - spkr_f0_mean) / spkr_f0_SD,
-        utt_mean_f0_z = (utt_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
-        lh_mean_f0_z = (lh_mean_f0 - spkr_f0_mean) / spkr_f0_SD,
         ## redo excursion based on z-scores
         f0_exc_z = h_f0_z - l_f0_z,
         e_f0_exc_z = e_f0_z - h_f0_z,

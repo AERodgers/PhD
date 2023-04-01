@@ -1,0 +1,188 @@
+---
+title: 'Chapter 07: Analysis of Function: Sentence Modes'
+subtitle: '7.X f0 Density Distributions'
+author: "Antoin Rodgers"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+```{r setup mode only}
+#| results="hide",
+#| message=F,
+#| warning=F
+
+knitr::opts_chunk$set(warning = F, message = F, tidy = "styler")
+
+## Load Functions.
+source("../../2_R_Functions/myFunctions.R") 
+
+## Load packages.
+installMissingPackages(
+  c(
+    ## Include statistical packages.
+    "performance",
+    "lmerTest",
+    "lme4",
+    "optimx",
+    "MuMIn",
+    ## Include packages for tidy output.
+    "tidyverse",
+    "broomExtra",
+    "sjPlot",
+    "formattable",
+    "knitr",
+    "RColorBrewer",
+    "janitor",
+    ## Include packages for %in% %notin% syntactic notation
+    "mefa4"
+  )
+)
+
+y_lim_t = c(0, 360)
+y_lim_f0 = c(-4.1, 10.5)
+
+```
+
+
+```{r load corpus}
+
+## Load Corpus
+m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
+  ## Select only columns for analysis
+  select(
+    speaker,
+    mode,
+    stim,
+    h_f0,
+    h_f0_z,
+    utt_mean_f0,
+    utt_mean_f0_z
+    )
+```
+
+## Check balance across repetitions
+
+```{r Check data for balance}
+m_corpus %>%
+  group_by(speaker, stim) %>%
+  summarise(count = n(), .groups = "keep") %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 1)  %>% 
+  adorn_totals(where = "col", fill = "grey") %>%
+  adorn_totals(where = "row", fill = "grey") %>%
+  formattable(caption = "Tokens per stimulus per speaker in M-Corpus")
+
+```
+
+While there are some missing tokens per speaker and target phrse, most noticeably for M9, I don't think that using the raw data will lead to a misrepresentation of the data in the dotplots and density distribution graphs.
+
+## Means and standard deviations {.tabset}
+
+### Means and ST Dev (ST)
+```{r Get means and SD by ST}
+
+m_corpus %>%
+  group_by(mode) %>%
+  summarise(h_f0_z = mean(h_f0_z)) %>% 
+  arrange(mode) %>%
+  mutate(h_f0_z =  round(h_f0_z, 2)) %>% 
+  formattable(caption = "Average nuclear peak by mode (z-score)")
+
+m_corpus %>%
+  group_by(mode) %>%
+  summarise(h_f0_z = sd(h_f0_z)) %>% 
+  arrange(mode) %>%
+  mutate(h_f0_z =  round(h_f0_z, 2)) %>% 
+  formattable(caption = "Standard deviation of nuclear peak by mode (ST)")
+```
+
+### Means and ST Dev (z-csore)
+```{r Get means by s-score}
+
+m_corpus %>%
+  group_by(mode) %>%
+  summarise(utt_mean_f0_z = mean(utt_mean_f0_z)) %>% 
+  arrange(mode) %>%
+  mutate(utt_mean_f0_z =  round(utt_mean_f0_z, 2)) %>% 
+  formattable(caption = "Utterance mean f0 by mode (z-score)")
+
+m_corpus %>%
+  group_by(mode) %>%
+  summarise(utt_mean_f0_z = sd(utt_mean_f0_z)) %>% 
+  arrange(mode) %>%
+  mutate(utt_mean_f0_z =  round(utt_mean_f0_z, 2)) %>% 
+  formattable(caption = "Utterance mean f0 by mode (z-score)")
+```
+## Graphs {.tabset}
+
+### Nuclear Peak f0 Density Distribution
+
+```{r Nuclear Peak f0 Distribution, fig.width = 6, fig.height = 4}
+#| results="hide"
+
+my_palette <- brewer.pal(4, "Dark2")
+
+ggplot(
+  data = m_corpus,
+  mapping = aes(x = h_f0_z, fill = mode)
+  ) +
+  geom_dotplot(dotsize = 1, stackgroups = TRUE, binpositions = "all", stackratio = 0.185) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+    ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(.9, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+        legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (z-score)") +
+  ylab("density") +
+  ylim(0, 0.5) +
+  labs(title = "Density Distribution of M-Corups nuclear peak f0 Scaling")
+
+
+```
+
+
+### Utterance Mean f0 Density Distribution
+
+```{r Utterance Mean f0 Density Distribution, fig.width = 6, fig.height = 4}
+#| results="hide"
+
+my_palette <- brewer.pal(4, "Dark2")
+
+ggplot(
+  data = m_corpus,
+  mapping = aes(x = utt_mean_f0_z, fill = mode)
+  ) +
+  geom_dotplot(dotsize = 1, stackgroups = TRUE, binpositions = "all", stackratio = 0.22) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+    ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(.9, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+        legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (z-score)") +
+  ylab("density") +
+  ylim(0, 0.85) +
+  labs(title = "Density Distribution of M-Corpus utterance mean f0")
+
+
+```
