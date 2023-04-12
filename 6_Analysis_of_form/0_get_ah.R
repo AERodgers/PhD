@@ -1,11 +1,17 @@
 ## LOAD AND PROCESS AH CORPUS
 ## --------------------------
 
+# Check if ah_dir exists. (Workaround without appropriate get_ah_corpus function)
+if (!exists("ah_dir")) {
+  ah_dir <- "../../4_data"
+
+}
+
 ### Get per-speaker f0 stats.
 # stress <- as_tibble(read.csv("d:/Users/antoi/GitHub/PhD/4_data/stressed_syls.csv"))
-stress <- read_csv("../4_data/stressed_syls.csv", show_col_types = F)
+stress <- read_csv(paste0(ah_dir, "/stressed_syls.csv"), show_col_types = F)
 # corpus <- as_tibble(read.csv("d:/Users/antoi/GitHub/PhD/4_data/a_corpus_audited.csv")) %>%
-corpus <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
+corpus <- as_tibble(read.csv(paste0(ah_dir,"/a_corpus_audited.csv"))) %>%
   ## Only keep pertinent columns!
   select(
     speaker,

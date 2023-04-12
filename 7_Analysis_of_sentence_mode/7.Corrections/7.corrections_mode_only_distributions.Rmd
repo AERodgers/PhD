@@ -55,6 +55,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
   select(
     speaker,
     mode,
+    prompt,
     stim,
     h_f0,
     h_f0_z,
@@ -70,14 +71,23 @@ m_corpus %>%
   group_by(speaker, stim) %>%
   summarise(count = n(), .groups = "keep") %>% pivot_wider(values_from = count,
                                          names_from = speaker,
-                                         values_fill = 1)  %>% 
+                                         values_fill = 0)  %>% 
   adorn_totals(where = "col", fill = "grey") %>%
   adorn_totals(where = "row", fill = "grey") %>%
   formattable(caption = "Tokens per stimulus per speaker in M-Corpus")
 
+m_corpus %>%
+  group_by(speaker, prompt) %>%
+  summarise(count = n(), .groups = "keep") %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 0)  %>% 
+  adorn_totals(where = "col", fill = "grey") %>%
+  adorn_totals(where = "row", fill = "grey") %>%
+  formattable(caption = "Tokens per prompt per speaker in M-Corpus")
+
 ```
 
-While there are some missing tokens per speaker and target phrse, most noticeably for M9, I don't think that using the raw data will lead to a misrepresentation of the data in the dotplots and density distribution graphs.
+There are some missing tokens per speaker and target, most noticeably for M9 and in Valley prompt.
 
 ## Means and standard deviations (z-scores) {.tabset}
 
@@ -116,30 +126,35 @@ m_corpus %>%
   mutate(utt_mean_f0_z =  round(utt_mean_f0_z, 2)) %>% 
   formattable(caption = "Utterance mean f0 by mode (z-score)")
 ```
-## Graphs {.tabset}
+## Distribution Graphs {.tabset}
 
-### Nuclear Peak f0 Density Distribution
+### Nuclear Peak f0
 
-```{r Nuclear Peak f0 Distribution, fig.width = 6, fig.height = 4}
+```{r Nuclear Peak f0 Distribution, fig.width = 5, fig.height = 3}
 #| results="hide"
 
 my_palette <- brewer.pal(4, "Dark2")
 
 ggplot(
-  data = m_corpus,
+  data = m_corpus %>% filter(prompt %in% c("vases", "valuables"),
+                             speaker %notin% "M9"),
   mapping = aes(x = h_f0_z, fill = mode)
-  ) +
-  geom_dotplot(dotsize = 1, stackgroups = TRUE, binpositions = "all", stackratio = 0.185) +
+) +
+  geom_dotplot(dotsize = 1,
+               stackgroups = TRUE,
+               binpositions = "all",
+               stackratio = 0.27,
+               alpha = 0.6) +
   geom_density(stat = "density", alpha = 0.4, fill = "grey") +
   scale_fill_manual(
     values = my_palette,
     name = NULL
-    ) +
+  ) +
   theme_minimal(base_size = 12) +
   theme(
-    legend.position = c(.9, .7),
+    legend.position = c(.9, .65),
     legend.margin = margin(-6, 6, -6, 6),
-        legend.background = element_rect(),
+    legend.background = element_rect(),
     legend.key.size = unit(1, "cm"),
     panel.grid.major.x = element_line(color = "grey",
                                       size = 0.5),
@@ -147,13 +162,47 @@ ggplot(
   xlab("f0 (z-score)") +
   ylab("density") +
   ylim(0, 0.5) +
-  labs(title = "Density Distribution of M-Corups nuclear peak f0 Scaling")
+  labs(title = "Distribution of M-Corpus nuclear peak f0 Scaling")
 
 
 ```
 
+### Nuclear Peak f0 by Mode
 
-### Utterance Mean f0 Density Distribution
+```{r Nuclear Peak f0 Distribution non-cum, fig.width = 5, fig.height = 3}
+#| results="hide"
+
+my_palette <- brewer.pal(4, "Dark2")
+
+ggplot(
+  data = m_corpus %>% filter(prompt %in% c("vases", "valuables"),
+                             speaker %notin% "M9"),
+  mapping = aes(x = h_f0_z, fill = mode)
+  ) +
+  geom_dotplot(dotsize = 1, binpositions = "all", stackratio = 0.65, alpha = 0.5) +
+  geom_density(stat = "density", alpha = 0.4) +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+    ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(0.9, .7),
+    legend.margin = margin(-2, 2, 2, 2),
+        legend.background = element_rect(),
+    legend.key.size = unit(0.8, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (z-score)") +
+  ylab("density") +
+  ylim(0, 0.75) +
+  labs(title = " Distribution of M-Corpus nuclear peak f0 Scaling")
+
+
+```
+
+### Utterance Mean f0
 
 ```{r Utterance Mean f0 Density Distribution, fig.width = 6, fig.height = 4}
 #| results="hide"
@@ -161,10 +210,11 @@ ggplot(
 my_palette <- brewer.pal(4, "Dark2")
 
 ggplot(
-  data = m_corpus,
+  data = m_corpus %>% filter(prompt %in% c("vases", "valuables"),
+                             speaker %notin% "M9"),
   mapping = aes(x = utt_mean_f0_z, fill = mode)
   ) +
-  geom_dotplot(dotsize = 1, stackgroups = TRUE, binpositions = "all", stackratio = 0.22) +
+  geom_dotplot(dotsize = 1, stackgroups = TRUE, binpositions = "all", stackratio = 0.35) +
   geom_density(stat = "density", alpha = 0.4, fill = "grey") +
   scale_fill_manual(
     values = my_palette,
@@ -181,7 +231,7 @@ ggplot(
     panel.grid.minor.x = element_blank()) +
   xlab("f0 (z-score)") +
   ylab("density") +
-  ylim(0, 0.85) +
+  ylim(0, 0.9) +
   labs(title = "Density Distribution of M-Corpus utterance mean f0")
 
 

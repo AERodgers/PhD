@@ -5,6 +5,8 @@
 
 require("tidyverse")
 require("parallel")
+library(tidyverse)
+library(parallel)
 ncores <- detectCores()
 
 
@@ -342,9 +344,9 @@ get_m_corpus <- function(file_address)
 ####  Get Formula as String from LME/(B)GLM model ###############################
 getModelFormula <- function(my_model) {
   installMissingPackages("stringr")
-  my_formula <- str_c(formula(my_model))
-  my_formula <- paste(my_formula[2], my_formula[1], my_formula[3])
-  return(my_formula)
+    return(
+        toString(deparse(formula(my_model)) %>% str_trim())
+    )
 }
 ###
 ####  Summarise LME  ############################################################
@@ -401,7 +403,6 @@ summariseLME <-
       sep = ""
     )
     post_hoc_method <- enquo(post_hoc_method)
-
     my_formula <- getModelFormula(my_model)
     ## output results
 

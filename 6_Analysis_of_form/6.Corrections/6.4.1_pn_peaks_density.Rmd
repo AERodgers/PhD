@@ -1,0 +1,403 @@
+---
+title: "Visual Analysis of PN peaks in A-Corpus PNs (H\\*, >H\\*, L\\*H)"
+author: "Antoin Rodgers"
+date: "18.05.2022"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = F, 
+                      message = F,
+                      warning = F)
+
+## Get personal functions and install / load necessary packages.
+source("../../2_R_Functions/myFunctions.R")
+
+installMissingPackages(c("tidyverse", "formattable","janitor","mefa4", "knitr",
+                         "gridExtra", "RColorBrewer"))
+
+## Set themes and colour schemes.
+theme_set(theme_minimal(base_size = 10))
+```
+
+```{r get data, include=F}
+## Get  data for analysis (from anacrusis set)
+ah_dir <- "../../4_data/"
+source("../0_get_AH.R")
+
+# Get PN data
+h_star_type <-  c("H*", ">H*",  "L*H")
+
+pn_wrd_stims <- c("A0423", "A1422","A2422", "A3422")
+
+pn_wrd_sent <- c("Valerie's is valid.",
+                 "The valley's by the river",
+                 "There's a valley with a river",
+                 "There was a valley with a river")
+
+pn_phr <- c("Valerie's is",
+            "valley's by the river",
+            "valley with a",
+            "valley with a")
+
+pn <- pn %>%
+  select(
+    sent,
+    speaker,
+    stim,
+    acc_phon,
+    wrd_end_syl,
+    h_t,
+    v_grand_mean_t,
+    h_grand_mean_t,
+    h_syl,
+    h_syl_ratio,
+    ana_syls
+    ) %>%
+  # Get time normalised peaks
+    mutate(
+      ana_syls = as.character(ana_syls) %>% as.numeric(),
+      h_syl_ft = as.integer(h_syl) - ana_syls,
+      h_syl_norm_t = h_syl_ft + h_syl_ratio - 1,
+      h_grand_mean_t_re_v = h_grand_mean_t - v_grand_mean_t
+      ) %>% 
+  # remove parameters no longer needed
+  select(-c(v_grand_mean_t, h_grand_mean_t))
+
+pn_wrd_data <- pn %>%
+  filter(acc_phon %in% h_star_type,
+         stim %in% pn_wrd_stims) %>%
+  mutate(acc_phon = factor(acc_phon, levels = h_star_type))
+
+
+pn_wrd_adj <- pn %>% 
+  filter(ana_syls %in% c(1,2,3)) %>% 
+  balancedData(ana_syls, acc_phon,"", 11, 5) %>%
+  pivot_longer(values_to = "acc_phon", cols = 2:last_col()) %>% uncount(acc_phon) %>%
+  rename(acc_phon = name)
+
+# Get NUC data
+nuc <- nuc %>% 
+  select(speaker, stim, code, fin_phon, e_f0_z, e_f0)
+
+rm(nuc_foot, pn_lex, pn_ana, pn_foot, corpus, nuc_pre, stress)
+
+
+```
+
+
+# PN Pitch Accents
+
+## Check Disribution of tokens per speaker {.tabset}
+
+### All tokens
+
+```{r check data 1}
+pn %>%
+  filter(acc_phon %in% h_star_type) %>%
+  mutate(acc_phon = str_replace_all(acc_phon, "([\\*\\>])", "\\\\\\1")) %>% 
+  group_by(acc_phon, ana_syls) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = acc_phon,
+                                         values_fill = 0) %>%
+  arrange(ana_syls)  %>%
+  adorn_totals(where = "col") %>%
+  adorn_totals(where = "row") %>% 
+  formattable(caption = "Distribution of prenuclear PAs with H targets in H-corpus (raw data)")
+
+pn_wrd_data %>%
+  filter(acc_phon %in% h_star_type) %>%
+  group_by(speaker, ana_syls) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 0)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "L\\*H, \\>H\\*, and H\\*")
+
+```
+It appears that ana_syls_0 is not evenly represented across speakers, so it will be excluded
+
+### All tokens except ana_syls_0
+```{r check data excluding ana_0 condition}
+pn_wrd_data <- pn_wrd_data %>%
+  filter(acc_phon %in% h_star_type,
+         ana_syls != 0) %>% 
+  mutate(ana_syls = factor(ana_syls, levels = c(1,2,3)),
+    pn_wrds = ana_syls,
+    pn_wrds = str_replace(pn_wrds, "1",  "The valley's by the"),
+    pn_wrds = str_replace(pn_wrds, "2",  "There's a valley with a"),
+    pn_wrds = str_replace(pn_wrds, "3",  "There was a valley with a"))
+
+pn_wrd_data %>%
+  filter(acc_phon %in% h_star_type,
+         ana_syls != 0) %>% 
+  group_by(speaker, ana_syls) %>%
+  summarise(count = n()) %>%
+  pivot_wider(values_from = count,
+              names_from = speaker,
+              values_fill = 0)  %>%
+  adorn_totals("col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "ana_syls 1 to 3 only")
+```
+
+```{r Get means etc }
+pn_wrd_data_sum <- pn_wrd_data %>%
+  group_by(speaker, acc_phon, ana_syls) %>%
+  summarise(mean_gm_h_t = mean(h_grand_mean_t_re_v)) %>% 
+  arrange(ana_syls)
+```
+### Graph of PA distribution by ana_syls condition
+
+```{r adjusted PA distribution, fig.width = 6.1, fig.height = 3}
+ggplot(data = pn_wrd_adj %>%
+                    filter(acc_phon %in% h_star_type) %>% 
+                    mutate(acc_phon = factor(acc_phon, levels = h_star_type),
+                           pn_wrds = factor(ana_syls, levels = c(1,2,3))),
+  mapping = aes(x = ana_syls, fill = acc_phon)
+) +
+  geom_bar(stat = "count",
+           position = "dodge",
+           colour = "black") +
+  
+  geom_text(aes(
+    label = (..count..),
+    vjust = -0.5
+  ),
+  stat = "count",
+  position = position_dodge(.9),
+  size = 3) +
+  
+  #facet_wrap(vars(pairing)) +
+  scale_fill_manual(
+    values = brewer.pal(4, "Dark2"),
+    name = NULL
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.key.size = unit(0.4, "cm"),
+    panel.grid.major = element_blank()
+  ) +
+  ylim(0, 60) +
+  xlab("prenuclear pitch accent") +
+  ylab("count (adjusted)")
+
+```
+
+## Cumulative Density Distibution{.tabset}
+
+### >H\*, H\* Peak alignment
+```{r plot H types only  cumulative, fig.width = 5, fig.height = 3}
+ggplot(
+  data = pn_wrd_data %>% filter(acc_phon != "L*H"),
+  mapping = aes(x = h_grand_mean_t_re_v
+                , fill = acc_phon
+                )
+) +
+  geom_dotplot(stackgroups = TRUE, binpositions = "all", stackratio = 1.2) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  #facet_wrap(vars(ana_syls)) +
+  scale_fill_manual(
+    values = brewer.pal(3, "Dark2"),
+    name = NULL
+  ) +
+  theme(
+    legend.position = c(.15, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
+  ylim(0, 0.01) +
+  xlab("grand syllable-mean normalised time (ms)") +
+  ylab("density") +
+  labs(title = "PN Peak Distribution (A1422, A2422, and A3422, H* and >H*)")
+```
+
+### Peak alignment (all PAs)
+```{r plot acc_phon cumulative, fig.width = 5, fig.height = 3}
+ggplot(
+  data = pn_wrd_data,
+  mapping = aes(x = h_grand_mean_t_re_v
+                , fill = acc_phon
+                )
+) +
+  geom_dotplot(dotsize = 0.925, stackgroups = TRUE, binpositions = "all", stackratio = 0.8) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  #facet_wrap(vars(ana_syls)) +
+  scale_fill_manual(
+    values = brewer.pal(3, "Dark2"),
+    name = NULL
+  ) +
+  theme(
+    legend.position = c(.85, .7),
+    legend.margin = margin(-6, 6, -6, 6),
+    legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank() +
+    theme_minimal(base_size = 12)
+    )+
+  ylim(0, 0.01) +
+  xlab("grand syllable-mean normalised time (ms)") +
+  ylab("density") +
+  labs(title = "PN Peak Distribution in A1422, A2422, and A3422")
+
+```
+
+# Boundary Tones
+
+## Distribution of tokens {.tabset}
+
+### Boundary Tone by Speaker
+```{r check boundary tone by speaker}
+nuc %>%
+  group_by(speaker, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 0)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora fin_phon per speaker")
+```
+
+It is clear that only F12 uses L% with any regularity.
+
+### Representation of Stimuli
+```{r check data 2}
+nuc %>%
+  group_by(speaker, stim) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 0) %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora repetitions per stimulus per speaker")
+
+nuc %>%
+  group_by(stim, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = fin_phon,
+                                         values_fill = 0)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora repetitions per stimulus")
+```
+A0423, A1211, and A1231 are underrepresented. These will be removed from the dataset so that repetitions per speaker per target are balanced across utterances.
+
+### Well-represented Stimuli Only
+```{r check data 3}
+unbalanced = c("A0423", "A1211", "A1231")
+nuc_balanced <- nuc %>% filter(stim %notin% unbalanced)
+
+nuc_balanced %>%
+  group_by(speaker, fin_phon) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = speaker,
+                                         values_fill = 0)  %>% 
+  adorn_totals(where = "col") %>%
+  adorn_totals("row", fill = "") %>%
+  formattable(caption = "A and H corpora fin_phon per speaker (excl. A0423, A1211, A1231)")
+
+nuc_balanced %>%
+  mutate(fin_phon = str_replace_all(fin_phon, "([\\*\\>])", "\\\\\\1")) %>% 
+  group_by(fin_phon, stim) %>%
+  summarise(count = n()) %>% pivot_wider(values_from = count,
+                                         names_from = fin_phon,
+                                         values_fill = 0) %>%
+  arrange(stim)  %>%
+  adorn_totals(where = "col") %>%
+  adorn_totals(where = "row") %>% 
+  formattable(caption = "Distribution of nuclear boundaries in A- and H-corpora (excl. A0423, A1211, A1231)")
+
+
+```
+
+
+## Means and Standard Deviations
+```{r Get means and SD}
+
+nuc_balanced_sum <- nuc_balanced %>%
+  group_by(fin_phon) %>%
+  summarise(e_f0_z = mean(e_f0_z)) %>% 
+  arrange(fin_phon)
+
+nuc_balanced_sum %>% formattable(caption = "Average peak to fin_phon excursion size (ST)")
+
+nuc_balanced %>%
+  group_by(fin_phon) %>%
+  summarise(e_f0_z = sd(e_f0_z)) %>% 
+  arrange(fin_phon) %>% 
+  formattable(caption = "SD peak to fin_phon excursion size (ST)")
+```
+## Graphs {.tabset}
+### Boundary scaling All Speakers
+```{r Density and dotplot for all, fig.width = 5, fig.height = 3}
+my_palette <- brewer.pal(3, "Dark2")[2:3]
+
+
+ggplot(
+  data = nuc_balanced,
+  mapping = aes(x = e_f0_z, fill = fin_phon)
+  ) +
+  geom_dotplot(stackgroups = TRUE, binpositions = "all", stackratio = 0.24) +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+    ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(.9, .8),
+    legend.margin = margin(-6, 6, -6, 6),
+        legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (z-score)") +
+  ylab("density") +
+  xlim(-4, 4) +
+ ylim(0, 0.4) +
+  labs(title = "Density Distribution of Boundary f0 in A-and H-Corpora")
+```
+
+### Boundary Scaling, F12 only 
+```{r plot F12 only, fig.width = 5, fig.height = 3}
+
+ggplot(
+  data = nuc %>% 
+    filter(speaker == "F12"),
+  mapping = aes(x = e_f0, fill = fin_phon)
+  ) +
+  geom_dotplot(binpositions = "all") +
+  geom_density(stat = "density", alpha = 0.4, fill = "grey") +
+  scale_fill_manual(
+    values = my_palette,
+    name = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(.9, .8),
+    legend.margin = margin(-6, 6, -6, 6),
+        legend.background = element_rect(),
+    legend.key.size = unit(1, "cm"),
+    panel.grid.major.x = element_line(color = "grey",
+                                      size = 0.5),
+    panel.grid.minor.x = element_blank()) +
+  xlab("f0 (ST re speaker median)") +
+  ylab("density") +
+ # xlim(-4, 4) +
+  ylim(0, 0.2) +
+  labs(title = "Density Distribution of Boundary f0 in A- and H- corpora, F12")
+
+```
