@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = F,
 start <- Sys.time()
 
 ## Get personal functions and install / load necessary packages.
-source("../2_R_Functions/myFunctions.R")
+source("../../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
@@ -38,7 +38,7 @@ installMissingPackages(
 )
 
 ## Get data frames for AH analysis
-source("0_get_AH.R")
+source("../0_get_AH.R")
 ## Add isLH column
 
 
@@ -218,6 +218,7 @@ tidy_summary$table %>% tidyStatNumbers()
 printTidyPredictions(lh_pn_model) 
 charts <- getModelFixedFX(lh_pn_model, write="2_output/lh_model")
 charts$slopes %>% tidyStatNumbers()
+
 ```
 
 ### Run isHStar model
@@ -335,5 +336,6 @@ plot_model(h_star_model,
 
 printTidyPredictions(h_star_model) 
 charts <-  getModelFixedFX(h_star_model, write="2_output/h_star_model")
+charts$intercepts %>% tidyStatNumbers()
 charts$slopes %>% tidyStatNumbers()
 ```

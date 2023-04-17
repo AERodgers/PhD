@@ -1,1 +1,1 @@
-isLH ~ ana_syls + foot_syls + wrd_end_syl + speech_rate + gender + (1 | speaker) + (1 | ana_text) + (1 | nuc_pre_text) + (1 | pn_str_syl)
+isLH ~ ana_syls + foot_syls + wrd_end_syl + speech_rate + gender +, (1 | speaker) + (1 | ana_text) + (1 | nuc_pre_text) + (1 |, pn_str_syl)

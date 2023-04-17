@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = F,
                       warning = F)
 
 ## Get personal functions and install / load necessary packages.
-source("../2_R_Functions/myFunctions.R")
+source("../../2_R_Functions/myFunctions.R")
 
 installMissingPackages(
   c(
@@ -42,7 +42,7 @@ theme_set(theme_minimal(base_size = 14))
 
 ## Get  data for analysis
 
-source("0_get_AH.R")
+source("../0_get_AH.R")
 
 h_star_type <-  c("L*H", ">H*", "H*")
 pn_h_data <- pn %>%

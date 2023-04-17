@@ -9,7 +9,7 @@ output:
     toc_float: true
 ---
 
-```{r setup mode only}
+```{r setup corrections mode only}
 #| results="hide",
 #| message=F,
 #| warning=F
@@ -47,7 +47,7 @@ y_lim_f0 = c(-4.1, 10.5)
 ```
 
 
-```{r load corpus}
+```{r corrections load corpus}
 
 ## Load Corpus
 m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
@@ -66,7 +66,7 @@ m_corpus <- get_m_corpus("../../4_data/m_corpus.csv")  %>%
 
 ## Check balance across repetitions
 
-```{r Check data for balance}
+```{r corrections check data for balance}
 m_corpus %>%
   group_by(speaker, stim) %>%
   summarise(count = n(), .groups = "keep") %>% pivot_wider(values_from = count,
@@ -92,7 +92,7 @@ There are some missing tokens per speaker and target, most noticeably for M9 and
 ## Means and standard deviations (z-scores) {.tabset}
 
 ### Nuclear peak f0 scaling
-```{r Get means and SD by ST}
+```{r corrections Get means and SD by ST}
 
 m_corpus %>%
   group_by(mode) %>%
@@ -110,7 +110,7 @@ m_corpus %>%
 ```
 
 ### Utterance mean f0
-```{r Get means by s-score}
+```{r corrections Get means by s-score}
 
 m_corpus %>%
   group_by(mode) %>%
@@ -130,7 +130,7 @@ m_corpus %>%
 
 ### Nuclear Peak f0
 
-```{r Nuclear Peak f0 Distribution, fig.width = 5, fig.height = 3}
+```{r corrections Nuclear Peak f0 Distribution, fig.width = 5, fig.height = 3}
 #| results="hide"
 
 my_palette <- brewer.pal(4, "Dark2")
@@ -169,7 +169,7 @@ ggplot(
 
 ### Nuclear Peak f0 by Mode
 
-```{r Nuclear Peak f0 Distribution non-cum, fig.width = 5, fig.height = 3}
+```{r corrections Nuclear Peak f0 Distribution non-cum, fig.width = 5, fig.height = 3}
 #| results="hide"
 
 my_palette <- brewer.pal(4, "Dark2")
@@ -204,7 +204,7 @@ ggplot(
 
 ### Utterance Mean f0
 
-```{r Utterance Mean f0 Density Distribution, fig.width = 6, fig.height = 4}
+```{r corrections Utterance Mean f0 Density Distribution, fig.width = 6, fig.height = 4}
 #| results="hide"
 
 my_palette <- brewer.pal(4, "Dark2")

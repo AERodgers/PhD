@@ -162,7 +162,7 @@ pa_adj <- m_corpus %>%
     rename(mode = stim) %>% 
     mutate(mode = substr(mode, 1, 3)) %>%
     ## Convert the values to proportion per mode
-    pivot_longer(3:last_col(), "acc_phon") %>% 
+    pivot_longer(3:last_col(), names_to = "acc_phon") %>% 
     group_by(speaker, mode, acc_phon) %>%
     pivot_wider(names_from=acc_phon,
                 values_from=value,
@@ -180,7 +180,7 @@ pa_adj <- m_corpus %>%
 ## 
 pa_by_speaker_adj <- pa_adj %>%
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "acc_phon") %>%
+  pivot_longer(3:last_col(), names_to = "acc_phon") %>%
   select(-mode) %>% 
   pivot_wider(names_from = acc_phon,
               values_from = value,
@@ -197,7 +197,7 @@ pa_by_speaker_adj <- pa_adj %>%
 ## 
 pa_by_mode_adj <- pa_adj %>%
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "acc_phon") %>%
+  pivot_longer(3:last_col(), names_to = "acc_phon") %>%
   select(-speaker) %>% 
   pivot_wider(names_from = acc_phon,
               values_from = value,
@@ -218,7 +218,7 @@ pa_by_gender_adj <- pa_adj %>%
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "acc_phon") %>%
+  pivot_longer(3:last_col(), names_to = "acc_phon") %>%
   pivot_wider(names_from = acc_phon,
               values_from = value,
               values_fill = 0,
@@ -241,7 +241,7 @@ pa_by_gender_adj <- pa_adj %>%
 ## 
 pa_by_mode_speaker_adj <- pa_adj %>%
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "acc_phon") %>%
+  pivot_longer(3:last_col(), names_to = "acc_phon") %>%
   pivot_wider(names_from = acc_phon,
               values_from = value,
               values_fill = 0,
@@ -350,7 +350,7 @@ ggplot(data = pa_by_speaker_adj %>%
 
 ggplot(pa_by_mode_adj %>%
          ## uncount table for bar chart
-         pivot_longer(2:last_col(), "acc_phon") %>%
+         pivot_longer(2:last_col(), names_to = "acc_phon") %>%
          uncount(value) %>%
          ## exclude outliers.
          filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>%
@@ -387,7 +387,7 @@ ggplot(
   pa_by_mode_speaker_adj %>%
     filter(speaker == "M8") %>% 
     ## Uncount tables bar chart.
-    pivot_longer(3:last_col(), "acc_phon") %>%
+    pivot_longer(3:last_col(), names_to = "acc_phon") %>%
     uncount(value) %>% 
     mutate(acc_phon = factor(
       acc_phon,
@@ -429,7 +429,7 @@ ggplot(
 ```{r Plot common pitch accents by mode and gender adjusted, fig.height=3.5, fig.width=5.15}
 ggplot(pa_by_gender_adj %>%
     ## Uncount tables bar chart.
-    pivot_longer(3:last_col(), "acc_phon") %>%
+    pivot_longer(3:last_col(), names_to = "acc_phon") %>%
     uncount(value) %>% 
     ## Exclude outliers.
     filter(acc_phon %in% c("L*H", "L*^[H]", "^[L*H]")) %>% 
@@ -468,12 +468,12 @@ ggplot(pa_by_gender_adj %>%
 
 ##### by mode and speaker (all)
 
-```{r Plot common pitch accents by mode and speaker adjusted, fig.height=12, fig.width=8.5}
+```{r Plot common pitch accents by mode and speaker adjusted, warning = F, fig.height=12, fig.width=8.5}
 
 ggplot(
   pa_by_mode_speaker_adj %>%
     ## Uncount tables bar chart.
-    pivot_longer(3:last_col(), "acc_phon") %>%
+    pivot_longer(3:last_col(), names_to = "acc_phon") %>%
     uncount(value) %>% 
     mutate(acc_phon = factor(
       acc_phon,
@@ -549,7 +549,7 @@ fin_phon_adj <- m_corpus %>%
   rename(mode = stim) %>%
   mutate(mode = substr(mode, 1, 3)) %>%
   ## Convert the values to proportion per mode
-  pivot_longer(3:last_col(), "fin_phon") %>%
+  pivot_longer(3:last_col(), names_to = "fin_phon") %>%
   group_by(speaker, mode, fin_phon) %>%
   pivot_wider(
     names_from = fin_phon,
@@ -566,7 +566,7 @@ fin_phon_adj <- m_corpus %>%
 ## Create tibble of final boundaries per mode (adjusted).
 fin_phon_by_mode_adj <- fin_phon_adj %>%
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "fin_phon") %>%
+  pivot_longer(3:last_col(), names_to =  "fin_phon") %>%
   select(-c(speaker)) %>% 
   pivot_wider(names_from = fin_phon,
               values_from = value,
@@ -584,7 +584,7 @@ fin_phon_by_gender_adj <- fin_phon_adj %>%
          speaker = factor(speaker, levels=unique(speaker))) %>% 
   rename(gender = speaker) %>% 
   ## Get the sum of all token proportions per speaker.
-  pivot_longer(3:last_col(), "fin_phon") %>%
+  pivot_longer(3:last_col(), names_to = "fin_phon") %>%
 
   pivot_wider(names_from = fin_phon,
               values_from = value,
@@ -604,14 +604,14 @@ fin_phon_by_gender_adj <- fin_phon_adj %>%
 
 ## Make lists of projected boundary tokens.
 fin_phon_by_mode_adj_list <- fin_phon_by_mode_adj %>%
-  pivot_longer(2:last_col(), "fin_phon") %>%
+  pivot_longer(2:last_col(), names_to = "fin_phon") %>%
     uncount(value) %>%
     mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
 
 
 ## Get list of projected boundary tokens by mode and gender.
 fin_phon_by_gender_adj_list <- fin_phon_by_gender_adj %>%
-    pivot_longer(3:last_col(), "fin_phon") %>%
+    pivot_longer(3:last_col(), names_to = "fin_phon") %>%
     uncount(value) %>% 
     mutate(fin_phon = factor(fin_phon, levels = unique(fin_phon)))
 

@@ -35,3 +35,9 @@ There are are two key aims in this chapter. One is simply to provide a descripti
 #|           "7.6 Phonetic Analysis/7.6.3_M_Global_Param_LMEs.Rmd"),
 #| quiet = T
 ```
+
+# Chapter 7.X: Corrections
+```{r}
+#| child = c("7.Corrections/7.corrections_mode_only_distributions.Rmd"),
+#| quiet = T
+```

@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = F,
                       message = F)
 
 ## Load functions and packages
-source("../2_R_Functions/myFunctions.R") 
-source("../2_R_Functions/myColours.R") 
+source("../../2_R_Functions/myFunctions.R") 
+source("../../2_R_Functions/myColours.R") 
 installMissingPackages(c("tidyverse",
                          "knitr",
                          "speakr",
@@ -32,7 +32,7 @@ options("speakr.praat.path" = "C:/Program Files/Praat/Praat.exe")
 
 ## LOAD CORPUS
 ## Read in AH corpus.
-source("0_get_AH.R")
+source("../0_get_AH.R")
 
 sr_data <- pn %>% 
   select("speaker", "stim", "speech_rate", "gender", "partner_gender")
@@ -49,7 +49,7 @@ pn_by_speaker <- pn %>%
 
 
 ## Create corpus for analysis of downstep
-pn_downstep <- as_tibble(read.csv("../4_data/a_corpus_audited.csv")) %>%
+pn_downstep <- as_tibble(read.csv("../../4_data/a_corpus_audited.csv")) %>%
   ## Retain reference columns and phonological data.
   select(
     speaker:stim,
@@ -435,7 +435,7 @@ pivot_longer(balancedData(pn_foot, foot_syls, acc_phon, "F", 6, 5),
 
 ## run Praat script for generating representative fake balanced data.
 ## (This was faster than doing it in R for me at the time!)
-script <- "../1_Praat_scripts/adjustedSummaryByGender.praat"
+script <- "../../1_Praat_scripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "acc_phon"
 my_count <- "value"
@@ -666,7 +666,7 @@ pivot_longer(balancedData(nuc_foot, foot_syls, nuc_contour, "F", 6, 5),
 
 ## run Praat script for generating representative fake balanced data.
 ## (This was faster than doing it in R for me at the time!)
-script <- "../1_Praat_scripts/adjustedSummaryByGender.praat"
+script <- "../../1_Praat_scripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "nuc_contour"
 my_count <- "value"
@@ -778,7 +778,7 @@ pivot_longer(balancedData(nuc_pre, pre_syls, nuc_contour, "F", 6, 5),
 
 ## run Praat script for generating representative fake balanced data.
 ## (This was faster than doing it in R for me at the time!)
-script <- "../1_Praat_scripts/adjustedSummaryByGender.praat"
+script <- "../../1_Praat_scripts/adjustedSummaryByGender.praat"
 my_treatment <- "pre_syls"
 my_response <- "nuc_contour"
 my_count <- "value"
@@ -903,7 +903,7 @@ pn_downstep %>%
 
 ## run Praat script for generating representative fake balanced data.
 ## (This was faster than doing it in R for me at the time!)
-script <- "../1_Praat_scripts/adjustedSummaryByGender.praat"
+script <- "../../1_Praat_scripts/adjustedSummaryByGender.praat"
 my_treatment <- "foot_syls"
 my_response <- "init_contour"
 my_count <- "value"
@@ -979,7 +979,7 @@ pn_downstep %>%
 
 ## run Praat script for generating representative fake balanced data.
 ## (This was faster than doing it in R for me at the time!)
-script <- "../1_Praat_scripts/adjustedSummaryByGender.praat"
+script <- "../../1_Praat_scripts/adjustedSummaryByGender.praat"
 my_treatment <- "ana_syls"
 my_response <- "init_contour"
 my_count <- "value"
