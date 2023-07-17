@@ -28,7 +28,7 @@ installMissingPackages(
 
     ## Include packages for tidy output.
     "tidyverse",
-    "broomExtra",
+    #"broomExtra",
     "sjPlot",
     "formattable",
     "knitr",

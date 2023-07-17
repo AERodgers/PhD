@@ -20,7 +20,7 @@ source("../../2_R_Functions/myColours.R")
 installMissingPackages(c("tidyverse",
                          "formattable",
                          "janitor",
-                         "broomExtra",
+                         #"broomExtra",
                          "knitr",
                          "RColorBrewer",
                          "ggeffects",
@@ -732,7 +732,7 @@ write(paste(str_replace_all(model_formula, "\\`", ""), sep = ""),
 
 
 ## get, save, and print ANOVA of model
-drop1_analysis <- drop1(h_reg_model, test = "Chisq") %>%  tidy() %>% 
+drop1_analysis <- drop1(h_reg_model, test = "Chisq") %>% tidy() %>% 
   filter(!is.na(npar)) %>%
   mutate(`p.adj (BH)` = NA, signif. = NA) %>%
   rename(factor = term) %>% 

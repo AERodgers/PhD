@@ -5,8 +5,12 @@
 
 require("tidyverse")
 require("parallel")
+require("broom")
+require("broom,mixed")
 library(tidyverse)
 library(parallel)
+library(broom)
+library(broom.mixed)
 ncores <- detectCores()
 
 
@@ -366,7 +370,7 @@ summariseLME <-
       "lmerTest",
       "optimx",
       "stringr",
-      "broomExtra",
+      #"broomExtra",
       "ggplot2",
       "effectsize",
       "knitr",
